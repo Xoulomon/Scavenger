@@ -7,21 +7,10 @@ const CHARITY: Symbol = symbol_short!("CHARITY");
 const COLLECTOR_PCT: Symbol = symbol_short!("COL_PCT");
 const OWNER_PCT: Symbol = symbol_short!("OWN_PCT");
 const TOTAL_EARNED: Symbol = symbol_short!("EARNED");
-const INITIALIZED: Symbol = symbol_short!("INIT");
-const COUNTER: Symbol = symbol_short!("COUNTER");
 
 pub struct Storage;
 
 impl Storage {
-    // Initialization flag
-    pub fn is_initialized(env: &Env) -> bool {
-        env.storage().instance().has(&INITIALIZED)
-    }
-
-    pub fn set_initialized(env: &Env) {
-        env.storage().instance().set(&INITIALIZED, &true);
-    }
-
     // Admin functions
     pub fn get_admin(env: &Env) -> Option<Address> {
         env.storage().instance().get(&ADMIN)
@@ -29,6 +18,10 @@ impl Storage {
 
     pub fn set_admin(env: &Env, admin: &Address) {
         env.storage().instance().set(&ADMIN, admin);
+    }
+
+    pub fn has_admin(env: &Env) -> bool {
+        env.storage().instance().has(&ADMIN)
     }
 
     // Token address functions
@@ -76,12 +69,8 @@ impl Storage {
         env.storage().instance().set(&TOTAL_EARNED, &amount);
     }
 
-    // Counter functions
-    pub fn get_counter(env: &Env) -> u64 {
-        env.storage().instance().get(&COUNTER).unwrap_or(0)
-    }
-
-    pub fn set_counter(env: &Env, value: u64) {
-        env.storage().instance().set(&COUNTER, &value);
+    pub fn add_to_total_earned(env: &Env, amount: i128) {
+        let current = Self::get_total_earned(env);
+        Self::set_total_earned(env, current + amount);
     }
 }
