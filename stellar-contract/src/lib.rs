@@ -2,7 +2,7 @@
 
 mod types;
 
-pub use types::{Material, ParticipantRole, RecyclingStats, WasteType};
+pub use types::{Material, ParticipantRole, RecyclingStats, Waste, WasteStatus, WasteType};
 
 use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, String};
 
