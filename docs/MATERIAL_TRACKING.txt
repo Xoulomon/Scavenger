@@ -1,0 +1,103 @@
+MATERIAL TRACKING SYSTEM
+========================
+
+The Material struct provides a comprehensive system for tracking recyclable materials
+in the Scavngr ecosystem.
+
+MATERIAL STRUCT
+---------------
+
+Fields:
+- id: u64                    - Unique identifier
+- waste_type: WasteType      - Type of waste (Paper, PetPlastic, Plastic, Metal, Glass)
+- weight: u64                - Weight in grams
+- submitter: Address         - Participant who submitted the material
+- submitted_at: u64          - Timestamp of submission
+- verified: bool             - Verification status
+- description: String        - Optional description
+
+REWARD POINT SYSTEM
+-------------------
+
+Materials earn reward points based on type and weight:
+
+Multipliers:
+- Paper:       1x  (Base rate)
+- PetPlastic:  3x  (High value recyclable)
+- Plastic:     2x  (Medium value)
+- Metal:       5x  (Highest value - infinitely recyclable)
+- Glass:       2x  (Medium value - infinitely recyclable)
+
+Formula: Points = (weight in kg) × multiplier × 10
+
+Examples:
+- 5kg Paper:       5 × 1 × 10 = 50 points
+- 5kg PetPlastic:  5 × 3 × 10 = 150 points
+- 5kg Metal:       5 × 5 × 10 = 250 points
+
+MINIMUM WEIGHT REQUIREMENT
+--------------------------
+
+Materials must weigh at least 100 grams to be accepted.
+
+CONTRACT FUNCTIONS
+------------------
+
+1. submit_material(waste_type, weight, submitter, description)
+   - Submits a new material for recycling
+   - Requires submitter authorization
+   - Auto-generates unique material ID
+   - Returns: Material struct
+
+2. get_material(material_id)
+   - Retrieves material by ID
+   - Returns: Option<Material>
+
+3. verify_material(material_id, verifier)
+   - Verifies a material submission
+   - Only recyclers can verify
+   - Requires verifier authorization
+   - Returns: Updated Material struct
+
+WORKFLOW
+--------
+
+1. Participant submits material
+   └─> submit_material() creates Material with verified=false
+
+2. Recycler verifies material
+   └─> verify_material() sets verified=true
+
+3. System calculates rewards
+   └─> calculate_reward_points() determines points earned
+
+STORAGE
+-------
+
+Materials are stored in Soroban instance storage:
+- Key: ("material", material_id)
+- Value: Material struct
+
+Material count tracked at:
+- Key: ("material_count",)
+- Value: u64 (last material ID)
+
+INTEGRATION WITH WASTETYPE
+---------------------------
+
+The Material struct uses WasteType enum to:
+- Categorize materials
+- Calculate appropriate rewards
+- Enable filtering by waste type
+- Track recycling statistics
+
+FUTURE ENHANCEMENTS
+-------------------
+
+- Batch material submissions
+- Material status tracking (submitted, verified, processed, recycled)
+- Location tracking
+- Photo/image attachments
+- Quality ratings
+- Reward token distribution
+- Material history and audit trail

@@ -1,4 +1,4 @@
-use soroban_sdk::contracttype;
+use soroban_sdk::{contracttype, Address, String};
 
 /// Represents the role of a participant in the Scavenger ecosystem
 #[contracttype]
@@ -129,6 +129,210 @@ impl WasteType {
 impl core::fmt::Display for WasteType {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "{}", self.as_str())
+    }
+}
+
+/// Represents a recyclable material submission in the system
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Material {
+    /// Unique identifier for the material
+    pub id: u64,
+    /// Type of waste material
+    pub waste_type: WasteType,
+    /// Weight of the material in grams
+    pub weight: u64,
+    /// Address of the participant who submitted the material
+    pub submitter: Address,
+    /// Timestamp when the material was submitted
+    pub submitted_at: u64,
+    /// Whether the material has been verified
+    pub verified: bool,
+    /// Optional description of the material
+    pub description: String,
+}
+
+impl Material {
+    /// Creates a new Material instance
+    pub fn new(
+        id: u64,
+        waste_type: WasteType,
+        weight: u64,
+        submitter: Address,
+        submitted_at: u64,
+        description: String,
+    ) -> Self {
+        Self {
+            id,
+            waste_type,
+            weight,
+            submitter,
+            submitted_at,
+            verified: false,
+            description,
+        }
+    }
+
+    /// Marks the material as verified
+    pub fn verify(&mut self) {
+        self.verified = true;
+    }
+
+    /// Checks if the material meets minimum weight requirement (100g)
+    pub fn meets_minimum_weight(&self) -> bool {
+        self.weight >= 100
+    }
+
+    /// Calculates reward points based on waste type and weight
+    /// Different waste types have different point multipliers
+    pub fn calculate_reward_points(&self) -> u64 {
+        let multiplier = match self.waste_type {
+            WasteType::Paper => 1,
+            WasteType::PetPlastic => 3,
+            WasteType::Plastic => 2,
+            WasteType::Metal => 5,
+            WasteType::Glass => 2,
+        };
+        
+        // Points = (weight in kg) * multiplier * 10
+        (self.weight / 1000) * multiplier * 10
+    }
+}
+
+#[cfg(test)]
+mod material_tests {
+    use super::*;
+
+    #[test]
+    fn test_material_creation() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let description = String::from_str(&env, "Plastic bottles");
+        
+        let material = Material::new(
+            1,
+            WasteType::PetPlastic,
+            5000,
+            submitter.clone(),
+            1234567890,
+            description.clone(),
+        );
+
+        assert_eq!(material.id, 1);
+        assert_eq!(material.waste_type, WasteType::PetPlastic);
+        assert_eq!(material.weight, 5000);
+        assert_eq!(material.submitter, submitter);
+        assert_eq!(material.submitted_at, 1234567890);
+        assert!(!material.verified);
+        assert_eq!(material.description, description);
+    }
+
+    #[test]
+    fn test_material_verify() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let description = String::from_str(&env, "Test");
+        
+        let mut material = Material::new(
+            1,
+            WasteType::Paper,
+            1000,
+            submitter,
+            1234567890,
+            description,
+        );
+
+        assert!(!material.verified);
+        material.verify();
+        assert!(material.verified);
+    }
+
+    #[test]
+    fn test_meets_minimum_weight() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let description = String::from_str(&env, "Test");
+        
+        let material_below = Material::new(
+            1,
+            WasteType::Paper,
+            50,
+            submitter.clone(),
+            1234567890,
+            description.clone(),
+        );
+        assert!(!material_below.meets_minimum_weight());
+
+        let material_exact = Material::new(
+            2,
+            WasteType::Paper,
+            100,
+            submitter.clone(),
+            1234567890,
+            description.clone(),
+        );
+        assert!(material_exact.meets_minimum_weight());
+
+        let material_above = Material::new(
+            3,
+            WasteType::Paper,
+            500,
+            submitter,
+            1234567890,
+            description,
+        );
+        assert!(material_above.meets_minimum_weight());
+    }
+
+    #[test]
+    fn test_calculate_reward_points() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let description = String::from_str(&env, "Test");
+        
+        // Paper: 5kg * 1 * 10 = 50 points
+        let paper = Material::new(1, WasteType::Paper, 5000, submitter.clone(), 0, description.clone());
+        assert_eq!(paper.calculate_reward_points(), 50);
+
+        // PetPlastic: 5kg * 3 * 10 = 150 points
+        let pet = Material::new(2, WasteType::PetPlastic, 5000, submitter.clone(), 0, description.clone());
+        assert_eq!(pet.calculate_reward_points(), 150);
+
+        // Plastic: 5kg * 2 * 10 = 100 points
+        let plastic = Material::new(3, WasteType::Plastic, 5000, submitter.clone(), 0, description.clone());
+        assert_eq!(plastic.calculate_reward_points(), 100);
+
+        // Metal: 5kg * 5 * 10 = 250 points
+        let metal = Material::new(4, WasteType::Metal, 5000, submitter.clone(), 0, description.clone());
+        assert_eq!(metal.calculate_reward_points(), 250);
+
+        // Glass: 5kg * 2 * 10 = 100 points
+        let glass = Material::new(5, WasteType::Glass, 5000, submitter, 0, description);
+        assert_eq!(glass.calculate_reward_points(), 100);
+    }
+
+    #[test]
+    fn test_material_storage_compatibility() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let description = String::from_str(&env, "Storage test");
+        
+        let material = Material::new(
+            1,
+            WasteType::Metal,
+            3000,
+            submitter,
+            1234567890,
+            description,
+        );
+
+        // Test that Material can be stored in Soroban storage
+        env.storage().instance().set(&("material", 1u64), &material);
+        let retrieved: Material = env.storage().instance().get(&("material", 1u64)).unwrap();
+        
+        assert_eq!(retrieved.id, material.id);
+        assert_eq!(retrieved.waste_type, material.waste_type);
+        assert_eq!(retrieved.weight, material.weight);
     }
 }
 

@@ -2,9 +2,9 @@
 
 mod types;
 
-pub use types::{ParticipantRole, WasteType};
+pub use types::{Material, ParticipantRole, WasteType};
 
-use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, Map};
+use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, String};
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -81,6 +81,71 @@ impl ScavengerContract {
         } else {
             false
         }
+    }
+
+    /// Submit a new material for recycling
+    pub fn submit_material(
+        env: Env,
+        waste_type: WasteType,
+        weight: u64,
+        submitter: Address,
+        description: String,
+    ) -> Material {
+        submitter.require_auth();
+
+        // Get next material ID
+        let material_count: u64 = env.storage().instance().get(&("material_count",)).unwrap_or(0);
+        let material_id = material_count + 1;
+
+        // Create material
+        let material = Material::new(
+            material_id,
+            waste_type,
+            weight,
+            submitter.clone(),
+            env.ledger().timestamp(),
+            description,
+        );
+
+        // Store material
+        env.storage().instance().set(&("material", material_id), &material);
+        env.storage().instance().set(&("material_count",), &material_id);
+
+        material
+    }
+
+    /// Get material by ID
+    pub fn get_material(env: Env, material_id: u64) -> Option<Material> {
+        env.storage().instance().get(&("material", material_id))
+    }
+
+    /// Verify a material submission (only recyclers can verify)
+    pub fn verify_material(env: Env, material_id: u64, verifier: Address) -> Material {
+        verifier.require_auth();
+
+        // Check if verifier is a recycler
+        let verifier_key = (verifier.clone(),);
+        let participant: Participant = env
+            .storage()
+            .instance()
+            .get(&verifier_key)
+            .expect("Verifier not registered");
+
+        if !participant.role.can_process_recyclables() {
+            panic!("Only recyclers can verify materials");
+        }
+
+        // Get and verify material
+        let mut material: Material = env
+            .storage()
+            .instance()
+            .get(&("material", material_id))
+            .expect("Material not found");
+
+        material.verify();
+        env.storage().instance().set(&("material", material_id), &material);
+
+        material
     }
 }
 
@@ -240,5 +305,93 @@ mod test {
             // Verify string representation
             assert!(!waste_type.as_str().is_empty());
         }
+    }
+
+    #[test]
+    fn test_submit_material() {
+        let env = Env::default();
+        let contract_id = env.register_contract(None, ScavengerContract);
+        let client = ScavengerContractClient::new(&env, &contract_id);
+
+        let user = Address::generate(&env);
+        env.mock_all_auths();
+
+        let description = String::from_str(&env, "Plastic bottles");
+        let material = client.submit_material(
+            &WasteType::PetPlastic,
+            &5000,
+            &user,
+            &description,
+        );
+
+        assert_eq!(material.id, 1);
+        assert_eq!(material.waste_type, WasteType::PetPlastic);
+        assert_eq!(material.weight, 5000);
+        assert_eq!(material.submitter, user);
+        assert!(!material.verified);
+    }
+
+    #[test]
+    fn test_get_material() {
+        let env = Env::default();
+        let contract_id = env.register_contract(None, ScavengerContract);
+        let client = ScavengerContractClient::new(&env, &contract_id);
+
+        let user = Address::generate(&env);
+        env.mock_all_auths();
+
+        let description = String::from_str(&env, "Metal cans");
+        client.submit_material(&WasteType::Metal, &3000, &user, &description);
+
+        let material = client.get_material(&1);
+        assert!(material.is_some());
+        assert_eq!(material.unwrap().waste_type, WasteType::Metal);
+    }
+
+    #[test]
+    fn test_verify_material() {
+        let env = Env::default();
+        let contract_id = env.register_contract(None, ScavengerContract);
+        let client = ScavengerContractClient::new(&env, &contract_id);
+
+        let submitter = Address::generate(&env);
+        let recycler = Address::generate(&env);
+        env.mock_all_auths();
+
+        // Register recycler
+        client.register_participant(&recycler, &ParticipantRole::Recycler);
+
+        // Submit material
+        let description = String::from_str(&env, "Glass bottles");
+        client.submit_material(&WasteType::Glass, &2000, &submitter, &description);
+
+        // Verify material
+        let verified = client.verify_material(&1, &recycler);
+        assert!(verified.verified);
+    }
+
+    #[test]
+    fn test_multiple_materials() {
+        let env = Env::default();
+        let contract_id = env.register_contract(None, ScavengerContract);
+        let client = ScavengerContractClient::new(&env, &contract_id);
+
+        let user = Address::generate(&env);
+        env.mock_all_auths();
+
+        // Submit multiple materials
+        let desc1 = String::from_str(&env, "Paper");
+        let desc2 = String::from_str(&env, "Plastic");
+        let desc3 = String::from_str(&env, "Metal");
+
+        client.submit_material(&WasteType::Paper, &1000, &user, &desc1);
+        client.submit_material(&WasteType::Plastic, &2000, &user, &desc2);
+        client.submit_material(&WasteType::Metal, &3000, &user, &desc3);
+
+        // Verify all materials exist
+        assert!(client.get_material(&1).is_some());
+        assert!(client.get_material(&2).is_some());
+        assert!(client.get_material(&3).is_some());
+        assert!(client.get_material(&4).is_none());
     }
 }
