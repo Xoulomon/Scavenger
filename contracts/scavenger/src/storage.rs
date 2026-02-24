@@ -9,6 +9,7 @@ const CHARITY: Symbol = symbol_short!("CHARITY");
 const COLLECTOR_PCT: Symbol = symbol_short!("COL_PCT");
 const OWNER_PCT: Symbol = symbol_short!("OWN_PCT");
 const TOTAL_EARNED: Symbol = symbol_short!("EARNED");
+const TOTAL_WEIGHT: Symbol = symbol_short!("TOT_WGT");
 const INCENTIVE_COUNTER: Symbol = symbol_short!("INC_CNT");
 
 pub struct Storage;
@@ -75,6 +76,20 @@ impl Storage {
     pub fn add_to_total_earned(env: &Env, amount: i128) {
         let current = Self::get_total_earned(env);
         Self::set_total_earned(env, current + amount);
+    }
+
+    // Total weight functions
+    pub fn get_total_weight(env: &Env) -> u64 {
+        env.storage().instance().get(&TOTAL_WEIGHT).unwrap_or(0)
+    }
+
+    pub fn add_to_total_weight(env: &Env, weight: u64) {
+        let current = Self::get_total_weight(env);
+        Self::set_total_weight(env, current + weight);
+    }
+
+    pub fn set_total_weight(env: &Env, weight: u64) {
+        env.storage().instance().set(&TOTAL_WEIGHT, &weight);
     }
 
     // Participant functions

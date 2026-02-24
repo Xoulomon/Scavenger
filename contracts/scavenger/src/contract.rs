@@ -315,6 +315,7 @@ impl ScavengerContract {
         );
 
         Storage::set_material(env, material_id, &material);
+        Storage::add_to_total_weight(env, weight);
         material
     }
 
@@ -474,6 +475,17 @@ impl ScavengerContract {
     /// Get participant statistics
     pub fn get_participant_stats(env: &Env, address: Address) -> crate::types::ParticipantStats {
         Storage::get_stats(env, &address)
+    }
+
+    /// Get supply chain statistics (total wastes, total weight, total tokens earned)
+    pub fn get_supply_chain_stats(env: &Env) -> (u64, u64, i128) {
+        let total_wastes = env.storage().instance()
+            .get(&soroban_sdk::symbol_short!("MAT_CNT"))
+            .unwrap_or(0);
+        let total_weight = Storage::get_total_weight(env);
+        let total_tokens = Storage::get_total_earned(env);
+        
+        (total_wastes, total_weight, total_tokens)
     }
 
     // Private helper function to require admin authentication
