@@ -317,16 +317,95 @@ impl ScavengerContract {
     pub fn get_stats(env: Env, participant: Address) -> Option<RecyclingStats> {
         env.storage().instance().get(&("stats", participant))
     }
+
+    /// Migration helper: Get all participants (for data migration)
+    /// Returns a vector of all registered participant addresses
+    pub fn get_all_participant_addresses(env: Env) -> soroban_sdk::Vec<Address> {
+        // Note: In production, you'd want to maintain a separate index
+        // This is a placeholder for migration purposes
+        soroban_sdk::Vec::new(&env)
+    }
+
+    /// Migration helper: Batch update participant roles
+    /// Useful for role migrations or corrections
+    pub fn batch_update_roles(
+        env: Env,
+        updates: soroban_sdk::Vec<(Address, ParticipantRole)>,
+    ) -> soroban_sdk::Vec<Participant> {
+        let mut results = soroban_sdk::Vec::new(&env);
+
+        for update in updates.iter() {
+            let (address, new_role) = update;
+            address.require_auth();
+
+            let key = (address.clone(),);
+            if let Some(mut participant) = env.storage().instance().get::<_, Participant>(&key) {
+                participant.role = new_role;
+                env.storage().instance().set(&key, &participant);
+                results.push_back(participant);
+            }
+        }
+
+        results
+    }
+
+    /// Migration helper: Export participant data
+    /// Returns participant data for backup/migration purposes
+    pub fn export_participant(env: Env, address: Address) -> Option<(Address, ParticipantRole, u64)> {
+        let key = (address.clone(),);
+        env.storage().instance().get::<_, Participant>(&key).map(|p| {
+            (p.address, p.role, p.registered_at)
+        })
+    }
+
+    /// Migration helper: Import participant data
+    /// Useful for restoring from backup or migrating from another contract
+    pub fn import_participant(
+        env: Env,
+        address: Address,
+        role: ParticipantRole,
+        registered_at: u64,
+    ) -> Participant {
+        address.require_auth();
+
+        let participant = Participant {
+            address: address.clone(),
+            role,
+            registered_at,
+        };
+
+        let key = (address,);
+        env.storage().instance().set(&key, &participant);
+
+        participant
+    }
+
+    /// Verify participant data integrity
+    /// Returns true if participant data is valid and consistent
+    pub fn verify_participant_integrity(env: Env, address: Address) -> bool {
+        let key = (address.clone(),);
+        if let Some(participant) = env.storage().instance().get::<_, Participant>(&key) {
+            // Verify data consistency
+            participant.address == address
+                && participant.registered_at > 0
+                && ParticipantRole::is_valid(participant.role.to_u32())
+        } else {
+            false
+        }
+    }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    use soroban_sdk::{testutils::Address as _, Address, Env};
+    use soroban_sdk::{testutils::{Address as _, Ledger}, Address, Env};
 
     #[test]
     fn test_register_participant() {
         let env = Env::default();
+        env.ledger().with_mut(|li| {
+            li.timestamp = 1234567890;
+        });
         let contract_id = env.register_contract(None, ScavengerContract);
         let client = ScavengerContractClient::new(&env, &contract_id);
 
@@ -435,6 +514,7 @@ mod test {
     #[test]
     fn test_waste_type_storage() {
         let env = Env::default();
+        let contract_id = env.register_contract(None, ScavengerContract);
         
         // Test that WasteType can be stored and retrieved from storage
         let waste_types = [
@@ -446,16 +526,19 @@ mod test {
         ];
 
         for (i, waste_type) in waste_types.iter().enumerate() {
-            let key = (i as u32,);
-            env.storage().instance().set(&key, waste_type);
-            let retrieved: WasteType = env.storage().instance().get(&key).unwrap();
-            assert_eq!(retrieved, *waste_type);
+            env.as_contract(&contract_id, || {
+                let key = (i as u32,);
+                env.storage().instance().set(&key, waste_type);
+                let retrieved: WasteType = env.storage().instance().get(&key).unwrap();
+                assert_eq!(retrieved, *waste_type);
+            });
         }
     }
 
     #[test]
     fn test_waste_type_serialization() {
         let env = Env::default();
+        let contract_id = env.register_contract(None, ScavengerContract);
         
         // Test all waste types can be serialized/deserialized
         let all_types = [
@@ -467,13 +550,15 @@ mod test {
         ];
 
         for waste_type in all_types.iter() {
-            // Store in instance storage
-            env.storage().instance().set(&("waste",), waste_type);
-            let retrieved: WasteType = env.storage().instance().get(&("waste",)).unwrap();
-            assert_eq!(retrieved, *waste_type);
-            
-            // Verify string representation
-            assert!(!waste_type.as_str().is_empty());
+            env.as_contract(&contract_id, || {
+                // Store in instance storage
+                env.storage().instance().set(&("waste",), waste_type);
+                let retrieved: WasteType = env.storage().instance().get(&("waste",)).unwrap();
+                assert_eq!(retrieved, *waste_type);
+                
+                // Verify string representation
+                assert!(!waste_type.as_str().is_empty());
+            });
         }
     }
 
@@ -1154,5 +1239,214 @@ mod test {
         });
         assert_eq!(waste_count, 3);
         assert_eq!(incentive_count, 3);
+    }
+
+    // Participant Serialization and Migration Tests
+    #[test]
+    fn test_participant_persistence() {
+        let env = Env::default();
+        env.ledger().with_mut(|li| {
+            li.timestamp = 1234567890;
+        });
+        let contract_id = env.register_contract(None, ScavengerContract);
+        let client = ScavengerContractClient::new(&env, &contract_id);
+
+        let user = Address::generate(&env);
+        env.mock_all_auths();
+
+        // Register participant
+        let participant = client.register_participant(&user, &ParticipantRole::Collector);
+        
+        // Retrieve participant - data should persist
+        let retrieved = client.get_participant(&user);
+        assert!(retrieved.is_some());
+        let retrieved = retrieved.unwrap();
+        
+        assert_eq!(retrieved.address, participant.address);
+        assert_eq!(retrieved.role, participant.role);
+        assert_eq!(retrieved.registered_at, participant.registered_at);
+    }
+
+    #[test]
+    fn test_participant_data_integrity() {
+        let env = Env::default();
+        env.ledger().with_mut(|li| {
+            li.timestamp = 1234567890;
+        });
+        let contract_id = env.register_contract(None, ScavengerContract);
+        let client = ScavengerContractClient::new(&env, &contract_id);
+
+        let user = Address::generate(&env);
+        env.mock_all_auths();
+
+        // Register and verify integrity
+        client.register_participant(&user, &ParticipantRole::Recycler);
+        
+        let is_valid = client.verify_participant_integrity(&user);
+        assert!(is_valid);
+    }
+
+    #[test]
+    fn test_participant_export_import() {
+        let env = Env::default();
+        env.ledger().with_mut(|li| {
+            li.timestamp = 1234567890;
+        });
+        let contract_id = env.register_contract(None, ScavengerContract);
+        let client = ScavengerContractClient::new(&env, &contract_id);
+
+        let user = Address::generate(&env);
+        env.mock_all_auths();
+
+        // Register participant
+        client.register_participant(&user, &ParticipantRole::Manufacturer);
+        
+        // Export participant data
+        let exported = client.export_participant(&user);
+        assert!(exported.is_some());
+        let (addr, role, timestamp) = exported.unwrap();
+        
+        assert_eq!(addr, user);
+        assert_eq!(role, ParticipantRole::Manufacturer);
+        assert_eq!(timestamp, 1234567890);
+        
+        // Import to new address
+        let new_user = Address::generate(&env);
+        let imported = client.import_participant(&new_user, &role, &timestamp);
+        
+        assert_eq!(imported.address, new_user);
+        assert_eq!(imported.role, role);
+        assert_eq!(imported.registered_at, timestamp);
+    }
+
+    #[test]
+    fn test_batch_update_roles() {
+        let env = Env::default();
+        env.ledger().with_mut(|li| {
+            li.timestamp = 1234567890;
+        });
+        let contract_id = env.register_contract(None, ScavengerContract);
+        let client = ScavengerContractClient::new(&env, &contract_id);
+
+        let user1 = Address::generate(&env);
+        let user2 = Address::generate(&env);
+        let user3 = Address::generate(&env);
+        env.mock_all_auths();
+
+        // Register participants
+        client.register_participant(&user1, &ParticipantRole::Collector);
+        client.register_participant(&user2, &ParticipantRole::Collector);
+        client.register_participant(&user3, &ParticipantRole::Collector);
+
+        // Batch update roles
+        let mut updates = soroban_sdk::Vec::new(&env);
+        updates.push_back((user1.clone(), ParticipantRole::Recycler));
+        updates.push_back((user2.clone(), ParticipantRole::Manufacturer));
+        updates.push_back((user3.clone(), ParticipantRole::Recycler));
+
+        let results = client.batch_update_roles(&updates);
+        
+        assert_eq!(results.len(), 3);
+        assert_eq!(results.get(0).unwrap().role, ParticipantRole::Recycler);
+        assert_eq!(results.get(1).unwrap().role, ParticipantRole::Manufacturer);
+        assert_eq!(results.get(2).unwrap().role, ParticipantRole::Recycler);
+
+        // Verify updates persisted
+        assert_eq!(client.get_participant(&user1).unwrap().role, ParticipantRole::Recycler);
+        assert_eq!(client.get_participant(&user2).unwrap().role, ParticipantRole::Manufacturer);
+        assert_eq!(client.get_participant(&user3).unwrap().role, ParticipantRole::Recycler);
+    }
+
+    #[test]
+    fn test_participant_with_stats_consistency() {
+        let env = Env::default();
+        env.ledger().with_mut(|li| {
+            li.timestamp = 1234567890;
+        });
+        let contract_id = env.register_contract(None, ScavengerContract);
+        let client = ScavengerContractClient::new(&env, &contract_id);
+
+        let user = Address::generate(&env);
+        env.mock_all_auths();
+
+        // Register participant
+        client.register_participant(&user, &ParticipantRole::Collector);
+        
+        // Submit materials
+        let desc = String::from_str(&env, "Test");
+        client.submit_material(&WasteType::Paper, &1000, &user, &desc);
+        client.submit_material(&WasteType::Plastic, &2000, &user, &desc);
+
+        // Verify participant data persists alongside stats
+        let participant = client.get_participant(&user);
+        let stats = client.get_stats(&user);
+        
+        assert!(participant.is_some());
+        assert!(stats.is_some());
+        
+        let participant = participant.unwrap();
+        let stats = stats.unwrap();
+        
+        assert_eq!(participant.address, user);
+        assert_eq!(stats.participant, user);
+        assert_eq!(stats.total_submissions, 2);
+    }
+
+    #[test]
+    fn test_participant_role_update_preserves_data() {
+        let env = Env::default();
+        env.ledger().with_mut(|li| {
+            li.timestamp = 1234567890;
+        });
+        let contract_id = env.register_contract(None, ScavengerContract);
+        let client = ScavengerContractClient::new(&env, &contract_id);
+
+        let user = Address::generate(&env);
+        env.mock_all_auths();
+
+        // Register participant
+        let original = client.register_participant(&user, &ParticipantRole::Collector);
+        let original_timestamp = original.registered_at;
+        
+        // Update role
+        let updated = client.update_role(&user, &ParticipantRole::Recycler);
+        
+        // Verify role changed but other data preserved
+        assert_eq!(updated.role, ParticipantRole::Recycler);
+        assert_eq!(updated.address, user);
+        assert_eq!(updated.registered_at, original_timestamp);
+    }
+
+    #[test]
+    fn test_participant_serialization_all_roles() {
+        let env = Env::default();
+        env.ledger().with_mut(|li| {
+            li.timestamp = 1234567890;
+        });
+        let contract_id = env.register_contract(None, ScavengerContract);
+        let client = ScavengerContractClient::new(&env, &contract_id);
+
+        let recycler = Address::generate(&env);
+        let collector = Address::generate(&env);
+        let manufacturer = Address::generate(&env);
+        env.mock_all_auths();
+
+        // Register all role types
+        client.register_participant(&recycler, &ParticipantRole::Recycler);
+        client.register_participant(&collector, &ParticipantRole::Collector);
+        client.register_participant(&manufacturer, &ParticipantRole::Manufacturer);
+
+        // Verify all can be retrieved (serialization works)
+        let p1 = client.get_participant(&recycler);
+        let p2 = client.get_participant(&collector);
+        let p3 = client.get_participant(&manufacturer);
+
+        assert!(p1.is_some());
+        assert!(p2.is_some());
+        assert!(p3.is_some());
+
+        assert_eq!(p1.unwrap().role, ParticipantRole::Recycler);
+        assert_eq!(p2.unwrap().role, ParticipantRole::Collector);
+        assert_eq!(p3.unwrap().role, ParticipantRole::Manufacturer);
     }
 }

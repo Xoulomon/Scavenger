@@ -422,15 +422,18 @@ mod recycling_stats_tests {
     #[test]
     fn test_stats_storage() {
         let env = soroban_sdk::Env::default();
+        let contract_id = env.register_contract(None, crate::ScavengerContract);
         let participant = Address::generate(&env);
         
         let stats = RecyclingStats::new(participant.clone());
         
         // Test storage compatibility
-        env.storage().instance().set(&("stats", participant.clone()), &stats);
-        let retrieved: RecyclingStats = env.storage().instance().get(&("stats", participant)).unwrap();
-        
-        assert_eq!(retrieved.total_submissions, 0);
+        env.as_contract(&contract_id, || {
+            env.storage().instance().set(&("stats", participant.clone()), &stats);
+            let retrieved: RecyclingStats = env.storage().instance().get(&("stats", participant)).unwrap();
+            
+            assert_eq!(retrieved.total_submissions, 0);
+        });
     }
 }
 
@@ -550,6 +553,7 @@ mod material_tests {
     #[test]
     fn test_material_storage_compatibility() {
         let env = soroban_sdk::Env::default();
+        let contract_id = env.register_contract(None, crate::ScavengerContract);
         let submitter = Address::generate(&env);
         let description = String::from_str(&env, "Storage test");
         
@@ -563,12 +567,14 @@ mod material_tests {
         );
 
         // Test that Material can be stored in Soroban storage
-        env.storage().instance().set(&("material", 1u64), &material);
-        let retrieved: Material = env.storage().instance().get(&("material", 1u64)).unwrap();
-        
-        assert_eq!(retrieved.id, material.id);
-        assert_eq!(retrieved.waste_type, material.waste_type);
-        assert_eq!(retrieved.weight, material.weight);
+        env.as_contract(&contract_id, || {
+            env.storage().instance().set(&("material", 1u64), &material);
+            let retrieved: Material = env.storage().instance().get(&("material", 1u64)).unwrap();
+            
+            assert_eq!(retrieved.id, material.id);
+            assert_eq!(retrieved.waste_type, material.waste_type);
+            assert_eq!(retrieved.weight, material.weight);
+        });
     }
 }
 
