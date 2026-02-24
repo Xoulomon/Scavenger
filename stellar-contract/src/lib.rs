@@ -329,6 +329,100 @@ impl ScavengerContract {
         waste_id
     }
 
+    /// Transfer waste between participants with location tracking
+    pub fn transfer_waste_v2(
+        env: Env,
+        waste_id: u128,
+        from: Address,
+        to: Address,
+        latitude: i128,
+        longitude: i128,
+    ) -> WasteTransfer {
+        from.require_auth();
+
+        let mut waste: types::Waste = env
+            .storage()
+            .instance()
+            .get(&("waste_v2", waste_id))
+            .expect("Waste not found");
+
+        if waste.current_owner != from {
+            panic!("Caller does not own waste");
+        }
+
+        let to_key = (to.clone(),);
+        let to_participant: Participant = env
+            .storage()
+            .instance()
+            .get(&to_key)
+            .expect("Recipient not registered");
+
+        let from_key = (from.clone(),);
+        let from_participant: Participant = env.storage().instance().get(&from_key).unwrap();
+
+        let valid = match (from_participant.role, to_participant.role) {
+            (ParticipantRole::Recycler, ParticipantRole::Collector) => true,
+            (ParticipantRole::Recycler, ParticipantRole::Manufacturer) => true,
+            (ParticipantRole::Collector, ParticipantRole::Manufacturer) => true,
+            _ => false,
+        };
+
+        if !valid {
+            panic!("Invalid transfer");
+        }
+
+        waste.transfer_to(to.clone());
+        env.storage().instance().set(&("waste_v2", waste_id), &waste);
+
+        let mut from_list: Vec<u128> = env
+            .storage()
+            .instance()
+            .get(&("participant_wastes", from.clone()))
+            .unwrap_or(Vec::new(&env));
+        from_list.retain(|id| *id != waste_id);
+        env.storage()
+            .instance()
+            .set(&("participant_wastes", from.clone()), &from_list);
+
+        let mut to_list: Vec<u128> = env
+            .storage()
+            .instance()
+            .get(&("participant_wastes", to.clone()))
+            .unwrap_or(Vec::new(&env));
+        to_list.push_back(waste_id);
+        env.storage()
+            .instance()
+            .set(&("participant_wastes", to.clone()), &to_list);
+
+        let timestamp = env.ledger().timestamp();
+        let transfer = WasteTransfer::new(
+            waste_id,
+            from.clone(),
+            to.clone(),
+            timestamp,
+            latitude,
+            longitude,
+            soroban_sdk::symbol_short!("transfer"),
+        );
+
+        let mut history: Vec<WasteTransfer> = env
+            .storage()
+            .instance()
+            .get(&("transfer_history", waste_id))
+            .unwrap_or(Vec::new(&env));
+        history.push_back(transfer.clone());
+        env.storage()
+            .instance()
+            .set(&("transfer_history", waste_id), &history);
+
+        env.events().publish(
+            (soroban_sdk::symbol_short!("transfer"), waste_id),
+            (from, to, timestamp),
+        );
+
+        transfer
+    }
+
     /// Batch submit multiple materials for recycling
     /// More efficient than individual submissions
     pub fn submit_materials_batch(
@@ -1028,6 +1122,40 @@ mod test {
         );
 
         assert_eq!(waste_id, 1);
+    }
+
+    #[test]
+    fn test_transfer_waste_v2() {
+        let env = Env::default();
+        let contract_id = env.register_contract(None, ScavengerContract);
+        let client = ScavengerContractClient::new(&env, &contract_id);
+
+        let recycler = Address::generate(&env);
+        let collector = Address::generate(&env);
+        env.mock_all_auths();
+
+        client.register_participant(&recycler, &ParticipantRole::Recycler);
+        client.register_participant(&collector, &ParticipantRole::Collector);
+
+        let waste_id = client.recycle_waste(
+            &WasteType::Metal,
+            &3000,
+            &recycler,
+            &40_500_000,
+            &-74_000_000,
+        );
+
+        let transfer = client.transfer_waste_v2(
+            &waste_id,
+            &recycler,
+            &collector,
+            &40_600_000,
+            &-74_100_000,
+        );
+
+        assert_eq!(transfer.waste_id, waste_id);
+        assert_eq!(transfer.from, recycler);
+        assert_eq!(transfer.to, collector);
     }
 
     #[test]
