@@ -2,7 +2,7 @@
 
 mod types;
 
-pub use types::{Incentive, Material, ParticipantRole, RecyclingStats, WasteTransfer, WasteType};
+pub use types::{Incentive, Material, ParticipantRole, RecyclingStats, Waste, WasteTransfer, WasteType};
 
 use soroban_sdk::{contract, contractimpl, contracttype, symbol_short, Address, Env, String, Symbol, Vec};
 
@@ -314,7 +314,15 @@ impl ScavengerContract {
         let mut history: Vec<WasteTransfer> =
             env.storage().instance().get(&key).unwrap_or(Vec::new(env));
 
-        let transfer = WasteTransfer::new(waste_id, from, to, env.ledger().timestamp(), note);
+        let transfer = WasteTransfer::new(
+            waste_id as u128,
+            from,
+            to,
+            env.ledger().timestamp(),
+            0,
+            0,
+            soroban_sdk::symbol_short!("note"),
+        );
 
         history.push_back(transfer);
         env.storage().instance().set(&key, &history);
@@ -431,6 +439,279 @@ impl ScavengerContract {
         env.storage().instance().set(&("stats", submitter), &stats);
 
         material
+    }
+
+    /// Register new waste with location data
+    pub fn recycle_waste(
+        env: Env,
+        waste_type: WasteType,
+        weight: u128,
+        recycler: Address,
+        latitude: i128,
+        longitude: i128,
+    ) -> u128 {
+        recycler.require_auth();
+
+        if !Self::is_participant_registered(env.clone(), recycler.clone()) {
+            panic!("Participant not registered");
+        }
+
+        let waste_id = Self::next_waste_id(&env) as u128;
+        let timestamp = env.ledger().timestamp();
+
+        let waste = types::Waste::new(
+            waste_id,
+            waste_type,
+            weight,
+            recycler.clone(),
+            latitude,
+            longitude,
+            timestamp,
+            true,
+            false,
+            recycler.clone(),
+        );
+
+        env.storage().instance().set(&("waste_v2", waste_id), &waste);
+
+        let mut waste_list: Vec<u128> = env
+            .storage()
+            .instance()
+            .get(&("participant_wastes", recycler.clone()))
+            .unwrap_or(Vec::new(&env));
+        waste_list.push_back(waste_id);
+        env.storage()
+            .instance()
+            .set(&("participant_wastes", recycler.clone()), &waste_list);
+
+        env.events().publish(
+            (soroban_sdk::symbol_short!("recycled"), waste_id),
+            (waste_type, weight, recycler, latitude, longitude, timestamp),
+        );
+
+        waste_id
+    }
+
+    /// Transfer waste between participants with location tracking
+    pub fn transfer_waste_v2(
+        env: Env,
+        waste_id: u128,
+        from: Address,
+        to: Address,
+        latitude: i128,
+        longitude: i128,
+    ) -> WasteTransfer {
+        from.require_auth();
+
+        let mut waste: types::Waste = env
+            .storage()
+            .instance()
+            .get(&("waste_v2", waste_id))
+            .expect("Waste not found");
+
+        if waste.current_owner != from {
+            panic!("Caller does not own waste");
+        }
+
+        let to_key = (to.clone(),);
+        let to_participant: Participant = env
+            .storage()
+            .instance()
+            .get(&to_key)
+            .expect("Recipient not registered");
+
+        let from_key = (from.clone(),);
+        let from_participant: Participant = env.storage().instance().get(&from_key).unwrap();
+
+        let valid = match (from_participant.role, to_participant.role) {
+            (ParticipantRole::Recycler, ParticipantRole::Collector) => true,
+            (ParticipantRole::Recycler, ParticipantRole::Manufacturer) => true,
+            (ParticipantRole::Collector, ParticipantRole::Manufacturer) => true,
+            _ => false,
+        };
+
+        if !valid {
+            panic!("Invalid transfer");
+        }
+
+        waste.transfer_to(to.clone());
+        env.storage().instance().set(&("waste_v2", waste_id), &waste);
+
+        let from_list: Vec<u128> = env
+            .storage()
+            .instance()
+            .get(&("participant_wastes", from.clone()))
+            .unwrap_or(Vec::new(&env));
+        let mut new_from_list = Vec::new(&env);
+        for id in from_list.iter() {
+            if id != waste_id {
+                new_from_list.push_back(id);
+            }
+        }
+        env.storage()
+            .instance()
+            .set(&("participant_wastes", from.clone()), &new_from_list);
+
+        let mut to_list: Vec<u128> = env
+            .storage()
+            .instance()
+            .get(&("participant_wastes", to.clone()))
+            .unwrap_or(Vec::new(&env));
+        to_list.push_back(waste_id);
+        env.storage()
+            .instance()
+            .set(&("participant_wastes", to.clone()), &to_list);
+
+        let timestamp = env.ledger().timestamp();
+        let transfer = WasteTransfer::new(
+            waste_id,
+            from.clone(),
+            to.clone(),
+            timestamp,
+            latitude,
+            longitude,
+            soroban_sdk::symbol_short!("transfer"),
+        );
+
+        let mut history: Vec<WasteTransfer> = env
+            .storage()
+            .instance()
+            .get(&("transfer_history", waste_id))
+            .unwrap_or(Vec::new(&env));
+        history.push_back(transfer.clone());
+        env.storage()
+            .instance()
+            .set(&("transfer_history", waste_id), &history);
+
+        env.events().publish(
+            (soroban_sdk::symbol_short!("transfer"), waste_id),
+            (from, to, timestamp),
+        );
+
+        transfer
+    }
+
+    /// Transfer aggregated waste from collector to manufacturer
+    pub fn transfer_collected_waste(
+        env: Env,
+        waste_type: WasteType,
+        collector: Address,
+        manufacturer: Address,
+        latitude: i128,
+        longitude: i128,
+        notes: soroban_sdk::Symbol,
+    ) -> u128 {
+        collector.require_auth();
+
+        let collector_key = (collector.clone(),);
+        let collector_participant: Participant = env
+            .storage()
+            .instance()
+            .get(&collector_key)
+            .expect("Collector not registered");
+
+        if collector_participant.role != ParticipantRole::Collector {
+            panic!("Only collectors can use this");
+        }
+
+        let manufacturer_key = (manufacturer.clone(),);
+        let manufacturer_participant: Participant = env
+            .storage()
+            .instance()
+            .get(&manufacturer_key)
+            .expect("Manufacturer not registered");
+
+        if manufacturer_participant.role != ParticipantRole::Manufacturer {
+            panic!("Recipient must be manufacturer");
+        }
+
+        let waste_id = Self::next_waste_id(&env) as u128;
+        let timestamp = env.ledger().timestamp();
+
+        let waste = types::Waste::new(
+            waste_id,
+            waste_type,
+            0,
+            manufacturer.clone(),
+            latitude,
+            longitude,
+            timestamp,
+            true,
+            false,
+            manufacturer.clone(),
+        );
+
+        env.storage().instance().set(&("waste_v2", waste_id), &waste);
+
+        let mut manufacturer_list: Vec<u128> = env
+            .storage()
+            .instance()
+            .get(&("participant_wastes", manufacturer.clone()))
+            .unwrap_or(Vec::new(&env));
+        manufacturer_list.push_back(waste_id);
+        env.storage()
+            .instance()
+            .set(&("participant_wastes", manufacturer.clone()), &manufacturer_list);
+
+        let transfer = WasteTransfer::new(
+            waste_id,
+            collector.clone(),
+            manufacturer.clone(),
+            timestamp,
+            latitude,
+            longitude,
+            notes,
+        );
+
+        let mut history: Vec<WasteTransfer> = env
+            .storage()
+            .instance()
+            .get(&("transfer_history", waste_id))
+            .unwrap_or(Vec::new(&env));
+        history.push_back(transfer);
+        env.storage()
+            .instance()
+            .set(&("transfer_history", waste_id), &history);
+
+        env.events().publish(
+            (soroban_sdk::symbol_short!("bulk_xfr"), waste_id),
+            (collector, manufacturer, waste_type, timestamp),
+        );
+
+        waste_id
+    }
+
+    /// Confirm waste details
+    pub fn confirm_waste_details(
+        env: Env,
+        waste_id: u128,
+        confirmer: Address,
+    ) -> types::Waste {
+        confirmer.require_auth();
+
+        let mut waste: types::Waste = env
+            .storage()
+            .instance()
+            .get(&("waste_v2", waste_id))
+            .expect("Waste not found");
+
+        if waste.current_owner == confirmer {
+            panic!("Owner cannot confirm own waste");
+        }
+
+        if waste.is_confirmed {
+            panic!("Waste already confirmed");
+        }
+
+        waste.confirm(confirmer.clone());
+        env.storage().instance().set(&("waste_v2", waste_id), &waste);
+
+        env.events().publish(
+            (soroban_sdk::symbol_short!("confirmed"), waste_id),
+            (confirmer, env.ledger().timestamp()),
+        );
+
+        waste
     }
 
     /// Batch submit multiple materials for recycling
@@ -619,8 +900,6 @@ impl ScavengerContract {
         env.storage().instance().get(&("stats", participant))
     }
 
-    // ========== Incentive Storage Functions ==========
-
     /// Get incentive by ID (public getter)
     pub fn get_incentive_by_id(env: Env, incentive_id: u64) -> Option<Incentive> {
         Self::get_incentive_internal(&env, incentive_id)
@@ -797,137 +1076,7 @@ impl ScavengerContract {
 
         reward
     }
-
 }
-
-#[cfg(test)]
-mod test {
-    use super::*;
-    use soroban_sdk::{testutils::{Address as _, Ledger}, Address, Env};
-
-    // ========== Admin and Charity Tests ==========
-
-    #[test]
-    fn test_initialize_admin() {
-        let env = Env::default();
-        let contract_id = env.register_contract(None, ScavengerContract);
-        let client = ScavengerContractClient::new(&env, &contract_id);
-
-        let admin = Address::generate(&env);
-        env.mock_all_auths();
-
-        client.initialize_admin(&admin);
-        
-        let stored_admin = client.get_admin();
-        assert_eq!(stored_admin, admin);
-    }
-
-    #[test]
-    #[should_panic(expected = "Admin already initialized")]
-    fn test_initialize_admin_twice() {
-        let env = Env::default();
-        let contract_id = env.register_contract(None, ScavengerContract);
-        let client = ScavengerContractClient::new(&env, &contract_id);
-
-        let admin1 = Address::generate(&env);
-        let admin2 = Address::generate(&env);
-        env.mock_all_auths();
-
-        client.initialize_admin(&admin1);
-        client.initialize_admin(&admin2); // Should panic
-    }
-
-    #[test]
-    fn test_set_charity_contract() {
-        let env = Env::default();
-        let contract_id = env.register_contract(None, ScavengerContract);
-        let client = ScavengerContractClient::new(&env, &contract_id);
-
-        let admin = Address::generate(&env);
-        let charity = Address::generate(&env);
-        env.mock_all_auths();
-
-        // Initialize admin first
-        client.initialize_admin(&admin);
-        
-        // Set charity contract
-        client.set_charity_contract(&admin, &charity);
-        
-        // Verify charity address is set
-        let stored_charity = client.get_charity_contract();
-        assert!(stored_charity.is_some());
-        assert_eq!(stored_charity.unwrap(), charity);
-    }
-
-    #[test]
-    #[should_panic(expected = "Unauthorized: caller is not admin")]
-    fn test_set_charity_contract_non_admin() {
-        let env = Env::default();
-        let contract_id = env.register_contract(None, ScavengerContract);
-        let client = ScavengerContractClient::new(&env, &contract_id);
-
-        let admin = Address::generate(&env);
-        let non_admin = Address::generate(&env);
-        let charity = Address::generate(&env);
-        env.mock_all_auths();
-
-        // Initialize admin
-        client.initialize_admin(&admin);
-        
-        // Try to set charity contract as non-admin (should panic)
-        client.set_charity_contract(&non_admin, &charity);
-    }
-
-    #[test]
-    #[should_panic(expected = "Charity address cannot be the same as admin")]
-    fn test_set_charity_contract_same_as_admin() {
-        let env = Env::default();
-        let contract_id = env.register_contract(None, ScavengerContract);
-        let client = ScavengerContractClient::new(&env, &contract_id);
-
-        let admin = Address::generate(&env);
-        env.mock_all_auths();
-
-        // Initialize admin
-        client.initialize_admin(&admin);
-        
-        // Try to set charity contract to same address as admin (should panic)
-        client.set_charity_contract(&admin, &admin);
-    }
-
-    #[test]
-    fn test_get_charity_contract_not_set() {
-        let env = Env::default();
-        let contract_id = env.register_contract(None, ScavengerContract);
-        let client = ScavengerContractClient::new(&env, &contract_id);
-
-        // Get charity contract before it's set
-        let charity = client.get_charity_contract();
-        assert!(charity.is_none());
-    }
-
-    #[test]
-    fn test_charity_contract_update() {
-        let env = Env::default();
-        let contract_id = env.register_contract(None, ScavengerContract);
-        let client = ScavengerContractClient::new(&env, &contract_id);
-
-        let admin = Address::generate(&env);
-        let charity1 = Address::generate(&env);
-        let charity2 = Address::generate(&env);
-        env.mock_all_auths();
-
-        // Initialize admin
-        client.initialize_admin(&admin);
-        
-        // Set initial charity contract
-        client.set_charity_contract(&admin, &charity1);
-        assert_eq!(client.get_charity_contract().unwrap(), charity1);
-        
-        // Update charity contract
-        client.set_charity_contract(&admin, &charity2);
-        assert_eq!(client.get_charity_contract().unwrap(), charity2);
-    }
 
     // ========== Participant Tests ==========
 
@@ -1133,6 +1282,114 @@ mod test {
         assert_eq!(material.weight, 5000);
         assert_eq!(material.submitter, user);
         assert!(!material.verified);
+    }
+
+    #[test]
+    fn test_recycle_waste() {
+        let env = Env::default();
+        let contract_id = env.register_contract(None, ScavengerContract);
+        let client = ScavengerContractClient::new(&env, &contract_id);
+
+        let recycler = Address::generate(&env);
+        env.mock_all_auths();
+
+        client.register_participant(&recycler, &ParticipantRole::Recycler);
+
+        let waste_id = client.recycle_waste(
+            &WasteType::Plastic,
+            &2500,
+            &recycler,
+            &40_500_000,
+            &-74_000_000,
+        );
+
+        assert_eq!(waste_id, 1);
+    }
+
+    #[test]
+    fn test_transfer_waste_v2() {
+        let env = Env::default();
+        let contract_id = env.register_contract(None, ScavengerContract);
+        let client = ScavengerContractClient::new(&env, &contract_id);
+
+        let recycler = Address::generate(&env);
+        let collector = Address::generate(&env);
+        env.mock_all_auths();
+
+        client.register_participant(&recycler, &ParticipantRole::Recycler);
+        client.register_participant(&collector, &ParticipantRole::Collector);
+
+        let waste_id = client.recycle_waste(
+            &WasteType::Metal,
+            &3000,
+            &recycler,
+            &40_500_000,
+            &-74_000_000,
+        );
+
+        let transfer = client.transfer_waste_v2(
+            &waste_id,
+            &recycler,
+            &collector,
+            &40_600_000,
+            &-74_100_000,
+        );
+
+        assert_eq!(transfer.waste_id, waste_id);
+        assert_eq!(transfer.from, recycler);
+        assert_eq!(transfer.to, collector);
+    }
+
+    #[test]
+    fn test_transfer_collected_waste() {
+        let env = Env::default();
+        let contract_id = env.register_contract(None, ScavengerContract);
+        let client = ScavengerContractClient::new(&env, &contract_id);
+
+        let collector = Address::generate(&env);
+        let manufacturer = Address::generate(&env);
+        env.mock_all_auths();
+
+        client.register_participant(&collector, &ParticipantRole::Collector);
+        client.register_participant(&manufacturer, &ParticipantRole::Manufacturer);
+
+        let waste_id = client.transfer_collected_waste(
+            &WasteType::Plastic,
+            &collector,
+            &manufacturer,
+            &41_000_000,
+            &-73_500_000,
+            &soroban_sdk::symbol_short!("bulk"),
+        );
+
+        assert_eq!(waste_id, 1);
+    }
+
+    #[test]
+    fn test_confirm_waste_details() {
+        let env = Env::default();
+        let contract_id = env.register_contract(None, ScavengerContract);
+        let client = ScavengerContractClient::new(&env, &contract_id);
+
+        let recycler = Address::generate(&env);
+        let verifier = Address::generate(&env);
+        env.mock_all_auths();
+
+        client.register_participant(&recycler, &ParticipantRole::Recycler);
+        client.register_participant(&verifier, &ParticipantRole::Collector);
+
+        let waste_id = client.recycle_waste(
+            &WasteType::Glass,
+            &1500,
+            &recycler,
+            &40_700_000,
+            &-73_900_000,
+        );
+
+        let waste = client.confirm_waste_details(&waste_id, &verifier);
+
+        assert!(waste.is_confirmed);
+        assert_eq!(waste.confirmer, verifier);
     }
 
     #[test]

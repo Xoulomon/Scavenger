@@ -87,41 +87,6 @@ impl Incentive {
     }
 }
 
-/// Represents a transfer of waste from one participant to another
-#[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct WasteTransfer {
-    /// ID of the waste being transferred
-    pub waste_id: u64,
-    /// Address of the sender
-    pub from: Address,
-    /// Address of the receiver
-    pub to: Address,
-    /// Timestamp of the transfer
-    pub transferred_at: u64,
-    /// Optional note about the transfer
-    pub note: String,
-}
-
-impl WasteTransfer {
-    /// Creates a new WasteTransfer instance
-    pub fn new(
-        waste_id: u64,
-        from: Address,
-        to: Address,
-        transferred_at: u64,
-        note: String,
-    ) -> Self {
-        Self {
-            waste_id,
-            from,
-            to,
-            transferred_at,
-            note,
-        }
-    }
-}
-
 /// Represents the role of a participant in the Scavenger ecosystem
 #[contracttype]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -620,7 +585,6 @@ impl RecyclingStats {
         self.verification_rate() >= 80
     }
 }
-
 
 #[cfg(test)]
 mod recycling_stats_tests {
