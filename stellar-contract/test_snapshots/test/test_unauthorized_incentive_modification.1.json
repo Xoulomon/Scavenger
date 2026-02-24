@@ -112,10 +112,35 @@
                         "key": {
                           "vec": [
                             {
-                              "string": "incentive"
+                              "symbol": "GeneralIncentives"
                             },
                             {
-                              "u64": 1
+                              "u32": 0
+                            }
+                          ]
+                        },
+                        "val": {
+                          "vec": [
+                            {
+                              "u128": {
+                                "hi": 0,
+                                "lo": 1
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "key": {
+                          "vec": [
+                            {
+                              "symbol": "Incentive"
+                            },
+                            {
+                              "u128": {
+                                "hi": 0,
+                                "lo": 1
+                              }
                             }
                           ]
                         },
@@ -176,17 +201,23 @@
                         "key": {
                           "vec": [
                             {
-                              "string": "incentive_count"
+                              "symbol": "IncentiveCounter"
                             }
                           ]
                         },
                         "val": {
-                          "u64": 1
+                          "u128": {
+                            "hi": 0,
+                            "lo": 1
+                          }
                         }
                       },
                       {
                         "key": {
                           "vec": [
+                            {
+                              "symbol": "Participant"
+                            },
                             {
                               "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                             }
@@ -225,6 +256,9 @@
                         "key": {
                           "vec": [
                             {
+                              "symbol": "Participant"
+                            },
+                            {
                               "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
                             }
                           ]
@@ -253,6 +287,28 @@
                               },
                               "val": {
                                 "u32": 2
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "key": {
+                          "vec": [
+                            {
+                              "symbol": "RewarderIncentives"
+                            },
+                            {
+                              "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                            }
+                          ]
+                        },
+                        "val": {
+                          "vec": [
+                            {
+                              "u128": {
+                                "hi": 0,
+                                "lo": 1
                               }
                             }
                           ]
@@ -709,7 +765,7 @@
             "data": {
               "vec": [
                 {
-                  "string": "caught panic 'Only the incentive creator can modify this incentive' from contract function 'Symbol(obj#117)'"
+                  "string": "caught panic 'Only the incentive creator can modify this incentive' from contract function 'Symbol(obj#151)'"
                 },
                 {
                   "u64": 1

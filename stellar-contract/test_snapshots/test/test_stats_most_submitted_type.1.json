@@ -127,7 +127,41 @@
                         "key": {
                           "vec": [
                             {
-                              "string": "stats"
+                              "symbol": "ParticipantWastes"
+                            },
+                            {
+                              "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                            }
+                          ]
+                        },
+                        "val": {
+                          "vec": [
+                            {
+                              "u128": {
+                                "hi": 0,
+                                "lo": 1
+                              }
+                            },
+                            {
+                              "u128": {
+                                "hi": 0,
+                                "lo": 2
+                              }
+                            },
+                            {
+                              "u128": {
+                                "hi": 0,
+                                "lo": 3
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "key": {
+                          "vec": [
+                            {
+                              "symbol": "Stats"
                             },
                             {
                               "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
@@ -223,10 +257,13 @@
                         "key": {
                           "vec": [
                             {
-                              "string": "waste"
+                              "symbol": "Waste"
                             },
                             {
-                              "u64": 1
+                              "u128": {
+                                "hi": 0,
+                                "lo": 1
+                              }
                             }
                           ]
                         },
@@ -295,10 +332,13 @@
                         "key": {
                           "vec": [
                             {
-                              "string": "waste"
+                              "symbol": "Waste"
                             },
                             {
-                              "u64": 2
+                              "u128": {
+                                "hi": 0,
+                                "lo": 2
+                              }
                             }
                           ]
                         },
@@ -367,10 +407,13 @@
                         "key": {
                           "vec": [
                             {
-                              "string": "waste"
+                              "symbol": "Waste"
                             },
                             {
-                              "u64": 3
+                              "u128": {
+                                "hi": 0,
+                                "lo": 3
+                              }
                             }
                           ]
                         },
@@ -439,12 +482,15 @@
                         "key": {
                           "vec": [
                             {
-                              "string": "waste_count"
+                              "symbol": "WasteCounter"
                             }
                           ]
                         },
                         "val": {
-                          "u64": 3
+                          "u128": {
+                            "hi": 0,
+                            "lo": 3
+                          }
                         }
                       }
                     ]

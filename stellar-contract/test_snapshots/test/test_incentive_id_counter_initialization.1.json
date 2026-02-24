@@ -45,12 +45,15 @@
                         "key": {
                           "vec": [
                             {
-                              "string": "incentive_count"
+                              "symbol": "IncentiveCounter"
                             }
                           ]
                         },
                         "val": {
-                          "u64": 2
+                          "u128": {
+                            "hi": 0,
+                            "lo": 2
+                          }
                         }
                       }
                     ]

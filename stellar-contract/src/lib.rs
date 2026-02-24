@@ -1,8 +1,10 @@
 #![no_std]
 
 mod types;
+mod storage;
 
 pub use types::{Incentive, Material, ParticipantRole, RecyclingStats, WasteType};
+pub use storage::{StorageKey, Transfer, ContractConfig};
 
 use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, String};
 
@@ -33,100 +35,60 @@ impl ScavengerContract {
             registered_at: env.ledger().timestamp(),
         };
 
-        // Store participant in contract storage
-        let key = (address.clone(),);
-        env.storage().instance().set(&key, &participant);
+        // Store participant using storage system
+        storage::set_participant(&env, &address, &participant);
 
         participant
     }
 
-    /// Store a waste record by ID
-    /// Internal helper function for efficient waste storage
-    fn set_waste(env: &Env, waste_id: u64, material: &Material) {
-        let key = ("waste", waste_id);
-        env.storage().instance().set(&key, material);
-    }
-
-    /// Retrieve a waste record by ID
-    /// Returns None if waste doesn't exist
-    fn get_waste(env: &Env, waste_id: u64) -> Option<Material> {
-        let key = ("waste", waste_id);
-        env.storage().instance().get(&key)
-    }
-
     /// Check if a waste record exists
     pub fn waste_exists(env: Env, waste_id: u64) -> bool {
-        let key = ("waste", waste_id);
-        env.storage().instance().has(&key)
-    }
-
-    /// Get the total count of waste records
-    fn get_waste_count(env: &Env) -> u64 {
-        env.storage().instance().get(&("waste_count",)).unwrap_or(0)
-    }
-
-    /// Increment and return the next waste ID
-    fn next_waste_id(env: &Env) -> u64 {
-        let count = Self::get_waste_count(env);
-        let next_id = count + 1;
-        env.storage().instance().set(&("waste_count",), &next_id);
-        next_id
+        storage::has_waste(&env, waste_id as u128)
     }
 
     /// Get the total count of incentive records
     fn get_incentive_count(env: &Env) -> u64 {
-        env.storage().instance().get(&("incentive_count",)).unwrap_or(0)
+        storage::get_incentive_counter(env) as u64
     }
 
     /// Increment and return the next incentive ID
     fn next_incentive_id(env: &Env) -> u64 {
-        let count = Self::get_incentive_count(env);
-        let next_id = count + 1;
-        env.storage().instance().set(&("incentive_count",), &next_id);
-        next_id
+        storage::increment_incentive_counter(env) as u64
     }
 
     /// Store an incentive record by ID
     /// Internal helper function for efficient incentive storage
     fn set_incentive(env: &Env, incentive_id: u64, incentive: &Incentive) {
-        let key = ("incentive", incentive_id);
-        env.storage().instance().set(&key, incentive);
+        storage::set_incentive(env, incentive_id as u128, incentive);
     }
 
     /// Retrieve an incentive record by ID
     /// Returns None if incentive doesn't exist
     fn get_incentive_internal(env: &Env, incentive_id: u64) -> Option<Incentive> {
-        let key = ("incentive", incentive_id);
-        env.storage().instance().get(&key)
+        storage::get_incentive(env, incentive_id as u128)
     }
 
     /// Get participant information
     pub fn get_participant(env: Env, address: Address) -> Option<Participant> {
-        let key = (address,);
-        env.storage().instance().get(&key)
+        storage::get_participant(&env, &address)
     }
 
     /// Update participant role
     pub fn update_role(env: Env, address: Address, new_role: ParticipantRole) -> Participant {
         address.require_auth();
 
-        let key = (address.clone(),);
-        let mut participant: Participant = env
-            .storage()
-            .instance()
-            .get(&key)
+        let mut participant: Participant = storage::get_participant(&env, &address)
             .expect("Participant not found");
 
         participant.role = new_role;
-        env.storage().instance().set(&key, &participant);
+        storage::set_participant(&env, &address, &participant);
 
         participant
     }
 
     /// Validate if a participant can perform a specific action
     pub fn can_collect(env: Env, address: Address) -> bool {
-        let key = (address,);
-        if let Some(participant) = env.storage().instance().get::<_, Participant>(&key) {
+        if let Some(participant) = storage::get_participant(&env, &address) {
             participant.role.can_collect_materials()
         } else {
             false
@@ -135,8 +97,7 @@ impl ScavengerContract {
 
     /// Validate if a participant can manufacture
     pub fn can_manufacture(env: Env, address: Address) -> bool {
-        let key = (address,);
-        if let Some(participant) = env.storage().instance().get::<_, Participant>(&key) {
+        if let Some(participant) = storage::get_participant(&env, &address) {
             participant.role.can_manufacture()
         } else {
             false
@@ -153,8 +114,8 @@ impl ScavengerContract {
     ) -> Material {
         submitter.require_auth();
 
-        // Get next waste ID using the new storage system
-        let waste_id = Self::next_waste_id(&env);
+        // Get next waste ID using the storage system
+        let waste_id = storage::increment_waste_counter(&env) as u64;
 
         // Create material
         let material = Material::new(
@@ -166,18 +127,18 @@ impl ScavengerContract {
             description,
         );
 
-        // Store waste using the new storage system
-        Self::set_waste(&env, waste_id, &material);
+        // Store waste using the storage system
+        storage::set_waste(&env, waste_id as u128, &material);
+
+        // Track participant waste
+        storage::add_participant_waste(&env, &submitter, waste_id as u128);
 
         // Update stats
-        let mut stats: RecyclingStats = env
-            .storage()
-            .instance()
-            .get(&("stats", submitter.clone()))
+        let mut stats: RecyclingStats = storage::get_stats(&env, &submitter)
             .unwrap_or_else(|| RecyclingStats::new(submitter.clone()));
         
         stats.record_submission(&material);
-        env.storage().instance().set(&("stats", submitter), &stats);
+        storage::set_stats(&env, &submitter, &stats);
 
         material
     }
@@ -195,16 +156,13 @@ impl ScavengerContract {
         let timestamp = env.ledger().timestamp();
 
         // Get or create stats once
-        let mut stats: RecyclingStats = env
-            .storage()
-            .instance()
-            .get(&("stats", submitter.clone()))
+        let mut stats: RecyclingStats = storage::get_stats(&env, &submitter)
             .unwrap_or_else(|| RecyclingStats::new(submitter.clone()));
 
         // Process each material
         for item in materials.iter() {
             let (waste_type, weight, description) = item;
-            let waste_id = Self::next_waste_id(&env);
+            let waste_id = storage::increment_waste_counter(&env) as u64;
 
             let material = Material::new(
                 waste_id,
@@ -215,25 +173,26 @@ impl ScavengerContract {
                 description,
             );
 
-            Self::set_waste(&env, waste_id, &material);
+            storage::set_waste(&env, waste_id as u128, &material);
+            storage::add_participant_waste(&env, &submitter, waste_id as u128);
             stats.record_submission(&material);
             results.push_back(material);
         }
 
         // Update stats once at the end
-        env.storage().instance().set(&("stats", submitter), &stats);
+        storage::set_stats(&env, &submitter, &stats);
 
         results
     }
 
     /// Get material by ID (alias for get_waste for backward compatibility)
     pub fn get_material(env: Env, material_id: u64) -> Option<Material> {
-        Self::get_waste(&env, material_id)
+        storage::get_waste(&env, material_id as u128)
     }
 
     /// Get waste by ID
     pub fn get_waste_by_id(env: Env, waste_id: u64) -> Option<Material> {
-        Self::get_waste(&env, waste_id)
+        storage::get_waste(&env, waste_id as u128)
     }
 
     /// Get multiple wastes by IDs (batch retrieval)
@@ -241,7 +200,7 @@ impl ScavengerContract {
         let mut results = soroban_sdk::Vec::new(&env);
         
         for waste_id in waste_ids.iter() {
-            results.push_back(Self::get_waste(&env, waste_id));
+            results.push_back(storage::get_waste(&env, waste_id as u128));
         }
         
         results
@@ -252,33 +211,26 @@ impl ScavengerContract {
         verifier.require_auth();
 
         // Check if verifier is a recycler
-        let verifier_key = (verifier.clone(),);
-        let participant: Participant = env
-            .storage()
-            .instance()
-            .get(&verifier_key)
+        let participant: Participant = storage::get_participant(&env, &verifier)
             .expect("Verifier not registered");
 
         if !participant.role.can_process_recyclables() {
             panic!("Only recyclers can verify materials");
         }
 
-        // Get and verify material using new storage system
-        let mut material: Material = Self::get_waste(&env, material_id)
+        // Get and verify material using storage system
+        let mut material: Material = storage::get_waste(&env, material_id as u128)
             .expect("Material not found");
 
         material.verify();
-        Self::set_waste(&env, material_id, &material);
+        storage::set_waste(&env, material_id as u128, &material);
 
         // Update submitter stats
-        let mut stats: RecyclingStats = env
-            .storage()
-            .instance()
-            .get(&("stats", material.submitter.clone()))
+        let mut stats: RecyclingStats = storage::get_stats(&env, &material.submitter)
             .unwrap_or_else(|| RecyclingStats::new(material.submitter.clone()));
         
         stats.record_verification(&material);
-        env.storage().instance().set(&("stats", material.submitter.clone()), &stats);
+        storage::set_stats(&env, &material.submitter, &stats);
 
         material
     }
@@ -292,11 +244,7 @@ impl ScavengerContract {
         verifier.require_auth();
 
         // Check if verifier is a recycler
-        let verifier_key = (verifier.clone(),);
-        let participant: Participant = env
-            .storage()
-            .instance()
-            .get(&verifier_key)
+        let participant: Participant = storage::get_participant(&env, &verifier)
             .expect("Verifier not registered");
 
         if !participant.role.can_process_recyclables() {
@@ -306,19 +254,16 @@ impl ScavengerContract {
         let mut results = soroban_sdk::Vec::new(&env);
 
         for material_id in material_ids.iter() {
-            if let Some(mut material) = Self::get_waste(&env, material_id) {
+            if let Some(mut material) = storage::get_waste(&env, material_id as u128) {
                 material.verify();
-                Self::set_waste(&env, material_id, &material);
+                storage::set_waste(&env, material_id as u128, &material);
 
                 // Update submitter stats
-                let mut stats: RecyclingStats = env
-                    .storage()
-                    .instance()
-                    .get(&("stats", material.submitter.clone()))
+                let mut stats: RecyclingStats = storage::get_stats(&env, &material.submitter)
                     .unwrap_or_else(|| RecyclingStats::new(material.submitter.clone()));
                 
                 stats.record_verification(&material);
-                env.storage().instance().set(&("stats", material.submitter.clone()), &stats);
+                storage::set_stats(&env, &material.submitter, &stats);
 
                 results.push_back(material);
             }
@@ -329,7 +274,27 @@ impl ScavengerContract {
 
     /// Get recycling statistics for a participant
     pub fn get_stats(env: Env, participant: Address) -> Option<RecyclingStats> {
-        env.storage().instance().get(&("stats", participant))
+        storage::get_stats(&env, &participant)
+    }
+
+    /// Get all waste IDs submitted by a participant
+    pub fn get_participant_wastes(env: Env, participant: Address) -> soroban_sdk::Vec<u128> {
+        storage::get_participant_wastes(&env, &participant)
+    }
+
+    /// Get all incentive IDs created by a manufacturer
+    pub fn get_manufacturer_incentives(env: Env, manufacturer: Address) -> soroban_sdk::Vec<u128> {
+        storage::get_rewarder_incentives(&env, &manufacturer)
+    }
+
+    /// Get all incentive IDs for a specific waste type
+    pub fn get_incentives_by_waste_type(env: Env, waste_type: WasteType) -> soroban_sdk::Vec<u128> {
+        storage::get_general_incentives(&env, waste_type)
+    }
+
+    /// Get transfer history for a waste
+    pub fn get_waste_transfer_history(env: Env, waste_id: u128) -> soroban_sdk::Vec<Transfer> {
+        storage::get_waste_transfer_history(&env, waste_id)
     }
 
     /// Migration helper: Get all participants (for data migration)
@@ -352,10 +317,9 @@ impl ScavengerContract {
             let (address, new_role) = update;
             address.require_auth();
 
-            let key = (address.clone(),);
-            if let Some(mut participant) = env.storage().instance().get::<_, Participant>(&key) {
+            if let Some(mut participant) = storage::get_participant(&env, &address) {
                 participant.role = new_role;
-                env.storage().instance().set(&key, &participant);
+                storage::set_participant(&env, &address, &participant);
                 results.push_back(participant);
             }
         }
@@ -366,8 +330,7 @@ impl ScavengerContract {
     /// Migration helper: Export participant data
     /// Returns participant data for backup/migration purposes
     pub fn export_participant(env: Env, address: Address) -> Option<(Address, ParticipantRole, u64)> {
-        let key = (address.clone(),);
-        env.storage().instance().get::<_, Participant>(&key).map(|p| {
+        storage::get_participant(&env, &address).map(|p| {
             (p.address, p.role, p.registered_at)
         })
     }
@@ -388,8 +351,7 @@ impl ScavengerContract {
             registered_at,
         };
 
-        let key = (address,);
-        env.storage().instance().set(&key, &participant);
+        storage::set_participant(&env, &address, &participant);
 
         participant
     }
@@ -397,8 +359,7 @@ impl ScavengerContract {
     /// Verify participant data integrity
     /// Returns true if participant data is valid and consistent
     pub fn verify_participant_integrity(env: Env, address: Address) -> bool {
-        let key = (address.clone(),);
-        if let Some(participant) = env.storage().instance().get::<_, Participant>(&key) {
+        if let Some(participant) = storage::get_participant(&env, &address) {
             // Verify data consistency
             participant.address == address
                 && participant.registered_at > 0
@@ -419,11 +380,7 @@ impl ScavengerContract {
         manufacturer.require_auth();
 
         // Verify manufacturer has Manufacturer role
-        let manufacturer_key = (manufacturer.clone(),);
-        let participant: Participant = env
-            .storage()
-            .instance()
-            .get(&manufacturer_key)
+        let participant: Participant = storage::get_participant(&env, &manufacturer)
             .expect("Manufacturer not registered");
 
         if !participant.role.can_manufacture() {
@@ -441,7 +398,7 @@ impl ScavengerContract {
         // Create incentive
         let incentive = Incentive::new(
             incentive_id,
-            manufacturer,
+            manufacturer.clone(),
             waste_type,
             reward_amount,
             env.ledger().timestamp(),
@@ -449,6 +406,12 @@ impl ScavengerContract {
 
         // Store incentive
         Self::set_incentive(&env, incentive_id, &incentive);
+
+        // Track incentive by manufacturer
+        storage::add_rewarder_incentive(&env, &manufacturer, incentive_id as u128);
+
+        // Track incentive by waste type
+        storage::add_general_incentive(&env, waste_type, incentive_id as u128);
 
         incentive
     }
@@ -460,8 +423,7 @@ impl ScavengerContract {
 
     /// Check if an incentive exists
     pub fn incentive_exists(env: Env, incentive_id: u64) -> bool {
-        let key = ("incentive", incentive_id);
-        env.storage().instance().has(&key)
+        storage::has_incentive(&env, incentive_id as u128)
     }
 
     /// Get multiple incentives by IDs (batch retrieval)
@@ -1397,10 +1359,10 @@ mod test {
         
         // Verify counters are independent
         let waste_count = env.as_contract(&contract_id, || {
-            ScavengerContract::get_waste_count(&env)
+            storage::get_waste_counter(&env)
         });
         let incentive_count = env.as_contract(&contract_id, || {
-            ScavengerContract::get_incentive_count(&env)
+            storage::get_incentive_counter(&env)
         });
         assert_eq!(waste_count, 3);
         assert_eq!(incentive_count, 3);

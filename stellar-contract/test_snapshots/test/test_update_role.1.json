@@ -86,6 +86,9 @@
                         "key": {
                           "vec": [
                             {
+                              "symbol": "Participant"
+                            },
+                            {
                               "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                             }
                           ]

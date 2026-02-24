@@ -65,6 +65,9 @@
                         "key": {
                           "vec": [
                             {
+                              "symbol": "Participant"
+                            },
+                            {
                               "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                             }
                           ]
@@ -297,7 +300,7 @@
             "data": {
               "vec": [
                 {
-                  "string": "caught panic 'Only manufacturers can create incentives' from contract function 'Symbol(obj#25)'"
+                  "string": "caught panic 'Only manufacturers can create incentives' from contract function 'Symbol(obj#27)'"
                 },
                 {
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"

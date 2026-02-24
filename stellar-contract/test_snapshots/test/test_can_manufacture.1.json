@@ -88,6 +88,9 @@
                         "key": {
                           "vec": [
                             {
+                              "symbol": "Participant"
+                            },
+                            {
                               "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                             }
                           ]
@@ -124,6 +127,9 @@
                       {
                         "key": {
                           "vec": [
+                            {
+                              "symbol": "Participant"
+                            },
                             {
                               "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
                             }
