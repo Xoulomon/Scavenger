@@ -151,7 +151,7 @@ impl ScavengerContract {
         env.storage().instance().set(&key, &history);
     }
 
-    /// Transfer waste ownership from one participant to another
+    /// Transfer waste ownership from one participants to another
     pub fn transfer_waste(
         env: Env,
         waste_id: u64,
@@ -187,7 +187,7 @@ impl ScavengerContract {
         material
     }
 
-    /// Get all transfers for a participant (as sender)
+    /// Get all transfers for a participants (as sender)
     pub fn get_transfers_from(env: Env, _address: Address) -> Vec<(u64, Vec<WasteTransfer>)> {
         // Note: This is a simplified implementation
         // In production, you'd want to maintain an index for efficient queries
@@ -215,7 +215,7 @@ impl ScavengerContract {
         }
     }
 
-    /// Validate if a participant can manufacture
+    /// Validate if a participants can manufacture
     pub fn can_manufacture(env: Env, address: Address) -> bool {
         let key = (address,);
         if let Some(participant) = env.storage().instance().get::<_, Participant>(&key) {
@@ -248,7 +248,7 @@ impl ScavengerContract {
             description,
         );
 
-        // Store waste using the new storage system
+        // Store waste using the new storage systems
         Self::set_waste(&env, waste_id, &material);
 
         // Update stats
