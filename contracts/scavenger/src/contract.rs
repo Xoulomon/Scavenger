@@ -1,6 +1,8 @@
-use soroban_sdk::{contract, contractimpl, Address, Env};
+use soroban_sdk::{contract, contractimpl, Address, Env, Vec};
 
+use crate::events;
 use crate::storage::Storage;
+use crate::types::{Incentive, Participant, Role, WasteType};
 
 #[contract]
 pub struct ScavengerContract;
@@ -124,6 +126,122 @@ impl ScavengerContract {
     pub fn transfer_admin(env: &Env, current_admin: Address, new_admin: Address) {
         Self::require_admin(env, &current_admin);
         Storage::set_admin(env, &new_admin);
+    }
+
+    /// Register a participant
+    pub fn register_participant(
+        env: &Env,
+        address: Address,
+        role: Role,
+        name: soroban_sdk::String,
+        latitude: i64,
+        longitude: i64,
+    ) -> Participant {
+        address.require_auth();
+
+        assert!(
+            !Storage::is_participant_registered(env, &address),
+            "Participant already registered"
+        );
+
+        let participant = Participant {
+            address: address.clone(),
+            role,
+            name,
+            latitude,
+            longitude,
+            registered_at: env.ledger().timestamp(),
+        };
+
+        Storage::set_participant(env, &address, &participant);
+        participant
+    }
+
+    /// Get participant information
+    pub fn get_participant(env: &Env, address: Address) -> Option<Participant> {
+        Storage::get_participant(env, &address)
+    }
+
+    /// Check if participant is registered
+    pub fn is_participant_registered(env: &Env, address: Address) -> bool {
+        Storage::is_participant_registered(env, &address)
+    }
+
+    /// Create a new incentive (manufacturers only)
+    pub fn create_incentive(
+        env: &Env,
+        rewarder: Address,
+        waste_type: WasteType,
+        reward_points: u64,
+        total_budget: u64,
+    ) -> Incentive {
+        // Require authentication
+        rewarder.require_auth();
+
+        // Check caller is registered
+        assert!(
+            Storage::is_participant_registered(env, &rewarder),
+            "Rewarder not registered"
+        );
+
+        // Get participant and verify role
+        let participant = Storage::get_participant(env, &rewarder)
+            .expect("Rewarder not found");
+
+        assert!(
+            participant.role.can_manufacture(),
+            "Only manufacturers can create incentives"
+        );
+
+        // Generate incentive ID
+        let incentive_id = Storage::next_incentive_id(env);
+
+        // Create Incentive struct
+        let incentive = Incentive::new(
+            incentive_id,
+            rewarder.clone(),
+            waste_type,
+            reward_points,
+            total_budget,
+            env.ledger().timestamp(),
+        );
+
+        // Store in all three incentive maps
+        Storage::set_incentive(env, incentive_id, &incentive);
+        Storage::add_incentive_to_rewarder(env, &rewarder, incentive_id);
+        Storage::add_incentive_to_waste_type(env, waste_type, incentive_id);
+
+        // Emit IncentiveSet event
+        events::emit_incentive_set(
+            env,
+            incentive_id,
+            &rewarder,
+            waste_type,
+            reward_points,
+            total_budget,
+        );
+
+        incentive
+    }
+
+    /// Get incentive by ID
+    pub fn get_incentive_by_id(env: &Env, incentive_id: u64) -> Option<Incentive> {
+        Storage::get_incentive(env, incentive_id)
+    }
+
+    /// Check if incentive exists
+    pub fn incentive_exists(env: &Env, incentive_id: u64) -> bool {
+        Storage::incentive_exists(env, incentive_id)
+    }
+
+    /// Get all incentive IDs created by a specific rewarder (manufacturer)
+    pub fn get_incentives_by_rewarder(env: &Env, rewarder: Address) -> Vec<u64> {
+        Storage::get_incentives_by_rewarder(env, &rewarder)
+    }
+
+    /// Get all incentive IDs for a specific waste type
+    pub fn get_incentives_by_waste_type(env: &Env, waste_type: WasteType) -> Vec<u64> {
+        Storage::get_incentives_by_waste_type(env, waste_type)
     }
 
     // Private helper function to require admin authentication
