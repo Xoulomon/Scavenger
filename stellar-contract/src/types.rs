@@ -87,6 +87,139 @@ impl Incentive {
     }
 }
 
+/// Represents a waste item in the recycling system
+/// This struct is fully compatible with Soroban storage and implements
+/// deterministic serialization for safe storage and retrieval
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Waste {
+    /// Unique identifier for the waste item
+    pub id: u64,
+    /// Type of waste material
+    pub waste_type: WasteType,
+    /// Weight of the waste in grams
+    pub weight: u64,
+    /// Address of the participant who submitted the waste
+    pub submitter: Address,
+    /// Timestamp when the waste was submitted
+    pub submitted_at: u64,
+    /// Current status of the waste
+    pub status: WasteStatus,
+    /// Location where the waste was collected (optional)
+    pub location: String,
+}
+
+/// Represents the status of a waste item in the system
+#[contracttype]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum WasteStatus {
+    /// Waste has been submitted but not yet processed
+    Pending = 0,
+    /// Waste is being processed
+    Processing = 1,
+    /// Waste has been successfully processed
+    Processed = 2,
+    /// Waste was rejected (invalid or contaminated)
+    Rejected = 3,
+}
+
+impl WasteStatus {
+    /// Validates if the value is a valid WasteStatus variant
+    pub fn is_valid(value: u32) -> bool {
+        matches!(value, 0 | 1 | 2 | 3)
+    }
+
+    /// Converts a u32 to a WasteStatus
+    /// Returns None if the value is invalid
+    pub fn from_u32(value: u32) -> Option<Self> {
+        match value {
+            0 => Some(WasteStatus::Pending),
+            1 => Some(WasteStatus::Processing),
+            2 => Some(WasteStatus::Processed),
+            3 => Some(WasteStatus::Rejected),
+            _ => None,
+        }
+    }
+
+    /// Converts the WasteStatus to u32
+    pub fn to_u32(&self) -> u32 {
+        *self as u32
+    }
+
+    /// Returns the string representation of the status
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            WasteStatus::Pending => "PENDING",
+            WasteStatus::Processing => "PROCESSING",
+            WasteStatus::Processed => "PROCESSED",
+            WasteStatus::Rejected => "REJECTED",
+        }
+    }
+
+    /// Checks if the status allows modification
+    pub fn is_modifiable(&self) -> bool {
+        matches!(self, WasteStatus::Pending | WasteStatus::Processing)
+    }
+
+    /// Checks if the status is final
+    pub fn is_final(&self) -> bool {
+        matches!(self, WasteStatus::Processed | WasteStatus::Rejected)
+    }
+}
+
+impl Waste {
+    /// Creates a new Waste instance with Pending status
+    pub fn new(
+        id: u64,
+        waste_type: WasteType,
+        weight: u64,
+        submitter: Address,
+        submitted_at: u64,
+        location: String,
+    ) -> Self {
+        Self {
+            id,
+            waste_type,
+            weight,
+            submitter,
+            submitted_at,
+            status: WasteStatus::Pending,
+            location,
+        }
+    }
+
+    /// Updates the status of the waste
+    /// Returns true if the status was updated, false if the current status is final
+    pub fn update_status(&mut self, new_status: WasteStatus) -> bool {
+        if self.status.is_final() {
+            return false;
+        }
+        self.status = new_status;
+        true
+    }
+
+    /// Checks if the waste meets minimum weight requirement (100g)
+    pub fn meets_minimum_weight(&self) -> bool {
+        self.weight >= 100
+    }
+
+    /// Checks if the waste is in a processable state
+    pub fn is_processable(&self) -> bool {
+        matches!(self.status, WasteStatus::Pending | WasteStatus::Processing)
+    }
+
+    /// Validates all fields for correctness
+    pub fn validate(&self) -> Result<(), &'static str> {
+        if self.weight == 0 {
+            return Err("Weight must be greater than zero");
+        }
+        if !self.meets_minimum_weight() {
+            return Err("Weight must be at least 100g");
+        }
+        Ok(())
+    }
+}
+
 /// Represents the role of a participant in the Scavenger ecosystem
 #[contracttype]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -1077,6 +1210,621 @@ mod tests {
         assert_ne!(ParticipantRole::Collector, ParticipantRole::Manufacturer);
     }
 }
+
+
+#[cfg(test)]
+mod waste_tests {
+    use super::*;
+    use soroban_sdk::testutils::Address as _;
+
+    #[test]
+    fn test_waste_creation() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let location = String::from_str(&env, "Downtown Collection Point");
+        
+        let waste = Waste::new(
+            1,
+            WasteType::Plastic,
+            5000,
+            submitter.clone(),
+            1234567890,
+            location.clone(),
+        );
+
+        assert_eq!(waste.id, 1);
+        assert_eq!(waste.waste_type, WasteType::Plastic);
+        assert_eq!(waste.weight, 5000);
+        assert_eq!(waste.submitter, submitter);
+        assert_eq!(waste.submitted_at, 1234567890);
+        assert_eq!(waste.status, WasteStatus::Pending);
+        assert_eq!(waste.location, location);
+    }
+
+    #[test]
+    fn test_waste_storage_compatibility() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let location = String::from_str(&env, "Test Location");
+        
+        let waste = Waste::new(
+            1,
+            WasteType::Metal,
+            3000,
+            submitter,
+            1234567890,
+            location,
+        );
+
+        // Test that Waste can be stored in Soroban storage
+        env.storage().instance().set(&("waste", 1u64), &waste);
+        let retrieved: Waste = env.storage().instance().get(&("waste", 1u64)).unwrap();
+        
+        assert_eq!(retrieved.id, waste.id);
+        assert_eq!(retrieved.waste_type, waste.waste_type);
+        assert_eq!(retrieved.weight, waste.weight);
+        assert_eq!(retrieved.status, waste.status);
+    }
+
+    #[test]
+    fn test_waste_round_trip_serialization() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let location = String::from_str(&env, "Round Trip Test");
+        
+        let original = Waste::new(
+            42,
+            WasteType::Glass,
+            7500,
+            submitter.clone(),
+            9876543210,
+            location.clone(),
+        );
+
+        // Store and retrieve
+        env.storage().instance().set(&("test_waste",), &original);
+        let retrieved: Waste = env.storage().instance().get(&("test_waste",)).unwrap();
+        
+        // Verify all fields are preserved exactly
+        assert_eq!(retrieved.id, original.id);
+        assert_eq!(retrieved.waste_type, original.waste_type);
+        assert_eq!(retrieved.weight, original.weight);
+        assert_eq!(retrieved.submitter, original.submitter);
+        assert_eq!(retrieved.submitted_at, original.submitted_at);
+        assert_eq!(retrieved.status, original.status);
+        assert_eq!(retrieved.location, original.location);
+        
+        // Verify complete equality
+        assert_eq!(retrieved, original);
+    }
+
+    #[test]
+    fn test_waste_update_status() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let location = String::from_str(&env, "Status Test");
+        
+        let mut waste = Waste::new(
+            1,
+            WasteType::Paper,
+            2000,
+            submitter,
+            1234567890,
+            location,
+        );
+
+        assert_eq!(waste.status, WasteStatus::Pending);
+
+        // Update to Processing
+        assert!(waste.update_status(WasteStatus::Processing));
+        assert_eq!(waste.status, WasteStatus::Processing);
+
+        // Update to Processed
+        assert!(waste.update_status(WasteStatus::Processed));
+        assert_eq!(waste.status, WasteStatus::Processed);
+
+        // Try to update final status (should fail)
+        assert!(!waste.update_status(WasteStatus::Pending));
+        assert_eq!(waste.status, WasteStatus::Processed);
+    }
+
+    #[test]
+    fn test_waste_meets_minimum_weight() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let location = String::from_str(&env, "Weight Test");
+        
+        let waste_below = Waste::new(
+            1,
+            WasteType::Paper,
+            50,
+            submitter.clone(),
+            1234567890,
+            location.clone(),
+        );
+        assert!(!waste_below.meets_minimum_weight());
+
+        let waste_exact = Waste::new(
+            2,
+            WasteType::Paper,
+            100,
+            submitter.clone(),
+            1234567890,
+            location.clone(),
+        );
+        assert!(waste_exact.meets_minimum_weight());
+
+        let waste_above = Waste::new(
+            3,
+            WasteType::Paper,
+            500,
+            submitter,
+            1234567890,
+            location,
+        );
+        assert!(waste_above.meets_minimum_weight());
+    }
+
+    #[test]
+    fn test_waste_is_processable() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let location = String::from_str(&env, "Processable Test");
+        
+        let mut waste = Waste::new(
+            1,
+            WasteType::Metal,
+            3000,
+            submitter,
+            1234567890,
+            location,
+        );
+
+        // Pending is processable
+        assert!(waste.is_processable());
+
+        // Processing is processable
+        waste.update_status(WasteStatus::Processing);
+        assert!(waste.is_processable());
+
+        // Processed is not processable
+        waste.update_status(WasteStatus::Processed);
+        assert!(!waste.is_processable());
+
+        // Rejected is not processable
+        let mut rejected_waste = waste.clone();
+        rejected_waste.status = WasteStatus::Rejected;
+        assert!(!rejected_waste.is_processable());
+    }
+
+    #[test]
+    fn test_waste_validate() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let location = String::from_str(&env, "Validation Test");
+        
+        // Valid waste
+        let valid_waste = Waste::new(
+            1,
+            WasteType::Plastic,
+            5000,
+            submitter.clone(),
+            1234567890,
+            location.clone(),
+        );
+        assert!(valid_waste.validate().is_ok());
+
+        // Zero weight
+        let zero_weight = Waste::new(
+            2,
+            WasteType::Paper,
+            0,
+            submitter.clone(),
+            1234567890,
+            location.clone(),
+        );
+        assert_eq!(zero_weight.validate(), Err("Weight must be greater than zero"));
+
+        // Below minimum weight
+        let below_min = Waste::new(
+            3,
+            WasteType::Glass,
+            50,
+            submitter,
+            1234567890,
+            location,
+        );
+        assert_eq!(below_min.validate(), Err("Weight must be at least 100g"));
+    }
+
+    #[test]
+    fn test_waste_all_waste_types() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let location = String::from_str(&env, "Type Test");
+        
+        let types = [
+            WasteType::Paper,
+            WasteType::PetPlastic,
+            WasteType::Plastic,
+            WasteType::Metal,
+            WasteType::Glass,
+        ];
+
+        for (i, waste_type) in types.iter().enumerate() {
+            let waste = Waste::new(
+                i as u64 + 1,
+                *waste_type,
+                1000,
+                submitter.clone(),
+                1234567890,
+                location.clone(),
+            );
+            assert_eq!(waste.waste_type, *waste_type);
+        }
+    }
+
+    #[test]
+    fn test_waste_all_statuses() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let location = String::from_str(&env, "Status Test");
+        
+        let statuses = [
+            WasteStatus::Pending,
+            WasteStatus::Processing,
+            WasteStatus::Processed,
+            WasteStatus::Rejected,
+        ];
+
+        for (i, status) in statuses.iter().enumerate() {
+            let mut waste = Waste::new(
+                i as u64 + 1,
+                WasteType::Paper,
+                1000,
+                submitter.clone(),
+                1234567890,
+                location.clone(),
+            );
+            waste.status = *status;
+            assert_eq!(waste.status, *status);
+        }
+    }
+
+    #[test]
+    fn test_waste_boundary_values() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let location = String::from_str(&env, "Boundary Test");
+        
+        // Minimum valid weight
+        let min_waste = Waste::new(
+            1,
+            WasteType::Paper,
+            100,
+            submitter.clone(),
+            0,
+            location.clone(),
+        );
+        assert!(min_waste.validate().is_ok());
+
+        // Maximum u64 weight
+        let max_waste = Waste::new(
+            2,
+            WasteType::Metal,
+            u64::MAX,
+            submitter.clone(),
+            u64::MAX,
+            location.clone(),
+        );
+        assert!(max_waste.validate().is_ok());
+
+        // Zero timestamp (valid)
+        let zero_time = Waste::new(
+            3,
+            WasteType::Glass,
+            1000,
+            submitter,
+            0,
+            location,
+        );
+        assert_eq!(zero_time.submitted_at, 0);
+    }
+
+    #[test]
+    fn test_waste_clone() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let location = String::from_str(&env, "Clone Test");
+        
+        let original = Waste::new(
+            1,
+            WasteType::Plastic,
+            3000,
+            submitter,
+            1234567890,
+            location,
+        );
+
+        let cloned = original.clone();
+        
+        assert_eq!(cloned.id, original.id);
+        assert_eq!(cloned.waste_type, original.waste_type);
+        assert_eq!(cloned.weight, original.weight);
+        assert_eq!(cloned.submitter, original.submitter);
+        assert_eq!(cloned.submitted_at, original.submitted_at);
+        assert_eq!(cloned.status, original.status);
+        assert_eq!(cloned.location, original.location);
+        assert_eq!(cloned, original);
+    }
+
+    #[test]
+    fn test_waste_equality() {
+        let env = soroban_sdk::Env::default();
+        let submitter1 = Address::generate(&env);
+        let submitter2 = Address::generate(&env);
+        let location = String::from_str(&env, "Equality Test");
+        
+        let waste1 = Waste::new(
+            1,
+            WasteType::Paper,
+            1000,
+            submitter1.clone(),
+            1234567890,
+            location.clone(),
+        );
+
+        let waste2 = Waste::new(
+            1,
+            WasteType::Paper,
+            1000,
+            submitter1.clone(),
+            1234567890,
+            location.clone(),
+        );
+
+        let waste3 = Waste::new(
+            2,
+            WasteType::Paper,
+            1000,
+            submitter1,
+            1234567890,
+            location.clone(),
+        );
+
+        let waste4 = Waste::new(
+            1,
+            WasteType::Plastic,
+            1000,
+            submitter2,
+            1234567890,
+            location,
+        );
+
+        assert_eq!(waste1, waste2);
+        assert_ne!(waste1, waste3);
+        assert_ne!(waste1, waste4);
+    }
+
+    #[test]
+    fn test_waste_multiple_storage_operations() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let location = String::from_str(&env, "Multi Storage Test");
+        
+        // Store multiple waste items
+        for i in 1..=5 {
+            let waste = Waste::new(
+                i,
+                WasteType::Paper,
+                1000 * i,
+                submitter.clone(),
+                1234567890 + i,
+                location.clone(),
+            );
+            env.storage().instance().set(&("waste", i), &waste);
+        }
+
+        // Retrieve and verify
+        for i in 1..=5 {
+            let retrieved: Waste = env.storage().instance().get(&("waste", i)).unwrap();
+            assert_eq!(retrieved.id, i);
+            assert_eq!(retrieved.weight, 1000 * i);
+            assert_eq!(retrieved.submitted_at, 1234567890 + i);
+        }
+    }
+
+    #[test]
+    fn test_waste_storage_with_different_keys() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let location = String::from_str(&env, "Key Test");
+        
+        let waste = Waste::new(
+            1,
+            WasteType::Metal,
+            2000,
+            submitter,
+            1234567890,
+            location,
+        );
+
+        // Store with different key types
+        env.storage().instance().set(&("waste_by_id", 1u64), &waste);
+        env.storage().instance().set(&("waste_by_string", "test"), &waste);
+        env.storage().instance().set(&(1u64,), &waste);
+
+        // Retrieve with same keys
+        let r1: Waste = env.storage().instance().get(&("waste_by_id", 1u64)).unwrap();
+        let r2: Waste = env.storage().instance().get(&("waste_by_string", "test")).unwrap();
+        let r3: Waste = env.storage().instance().get(&(1u64,)).unwrap();
+
+        assert_eq!(r1, waste);
+        assert_eq!(r2, waste);
+        assert_eq!(r3, waste);
+    }
+
+    #[test]
+    fn test_waste_deterministic_serialization() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let location = String::from_str(&env, "Deterministic Test");
+        
+        let waste = Waste::new(
+            1,
+            WasteType::Glass,
+            5000,
+            submitter,
+            1234567890,
+            location,
+        );
+
+        // Store and retrieve multiple times
+        for _ in 0..10 {
+            env.storage().instance().set(&("deterministic",), &waste);
+            let retrieved: Waste = env.storage().instance().get(&("deterministic",)).unwrap();
+            assert_eq!(retrieved, waste);
+        }
+    }
+
+    #[test]
+    fn test_waste_empty_location() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let empty_location = String::from_str(&env, "");
+        
+        let waste = Waste::new(
+            1,
+            WasteType::Paper,
+            1000,
+            submitter,
+            1234567890,
+            empty_location.clone(),
+        );
+
+        assert_eq!(waste.location, empty_location);
+        
+        // Test storage with empty location
+        env.storage().instance().set(&("empty_loc",), &waste);
+        let retrieved: Waste = env.storage().instance().get(&("empty_loc",)).unwrap();
+        assert_eq!(retrieved.location, empty_location);
+    }
+
+    #[test]
+    fn test_waste_long_location() {
+        let env = soroban_sdk::Env::default();
+        let submitter = Address::generate(&env);
+        let long_location = String::from_str(
+            &env,
+            "Very Long Location Name With Many Characters To Test Storage Limits"
+        );
+        
+        let waste = Waste::new(
+            1,
+            WasteType::Plastic,
+            3000,
+            submitter,
+            1234567890,
+            long_location.clone(),
+        );
+
+        env.storage().instance().set(&("long_loc",), &waste);
+        let retrieved: Waste = env.storage().instance().get(&("long_loc",)).unwrap();
+        assert_eq!(retrieved.location, long_location);
+    }
+}
+
+#[cfg(test)]
+mod waste_status_tests {
+    use super::*;
+
+    #[test]
+    fn test_waste_status_values() {
+        assert_eq!(WasteStatus::Pending as u32, 0);
+        assert_eq!(WasteStatus::Processing as u32, 1);
+        assert_eq!(WasteStatus::Processed as u32, 2);
+        assert_eq!(WasteStatus::Rejected as u32, 3);
+    }
+
+    #[test]
+    fn test_waste_status_is_valid() {
+        assert!(WasteStatus::is_valid(0));
+        assert!(WasteStatus::is_valid(1));
+        assert!(WasteStatus::is_valid(2));
+        assert!(WasteStatus::is_valid(3));
+        assert!(!WasteStatus::is_valid(4));
+        assert!(!WasteStatus::is_valid(999));
+    }
+
+    #[test]
+    fn test_waste_status_from_u32() {
+        assert_eq!(WasteStatus::from_u32(0), Some(WasteStatus::Pending));
+        assert_eq!(WasteStatus::from_u32(1), Some(WasteStatus::Processing));
+        assert_eq!(WasteStatus::from_u32(2), Some(WasteStatus::Processed));
+        assert_eq!(WasteStatus::from_u32(3), Some(WasteStatus::Rejected));
+        assert_eq!(WasteStatus::from_u32(4), None);
+        assert_eq!(WasteStatus::from_u32(999), None);
+    }
+
+    #[test]
+    fn test_waste_status_to_u32() {
+        assert_eq!(WasteStatus::Pending.to_u32(), 0);
+        assert_eq!(WasteStatus::Processing.to_u32(), 1);
+        assert_eq!(WasteStatus::Processed.to_u32(), 2);
+        assert_eq!(WasteStatus::Rejected.to_u32(), 3);
+    }
+
+    #[test]
+    fn test_waste_status_as_str() {
+        assert_eq!(WasteStatus::Pending.as_str(), "PENDING");
+        assert_eq!(WasteStatus::Processing.as_str(), "PROCESSING");
+        assert_eq!(WasteStatus::Processed.as_str(), "PROCESSED");
+        assert_eq!(WasteStatus::Rejected.as_str(), "REJECTED");
+    }
+
+    #[test]
+    fn test_waste_status_is_modifiable() {
+        assert!(WasteStatus::Pending.is_modifiable());
+        assert!(WasteStatus::Processing.is_modifiable());
+        assert!(!WasteStatus::Processed.is_modifiable());
+        assert!(!WasteStatus::Rejected.is_modifiable());
+    }
+
+    #[test]
+    fn test_waste_status_is_final() {
+        assert!(!WasteStatus::Pending.is_final());
+        assert!(!WasteStatus::Processing.is_final());
+        assert!(WasteStatus::Processed.is_final());
+        assert!(WasteStatus::Rejected.is_final());
+    }
+
+    #[test]
+    fn test_waste_status_clone_and_copy() {
+        let status1 = WasteStatus::Pending;
+        let status2 = status1;
+        assert_eq!(status1, status2);
+    }
+
+    #[test]
+    fn test_waste_status_equality() {
+        assert_eq!(WasteStatus::Pending, WasteStatus::Pending);
+        assert_ne!(WasteStatus::Pending, WasteStatus::Processing);
+        assert_ne!(WasteStatus::Processed, WasteStatus::Rejected);
+    }
+
+    #[test]
+    fn test_all_waste_statuses() {
+        let statuses = [
+            WasteStatus::Pending,
+            WasteStatus::Processing,
+            WasteStatus::Processed,
+            WasteStatus::Rejected,
+        ];
+        
+        for (i, status) in statuses.iter().enumerate() {
+            assert_eq!(status.to_u32(), i as u32);
+            assert_eq!(WasteStatus::from_u32(i as u32), Some(*status));
+        }
 
 #[cfg(test)]
 mod waste_transfer_tests {
