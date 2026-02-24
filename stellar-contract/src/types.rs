@@ -812,6 +812,7 @@ mod recycling_stats_tests {
     #[test]
     fn test_stats_storage() {
         let env = soroban_sdk::Env::default();
+        let contract_id = env.register_contract(None, crate::ScavengerContract);
         let participant = Address::generate(&env);
 
         let stats = RecyclingStats::new(participant.clone());
@@ -959,6 +960,7 @@ mod material_tests {
     #[test]
     fn test_material_storage_compatibility() {
         let env = soroban_sdk::Env::default();
+        let contract_id = env.register_contract(None, crate::ScavengerContract);
         let submitter = Address::generate(&env);
         let description = String::from_str(&env, "Storage test");
 

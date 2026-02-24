@@ -586,11 +586,14 @@ impl ScavengerContract {
 #[cfg(test)]
 mod test {
     use super::*;
-    use soroban_sdk::{testutils::Address as _, Address, Env};
+    use soroban_sdk::{testutils::{Address as _, Ledger}, Address, Env};
 
     #[test]
     fn test_register_participant() {
         let env = Env::default();
+        env.ledger().with_mut(|li| {
+            li.timestamp = 1234567890;
+        });
         let contract_id = env.register_contract(None, ScavengerContract);
         let client = ScavengerContractClient::new(&env, &contract_id);
 
