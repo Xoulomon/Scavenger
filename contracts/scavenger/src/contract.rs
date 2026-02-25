@@ -504,6 +504,8 @@ impl ScavengerContract {
         material.current_owner = to.clone();
         Storage::set_material(env, waste_id, &material);
 
+        events::emit_waste_transferred(env, waste_id, &from, &to);
+
         // Record transfer
         let transfer = WasteTransfer::new(
             waste_id,
