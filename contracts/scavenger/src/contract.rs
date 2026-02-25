@@ -2,7 +2,7 @@ use soroban_sdk::{contract, contractimpl, token, Address, Env, Vec};
 
 use crate::events;
 use crate::storage::Storage;
-use crate::types::{GlobalMetrics, Incentive, Material, Participant, Role, WasteTransfer, WasteType};
+use crate::types::{Error, GlobalMetrics, Incentive, Material, Participant, Role, WasteTransfer, WasteType};
 
 #[contract]
 pub struct ScavengerContract;
@@ -583,5 +583,71 @@ impl ScavengerContract {
             "Only admin can perform this action"
         );
         admin.require_auth();
+    }
+
+    // ========== Access Control Helper Functions ==========
+
+    /// Verify that the caller is a registered participant
+    fn only_registered(env: &Env, caller: &Address) -> Result<(), Error> {
+        // Authenticate the caller
+        caller.require_auth();
+        
+        // Check if participant exists in storage
+        if !Storage::is_participant_registered(env, caller) {
+            return Err(Error::NotRegistered);
+        }
+        
+        Ok(())
+    }
+
+    /// Verify that the caller is a registered manufacturer
+    fn only_manufacturer(env: &Env, caller: &Address) -> Result<(), Error> {
+        // Authenticate the caller
+        caller.require_auth();
+        
+        // Retrieve participant data
+        let participant = Storage::get_participant(env, caller)
+            .ok_or(Error::NotRegistered)?;
+        
+        // Check role
+        if !participant.role.can_manufacture() {
+            return Err(Error::NotManufacturer);
+        }
+        
+        Ok(())
+    }
+
+    /// Verify that the caller is the contract administrator
+    fn only_admin(env: &Env, caller: &Address) -> Result<(), Error> {
+        // Authenticate the caller
+        caller.require_auth();
+        
+        // Retrieve admin address from storage
+        let admin = Storage::get_admin(env)
+            .ok_or(Error::AdminNotSet)?;
+        
+        // Check if caller is admin
+        if caller != &admin {
+            return Err(Error::NotAdmin);
+        }
+        
+        Ok(())
+    }
+
+    /// Verify that the caller owns the specified waste item
+    fn only_waste_owner(env: &Env, caller: &Address, waste_id: u64) -> Result<(), Error> {
+        // Authenticate the caller
+        caller.require_auth();
+        
+        // Retrieve waste item from storage
+        let material = Storage::get_material(env, waste_id)
+            .ok_or(Error::WasteNotFound)?;
+        
+        // Check ownership
+        if &material.current_owner != caller {
+            return Err(Error::NotWasteOwner);
+        }
+        
+        Ok(())
     }
 }

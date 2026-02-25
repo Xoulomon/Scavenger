@@ -1,4 +1,23 @@
-use soroban_sdk::{contracttype, Address, String};
+use soroban_sdk::{contracterror, contracttype, Address, String};
+
+/// Contract error types for access control and validation
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[repr(u32)]
+pub enum Error {
+    /// Caller is not a registered participant
+    NotRegistered = 1,
+    /// Caller is not a manufacturer
+    NotManufacturer = 2,
+    /// Caller is not the contract admin
+    NotAdmin = 3,
+    /// Contract admin has not been set
+    AdminNotSet = 4,
+    /// Caller is not the owner of this waste item
+    NotWasteOwner = 5,
+    /// Waste item not found
+    WasteNotFound = 6,
+}
 
 /// Participant role in the scavenger system
 #[contracttype]
