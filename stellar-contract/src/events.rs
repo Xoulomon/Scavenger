@@ -1,11 +1,12 @@
 use soroban_sdk::{symbol_short, Address, Env, Symbol};
 
-use crate::types::WasteType;
+use crate::types::{ParticipantRole, WasteType};
 
 const WASTE_REGISTERED: Symbol = symbol_short!("recycled");
 const DONATION_MADE: Symbol = symbol_short!("donated");
 const WASTE_TRANSFERRED: Symbol = symbol_short!("transfer");
 const WASTE_CONFIRMED: Symbol = symbol_short!("confirmed");
+const PARTICIPANT_REGISTERED: Symbol = symbol_short!("reg");
 
 /// Emit event when waste is registered
 pub fn emit_waste_registered(
@@ -58,5 +59,20 @@ pub fn emit_waste_confirmed(
     env.events().publish(
         (WASTE_CONFIRMED, waste_id),
         confirmer,
+    );
+}
+
+/// Emit event when a participant registers
+pub fn emit_participant_registered(
+    env: &Env,
+    address: &Address,
+    role: &ParticipantRole,
+    name: &Symbol,
+    latitude: i128,
+    longitude: i128,
+) {
+    env.events().publish(
+        (PARTICIPANT_REGISTERED, address),
+        (role, name, latitude, longitude),
     );
 }
