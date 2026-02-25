@@ -1,6 +1,12 @@
 [workspace]
-members = ["stellar-contract"]
+members = ["stellar-contract", "contracts/scavenger"]
 resolver = "2"
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+license = "Apache-2.0"
+repository = "https://github.com/scavenger/scavenger"
 
 [workspace.dependencies]
 soroban-sdk = "21.7.0"
