@@ -2,16 +2,16 @@
 
 mod events;
 mod types;
-
-
+mod validation;
 
 pub use types::{
     Material, ParticipantRole, RecyclingStats, TransferItemType, TransferRecord, TransferStatus,
     Waste, WasteTransfer, WasteType,
 };
 
-
-use soroban_sdk::{contract, contractimpl, contracttype, symbol_short, Address, Env, String, Symbol, Vec};
+use soroban_sdk::{
+    contract, contractimpl, contracttype, symbol_short, Address, Env, String, Symbol, Vec,
+};
 
 // Storage keys
 const ADMIN: Symbol = symbol_short!("ADMIN");
@@ -34,7 +34,6 @@ pub struct Participant {
     pub total_tokens_earned: u128,
     pub registered_at: u64,
 }
-
 
 /// Represents a manufacturer incentive program for recycling specific waste types
 #[contracttype]
@@ -73,35 +72,28 @@ impl ScavengerContract {
     /// Initialize admin (should be called once during contract deployment)
     pub fn initialize_admin(env: Env, admin: Address) {
         admin.require_auth();
-        
+
         // Check if admin is already set
         if env.storage().instance().has(&ADMIN) {
             panic!("Admin already initialized");
         }
-        
+
         env.storage().instance().set(&ADMIN, &admin);
     }
 
     /// Get the current admin address
     pub fn get_admin(env: Env) -> Address {
-        env.storage()
-            .instance()
-            .get(&ADMIN)
-            .expect("Admin not set")
+        env.storage().instance().get(&ADMIN).expect("Admin not set")
     }
 
     /// Check if caller is admin
     fn require_admin(env: &Env, caller: &Address) {
-        let admin: Address = env
-            .storage()
-            .instance()
-            .get(&ADMIN)
-            .expect("Admin not set");
-        
+        let admin: Address = env.storage().instance().get(&ADMIN).expect("Admin not set");
+
         if admin != *caller {
             panic!("Unauthorized: caller is not admin");
         }
-        
+
         caller.require_auth();
     }
 
@@ -110,13 +102,13 @@ impl ScavengerContract {
     /// Set the charity contract address (admin only)
     pub fn set_charity_contract(env: Env, admin: Address, charity_address: Address) {
         Self::require_admin(&env, &admin);
-        
+
         // Validate address (basic check - address should not be the zero address)
         // In Soroban, we can't easily check for zero address, but we can ensure it's different from admin
         if charity_address == admin {
             panic!("Charity address cannot be the same as admin");
         }
-        
+
         env.storage().instance().set(&CHARITY, &charity_address);
     }
 
@@ -127,20 +119,15 @@ impl ScavengerContract {
 
     /// Donate tokens to charity
     /// Records the donation and emits an event for tracking
-    pub fn donate_to_charity(
-        env: Env,
-        donor: Address,
-        amount: i128,
-    ) {
+    pub fn donate_to_charity(env: Env, donor: Address, amount: i128) {
         donor.require_auth();
 
         // Validate amount
-        if amount <= 0 {
-            panic!("Donation amount must be greater than zero");
-        }
+        validation::validate_positive_amount(amount, "Donation amount");
 
         // Get charity contract address
-        let charity_contract = env.storage()
+        let charity_contract = env
+            .storage()
             .instance()
             .get::<Symbol, Address>(&CHARITY)
             .expect("Charity contract not set");
@@ -159,13 +146,19 @@ impl ScavengerContract {
         owner_percentage: u32,
     ) {
         Self::require_admin(&env, &admin);
-        
-        // Validate percentages sum
+
+        // Validate percentages
+        validation::validate_percentage(collector_percentage, "Collector percentage");
+        validation::validate_percentage(owner_percentage, "Owner percentage");
+
+        // Validate sum
         if collector_percentage + owner_percentage > 100 {
             panic!("Total percentages cannot exceed 100");
         }
-        
-        env.storage().instance().set(&COLLECTOR_PCT, &collector_percentage);
+
+        env.storage()
+            .instance()
+            .set(&COLLECTOR_PCT, &collector_percentage);
         env.storage().instance().set(&OWNER_PCT, &owner_percentage);
     }
 
@@ -182,34 +175,30 @@ impl ScavengerContract {
     /// Update only the collector percentage (admin only)
     pub fn set_collector_percentage(env: Env, admin: Address, new_percentage: u32) {
         Self::require_admin(&env, &admin);
-        
+
         // Get current owner percentage to validate total
-        let owner_pct: u32 = env.storage()
-            .instance()
-            .get(&OWNER_PCT)
-            .unwrap_or(0);
-        
+        let owner_pct: u32 = env.storage().instance().get(&OWNER_PCT).unwrap_or(0);
+
         if new_percentage + owner_pct > 100 {
             panic!("Total percentages cannot exceed 100");
         }
-        
-        env.storage().instance().set(&COLLECTOR_PCT, &new_percentage);
+
+        env.storage()
+            .instance()
+            .set(&COLLECTOR_PCT, &new_percentage);
     }
 
     /// Update only the owner percentage (admin only)
     pub fn set_owner_percentage(env: Env, admin: Address, new_percentage: u32) {
         Self::require_admin(&env, &admin);
-        
+
         // Get current collector percentage to validate total
-        let collector_pct: u32 = env.storage()
-            .instance()
-            .get(&COLLECTOR_PCT)
-            .unwrap_or(0);
-        
+        let collector_pct: u32 = env.storage().instance().get(&COLLECTOR_PCT).unwrap_or(0);
+
         if collector_pct + new_percentage > 100 {
             panic!("Total percentages cannot exceed 100");
         }
-        
+
         env.storage().instance().set(&OWNER_PCT, &new_percentage);
     }
 
@@ -239,6 +228,9 @@ impl ScavengerContract {
         longitude: i128,
     ) -> Participant {
         address.require_auth();
+
+        // Validate coordinates
+        validation::validate_coordinates(latitude, longitude);
 
         // Check if already registered
         if Self::is_participant_registered(env.clone(), address.clone()) {
@@ -278,14 +270,14 @@ impl ScavengerContract {
                 .total_waste_processed
                 .checked_add(waste_weight as u128)
                 .expect("Overflow in total_waste_processed");
-            
+
             participant.total_tokens_earned = participant
                 .total_tokens_earned
                 .checked_add(tokens_earned as u128)
                 .expect("Overflow in total_tokens_earned");
-            
+
             env.storage().instance().set(&key, &participant);
-            
+
             // Update global total tokens if tokens were earned
             if tokens_earned > 0 {
                 Self::add_to_total_tokens(env, tokens_earned as u128);
@@ -297,9 +289,9 @@ impl ScavengerContract {
     fn require_registered(env: &Env, address: &Address) {
         let key = (address.clone(),);
         let participant: Option<Participant> = env.storage().instance().get(&key);
-        
+
         match participant {
-            Some(p) if p.is_registered => {},
+            Some(p) if p.is_registered => {}
             Some(_) => panic!("Participant is not registered"),
             None => panic!("Participant not found"),
         }
@@ -426,7 +418,9 @@ impl ScavengerContract {
     /// Add to global total weight
     fn add_to_total_weight(env: &Env, weight: u64) {
         let current = Self::get_total_weight(env);
-        let new_total = current.checked_add(weight).expect("Overflow in total weight");
+        let new_total = current
+            .checked_add(weight)
+            .expect("Overflow in total weight");
         env.storage().instance().set(&TOTAL_WEIGHT, &new_total);
     }
 
@@ -438,7 +432,9 @@ impl ScavengerContract {
     /// Add to global total tokens
     fn add_to_total_tokens(env: &Env, tokens: u128) {
         let current = Self::get_total_tokens(env);
-        let new_total = current.checked_add(tokens).expect("Overflow in total tokens");
+        let new_total = current
+            .checked_add(tokens)
+            .expect("Overflow in total tokens");
         env.storage().instance().set(&TOTAL_TOKENS, &new_total);
     }
 
@@ -455,8 +451,8 @@ impl ScavengerContract {
                 .get::<_, Waste>(&("waste_v2", waste_id as u128))
             {
                 if waste.is_active {
-                    let weight = u64::try_from(waste.weight)
-                        .expect("Waste weight exceeds u64 range");
+                    let weight =
+                        u64::try_from(waste.weight).expect("Waste weight exceeds u64 range");
                     total_weight = total_weight
                         .checked_add(weight)
                         .expect("Overflow in active waste total weight");
@@ -526,13 +522,9 @@ impl ScavengerContract {
 
     /// Update incentive active status
     /// Only the rewarder can update their incentive
-    pub fn update_incentive_status(
-        env: Env,
-        incentive_id: u64,
-        is_active: bool,
-    ) -> Incentive {
-        let mut incentive: Incentive = Self::get_incentive(&env, incentive_id)
-            .expect("Incentive not found");
+    pub fn update_incentive_status(env: Env, incentive_id: u64, is_active: bool) -> Incentive {
+        let mut incentive: Incentive =
+            Self::get_incentive(&env, incentive_id).expect("Incentive not found");
 
         // Require auth from the rewarder
         incentive.rewarder.require_auth();
@@ -553,8 +545,8 @@ impl ScavengerContract {
         new_max_waste_amount: u128,
     ) -> Incentive {
         // Step 1: Retrieve incentive (existence check)
-        let mut incentive: Incentive = Self::get_incentive(&env, incentive_id)
-            .expect("Incentive not found");
+        let mut incentive: Incentive =
+            Self::get_incentive(&env, incentive_id).expect("Incentive not found");
 
         // Step 2: Authorization check
         incentive.rewarder.require_auth();
@@ -582,22 +574,17 @@ impl ScavengerContract {
         // Step 7: Emit event
         env.events().publish(
             (symbol_short!("inc_upd"), incentive_id),
-            (incentive.rewarder.clone(), new_reward, new_max_waste_amount)
+            (incentive.rewarder.clone(), new_reward, new_max_waste_amount),
         );
 
         incentive
     }
 
-
     /// Calculate reward for a given waste amount based on an incentive
     /// Returns the reward amount, respecting max_waste_amount and is_active status
-    pub fn calculate_incentive_reward(
-        env: Env,
-        incentive_id: u64,
-        waste_amount: u64,
-    ) -> u128 {
-        let incentive: Incentive = Self::get_incentive(&env, incentive_id)
-            .expect("Incentive not found");
+    pub fn calculate_incentive_reward(env: Env, incentive_id: u64, waste_amount: u64) -> u128 {
+        let incentive: Incentive =
+            Self::get_incentive(&env, incentive_id).expect("Incentive not found");
 
         // Check if incentive is active
         if !incentive.is_active {
@@ -657,7 +644,6 @@ impl ScavengerContract {
         results
     }
 
-
     /// Get participant information
     pub fn get_participant(env: Env, address: Address) -> Option<Participant> {
         let key = (address,);
@@ -669,13 +655,10 @@ impl ScavengerContract {
     /// Returns None if participant is not registered
     pub fn get_participant_info(env: Env, address: Address) -> Option<ParticipantInfo> {
         let participant = Self::get_participant(env.clone(), address.clone())?;
-        let stats = Self::get_stats(env, address.clone())
-            .unwrap_or_else(|| RecyclingStats::new(address));
-        
-        Some(ParticipantInfo {
-            participant,
-            stats,
-        })
+        let stats =
+            Self::get_stats(env, address.clone()).unwrap_or_else(|| RecyclingStats::new(address));
+
+        Some(ParticipantInfo { participant, stats })
     }
 
     /// Update participant role
@@ -696,7 +679,6 @@ impl ScavengerContract {
 
         participant
     }
-
 
     /// Deregister a participant (sets is_registered to false)
     pub fn deregister_participant(env: Env, address: Address) -> Participant {
@@ -799,7 +781,8 @@ impl ScavengerContract {
         }
 
         // Get and update material
-        let mut material: Material = Self::get_waste_internal(&env, waste_id).expect("Waste not found");
+        let mut material: Material =
+            Self::get_waste_internal(&env, waste_id).expect("Waste not found");
 
         // Verify sender owns the waste
         if material.submitter != from {
@@ -832,7 +815,6 @@ impl ScavengerContract {
         // This would need to iterate through all wastes
         // For now, returning empty as this requires additional indexing
         Vec::new(&env)
-
     }
 
     /// Validate if a participant can perform a specific action
@@ -892,7 +874,9 @@ impl ScavengerContract {
             .unwrap_or_else(|| RecyclingStats::new(submitter.clone()));
 
         stats.record_submission(&material);
-        env.storage().instance().set(&("stats", submitter.clone()), &stats);
+        env.storage()
+            .instance()
+            .set(&("stats", submitter.clone()), &stats);
 
         // Update participant stats
         Self::update_participant_stats(&env, &submitter, weight, 0);
@@ -914,6 +898,12 @@ impl ScavengerContract {
     ) -> u128 {
         recycler.require_auth();
 
+        // Validate weight
+        validation::validate_positive_u128(weight, "Waste weight");
+
+        // Validate coordinates
+        validation::validate_coordinates(latitude, longitude);
+
         if !Self::is_participant_registered(env.clone(), recycler.clone()) {
             panic!("Participant not registered");
         }
@@ -934,7 +924,9 @@ impl ScavengerContract {
             recycler.clone(),
         );
 
-        env.storage().instance().set(&("waste_v2", waste_id), &waste);
+        env.storage()
+            .instance()
+            .set(&("waste_v2", waste_id), &waste);
 
         let mut waste_list: Vec<u128> = env
             .storage()
@@ -948,13 +940,7 @@ impl ScavengerContract {
 
         // Emit waste registered event
         events::emit_waste_registered(
-            &env,
-            waste_id,
-            &recycler,
-            waste_type,
-            weight,
-            latitude,
-            longitude,
+            &env, waste_id, &recycler, waste_type, weight, latitude, longitude,
         );
 
         waste_id
@@ -990,7 +976,9 @@ impl ScavengerContract {
         }
 
         waste.transfer_to(to.clone());
-        env.storage().instance().set(&("waste_v2", waste_id), &waste);
+        env.storage()
+            .instance()
+            .set(&("waste_v2", waste_id), &waste);
 
         let from_list: Vec<u128> = env
             .storage()
@@ -1096,7 +1084,9 @@ impl ScavengerContract {
             manufacturer.clone(),
         );
 
-        env.storage().instance().set(&("waste_v2", waste_id), &waste);
+        env.storage()
+            .instance()
+            .set(&("waste_v2", waste_id), &waste);
 
         let mut manufacturer_list: Vec<u128> = env
             .storage()
@@ -1104,9 +1094,10 @@ impl ScavengerContract {
             .get(&("participant_wastes", manufacturer.clone()))
             .unwrap_or(Vec::new(&env));
         manufacturer_list.push_back(waste_id);
-        env.storage()
-            .instance()
-            .set(&("participant_wastes", manufacturer.clone()), &manufacturer_list);
+        env.storage().instance().set(
+            &("participant_wastes", manufacturer.clone()),
+            &manufacturer_list,
+        );
 
         let transfer = WasteTransfer::new(
             waste_id,
@@ -1137,11 +1128,7 @@ impl ScavengerContract {
     }
 
     /// Confirm waste details
-    pub fn confirm_waste_details(
-        env: Env,
-        waste_id: u128,
-        confirmer: Address,
-    ) -> types::Waste {
+    pub fn confirm_waste_details(env: Env, waste_id: u128, confirmer: Address) -> types::Waste {
         confirmer.require_auth();
 
         let mut waste: types::Waste = env
@@ -1163,7 +1150,9 @@ impl ScavengerContract {
         }
 
         waste.confirm(confirmer.clone());
-        env.storage().instance().set(&("waste_v2", waste_id), &waste);
+        env.storage()
+            .instance()
+            .set(&("waste_v2", waste_id), &waste);
 
         env.events().publish(
             (soroban_sdk::symbol_short!("confirmed"), waste_id),
@@ -1175,11 +1164,7 @@ impl ScavengerContract {
 
     /// Reset waste confirmation status
     /// Only the waste owner can reset the confirmation
-    pub fn reset_waste_confirmation(
-        env: Env,
-        waste_id: u128,
-        owner: Address,
-    ) -> types::Waste {
+    pub fn reset_waste_confirmation(env: Env, waste_id: u128, owner: Address) -> types::Waste {
         owner.require_auth();
 
         let mut waste: types::Waste = env
@@ -1197,7 +1182,9 @@ impl ScavengerContract {
         }
 
         waste.reset_confirmation();
-        env.storage().instance().set(&("waste_v2", waste_id), &waste);
+        env.storage()
+            .instance()
+            .set(&("waste_v2", waste_id), &waste);
 
         env.events().publish(
             (soroban_sdk::symbol_short!("reset"), waste_id),
@@ -1209,11 +1196,7 @@ impl ScavengerContract {
 
     /// Deactivate a waste record (admin only)
     /// Deactivated waste cannot be queried or reactivated
-    pub fn deactivate_waste(
-        env: Env,
-        waste_id: u128,
-        admin: Address,
-    ) -> types::Waste {
+    pub fn deactivate_waste(env: Env, waste_id: u128, admin: Address) -> types::Waste {
         Self::require_admin(&env, &admin);
 
         let mut waste: types::Waste = env
@@ -1227,7 +1210,9 @@ impl ScavengerContract {
         }
 
         waste.deactivate();
-        env.storage().instance().set(&("waste_v2", waste_id), &waste);
+        env.storage()
+            .instance()
+            .set(&("waste_v2", waste_id), &waste);
 
         env.events().publish(
             (soroban_sdk::symbol_short!("deactive"), waste_id),
@@ -1278,13 +1263,17 @@ impl ScavengerContract {
             Self::set_waste(&env, waste_id, &material);
             stats.record_submission(&material);
             results.push_back(material);
-            
+
             // Accumulate weight with overflow check
-            total_weight = total_weight.checked_add(weight).expect("Overflow in batch weight");
+            total_weight = total_weight
+                .checked_add(weight)
+                .expect("Overflow in batch weight");
         }
 
         // Update stats once at the end
-        env.storage().instance().set(&("stats", submitter.clone()), &stats);
+        env.storage()
+            .instance()
+            .set(&("stats", submitter.clone()), &stats);
 
         // Update participant stats
         Self::update_participant_stats(&env, &submitter, total_weight, 0);
@@ -1313,7 +1302,8 @@ impl ScavengerContract {
     /// Returns a vector of waste IDs where the participant is the current submitter/owner
     pub fn get_participant_wastes(env: Env, participant: Address) -> Vec<u64> {
         let mut waste_ids = Vec::new(&env);
-        let waste_count = env.storage()
+        let waste_count = env
+            .storage()
             .instance()
             .get::<_, u64>(&("waste_count",))
             .unwrap_or(0);
@@ -1460,7 +1450,7 @@ impl ScavengerContract {
         let total_wastes = Self::get_waste_count(&env);
         let total_weight = Self::get_total_active_waste_weight(&env);
         let total_tokens = Self::get_total_tokens(&env);
-        
+
         (total_wastes, total_weight, total_tokens)
     }
 
@@ -1473,10 +1463,10 @@ impl ScavengerContract {
     ) -> Option<Incentive> {
         // Get all incentives for this manufacturer
         let incentive_ids = Self::get_incentives_by_rewarder(env.clone(), manufacturer.clone());
-        
+
         let mut best_incentive: Option<Incentive> = None;
         let mut highest_reward: u64 = 0;
-        
+
         // Iterate through all incentives and find the best active one
         for incentive_id in incentive_ids.iter() {
             if let Some(incentive) = Self::get_incentive_internal(&env, incentive_id) {
@@ -1490,7 +1480,7 @@ impl ScavengerContract {
                 }
             }
         }
-        
+
         best_incentive
     }
 
@@ -1553,7 +1543,8 @@ impl ScavengerContract {
     pub fn deactivate_incentive(env: Env, incentive_id: u64, rewarder: Address) -> Incentive {
         rewarder.require_auth();
 
-        let mut incentive = Self::get_incentive_internal(&env, incentive_id).expect("Incentive not found");
+        let mut incentive =
+            Self::get_incentive_internal(&env, incentive_id).expect("Incentive not found");
 
         // Verify caller is the creator
         if incentive.rewarder != rewarder {
@@ -1565,5 +1556,4 @@ impl ScavengerContract {
 
         incentive
     }
-
 }
