@@ -1022,6 +1022,11 @@ impl ScavengerContract {
         waste_id
     }
 
+    /// Get waste by ID (v2 API with location tracking)
+    pub fn get_waste_v2(env: Env, waste_id: u128) -> Option<types::Waste> {
+        env.storage().instance().get(&("waste_v2", waste_id))
+    }
+
     /// Transfer waste between participants with location tracking
     pub fn transfer_waste_v2(
         env: Env,
