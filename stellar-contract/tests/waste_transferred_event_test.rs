@@ -13,8 +13,8 @@ fn test_waste_transferred_event_emitted() {
     let collector = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(&recycler, &ParticipantRole::Recycler, &String::from_str(&env, "Recycler"), &100, &200);
-    client.register_participant(&collector, &ParticipantRole::Collector, &String::from_str(&env, "Collector"), &300, &400);
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &100, &200);
+    client.register_participant(&collector, &ParticipantRole::Collector, &symbol_short!("Col"), &300, &400);
 
     let waste_id = client.recycle_waste(
         &WasteType::Plastic,
@@ -24,11 +24,12 @@ fn test_waste_transferred_event_emitted() {
         &-74_000_000,
     );
 
-    client.transfer_waste(
+    client.transfer_waste_v2(
         &waste_id, 
         &recycler, 
-        &collector, 
-        &String::from_str(&env, "Transfer note")
+        &collector,
+        &41_000_000,
+        &-75_000_000,
     );
 
     let events = env.events().all();
@@ -39,9 +40,6 @@ fn test_waste_transferred_event_emitted() {
         waste_id,
     ).into_val(&env);
     
-    assert_eq!(event.topics, expected_topics);
-
-    let event_data: (Address, Address) = event.data.try_into_val(&env).unwrap();
-    assert_eq!(event_data.0, recycler);
-    assert_eq!(event_data.1, collector);
+    assert_eq!(event.0, contract_id);
+    assert_eq!(event.1, expected_topics);
 }

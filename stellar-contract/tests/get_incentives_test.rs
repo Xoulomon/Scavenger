@@ -13,7 +13,7 @@ fn test_get_incentives_returns_active_only() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
 
     // Create multiple incentives for Plastic
     let incentive1 = client.create_incentive(&manufacturer, &WasteType::Plastic, &50, &10000);
@@ -47,7 +47,7 @@ fn test_get_incentives_filters_by_waste_type() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
 
     // Create incentives for different waste types
     client.create_incentive(&manufacturer, &WasteType::Plastic, &50, &10000);
@@ -74,7 +74,7 @@ fn test_get_incentives_sorted_by_reward_descending() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
 
     // Create incentives with different reward amounts (in random order)
     client.create_incentive(&manufacturer, &WasteType::Paper, &30, &5000);
@@ -119,7 +119,7 @@ fn test_get_incentives_empty_when_all_deactivated() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
 
     // Create incentives
     let incentive1 = client.create_incentive(&manufacturer, &WasteType::Glass, &40, &8000);
@@ -144,7 +144,7 @@ fn test_get_incentives_single_incentive() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
 
     // Create single incentive
     let created = client.create_incentive(&manufacturer, &WasteType::PetPlastic, &60, &12000);
@@ -168,7 +168,7 @@ fn test_get_incentives_sorting_with_equal_rewards() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
 
     // Create incentives with some equal reward amounts
     client.create_incentive(&manufacturer, &WasteType::Metal, &50, &10000);
@@ -195,7 +195,7 @@ fn test_get_incentives_already_sorted() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
 
     // Create incentives already in descending order
     client.create_incentive(&manufacturer, &WasteType::Paper, &90, &15000);
@@ -222,7 +222,7 @@ fn test_get_incentives_independent_per_waste_type() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
 
     // Create incentives for different waste types
     client.create_incentive(&manufacturer, &WasteType::Plastic, &50, &10000);
@@ -250,7 +250,7 @@ fn test_get_incentives_returns_complete_data() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
 
     // Create incentive
     let created = client.create_incentive(&manufacturer, &WasteType::Plastic, &50, &10000);
@@ -280,9 +280,9 @@ fn test_get_incentives_reflects_budget_changes() {
     let collector = Address::generate(&env);
     let recycler = Address::generate(&env);
     
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer);
-    client.register_participant(&collector, &ParticipantRole::Collector);
-    client.register_participant(&recycler, &ParticipantRole::Recycler);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&collector, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
 
     // Create incentive
     let incentive = client.create_incentive(&manufacturer, &WasteType::Metal, &100, &1000);
@@ -315,9 +315,9 @@ fn test_get_incentives_excludes_auto_deactivated() {
     let collector = Address::generate(&env);
     let recycler = Address::generate(&env);
     
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer);
-    client.register_participant(&collector, &ParticipantRole::Collector);
-    client.register_participant(&recycler, &ParticipantRole::Recycler);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&collector, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
 
     // Create incentive with small budget
     let incentive = client.create_incentive(&manufacturer, &WasteType::Paper, &100, &500);
@@ -347,7 +347,7 @@ fn test_get_incentives_all_waste_types() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
 
     // Create incentives for all waste types
     client.create_incentive(&manufacturer, &WasteType::Paper, &30, &5000);
@@ -374,8 +374,8 @@ fn test_get_incentives_multiple_manufacturers() {
     let manufacturer1 = Address::generate(&env);
     let manufacturer2 = Address::generate(&env);
     
-    client.register_participant(&manufacturer1, &ParticipantRole::Manufacturer);
-    client.register_participant(&manufacturer2, &ParticipantRole::Manufacturer);
+    client.register_participant(&manufacturer1, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer2, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
 
     // Create incentives from different manufacturers
     client.create_incentive(&manufacturer1, &WasteType::Plastic, &50, &10000);
@@ -402,7 +402,7 @@ fn test_get_incentives_no_side_effects() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
 
     // Create incentives
     client.create_incentive(&manufacturer, &WasteType::Metal, &50, &10000);
@@ -431,7 +431,7 @@ fn test_get_incentives_large_list() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
 
     // Create many incentives
     for i in 1..=10 {

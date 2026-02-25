@@ -74,7 +74,7 @@ pub fn emit_participant_registered(
 ) {
     env.events().publish(
         (PARTICIPANT_REGISTERED, address),
-        (role, name, latitude, longitude),
+        (role.as_str(), name, latitude, longitude),
     );
 }
 

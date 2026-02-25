@@ -16,7 +16,7 @@ fn setup_test_environment(env: &Env) -> (ScavengerContractClient, Address) {
     let recycler = Address::generate(env);
     
     // Register recycler participant
-    client.register_participant(&recycler, &ParticipantRole::Recycler);
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
     
     (client, recycler)
 }
@@ -306,8 +306,8 @@ fn test_multiple_participants_wastes_independent() {
     let recycler2 = Address::generate(&env);
     
     // Register both participants
-    client.register_participant(&recycler1, &ParticipantRole::Recycler);
-    client.register_participant(&recycler2, &ParticipantRole::Recycler);
+    client.register_participant(&recycler1, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&recycler2, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
     
     let desc = String::from_str(&env, "Test waste");
     
@@ -474,8 +474,8 @@ fn test_waste_registration_with_different_roles() {
     let collector = Address::generate(&env);
     
     // Register both roles
-    client.register_participant(&recycler, &ParticipantRole::Recycler);
-    client.register_participant(&collector, &ParticipantRole::Collector);
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&collector, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
     
     let desc = String::from_str(&env, "Test waste");
     

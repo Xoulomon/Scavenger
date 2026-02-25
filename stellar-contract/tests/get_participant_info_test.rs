@@ -14,7 +14,7 @@ fn test_get_participant_info_returns_participant_and_stats() {
     let user = Address::generate(&env);
 
     // Register participant
-    client.register_participant(&user, &ParticipantRole::Collector);
+    client.register_participant(&user, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
 
     // Get participant info
     let info = client.get_participant_info(&user);
@@ -42,7 +42,7 @@ fn test_get_participant_info_with_stats() {
     let desc = String::from_str(&env, "Test material");
 
     // Register participant
-    client.register_participant(&user, &ParticipantRole::Collector);
+    client.register_participant(&user, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
 
     // Submit material to create stats
     client.submit_material(&WasteType::Plastic, &5000, &user, &desc);
@@ -85,9 +85,9 @@ fn test_get_participant_info_all_roles() {
     let manufacturer = Address::generate(&env);
 
     // Register participants with different roles
-    client.register_participant(&recycler, &ParticipantRole::Recycler);
-    client.register_participant(&collector, &ParticipantRole::Collector);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer);
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&collector, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
 
     // Get info for each
     let recycler_info = client.get_participant_info(&recycler).unwrap();
@@ -112,7 +112,7 @@ fn test_get_participant_info_stats_reflect_submissions() {
     let desc = String::from_str(&env, "Test");
 
     // Register participant
-    client.register_participant(&user, &ParticipantRole::Collector);
+    client.register_participant(&user, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
 
     // Submit multiple materials
     client.submit_material(&WasteType::Paper, &1000, &user, &desc);
@@ -142,8 +142,8 @@ fn test_get_participant_info_stats_reflect_verifications() {
     let desc = String::from_str(&env, "Test");
 
     // Register participants
-    client.register_participant(&collector, &ParticipantRole::Collector);
-    client.register_participant(&recycler, &ParticipantRole::Recycler);
+    client.register_participant(&collector, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
 
     // Submit and verify material
     let material = client.submit_material(&WasteType::Metal, &5000, &collector, &desc);
@@ -168,7 +168,7 @@ fn test_get_participant_info_stats_current() {
     let desc = String::from_str(&env, "Test");
 
     // Register participant
-    client.register_participant(&user, &ParticipantRole::Collector);
+    client.register_participant(&user, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
 
     // Submit material
     client.submit_material(&WasteType::Paper, &1000, &user, &desc);
@@ -196,7 +196,7 @@ fn test_get_participant_info_preserves_registration_time() {
     let user = Address::generate(&env);
 
     // Register participant
-    let participant = client.register_participant(&user, &ParticipantRole::Collector);
+    let participant = client.register_participant(&user, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
     let registration_time = participant.registered_at;
 
     // Get info
@@ -215,7 +215,7 @@ fn test_get_participant_info_after_role_update() {
     let user = Address::generate(&env);
 
     // Register as collector
-    client.register_participant(&user, &ParticipantRole::Collector);
+    client.register_participant(&user, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
 
     // Update role to recycler
     client.update_role(&user, &ParticipantRole::Recycler);
@@ -241,9 +241,9 @@ fn test_get_participant_info_multiple_participants() {
     let user3 = Address::generate(&env);
 
     // Register multiple participants
-    client.register_participant(&user1, &ParticipantRole::Collector);
-    client.register_participant(&user2, &ParticipantRole::Recycler);
-    client.register_participant(&user3, &ParticipantRole::Manufacturer);
+    client.register_participant(&user1, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&user2, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&user3, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
 
     // Get info for each
     let info1 = client.get_participant_info(&user1);
@@ -270,7 +270,7 @@ fn test_get_participant_info_no_side_effects() {
     let user = Address::generate(&env);
 
     // Register participant
-    client.register_participant(&user, &ParticipantRole::Collector);
+    client.register_participant(&user, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
 
     // Get info multiple times
     let info1 = client.get_participant_info(&user).unwrap();
@@ -294,7 +294,7 @@ fn test_get_participant_info_with_all_waste_types() {
     let desc = String::from_str(&env, "Test");
 
     // Register participant
-    client.register_participant(&user, &ParticipantRole::Collector);
+    client.register_participant(&user, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
 
     // Submit all waste types
     client.submit_material(&WasteType::Paper, &1000, &user, &desc);
@@ -325,7 +325,7 @@ fn test_get_participant_info_consistency_with_get_participant() {
     let user = Address::generate(&env);
 
     // Register participant
-    client.register_participant(&user, &ParticipantRole::Recycler);
+    client.register_participant(&user, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
 
     // Get via both methods
     let participant = client.get_participant(&user).unwrap();
@@ -347,7 +347,7 @@ fn test_get_participant_info_consistency_with_get_stats() {
     let desc = String::from_str(&env, "Test");
 
     // Register and submit
-    client.register_participant(&user, &ParticipantRole::Collector);
+    client.register_participant(&user, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
     client.submit_material(&WasteType::Paper, &1000, &user, &desc);
 
     // Get via both methods
@@ -372,7 +372,7 @@ fn test_get_participant_info_read_only() {
     let desc = String::from_str(&env, "Test");
 
     // Register and submit
-    client.register_participant(&user, &ParticipantRole::Collector);
+    client.register_participant(&user, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
     client.submit_material(&WasteType::Metal, &5000, &user, &desc);
 
     // Get info

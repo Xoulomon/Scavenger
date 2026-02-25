@@ -302,7 +302,7 @@ impl ScavengerContract {
         let participant = Participant {
             address: address.clone(),
             role,
-            name,
+            name: name.clone(),
             latitude,
             longitude,
             is_registered: true,
@@ -405,8 +405,8 @@ impl ScavengerContract {
             
             let recycler_amount = total_reward.saturating_sub(total_distributed);
             if recycler_amount > 0 {
-                Self::update_participant_stats(env, &material.current_owner, 0, recycler_amount as u64);
-                events::emit_tokens_rewarded(env, &material.current_owner, recycler_amount, waste_id);
+                Self::update_participant_stats(env, &material.submitter, 0, recycler_amount as u64);
+                events::emit_tokens_rewarded(env, &material.submitter, recycler_amount, waste_id);
             }
         }
     }
@@ -807,6 +807,13 @@ impl ScavengerContract {
     /// Get transfer history for a specific waste
     /// Returns chronologically ordered list of transfers
     pub fn get_transfer_history(env: Env, waste_id: u64) -> Vec<WasteTransfer> {
+        // Check v2 storage first (uses u128 waste_id)
+        let v2_key = ("transfer_history", waste_id as u128);
+        if let Some(history) = env.storage().instance().get::<_, Vec<WasteTransfer>>(&v2_key) {
+            return history;
+        }
+        
+        // Fall back to v1 storage
         let key = ("transfers", waste_id);
         env.storage().instance().get(&key).unwrap_or(Vec::new(&env))
     }
@@ -820,7 +827,7 @@ impl ScavengerContract {
 
     /// Record a waste transfer
     /// Appends to immutable history
-    fn record_transfer(env: &Env, waste_id: u64, from: Address, to: Address, note: String) {
+    fn record_transfer(env: &Env, waste_id: u64, from: Address, to: Address, _note: String) {
         let key = ("transfers", waste_id);
         let mut history: Vec<WasteTransfer> =
             env.storage().instance().get(&key).unwrap_or(Vec::new(env));

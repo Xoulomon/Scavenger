@@ -13,7 +13,7 @@ fn test_waste_registered_event_emitted() {
     env.mock_all_auths();
 
     // Register participant
-    client.register_participant(&recycler, &ParticipantRole::Recycler);
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
 
     // Recycle waste
     let waste_type = WasteType::Plastic;
@@ -59,7 +59,7 @@ fn test_waste_registered_event_fields() {
     let recycler = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(&recycler, &ParticipantRole::Recycler);
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
 
     // Test with different waste types and values
     let test_cases = vec![
@@ -108,8 +108,8 @@ fn test_waste_registered_event_multiple_wastes() {
     let recycler2 = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(&recycler1, &ParticipantRole::Recycler);
-    client.register_participant(&recycler2, &ParticipantRole::Recycler);
+    client.register_participant(&recycler1, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&recycler2, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
 
     // Register multiple wastes
     let waste_id1 = client.recycle_waste(
@@ -169,7 +169,7 @@ fn test_waste_registered_event_with_boundary_coordinates() {
     let recycler = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(&recycler, &ParticipantRole::Recycler);
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
 
     // Test with boundary coordinates
     let max_lat: i128 = 90_000_000;
@@ -212,7 +212,7 @@ fn test_waste_registered_event_symbol() {
     let recycler = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(&recycler, &ParticipantRole::Recycler);
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
 
     client.recycle_waste(
         &WasteType::Paper,
