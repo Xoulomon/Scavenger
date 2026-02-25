@@ -591,6 +591,40 @@ fn test_transfer_waste() {
 }
 
 #[test]
+fn test_transfer_waste_event_emitted() {
+    let env = Env::default();
+    let (client, admin, token_address, charity_address) = create_test_contract(&env);
+    
+    env.mock_all_auths();
+    client.initialize(&admin, &token_address, &charity_address, &5, &50);
+    
+    let recycler = Address::generate(&env);
+    let collector = Address::generate(&env);
+    let name1 = String::from_str(&env, "Recycler");
+    let name2 = String::from_str(&env, "Collector");
+    
+    client.register_participant(&recycler, &Role::Recycler, &name1, &100, &200);
+    client.register_participant(&collector, &Role::Collector, &name2, &300, &400);
+    
+    let material = client.submit_material(&recycler, &WasteType::Metal, &3000);
+    
+    client.transfer_waste(&material.id, &recycler, &collector);
+    
+    let events = env.events().all();
+    let event = events.last().unwrap();
+    
+    let expected_topics: soroban_sdk::Vec<soroban_sdk::Val> = (
+        soroban_sdk::symbol_short!("wst_trans"),
+        material.id,
+    ).into_val(&env);
+    assert_eq!(event.topics, expected_topics);
+    
+    let event_data: (Address, Address) = event.data.try_into_val(&env).unwrap();
+    assert_eq!(event_data.0, recycler);
+    assert_eq!(event_data.1, collector);
+}
+
+#[test]
 fn test_get_transfer_history() {
     let env = Env::default();
     let (client, admin, token_address, charity_address) = create_test_contract(&env);

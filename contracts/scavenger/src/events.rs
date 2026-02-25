@@ -9,6 +9,7 @@ const TOKENS_REWARDED: Symbol = symbol_short!("rewarded");
 const WASTE_DEACTIVATED: Symbol = symbol_short!("wst_deact");
 const WASTE_CONFIRMED: Symbol = symbol_short!("wst_conf");
 const WASTE_CONFIRMATION_RESET: Symbol = symbol_short!("wst_rst");
+const WASTE_TRANSFERRED: Symbol = symbol_short!("wst_trans");
 
 /// Emit event when a participant registers
 pub fn emit_participant_registered(
@@ -100,5 +101,18 @@ pub fn emit_waste_confirmation_reset(
     env.events().publish(
         (WASTE_CONFIRMATION_RESET, waste_id),
         owner,
+    );
+}
+
+/// Emit event when waste is transferred
+pub fn emit_waste_transferred(
+    env: &Env,
+    waste_id: u64,
+    from: &Address,
+    to: &Address,
+) {
+    env.events().publish(
+        (WASTE_TRANSFERRED, waste_id),
+        (from, to),
     );
 }

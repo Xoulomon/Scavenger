@@ -811,6 +811,7 @@ impl ScavengerContract {
         Self::set_waste(&env, waste_id, &material);
 
         // Record transfer in history
+        events::emit_waste_transferred(&env, waste_id, &from, &to);
         Self::record_transfer(&env, waste_id, from, to, note);
 
         material
