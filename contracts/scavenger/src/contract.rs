@@ -357,11 +357,17 @@ impl ScavengerContract {
     /// Deactivate an incentive (rewarder only)
     pub fn deactivate_incentive(env: &Env, rewarder: Address, incentive_id: u64) {
         rewarder.require_auth();
+
         let mut incentive = Storage::get_incentive(env, incentive_id)
             .expect("Incentive not found");
+
         assert!(incentive.rewarder == rewarder, "Only rewarder can deactivate");
+        assert!(incentive.active, "Incentive is already inactive");
+
         incentive.active = false;
         Storage::set_incentive(env, incentive_id, &incentive);
+
+        events::emit_incentive_deactivated(env, incentive_id, &rewarder);
     }
 
     /// Submit material for recycling
