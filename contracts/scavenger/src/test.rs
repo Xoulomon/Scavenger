@@ -1,6 +1,6 @@
 #![cfg(test)]
 
-use soroban_sdk::{testutils::Address as _, Address, Env};
+use soroban_sdk::{testutils::{Address as _, Events}, Address, Env, IntoVal};
 
 use crate::{ScavengerContract, ScavengerContractClient};
 
@@ -617,9 +617,9 @@ fn test_transfer_waste_event_emitted() {
         soroban_sdk::symbol_short!("wst_trans"),
         material.id,
     ).into_val(&env);
-    assert_eq!(event.topics, expected_topics);
-    
-    let event_data: (Address, Address) = event.data.try_into_val(&env).unwrap();
+    assert_eq!(event.1, expected_topics);
+
+    let event_data: (Address, Address) = soroban_sdk::TryFromVal::try_from_val(&env, &event.2).unwrap();
     assert_eq!(event_data.0, recycler);
     assert_eq!(event_data.1, collector);
 }
