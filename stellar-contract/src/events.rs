@@ -7,6 +7,7 @@ const DONATION_MADE: Symbol = symbol_short!("donated");
 const WASTE_TRANSFERRED: Symbol = symbol_short!("transfer");
 const WASTE_CONFIRMED: Symbol = symbol_short!("confirmed");
 const PARTICIPANT_REGISTERED: Symbol = symbol_short!("reg");
+const TOKENS_REWARDED: Symbol = symbol_short!("rewarded");
 
 /// Emit event when waste is registered
 pub fn emit_waste_registered(
@@ -74,5 +75,18 @@ pub fn emit_participant_registered(
     env.events().publish(
         (PARTICIPANT_REGISTERED, address),
         (role, name, latitude, longitude),
+    );
+}
+
+/// Emit event when tokens are rewarded
+pub fn emit_tokens_rewarded(
+    env: &Env,
+    recipient: &Address,
+    amount: u128,
+    waste_id: u64,
+) {
+    env.events().publish(
+        (TOKENS_REWARDED, recipient),
+        (amount, waste_id),
     );
 }
