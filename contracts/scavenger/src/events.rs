@@ -5,6 +5,7 @@ use crate::types::{Role, WasteType};
 const PARTICIPANT_REGISTERED: Symbol = symbol_short!("reg");
 const INCENTIVE_SET: Symbol = symbol_short!("inc_set");
 const INCENTIVE_UPDATED: Symbol = symbol_short!("inc_upd");
+const INCENTIVE_DEACTIVATED: Symbol = symbol_short!("inc_deact");
 const TOKENS_REWARDED: Symbol = symbol_short!("rewarded");
 const WASTE_DEACTIVATED: Symbol = symbol_short!("wst_deact");
 const WASTE_CONFIRMED: Symbol = symbol_short!("wst_conf");
@@ -38,6 +39,14 @@ pub fn emit_incentive_set(
     env.events().publish(
         (INCENTIVE_SET, incentive_id),
         (rewarder, waste_type, reward_points, total_budget),
+    );
+}
+
+/// Emit event when an incentive is deactivated
+pub fn emit_incentive_deactivated(env: &Env, incentive_id: u64, rewarder: &Address) {
+    env.events().publish(
+        (INCENTIVE_DEACTIVATED, incentive_id),
+        rewarder,
     );
 }
 
