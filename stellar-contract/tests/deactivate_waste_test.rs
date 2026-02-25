@@ -1,7 +1,7 @@
 #![cfg(test)]
 
 use soroban_sdk::{testutils::Address as _, Address, Env};
-use stellar_contract::{ScavengerContract, ScavengerContractClient};
+use stellar_scavngr_contract::{ScavengerContract, ScavengerContractClient};
 
 fn create_test_contract(env: &Env) -> (ScavengerContractClient, Address, Address, Address) {
     let contract_id = env.register_contract(None, ScavengerContract);
@@ -33,25 +33,25 @@ fn test_deactivate_waste() {
     let owner = Address::generate(&env);
 
     // Register owner as collector
-    client.register_participant(&owner, &stellar_contract::Role::Collector);
+    client.register_participant(&owner, &stellar_scavngr_contract::ParticipantRole::Collector);
 
     // Register waste
-    let waste = client.register_waste(
+    let waste = client.recycle_waste(
         &owner,
-        &stellar_contract::WasteType::Plastic,
+        &stellar_scavngr_contract::WasteType::Plastic,
         &1000,
         &45_000_000,
         &-93_000_000,
     );
 
     // Verify waste is active
-    assert_eq!(waste.is_active, true);
+    assert_eq!(waste.active, true);
 
     // Deactivate waste as admin
     let deactivated = client.deactivate_waste(&waste.waste_id, &admin);
 
     // Verify waste is deactivated
-    assert_eq!(deactivated.is_active, false);
+    assert_eq!(deactivated.active, false);
     assert_eq!(deactivated.waste_id, waste.waste_id);
 }
 
@@ -67,12 +67,12 @@ fn test_deactivate_waste_non_admin() {
     let non_admin = Address::generate(&env);
 
     // Register owner as collector
-    client.register_participant(&owner, &stellar_contract::Role::Collector);
+    client.register_participant(&owner, &stellar_scavngr_contract::ParticipantRole::Collector);
 
     // Register waste
-    let waste = client.register_waste(
+    let waste = client.recycle_waste(
         &owner,
-        &stellar_contract::WasteType::Plastic,
+        &stellar_scavngr_contract::WasteType::Plastic,
         &1000,
         &45_000_000,
         &-93_000_000,
@@ -93,12 +93,12 @@ fn test_deactivate_already_deactivated_waste() {
     let owner = Address::generate(&env);
 
     // Register owner as collector
-    client.register_participant(&owner, &stellar_contract::Role::Collector);
+    client.register_participant(&owner, &stellar_scavngr_contract::ParticipantRole::Collector);
 
     // Register waste
-    let waste = client.register_waste(
+    let waste = client.recycle_waste(
         &owner,
-        &stellar_contract::WasteType::Plastic,
+        &stellar_scavngr_contract::WasteType::Plastic,
         &1000,
         &45_000_000,
         &-93_000_000,
@@ -133,20 +133,20 @@ fn test_deactivated_waste_not_counted_in_totals() {
     let owner = Address::generate(&env);
 
     // Register owner as collector
-    client.register_participant(&owner, &stellar_contract::Role::Collector);
+    client.register_participant(&owner, &stellar_scavngr_contract::ParticipantRole::Collector);
 
     // Register two waste items
-    let waste1 = client.register_waste(
+    let waste1 = client.recycle_waste(
         &owner,
-        &stellar_contract::WasteType::Plastic,
+        &stellar_scavngr_contract::WasteType::Plastic,
         &1000,
         &45_000_000,
         &-93_000_000,
     );
 
-    let waste2 = client.register_waste(
+    let waste2 = client.recycle_waste(
         &owner,
-        &stellar_contract::WasteType::Metal,
+        &stellar_scavngr_contract::WasteType::Metal,
         &2000,
         &45_000_000,
         &-93_000_000,
@@ -183,13 +183,13 @@ fn test_deactivated_waste_cannot_be_transferred() {
     let recipient = Address::generate(&env);
 
     // Register participants
-    client.register_participant(&owner, &stellar_contract::Role::Collector);
-    client.register_participant(&recipient, &stellar_contract::Role::Manufacturer);
+    client.register_participant(&owner, &stellar_scavngr_contract::ParticipantRole::Collector);
+    client.register_participant(&recipient, &stellar_scavngr_contract::ParticipantRole::Manufacturer);
 
     // Register waste
-    let waste = client.register_waste(
+    let waste = client.recycle_waste(
         &owner,
-        &stellar_contract::WasteType::Plastic,
+        &stellar_scavngr_contract::WasteType::Plastic,
         &1000,
         &45_000_000,
         &-93_000_000,
@@ -221,12 +221,12 @@ fn test_deactivated_waste_cannot_be_confirmed() {
     let confirmer = Address::generate(&env);
 
     // Register owner as collector
-    client.register_participant(&owner, &stellar_contract::Role::Collector);
+    client.register_participant(&owner, &stellar_scavngr_contract::ParticipantRole::Collector);
 
     // Register waste
-    let waste = client.register_waste(
+    let waste = client.recycle_waste(
         &owner,
-        &stellar_contract::WasteType::Plastic,
+        &stellar_scavngr_contract::WasteType::Plastic,
         &1000,
         &45_000_000,
         &-93_000_000,
