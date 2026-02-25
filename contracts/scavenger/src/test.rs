@@ -22,7 +22,7 @@ fn test_initialization() {
     
     env.mock_all_auths();
     
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     assert_eq!(client.get_admin(), admin);
     assert_eq!(client.get_token_address(), token_address);
@@ -41,7 +41,7 @@ fn test_initialization_invalid_percentages() {
     env.mock_all_auths();
     
     // This should panic because 60 + 50 = 110 > 100
-    client.__constructor(&admin, &token_address, &charity_address, &60, &50);
+    client.initialize(&admin, &token_address, &charity_address, &60, &50);
 }
 
 #[test]
@@ -51,7 +51,7 @@ fn test_update_token_address() {
     
     env.mock_all_auths();
     
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     let new_token_address = Address::generate(&env);
     client.update_token_address(&admin, &new_token_address);
@@ -66,7 +66,7 @@ fn test_update_charity_address() {
     
     env.mock_all_auths();
     
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     let new_charity_address = Address::generate(&env);
     client.update_charity_address(&admin, &new_charity_address);
@@ -81,7 +81,7 @@ fn test_update_collector_percentage() {
     
     env.mock_all_auths();
     
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     client.update_collector_percentage(&admin, &40);
     
@@ -96,7 +96,7 @@ fn test_update_collector_percentage_invalid() {
     
     env.mock_all_auths();
     
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     // This should panic because 85 + 20 = 105 > 100
     client.update_collector_percentage(&admin, &85);
@@ -109,7 +109,7 @@ fn test_update_owner_percentage() {
     
     env.mock_all_auths();
     
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     client.update_owner_percentage(&admin, &25);
     
@@ -124,7 +124,7 @@ fn test_update_owner_percentage_invalid() {
     
     env.mock_all_auths();
     
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     // This should panic because 30 + 75 = 105 > 100
     client.update_owner_percentage(&admin, &75);
@@ -137,7 +137,7 @@ fn test_update_percentages() {
     
     env.mock_all_auths();
     
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     client.update_percentages(&admin, &35, &25);
     
@@ -153,7 +153,7 @@ fn test_update_percentages_invalid() {
     
     env.mock_all_auths();
     
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     // This should panic because 60 + 50 = 110 > 100
     client.update_percentages(&admin, &60, &50);
@@ -166,7 +166,7 @@ fn test_transfer_admin() {
     
     env.mock_all_auths();
     
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     let new_admin = Address::generate(&env);
     client.transfer_admin(&admin, &new_admin);
@@ -181,7 +181,7 @@ fn test_configuration_persistence() {
     
     env.mock_all_auths();
     
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     // Verify all configuration persists correctly
     assert_eq!(client.get_admin(), admin);
@@ -216,7 +216,7 @@ fn test_register_participant() {
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
     
     env.mock_all_auths();
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     let manufacturer = Address::generate(&env);
     let name = String::from_str(&env, "Test Manufacturer");
@@ -236,7 +236,7 @@ fn test_create_incentive() {
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
     
     env.mock_all_auths();
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     // Register manufacturer
     let manufacturer = Address::generate(&env);
@@ -262,7 +262,7 @@ fn test_create_incentive_unregistered() {
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
     
     env.mock_all_auths();
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     let manufacturer = Address::generate(&env);
     
@@ -277,7 +277,7 @@ fn test_create_incentive_wrong_role() {
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
     
     env.mock_all_auths();
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     // Register as recycler
     let recycler = Address::generate(&env);
@@ -294,7 +294,7 @@ fn test_get_incentive_by_id() {
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
     
     env.mock_all_auths();
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     let manufacturer = Address::generate(&env);
     let name = String::from_str(&env, "Test Manufacturer");
@@ -315,7 +315,7 @@ fn test_get_incentive_by_id_not_found() {
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
 
     env.mock_all_auths();
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
 
     // Try to get a non-existent incentive
     let result = client.get_incentive_by_id(&999);
@@ -333,7 +333,8 @@ fn test_get_incentive_by_id_not_found() {
     assert!(retrieved.is_some());
 
     // Try to get a different non-existent ID
-    let result = client.get_incentive_by_id(&created.id + 100);
+    let non_existent_id = created.id + 100;
+    let result = client.get_incentive_by_id(&non_existent_id);
     assert!(result.is_none());
 }
 
@@ -343,7 +344,7 @@ fn test_incentive_exists() {
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
     
     env.mock_all_auths();
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     let manufacturer = Address::generate(&env);
     let name = String::from_str(&env, "Test Manufacturer");
@@ -363,7 +364,7 @@ fn test_multiple_incentives_per_manufacturer() {
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
     
     env.mock_all_auths();
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     let manufacturer = Address::generate(&env);
     let name = String::from_str(&env, "Test Manufacturer");
@@ -390,7 +391,7 @@ fn test_get_incentives_by_rewarder() {
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
     
     env.mock_all_auths();
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     let manufacturer1 = Address::generate(&env);
     let manufacturer2 = Address::generate(&env);
@@ -429,7 +430,7 @@ fn test_get_incentives_by_waste_type() {
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
     
     env.mock_all_auths();
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     let manufacturer1 = Address::generate(&env);
     let manufacturer2 = Address::generate(&env);
@@ -472,7 +473,7 @@ fn test_incentive_id_counter_increments() {
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
     
     env.mock_all_auths();
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     let manufacturer = Address::generate(&env);
     let name = String::from_str(&env, "Test Manufacturer");
@@ -494,7 +495,7 @@ fn test_all_waste_types() {
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
     
     env.mock_all_auths();
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     let manufacturer = Address::generate(&env);
     let name = String::from_str(&env, "Test Manufacturer");
@@ -520,7 +521,7 @@ fn test_all_role_types() {
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
     
     env.mock_all_auths();
-    client.__constructor(&admin, &token_address, &charity_address, &30, &20);
+    client.initialize(&admin, &token_address, &charity_address, &30, &20);
     
     let recycler = Address::generate(&env);
     let collector = Address::generate(&env);
@@ -550,7 +551,7 @@ fn test_submit_material() {
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
     
     env.mock_all_auths();
-    client.__constructor(&admin, &token_address, &charity_address, &5, &50);
+    client.initialize(&admin, &token_address, &charity_address, &5, &50);
     
     let recycler = Address::generate(&env);
     let name = String::from_str(&env, "Test Recycler");
@@ -571,7 +572,7 @@ fn test_transfer_waste() {
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
     
     env.mock_all_auths();
-    client.__constructor(&admin, &token_address, &charity_address, &5, &50);
+    client.initialize(&admin, &token_address, &charity_address, &5, &50);
     
     let recycler = Address::generate(&env);
     let collector = Address::generate(&env);
@@ -597,31 +598,31 @@ fn test_get_transfer_history() {
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
     
     env.mock_all_auths();
-    client.__constructor(&admin, &token_address, &charity_address, &5, &50);
+    client.initialize(&admin, &token_address, &charity_address, &5, &50);
     
     let recycler = Address::generate(&env);
-    let collector1 = Address::generate(&env);
-    let collector2 = Address::generate(&env);
+    let collector = Address::generate(&env);
+    let manufacturer = Address::generate(&env);
     
     let name1 = String::from_str(&env, "Recycler");
-    let name2 = String::from_str(&env, "Collector 1");
-    let name3 = String::from_str(&env, "Collector 2");
+    let name2 = String::from_str(&env, "Collector");
+    let name3 = String::from_str(&env, "Manufacturer");
     
     client.register_participant(&recycler, &Role::Recycler, &name1, &100, &200);
-    client.register_participant(&collector1, &Role::Collector, &name2, &300, &400);
-    client.register_participant(&collector2, &Role::Collector, &name3, &500, &600);
+    client.register_participant(&collector, &Role::Collector, &name2, &300, &400);
+    client.register_participant(&manufacturer, &Role::Manufacturer, &name3, &500, &600);
     
     let material = client.submit_material(&recycler, &WasteType::Glass, &2000);
     
-    client.transfer_waste(&material.id, &recycler, &collector1);
-    client.transfer_waste(&material.id, &collector1, &collector2);
+    client.transfer_waste(&material.id, &recycler, &collector);
+    client.transfer_waste(&material.id, &collector, &manufacturer);
     
     let history = client.get_transfer_history(&material.id);
     assert_eq!(history.len(), 2);
     assert_eq!(history.get(0).unwrap().from, recycler);
-    assert_eq!(history.get(0).unwrap().to, collector1);
-    assert_eq!(history.get(1).unwrap().from, collector1);
-    assert_eq!(history.get(1).unwrap().to, collector2);
+    assert_eq!(history.get(0).unwrap().to, collector);
+    assert_eq!(history.get(1).unwrap().from, collector);
+    assert_eq!(history.get(1).unwrap().to, manufacturer);
 }
 
 #[test]
@@ -630,12 +631,11 @@ fn test_distribute_rewards_basic() {
     env.mock_all_auths();
     
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
-    client.__constructor(&admin, &token_address, &charity_address, &5, &50);
+    client.initialize(&admin, &token_address, &charity_address, &5, &50);
     
     // Setup token contract
-    let token_admin = Address::generate(&env);
     let token_client = token::StellarAssetClient::new(&env, &token_address);
-    token_client.mint(&token_admin, &admin, &1000000);
+    token_client.mint(&admin, &1000000);
     
     // Register participants
     let manufacturer = Address::generate(&env);
@@ -674,7 +674,7 @@ fn test_distribute_rewards_percentages() {
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
     
     // Set collector to 10% and owner to 40%
-    client.__constructor(&admin, &token_address, &charity_address, &10, &40);
+    client.initialize(&admin, &token_address, &charity_address, &10, &40);
     
     let manufacturer = Address::generate(&env);
     let recycler = Address::generate(&env);
@@ -716,7 +716,7 @@ fn test_distribute_rewards_multiple_collectors() {
     env.mock_all_auths();
     
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
-    client.__constructor(&admin, &token_address, &charity_address, &5, &50);
+    client.initialize(&admin, &token_address, &charity_address, &5, &50);
     
     let manufacturer = Address::generate(&env);
     let recycler = Address::generate(&env);
@@ -764,7 +764,7 @@ fn test_distribute_rewards_unverified() {
     env.mock_all_auths();
     
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
-    client.__constructor(&admin, &token_address, &charity_address, &5, &50);
+    client.initialize(&admin, &token_address, &charity_address, &5, &50);
     
     let manufacturer = Address::generate(&env);
     let recycler = Address::generate(&env);
@@ -789,7 +789,7 @@ fn test_distribute_rewards_wrong_waste_type() {
     env.mock_all_auths();
     
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
-    client.__constructor(&admin, &token_address, &charity_address, &5, &50);
+    client.initialize(&admin, &token_address, &charity_address, &5, &50);
     
     let manufacturer = Address::generate(&env);
     let recycler = Address::generate(&env);
@@ -814,7 +814,7 @@ fn test_participant_stats_tracking() {
     env.mock_all_auths();
     
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
-    client.__constructor(&admin, &token_address, &charity_address, &5, &50);
+    client.initialize(&admin, &token_address, &charity_address, &5, &50);
     
     let recycler = Address::generate(&env);
     let name = String::from_str(&env, "Recycler");
@@ -833,7 +833,7 @@ fn test_recycler_gets_remaining_amount() {
     env.mock_all_auths();
     
     let (client, admin, token_address, charity_address) = create_test_contract(&env);
-    client.__constructor(&admin, &token_address, &charity_address, &5, &50);
+    client.initialize(&admin, &token_address, &charity_address, &5, &50);
     
     let manufacturer = Address::generate(&env);
     let recycler = Address::generate(&env);

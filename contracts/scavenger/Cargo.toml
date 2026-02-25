@@ -1,11 +1,12 @@
 [package]
 name = "scavenger"
 description = "Scavenger contract with configuration storage"
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
+edition = "2021"
 publish = false
-version.workspace = true
+version = "0.1.0"
+
+[workspace]
+# This is an independent package, not part of the workspace
 
 [package.metadata.stellar]
 cargo_inherit = true

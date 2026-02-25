@@ -10,7 +10,7 @@ pub struct ScavengerContract;
 #[contractimpl]
 impl ScavengerContract {
     /// Initialize the contract with admin and configuration
-    pub fn __constructor(
+    pub fn initialize(
         env: &Env,
         admin: Address,
         token_address: Address,
@@ -262,7 +262,7 @@ impl ScavengerContract {
 
     /// Get the active incentive with the highest reward for a specific manufacturer and waste type
     /// Returns None if no active incentive is found
-    pub fn get_active_incentive_for_manufacturer(
+    pub fn get_active_mfr_incentive(
         env: &Env,
         manufacturer: Address,
         waste_type: WasteType,
@@ -430,6 +430,17 @@ impl ScavengerContract {
         assert!(
             material.current_owner == from,
             "Only current owner can transfer"
+        );
+
+        // Validate transfer path based on participant roles
+        let from_participant = Storage::get_participant(env, &from)
+            .expect("Sender participant not found");
+        let to_participant = Storage::get_participant(env, &to)
+            .expect("Receiver participant not found");
+
+        assert!(
+            Self::is_valid_transfer(&from_participant.role, &to_participant.role),
+            "Invalid transfer path"
         );
 
         // Update material owner
@@ -649,5 +660,24 @@ impl ScavengerContract {
         }
         
         Ok(())
+    }
+
+    /// Validate whether a transfer route is allowed between two participant roles
+    /// Valid routes:
+    /// - Recycler -> Collector
+    /// - Recycler -> Manufacturer
+    /// - Collector -> Manufacturer
+    /// Invalid routes (returns false):
+    /// - Recycler -> Recycler
+    /// - Collector -> Recycler
+    /// - Collector -> Collector
+    /// - Manufacturer -> any role (terminal node)
+    fn is_valid_transfer(from_role: &Role, to_role: &Role) -> bool {
+        matches!(
+            (from_role, to_role),
+            (Role::Recycler, Role::Collector)
+                | (Role::Recycler, Role::Manufacturer)
+                | (Role::Collector, Role::Manufacturer)
+        )
     }
 }

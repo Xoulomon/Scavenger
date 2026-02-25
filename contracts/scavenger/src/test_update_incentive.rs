@@ -13,7 +13,7 @@ fn create_test_contract(env: &Env) -> (crate::contract::ScavengerContractClient<
     let token_address = Address::generate(env);
     let charity_address = Address::generate(env);
     
-    client.__constructor(&admin, &token_address, &charity_address, &5, &50);
+    client.initialize(&admin, &token_address, &charity_address, &5, &50);
     
     (client, admin, token_address, charity_address)
 }

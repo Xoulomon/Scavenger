@@ -17,6 +17,8 @@ pub enum Error {
     NotWasteOwner = 5,
     /// Waste item not found
     WasteNotFound = 6,
+    /// Transfer path is invalid for the supply chain
+    InvalidTransferPath = 7,
 }
 
 /// Participant role in the scavenger system
