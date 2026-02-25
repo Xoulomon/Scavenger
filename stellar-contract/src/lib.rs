@@ -1141,6 +1141,40 @@ impl ScavengerContract {
         waste
     }
 
+    /// Reset waste confirmation status
+    /// Only the waste owner can reset the confirmation
+    pub fn reset_waste_confirmation(
+        env: Env,
+        waste_id: u128,
+        owner: Address,
+    ) -> types::Waste {
+        owner.require_auth();
+
+        let mut waste: types::Waste = env
+            .storage()
+            .instance()
+            .get(&("waste_v2", waste_id))
+            .expect("Waste not found");
+
+        if waste.current_owner != owner {
+            panic!("Only owner can reset confirmation");
+        }
+
+        if !waste.is_confirmed {
+            panic!("Waste is not confirmed");
+        }
+
+        waste.reset_confirmation();
+        env.storage().instance().set(&("waste_v2", waste_id), &waste);
+
+        env.events().publish(
+            (soroban_sdk::symbol_short!("reset"), waste_id),
+            (owner, env.ledger().timestamp()),
+        );
+
+        waste
+    }
+
     /// Batch submit multiple materials for recycling
     /// More efficient than individual submissions
     pub fn submit_materials_batch(
