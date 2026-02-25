@@ -125,6 +125,30 @@ impl ScavengerContract {
         env.storage().instance().get(&CHARITY)
     }
 
+    /// Donate tokens to charity
+    /// Records the donation and emits an event for tracking
+    pub fn donate_to_charity(
+        env: Env,
+        donor: Address,
+        amount: i128,
+    ) {
+        donor.require_auth();
+
+        // Validate amount
+        if amount <= 0 {
+            panic!("Donation amount must be greater than zero");
+        }
+
+        // Get charity contract address
+        let charity_contract = env.storage()
+            .instance()
+            .get::<Symbol, Address>(&CHARITY)
+            .expect("Charity contract not set");
+
+        // Emit donation event
+        events::emit_donation_made(&env, &donor, amount, &charity_contract);
+    }
+
     // ========== Percentage Configuration Functions ==========
 
     /// Set both collector and owner percentages (admin only)
