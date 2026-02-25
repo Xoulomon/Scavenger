@@ -134,35 +134,10 @@
                         "key": {
                           "vec": [
                             {
-                              "symbol": "GeneralIncentives"
+                              "string": "incentive"
                             },
                             {
-                              "u32": 0
-                            }
-                          ]
-                        },
-                        "val": {
-                          "vec": [
-                            {
-                              "u128": {
-                                "hi": 0,
-                                "lo": 1
-                              }
-                            }
-                          ]
-                        }
-                      },
-                      {
-                        "key": {
-                          "vec": [
-                            {
-                              "symbol": "Incentive"
-                            },
-                            {
-                              "u128": {
-                                "hi": 0,
-                                "lo": 1
-                              }
+                              "u64": 1
                             }
                           ]
                         },
@@ -223,23 +198,17 @@
                         "key": {
                           "vec": [
                             {
-                              "symbol": "IncentiveCounter"
+                              "string": "incentive_count"
                             }
                           ]
                         },
                         "val": {
-                          "u128": {
-                            "hi": 0,
-                            "lo": 1
-                          }
+                          "u64": 1
                         }
                       },
                       {
                         "key": {
                           "vec": [
-                            {
-                              "symbol": "Participant"
-                            },
                             {
                               "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                             }
@@ -269,28 +238,6 @@
                               },
                               "val": {
                                 "u32": 2
-                              }
-                            }
-                          ]
-                        }
-                      },
-                      {
-                        "key": {
-                          "vec": [
-                            {
-                              "symbol": "RewarderIncentives"
-                            },
-                            {
-                              "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                            }
-                          ]
-                        },
-                        "val": {
-                          "vec": [
-                            {
-                              "u128": {
-                                "hi": 0,
-                                "lo": 1
                               }
                             }
                           ]

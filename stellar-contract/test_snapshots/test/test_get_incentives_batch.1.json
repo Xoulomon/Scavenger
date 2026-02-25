@@ -140,79 +140,10 @@
                         "key": {
                           "vec": [
                             {
-                              "symbol": "GeneralIncentives"
+                              "string": "incentive"
                             },
                             {
-                              "u32": 0
-                            }
-                          ]
-                        },
-                        "val": {
-                          "vec": [
-                            {
-                              "u128": {
-                                "hi": 0,
-                                "lo": 1
-                              }
-                            }
-                          ]
-                        }
-                      },
-                      {
-                        "key": {
-                          "vec": [
-                            {
-                              "symbol": "GeneralIncentives"
-                            },
-                            {
-                              "u32": 2
-                            }
-                          ]
-                        },
-                        "val": {
-                          "vec": [
-                            {
-                              "u128": {
-                                "hi": 0,
-                                "lo": 2
-                              }
-                            }
-                          ]
-                        }
-                      },
-                      {
-                        "key": {
-                          "vec": [
-                            {
-                              "symbol": "GeneralIncentives"
-                            },
-                            {
-                              "u32": 3
-                            }
-                          ]
-                        },
-                        "val": {
-                          "vec": [
-                            {
-                              "u128": {
-                                "hi": 0,
-                                "lo": 3
-                              }
-                            }
-                          ]
-                        }
-                      },
-                      {
-                        "key": {
-                          "vec": [
-                            {
-                              "symbol": "Incentive"
-                            },
-                            {
-                              "u128": {
-                                "hi": 0,
-                                "lo": 1
-                              }
+                              "u64": 1
                             }
                           ]
                         },
@@ -273,13 +204,10 @@
                         "key": {
                           "vec": [
                             {
-                              "symbol": "Incentive"
+                              "string": "incentive"
                             },
                             {
-                              "u128": {
-                                "hi": 0,
-                                "lo": 2
-                              }
+                              "u64": 2
                             }
                           ]
                         },
@@ -340,13 +268,10 @@
                         "key": {
                           "vec": [
                             {
-                              "symbol": "Incentive"
+                              "string": "incentive"
                             },
                             {
-                              "u128": {
-                                "hi": 0,
-                                "lo": 3
-                              }
+                              "u64": 3
                             }
                           ]
                         },
@@ -407,23 +332,17 @@
                         "key": {
                           "vec": [
                             {
-                              "symbol": "IncentiveCounter"
+                              "string": "incentive_count"
                             }
                           ]
                         },
                         "val": {
-                          "u128": {
-                            "hi": 0,
-                            "lo": 3
-                          }
+                          "u64": 3
                         }
                       },
                       {
                         "key": {
                           "vec": [
-                            {
-                              "symbol": "Participant"
-                            },
                             {
                               "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                             }
@@ -453,40 +372,6 @@
                               },
                               "val": {
                                 "u32": 2
-                              }
-                            }
-                          ]
-                        }
-                      },
-                      {
-                        "key": {
-                          "vec": [
-                            {
-                              "symbol": "RewarderIncentives"
-                            },
-                            {
-                              "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                            }
-                          ]
-                        },
-                        "val": {
-                          "vec": [
-                            {
-                              "u128": {
-                                "hi": 0,
-                                "lo": 1
-                              }
-                            },
-                            {
-                              "u128": {
-                                "hi": 0,
-                                "lo": 2
-                              }
-                            },
-                            {
-                              "u128": {
-                                "hi": 0,
-                                "lo": 3
                               }
                             }
                           ]

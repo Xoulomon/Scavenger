@@ -122,75 +122,7 @@
                         "key": {
                           "vec": [
                             {
-                              "symbol": "Participant"
-                            },
-                            {
-                              "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                            }
-                          ]
-                        },
-                        "val": {
-                          "map": [
-                            {
-                              "key": {
-                                "symbol": "address"
-                              },
-                              "val": {
-                                "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                              }
-                            },
-                            {
-                              "key": {
-                                "symbol": "registered_at"
-                              },
-                              "val": {
-                                "u64": 1234567890
-                              }
-                            },
-                            {
-                              "key": {
-                                "symbol": "role"
-                              },
-                              "val": {
-                                "u32": 1
-                              }
-                            }
-                          ]
-                        }
-                      },
-                      {
-                        "key": {
-                          "vec": [
-                            {
-                              "symbol": "ParticipantWastes"
-                            },
-                            {
-                              "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
-                            }
-                          ]
-                        },
-                        "val": {
-                          "vec": [
-                            {
-                              "u128": {
-                                "hi": 0,
-                                "lo": 1
-                              }
-                            },
-                            {
-                              "u128": {
-                                "hi": 0,
-                                "lo": 2
-                              }
-                            }
-                          ]
-                        }
-                      },
-                      {
-                        "key": {
-                          "vec": [
-                            {
-                              "symbol": "Stats"
+                              "string": "stats"
                             },
                             {
                               "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
@@ -286,13 +218,10 @@
                         "key": {
                           "vec": [
                             {
-                              "symbol": "Waste"
+                              "string": "waste"
                             },
                             {
-                              "u128": {
-                                "hi": 0,
-                                "lo": 1
-                              }
+                              "u64": 1
                             }
                           ]
                         },
@@ -361,13 +290,10 @@
                         "key": {
                           "vec": [
                             {
-                              "symbol": "Waste"
+                              "string": "waste"
                             },
                             {
-                              "u128": {
-                                "hi": 0,
-                                "lo": 2
-                              }
+                              "u64": 2
                             }
                           ]
                         },
@@ -436,15 +362,49 @@
                         "key": {
                           "vec": [
                             {
-                              "symbol": "WasteCounter"
+                              "string": "waste_count"
                             }
                           ]
                         },
                         "val": {
-                          "u128": {
-                            "hi": 0,
-                            "lo": 2
-                          }
+                          "u64": 2
+                        }
+                      },
+                      {
+                        "key": {
+                          "vec": [
+                            {
+                              "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                            }
+                          ]
+                        },
+                        "val": {
+                          "map": [
+                            {
+                              "key": {
+                                "symbol": "address"
+                              },
+                              "val": {
+                                "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "registered_at"
+                              },
+                              "val": {
+                                "u64": 1234567890
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "role"
+                              },
+                              "val": {
+                                "u32": 1
+                              }
+                            }
+                          ]
                         }
                       }
                     ]

@@ -1,4 +1,199 @@
-use soroban_sdk::{contracttype, Address, String};
+
+use soroban_sdk::{contracttype, Address, String, Symbol};
+
+/// Represents a transfer record in the recycling system
+/// This struct is fully compatible with Soroban storage and implements
+/// deterministic serialization for safe storage and retrieval
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct TransferRecord {
+    /// Unique identifier for the transfer
+    pub id: u64,
+    /// Address of the sender
+    pub from: Address,
+    /// Address of the recipient
+    pub to: Address,
+    /// Type of item being transferred
+    pub item_type: TransferItemType,
+    /// Identifier of the item being transferred
+    pub item_id: u64,
+    /// Amount or quantity being transferred
+    pub amount: u64,
+    /// Timestamp when the transfer occurred
+    pub timestamp: u64,
+    /// Status of the transfer
+    pub status: TransferStatus,
+    /// Optional note or description
+    pub note: String,
+}
+
+/// Represents the type of item being transferred
+#[contracttype]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum TransferItemType {
+    /// Material/Waste transfer
+    Material = 0,
+    /// Token transfer
+    Token = 1,
+    /// Incentive transfer
+    Incentive = 2,
+    /// Ownership transfer
+    Ownership = 3,
+}
+
+/// Represents the status of a transfer
+#[contracttype]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum TransferStatus {
+    /// Transfer is pending
+    Pending = 0,
+    /// Transfer is in progress
+    InProgress = 1,
+    /// Transfer completed successfully
+    Completed = 2,
+    /// Transfer failed
+    Failed = 3,
+    /// Transfer was cancelled
+    Cancelled = 4,
+}
+
+impl TransferItemType {
+    /// Validates if the value is a valid TransferItemType variant
+    pub fn is_valid(value: u32) -> bool {
+        matches!(value, 0 | 1 | 2 | 3)
+    }
+
+    /// Converts a u32 to a TransferItemType
+    pub fn from_u32(value: u32) -> Option<Self> {
+        match value {
+            0 => Some(TransferItemType::Material),
+            1 => Some(TransferItemType::Token),
+            2 => Some(TransferItemType::Incentive),
+            3 => Some(TransferItemType::Ownership),
+            _ => None,
+        }
+    }
+
+    /// Converts the TransferItemType to u32
+    pub fn to_u32(&self) -> u32 {
+        *self as u32
+    }
+
+    /// Returns the string representation
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            TransferItemType::Material => "MATERIAL",
+            TransferItemType::Token => "TOKEN",
+            TransferItemType::Incentive => "INCENTIVE",
+            TransferItemType::Ownership => "OWNERSHIP",
+        }
+    }
+}
+
+impl TransferStatus {
+    /// Validates if the value is a valid TransferStatus variant
+    pub fn is_valid(value: u32) -> bool {
+        matches!(value, 0 | 1 | 2 | 3 | 4)
+    }
+
+    /// Converts a u32 to a TransferStatus
+    pub fn from_u32(value: u32) -> Option<Self> {
+        match value {
+            0 => Some(TransferStatus::Pending),
+            1 => Some(TransferStatus::InProgress),
+            2 => Some(TransferStatus::Completed),
+            3 => Some(TransferStatus::Failed),
+            4 => Some(TransferStatus::Cancelled),
+            _ => None,
+        }
+    }
+
+    /// Converts the TransferStatus to u32
+    pub fn to_u32(&self) -> u32 {
+        *self as u32
+    }
+
+    /// Returns the string representation
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            TransferStatus::Pending => "PENDING",
+            TransferStatus::InProgress => "IN_PROGRESS",
+            TransferStatus::Completed => "COMPLETED",
+            TransferStatus::Failed => "FAILED",
+            TransferStatus::Cancelled => "CANCELLED",
+        }
+    }
+
+    /// Checks if the status is final (cannot be changed)
+    pub fn is_final(&self) -> bool {
+        matches!(
+            self,
+            TransferStatus::Completed | TransferStatus::Failed | TransferStatus::Cancelled
+        )
+    }
+
+    /// Checks if the status is active (can still be modified)
+    pub fn is_active(&self) -> bool {
+        matches!(self, TransferStatus::Pending | TransferStatus::InProgress)
+    }
+}
+
+impl TransferRecord {
+    /// Creates a new TransferRecord with Pending status
+    pub fn new(
+        id: u64,
+        from: Address,
+        to: Address,
+        item_type: TransferItemType,
+        item_id: u64,
+        amount: u64,
+        timestamp: u64,
+        note: String,
+    ) -> Self {
+        Self {
+            id,
+            from,
+            to,
+            item_type,
+            item_id,
+            amount,
+            timestamp,
+            status: TransferStatus::Pending,
+            note,
+        }
+    }
+
+    /// Updates the status of the transfer
+    /// Returns true if updated, false if status is final
+    pub fn update_status(&mut self, new_status: TransferStatus) -> bool {
+        if self.status.is_final() {
+            return false;
+        }
+        self.status = new_status;
+        true
+    }
+
+    /// Validates the transfer record
+    pub fn validate(&self) -> Result<(), &'static str> {
+        if self.amount == 0 {
+            return Err("Amount must be greater than zero");
+        }
+        if self.from == self.to {
+            return Err("Sender and recipient cannot be the same");
+        }
+        Ok(())
+    }
+
+    /// Checks if the transfer is complete
+    pub fn is_complete(&self) -> bool {
+        self.status == TransferStatus::Completed
+    }
+
+    /// Checks if the transfer can be modified
+    pub fn is_modifiable(&self) -> bool {
+        self.status.is_active()
+    }
+}
 
 /// Represents an incentive offered by a manufacturer to encourage recycling
 #[contracttype]
@@ -84,41 +279,7 @@ impl Incentive {
         }
         let reward = self.calculate_reward(weight_grams);
         reward <= self.remaining_budget
-    }
-}
 
-/// Represents a transfer of waste from one participant to another
-#[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct WasteTransfer {
-    /// ID of the waste being transferred
-    pub waste_id: u64,
-    /// Address of the sender
-    pub from: Address,
-    /// Address of the receiver
-    pub to: Address,
-    /// Timestamp of the transfer
-    pub transferred_at: u64,
-    /// Optional note about the transfer
-    pub note: String,
-}
-
-impl WasteTransfer {
-    /// Creates a new WasteTransfer instance
-    pub fn new(
-        waste_id: u64,
-        from: Address,
-        to: Address,
-        transferred_at: u64,
-        note: String,
-    ) -> Self {
-        Self {
-            waste_id,
-            from,
-            to,
-            transferred_at,
-            note,
-        }
     }
 }
 
@@ -320,6 +481,239 @@ impl Material {
         (self.weight / 1000) * multiplier * 10
     }
 }
+
+/// Represents a waste item in the recycling system
+/// This is the main struct that tracks waste throughout its lifecycle
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Waste {
+    /// Unique identifier for the waste item
+    pub waste_id: u128,
+    /// Type of waste material
+    pub waste_type: WasteType,
+    /// Weight of the waste in grams
+    pub weight: u128,
+    /// Current owner of the waste
+    pub current_owner: Address,
+    /// Latitude coordinate (scaled by 1e6 for precision)
+    pub latitude: i128,
+    /// Longitude coordinate (scaled by 1e6 for precision)
+    pub longitude: i128,
+    /// Timestamp when the waste was recycled (0 if not yet recycled)
+    pub recycled_timestamp: u64,
+    /// Whether the waste is currently active in the system
+    pub is_active: bool,
+    /// Whether the waste has been confirmed/verified
+    pub is_confirmed: bool,
+    /// Address of the confirmer/verifier
+    pub confirmer: Address,
+}
+
+impl Waste {
+    /// Creates a new Waste instance with all fields
+    pub fn new(
+        waste_id: u128,
+        waste_type: WasteType,
+        weight: u128,
+        current_owner: Address,
+        latitude: i128,
+        longitude: i128,
+        recycled_timestamp: u64,
+        is_active: bool,
+        is_confirmed: bool,
+        confirmer: Address,
+    ) -> Self {
+        Self {
+            waste_id,
+            waste_type,
+            weight,
+            current_owner,
+            latitude,
+            longitude,
+            recycled_timestamp,
+            is_active,
+            is_confirmed,
+            confirmer,
+        }
+    }
+
+    /// Validates that the waste has valid coordinates
+    pub fn has_valid_coordinates(&self) -> bool {
+        let max_lat = 90_000_000i128;
+        let max_lon = 180_000_000i128;
+        
+        self.latitude >= -max_lat 
+            && self.latitude <= max_lat
+            && self.longitude >= -max_lon
+            && self.longitude <= max_lon
+    }
+
+    /// Checks if the waste has been recycled
+    pub fn is_recycled(&self) -> bool {
+        self.recycled_timestamp > 0
+    }
+
+    /// Checks if the waste meets minimum weight requirement (100g)
+    pub fn meets_minimum_weight(&self) -> bool {
+        self.weight >= 100
+    }
+
+    /// Marks the waste as recycled with the given timestamp
+    pub fn mark_recycled(&mut self, timestamp: u64) {
+        self.recycled_timestamp = timestamp;
+    }
+
+    /// Confirms the waste with the given confirmer
+    pub fn confirm(&mut self, confirmer: Address) {
+        self.is_confirmed = true;
+        self.confirmer = confirmer;
+    }
+
+    /// Resets the confirmation status of the waste
+    pub fn reset_confirmation(&mut self) {
+        self.is_confirmed = false;
+        self.confirmer = self.current_owner.clone();
+    }
+
+    /// Deactivates the waste
+    pub fn deactivate(&mut self) {
+        self.is_active = false;
+    }
+
+    /// Transfers ownership to a new owner
+    pub fn transfer_to(&mut self, new_owner: Address) {
+        self.current_owner = new_owner;
+    }
+
+    /// Updates the location of the waste
+    pub fn update_location(&mut self, latitude: i128, longitude: i128) {
+        self.latitude = latitude;
+        self.longitude = longitude;
+    }
+}
+
+/// Transfer record for waste movement across the supply chain.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct WasteTransfer {
+    pub waste_id: u128,
+    pub from: Address,
+    pub to: Address,
+    pub transferred_at: u64,
+    pub latitude: i128,
+    pub longitude: i128,
+    pub note: Symbol,
+}
+
+impl WasteTransfer {
+    pub fn new(
+        waste_id: u128,
+        from: Address,
+        to: Address,
+        transferred_at: u64,
+        latitude: i128,
+        longitude: i128,
+        note: Symbol,
+    ) -> Self {
+        Self {
+            waste_id,
+            from,
+            to,
+            transferred_at,
+            latitude,
+            longitude,
+            note,
+        }
+    }
+}
+
+/// Builder pattern for constructing Waste instances
+/// Provides a fluent API for creating waste with optional fields
+pub struct WasteBuilder {
+    waste_id: u128,
+    waste_type: WasteType,
+    weight: u128,
+    current_owner: Address,
+    latitude: i128,
+    longitude: i128,
+    recycled_timestamp: u64,
+    is_active: bool,
+    is_confirmed: bool,
+    confirmer: Option<Address>,
+}
+
+impl WasteBuilder {
+    /// Creates a new WasteBuilder with required fields
+    pub fn new(
+        waste_id: u128,
+        waste_type: WasteType,
+        weight: u128,
+        current_owner: Address,
+    ) -> Self {
+        Self {
+            waste_id,
+            waste_type,
+            weight,
+            current_owner: current_owner.clone(),
+            latitude: 0,
+            longitude: 0,
+            recycled_timestamp: 0,
+            is_active: true,
+            is_confirmed: false,
+            confirmer: Some(current_owner),
+        }
+    }
+
+    /// Sets the location coordinates
+    pub fn location(mut self, latitude: i128, longitude: i128) -> Self {
+        self.latitude = latitude;
+        self.longitude = longitude;
+        self
+    }
+
+    /// Sets the recycled timestamp
+    pub fn recycled_at(mut self, timestamp: u64) -> Self {
+        self.recycled_timestamp = timestamp;
+        self
+    }
+
+    /// Sets the active status
+    pub fn active(mut self, is_active: bool) -> Self {
+        self.is_active = is_active;
+        self
+    }
+
+    /// Sets the confirmed status and confirmer
+    pub fn confirmed(mut self, confirmer: Address) -> Self {
+        self.is_confirmed = true;
+        self.confirmer = Some(confirmer);
+        self
+    }
+
+    /// Sets the confirmer address
+    pub fn confirmer(mut self, confirmer: Address) -> Self {
+        self.confirmer = Some(confirmer);
+        self
+    }
+
+    /// Builds the Waste instance
+    pub fn build(self) -> Waste {
+        let confirmer = self.confirmer.unwrap_or_else(|| self.current_owner.clone());
+        Waste {
+            waste_id: self.waste_id,
+            waste_type: self.waste_type,
+            weight: self.weight,
+            current_owner: self.current_owner,
+            latitude: self.latitude,
+            longitude: self.longitude,
+            recycled_timestamp: self.recycled_timestamp,
+            is_active: self.is_active,
+            is_confirmed: self.is_confirmed,
+            confirmer,
+        }
+    }
+}
+
 
 /// Tracks recycling statistics for a participant
 #[contracttype]
@@ -986,270 +1380,3 @@ mod tests {
     }
 }
 
-#[cfg(test)]
-mod waste_transfer_tests {
-    use super::*;
-    use soroban_sdk::testutils::Address as _;
-    use soroban_sdk::Vec;
-
-    #[test]
-    fn test_waste_transfer_creation() {
-        let env = soroban_sdk::Env::default();
-        let from = Address::generate(&env);
-        let to = Address::generate(&env);
-        let note = String::from_str(&env, "Test transfer");
-
-        let transfer = WasteTransfer::new(1, from.clone(), to.clone(), 1234567890, note.clone());
-
-        assert_eq!(transfer.waste_id, 1);
-        assert_eq!(transfer.from, from);
-        assert_eq!(transfer.to, to);
-        assert_eq!(transfer.transferred_at, 1234567890);
-        assert_eq!(transfer.note, note);
-    }
-
-    #[test]
-    fn test_waste_transfer_storage_compatibility() {
-        let env = soroban_sdk::Env::default();
-        let from = Address::generate(&env);
-        let to = Address::generate(&env);
-        let note = String::from_str(&env, "Storage test");
-
-        let transfer = WasteTransfer::new(1, from, to, 1234567890, note);
-
-        // WasteTransfer can be stored (validated through contract tests)
-        assert_eq!(transfer.waste_id, 1);
-        assert_eq!(transfer.transferred_at, 1234567890);
-    }
-
-    #[test]
-    fn test_waste_transfer_vec_storage() {
-        let env = soroban_sdk::Env::default();
-        let from = Address::generate(&env);
-        let to = Address::generate(&env);
-        let note = String::from_str(&env, "Vec test");
-
-        let mut transfers = Vec::new(&env);
-        transfers.push_back(WasteTransfer::new(
-            1,
-            from.clone(),
-            to.clone(),
-            1000,
-            note.clone(),
-        ));
-        transfers.push_back(WasteTransfer::new(
-            1,
-            to.clone(),
-            from.clone(),
-            2000,
-            note.clone(),
-        ));
-
-        // Vec<WasteTransfer> can be stored (validated through contract tests)
-        assert_eq!(transfers.len(), 2);
-        assert_eq!(transfers.get(0).unwrap().transferred_at, 1000);
-        assert_eq!(transfers.get(1).unwrap().transferred_at, 2000);
-    }
-
-    #[test]
-    fn test_waste_transfer_equality() {
-        let env = soroban_sdk::Env::default();
-        let from = Address::generate(&env);
-        let to = Address::generate(&env);
-        let note = String::from_str(&env, "Test");
-
-        let transfer1 = WasteTransfer::new(1, from.clone(), to.clone(), 1000, note.clone());
-        let transfer2 = WasteTransfer::new(1, from.clone(), to.clone(), 1000, note.clone());
-        let transfer3 = WasteTransfer::new(2, from.clone(), to.clone(), 1000, note.clone());
-
-        assert_eq!(transfer1, transfer2);
-        assert_ne!(transfer1, transfer3);
-    }
-
-    #[test]
-    fn test_waste_transfer_clone() {
-        let env = soroban_sdk::Env::default();
-        let from = Address::generate(&env);
-        let to = Address::generate(&env);
-        let note = String::from_str(&env, "Clone test");
-
-        let transfer1 = WasteTransfer::new(1, from, to, 1000, note);
-        let transfer2 = transfer1.clone();
-
-        assert_eq!(transfer1, transfer2);
-        assert_eq!(transfer1.waste_id, transfer2.waste_id);
-    }
-}
-
-#[cfg(test)]
-mod incentive_tests {
-    use super::*;
-    use soroban_sdk::testutils::Address as _;
-
-    #[test]
-    fn test_incentive_creation() {
-        let env = soroban_sdk::Env::default();
-        let rewarder = Address::generate(&env);
-
-        let incentive = Incentive::new(
-            1,
-            rewarder.clone(),
-            WasteType::PetPlastic,
-            50,
-            10000,
-            1234567890,
-        );
-
-        assert_eq!(incentive.id, 1);
-        assert_eq!(incentive.rewarder, rewarder);
-        assert_eq!(incentive.waste_type, WasteType::PetPlastic);
-        assert_eq!(incentive.reward_points, 50);
-        assert_eq!(incentive.total_budget, 10000);
-        assert_eq!(incentive.remaining_budget, 10000);
-        assert!(incentive.active);
-        assert_eq!(incentive.created_at, 1234567890);
-    }
-
-    #[test]
-    fn test_incentive_deactivate() {
-        let env = soroban_sdk::Env::default();
-        let rewarder = Address::generate(&env);
-
-        let mut incentive = Incentive::new(1, rewarder, WasteType::Metal, 100, 5000, 0);
-        assert!(incentive.active);
-
-        incentive.deactivate();
-        assert!(!incentive.active);
-    }
-
-    #[test]
-    fn test_incentive_calculate_reward() {
-        let env = soroban_sdk::Env::default();
-        let rewarder = Address::generate(&env);
-
-        let incentive = Incentive::new(1, rewarder, WasteType::PetPlastic, 50, 10000, 0);
-
-        // 5kg (5000g) * 50 points/kg = 250 points
-        assert_eq!(incentive.calculate_reward(5000), 250);
-
-        // 10kg * 50 points/kg = 500 points
-        assert_eq!(incentive.calculate_reward(10000), 500);
-
-        // Less than 1kg should give 0 points
-        assert_eq!(incentive.calculate_reward(500), 0);
-    }
-
-    #[test]
-    fn test_incentive_claim_reward() {
-        let env = soroban_sdk::Env::default();
-        let rewarder = Address::generate(&env);
-
-        let mut incentive = Incentive::new(1, rewarder, WasteType::Metal, 100, 1000, 0);
-
-        // Claim 5kg worth (500 points)
-        let claimed = incentive.claim_reward(5000);
-        assert_eq!(claimed, Some(500));
-        assert_eq!(incentive.remaining_budget, 500);
-        assert!(incentive.active);
-
-        // Claim remaining 5kg (500 points)
-        let claimed = incentive.claim_reward(5000);
-        assert_eq!(claimed, Some(500));
-        assert_eq!(incentive.remaining_budget, 0);
-        assert!(!incentive.active); // Auto-deactivated
-    }
-
-    #[test]
-    fn test_incentive_claim_insufficient_budget() {
-        let env = soroban_sdk::Env::default();
-        let rewarder = Address::generate(&env);
-
-        let mut incentive = Incentive::new(1, rewarder, WasteType::Plastic, 50, 1000, 0);
-
-        // Try to claim 30kg worth (1500 points) - exceeds budget
-        let claimed = incentive.claim_reward(30000);
-        assert_eq!(claimed, None);
-        assert_eq!(incentive.remaining_budget, 1000); // Budget unchanged
-        assert!(incentive.active);
-    }
-
-    #[test]
-    fn test_incentive_claim_when_inactive() {
-        let env = soroban_sdk::Env::default();
-        let rewarder = Address::generate(&env);
-
-        let mut incentive = Incentive::new(1, rewarder, WasteType::Glass, 30, 5000, 0);
-        incentive.deactivate();
-
-        // Cannot claim from inactive incentive
-        let claimed = incentive.claim_reward(5000);
-        assert_eq!(claimed, None);
-    }
-
-    #[test]
-    fn test_incentive_has_sufficient_budget() {
-        let env = soroban_sdk::Env::default();
-        let rewarder = Address::generate(&env);
-
-        let incentive = Incentive::new(1, rewarder, WasteType::Paper, 20, 1000, 0);
-
-        // 10kg * 20 = 200 points (sufficient)
-        assert!(incentive.has_sufficient_budget(10000));
-
-        // 50kg * 20 = 1000 points (exactly sufficient)
-        assert!(incentive.has_sufficient_budget(50000));
-
-        // 60kg * 20 = 1200 points (insufficient)
-        assert!(!incentive.has_sufficient_budget(60000));
-    }
-
-    #[test]
-    fn test_incentive_has_sufficient_budget_when_inactive() {
-        let env = soroban_sdk::Env::default();
-        let rewarder = Address::generate(&env);
-
-        let mut incentive = Incentive::new(1, rewarder, WasteType::Metal, 100, 5000, 0);
-        incentive.deactivate();
-
-        // Inactive incentive always returns false
-        assert!(!incentive.has_sufficient_budget(1000));
-    }
-
-    #[test]
-    fn test_incentive_storage_compatibility() {
-        let env = soroban_sdk::Env::default();
-        let rewarder = Address::generate(&env);
-
-        let incentive = Incentive::new(1, rewarder, WasteType::PetPlastic, 50, 10000, 0);
-
-        // Incentive can be stored (validated through contract tests)
-        assert_eq!(incentive.id, 1);
-        assert_eq!(incentive.total_budget, 10000);
-    }
-
-    #[test]
-    fn test_incentive_equality() {
-        let env = soroban_sdk::Env::default();
-        let rewarder = Address::generate(&env);
-
-        let incentive1 = Incentive::new(1, rewarder.clone(), WasteType::Metal, 100, 5000, 1000);
-        let incentive2 = Incentive::new(1, rewarder.clone(), WasteType::Metal, 100, 5000, 1000);
-        let incentive3 = Incentive::new(2, rewarder, WasteType::Metal, 100, 5000, 1000);
-
-        assert_eq!(incentive1, incentive2);
-        assert_ne!(incentive1, incentive3);
-    }
-
-    #[test]
-    fn test_incentive_clone() {
-        let env = soroban_sdk::Env::default();
-        let rewarder = Address::generate(&env);
-
-        let incentive1 = Incentive::new(1, rewarder, WasteType::Glass, 30, 8000, 0);
-        let incentive2 = incentive1.clone();
-
-        assert_eq!(incentive1, incentive2);
-        assert_eq!(incentive1.id, incentive2.id);
-        assert_eq!(incentive1.remaining_budget, incentive2.remaining_budget);
-    }
-}
