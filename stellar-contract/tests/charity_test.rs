@@ -149,3 +149,155 @@ fn test_charity_donations_workflow() {
     // This demonstrates that the charity address is properly stored
     // and can be retrieved for donation operations
 }
+
+#[test]
+fn test_donate_to_charity() {
+    let env = Env::default();
+    env.mock_all_auths();
+    
+    let contract_id = env.register_contract(None, ScavengerContract);
+    let client = ScavengerContractClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let charity = Address::generate(&env);
+    let donor = Address::generate(&env);
+
+    // Initialize admin and set charity
+    client.initialize_admin(&admin);
+    client.set_charity_contract(&admin, &charity);
+    
+    // Make a donation
+    let donation_amount: i128 = 1000;
+    client.donate_to_charity(&donor, &donation_amount);
+    
+    // Verify event was emitted by checking events
+    let events = env.events().all();
+    let last_event = events.last().unwrap();
+    
+    // Event should contain donation information
+    assert!(last_event.topics.len() > 0);
+}
+
+#[test]
+#[should_panic(expected = "Donation amount must be greater than zero")]
+fn test_donate_to_charity_zero_amount() {
+    let env = Env::default();
+    env.mock_all_auths();
+    
+    let contract_id = env.register_contract(None, ScavengerContract);
+    let client = ScavengerContractClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let charity = Address::generate(&env);
+    let donor = Address::generate(&env);
+
+    // Initialize admin and set charity
+    client.initialize_admin(&admin);
+    client.set_charity_contract(&admin, &charity);
+    
+    // Try to donate zero amount (should panic)
+    client.donate_to_charity(&donor, &0);
+}
+
+#[test]
+#[should_panic(expected = "Donation amount must be greater than zero")]
+fn test_donate_to_charity_negative_amount() {
+    let env = Env::default();
+    env.mock_all_auths();
+    
+    let contract_id = env.register_contract(None, ScavengerContract);
+    let client = ScavengerContractClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let charity = Address::generate(&env);
+    let donor = Address::generate(&env);
+
+    // Initialize admin and set charity
+    client.initialize_admin(&admin);
+    client.set_charity_contract(&admin, &charity);
+    
+    // Try to donate negative amount (should panic)
+    client.donate_to_charity(&donor, &-100);
+}
+
+#[test]
+#[should_panic(expected = "Charity contract not set")]
+fn test_donate_to_charity_no_charity_set() {
+    let env = Env::default();
+    env.mock_all_auths();
+    
+    let contract_id = env.register_contract(None, ScavengerContract);
+    let client = ScavengerContractClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let donor = Address::generate(&env);
+
+    // Initialize admin but don't set charity
+    client.initialize_admin(&admin);
+    
+    // Try to donate without charity set (should panic)
+    client.donate_to_charity(&donor, &1000);
+}
+
+#[test]
+fn test_donate_to_charity_event_emission() {
+    let env = Env::default();
+    env.mock_all_auths();
+    
+    let contract_id = env.register_contract(None, ScavengerContract);
+    let client = ScavengerContractClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let charity = Address::generate(&env);
+    let donor = Address::generate(&env);
+
+    // Initialize admin and set charity
+    client.initialize_admin(&admin);
+    client.set_charity_contract(&admin, &charity);
+    
+    // Clear any existing events
+    let events_before = env.events().all().len();
+    
+    // Make a donation
+    let donation_amount: i128 = 5000;
+    client.donate_to_charity(&donor, &donation_amount);
+    
+    // Verify a new event was emitted
+    let events_after = env.events().all();
+    assert!(events_after.len() > events_before);
+    
+    // The last event should be the donation event
+    let last_event = events_after.last().unwrap();
+    
+    // Verify event has topics (donor address and "donated" symbol)
+    assert!(last_event.topics.len() >= 2);
+}
+
+#[test]
+fn test_multiple_donations() {
+    let env = Env::default();
+    env.mock_all_auths();
+    
+    let contract_id = env.register_contract(None, ScavengerContract);
+    let client = ScavengerContractClient::new(&env, &contract_id);
+
+    let admin = Address::generate(&env);
+    let charity = Address::generate(&env);
+    let donor1 = Address::generate(&env);
+    let donor2 = Address::generate(&env);
+
+    // Initialize admin and set charity
+    client.initialize_admin(&admin);
+    client.set_charity_contract(&admin, &charity);
+    
+    // Make multiple donations
+    client.donate_to_charity(&donor1, &1000);
+    client.donate_to_charity(&donor2, &2000);
+    client.donate_to_charity(&donor1, &500);
+    
+    // Verify all donations were recorded via events
+    let events = env.events().all();
+    
+    // Should have at least 3 donation events (plus any initialization events)
+    assert!(events.len() >= 3);
+}

@@ -3,6 +3,7 @@ use soroban_sdk::{symbol_short, Address, Env, Symbol};
 use crate::types::WasteType;
 
 const WASTE_REGISTERED: Symbol = symbol_short!("recycled");
+const DONATION_MADE: Symbol = symbol_short!("donated");
 
 /// Emit event when waste is registered
 pub fn emit_waste_registered(
@@ -17,5 +18,18 @@ pub fn emit_waste_registered(
     env.events().publish(
         (WASTE_REGISTERED, waste_id),
         (waste_type, weight, recycler, latitude, longitude),
+    );
+}
+
+/// Emit event when a donation is made to charity
+pub fn emit_donation_made(
+    env: &Env,
+    donor: &Address,
+    amount: i128,
+    charity_contract: &Address,
+) {
+    env.events().publish(
+        (DONATION_MADE, donor),
+        (amount, charity_contract),
     );
 }
