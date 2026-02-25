@@ -2,6 +2,7 @@
 
 mod events;
 mod types;
+mod validation;
 
 pub use types::{
     Incentive, Material, ParticipantRole, RecyclingStats, TransferItemType, TransferRecord,
@@ -107,11 +108,9 @@ impl ScavengerContract {
     pub fn set_charity_contract(env: Env, admin: Address, charity_address: Address) {
         Self::require_admin(&env, &admin);
 
-        // Validate address (basic check - address should not be the zero address)
-        // In Soroban, we can't easily check for zero address, but we can ensure it's different from admin
-        if charity_address == admin {
-            panic!("Charity address cannot be the same as admin");
-        }
+        // Validate addresses
+        validation::validate_address_not_contract(&env, &charity_address);
+        validation::validate_addresses_different(&admin, &charity_address, "Charity setup");
 
         env.storage().instance().set(&CHARITY, &charity_address);
     }
@@ -131,10 +130,7 @@ impl ScavengerContract {
         donor.require_auth();
 
         // Validate amount
-        if amount <= 0 {
-            Self::unlock(&env);
-            panic!("Donation amount must be greater than zero");
-        }
+        validation::validate_positive_amount(amount, "Donation amount");
 
         // Get charity contract address
         let charity_contract = env
@@ -161,7 +157,11 @@ impl ScavengerContract {
     ) {
         Self::require_admin(&env, &admin);
 
-        // Validate percentages sum
+        // Validate percentages
+        validation::validate_percentage(collector_percentage, "Collector percentage");
+        validation::validate_percentage(owner_percentage, "Owner percentage");
+
+        // Validate sum
         if collector_percentage + owner_percentage > 100 {
             panic!("Total percentages cannot exceed 100");
         }
@@ -186,6 +186,9 @@ impl ScavengerContract {
     pub fn set_collector_percentage(env: Env, admin: Address, new_percentage: u32) {
         Self::require_admin(&env, &admin);
 
+        // Validate percentage
+        validation::validate_percentage(new_percentage, "Collector percentage");
+
         // Get current owner percentage to validate total
         let owner_pct: u32 = env.storage().instance().get(&OWNER_PCT).unwrap_or(0);
 
@@ -201,6 +204,9 @@ impl ScavengerContract {
     /// Update only the owner percentage (admin only)
     pub fn set_owner_percentage(env: Env, admin: Address, new_percentage: u32) {
         Self::require_admin(&env, &admin);
+
+        // Validate percentage
+        validation::validate_percentage(new_percentage, "Owner percentage");
 
         // Get current collector percentage to validate total
         let collector_pct: u32 = env.storage().instance().get(&COLLECTOR_PCT).unwrap_or(0);
@@ -241,15 +247,21 @@ impl ScavengerContract {
         rewarder.require_auth();
 
         // Validate amount
-        if amount <= 0 {
-            Self::unlock(&env);
-            panic!("Reward amount must be greater than zero");
-        }
+        validation::validate_positive_amount(amount, "Reward amount");
+
+        // Validate addresses are different
+        validation::validate_addresses_different(&rewarder, &recipient, "Token reward");
 
         // Validate recipient is registered
         if !Self::is_participant_registered(env.clone(), recipient.clone()) {
             Self::unlock(&env);
             panic!("Recipient not registered");
+        }
+
+        // Validate waste ID exists (if non-zero)
+        if waste_id > 0 && !Self::waste_exists(env.clone(), waste_id) {
+            Self::unlock(&env);
+            panic!("Waste ID does not exist");
         }
 
         // Get token address
@@ -314,6 +326,12 @@ impl ScavengerContract {
         longitude: i128,
     ) -> Participant {
         address.require_auth();
+
+        // Validate coordinates
+        validation::validate_coordinates(latitude, longitude);
+
+        // Validate address is not contract
+        validation::validate_address_not_contract(&env, &address);
 
         // Check if already registered
         if Self::is_participant_registered(env.clone(), address.clone()) {
@@ -733,6 +751,9 @@ impl ScavengerContract {
     ) -> Participant {
         address.require_auth();
 
+        // Validate coordinates
+        validation::validate_coordinates(latitude, longitude);
+
         let key = (address.clone(),);
         let mut participant: Participant = env
             .storage()
@@ -924,6 +945,12 @@ impl ScavengerContract {
         longitude: i128,
     ) -> u128 {
         recycler.require_auth();
+
+        // Validate weight
+        validation::validate_positive_u128(weight, "Waste weight");
+
+        // Validate coordinates
+        validation::validate_coordinates(latitude, longitude);
 
         if !Self::is_participant_registered(env.clone(), recycler.clone()) {
             panic!("Participant not registered");
