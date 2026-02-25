@@ -315,6 +315,48 @@ impl ScavengerContract {
         }
     }
 
+    /// Helper to distribute token rewards and emit events through the supply chain
+    fn _reward_tokens(
+        env: &Env,
+        waste_id: u64,
+        total_reward: u128,
+    ) {
+        let transfers = Self::get_transfer_history(env.clone(), waste_id);
+        
+        let collector_pct: u32 = env.storage().instance().get(&COLLECTOR_PCT).unwrap_or(5);
+        let owner_pct: u32 = env.storage().instance().get(&OWNER_PCT).unwrap_or(50);
+        
+        let collector_share = (total_reward * (collector_pct as u128)) / 100;
+        let owner_share = (total_reward * (owner_pct as u128)) / 100;
+        
+        let mut total_distributed: u128 = 0;
+        
+        // Iterate through transfer history and reward collectors
+        for transfer in transfers.iter() {
+            let participant: Option<Participant> = env.storage().instance().get(&(transfer.to.clone(),));
+            if let Some(p) = participant {
+                if matches!(p.role, ParticipantRole::Collector) {
+                    total_distributed += collector_share;
+                    Self::update_participant_stats(env, &transfer.to, 0, collector_share as u64);
+                    events::emit_tokens_rewarded(env, &transfer.to, collector_share, waste_id);
+                }
+            }
+        }
+        
+        // Reward original owner and current recycler
+        if let Some(material) = Self::get_waste_internal(env, waste_id) {
+            total_distributed += owner_share;
+            Self::update_participant_stats(env, &material.submitter, 0, owner_share as u64);
+            events::emit_tokens_rewarded(env, &material.submitter, owner_share, waste_id);
+            
+            let recycler_amount = total_reward.saturating_sub(total_distributed);
+            if recycler_amount > 0 {
+                Self::update_participant_stats(env, &material.current_owner, 0, recycler_amount as u64);
+                events::emit_tokens_rewarded(env, &material.current_owner, recycler_amount, waste_id);
+            }
+        }
+    }
+
     /// Store a waste record by ID
     /// Internal helper function for efficient waste storage
     fn set_waste(env: &Env, waste_id: u64, material: &Material) {
@@ -1395,8 +1437,8 @@ impl ScavengerContract {
             .instance()
             .set(&("stats", material.submitter.clone()), &stats);
 
-        // Update submitter's participant stats with tokens earned
-        Self::update_participant_stats(&env, &material.submitter, 0, tokens_earned);
+        // Distribute token rewards using the helper which also emits TOKENS_REWARDED events
+        Self::_reward_tokens(&env, material_id, tokens_earned as u128);
 
         material
     }
@@ -1447,8 +1489,8 @@ impl ScavengerContract {
                     .instance()
                     .set(&("stats", material.submitter.clone()), &stats);
 
-                // Update submitter's participant stats with tokens earned
-                Self::update_participant_stats(&env, &material.submitter, 0, tokens_earned);
+                // Distribute token rewards using the helper which also emits TOKENS_REWARDED events
+                Self::_reward_tokens(&env, material_id, tokens_earned as u128);
 
                 results.push_back(material);
             }
