@@ -5,8 +5,12 @@ use crate::types::{Role, WasteType};
 const PARTICIPANT_REGISTERED: Symbol = symbol_short!("reg");
 const INCENTIVE_SET: Symbol = symbol_short!("inc_set");
 const INCENTIVE_UPDATED: Symbol = symbol_short!("inc_upd");
+const INCENTIVE_DEACTIVATED: Symbol = symbol_short!("inc_deact");
 const TOKENS_REWARDED: Symbol = symbol_short!("rewarded");
 const WASTE_DEACTIVATED: Symbol = symbol_short!("wst_deact");
+const WASTE_CONFIRMED: Symbol = symbol_short!("wst_conf");
+const WASTE_CONFIRMATION_RESET: Symbol = symbol_short!("wst_rst");
+const WASTE_TRANSFERRED: Symbol = symbol_short!("wst_trans");
 
 /// Emit event when a participant registers
 pub fn emit_participant_registered(
@@ -35,6 +39,14 @@ pub fn emit_incentive_set(
     env.events().publish(
         (INCENTIVE_SET, incentive_id),
         (rewarder, waste_type, reward_points, total_budget),
+    );
+}
+
+/// Emit event when an incentive is deactivated
+pub fn emit_incentive_deactivated(env: &Env, incentive_id: u64, rewarder: &Address) {
+    env.events().publish(
+        (INCENTIVE_DEACTIVATED, incentive_id),
+        rewarder,
     );
 }
 
@@ -74,5 +86,42 @@ pub fn emit_waste_deactivated(
     env.events().publish(
         (WASTE_DEACTIVATED, waste_id),
         admin,
+    );
+}
+
+/// Emit event when waste is confirmed
+pub fn emit_waste_confirmed(
+    env: &Env,
+    waste_id: u64,
+    confirmer: &Address,
+) {
+    env.events().publish(
+        (WASTE_CONFIRMED, waste_id),
+        confirmer,
+    );
+}
+
+/// Emit event when waste confirmation is reset
+pub fn emit_waste_confirmation_reset(
+    env: &Env,
+    waste_id: u64,
+    owner: &Address,
+) {
+    env.events().publish(
+        (WASTE_CONFIRMATION_RESET, waste_id),
+        owner,
+    );
+}
+
+/// Emit event when waste is transferred
+pub fn emit_waste_transferred(
+    env: &Env,
+    waste_id: u64,
+    from: &Address,
+    to: &Address,
+) {
+    env.events().publish(
+        (WASTE_TRANSFERRED, waste_id),
+        (from, to),
     );
 }

@@ -4,7 +4,13 @@ mod contract;
 mod storage;
 mod test;
 mod test_update_incentive;
+mod test_deactivate_incentive;
 mod test_deactivate_waste;
+mod test_reset_waste_confirmation;
+mod test_incentive_events;
+mod testutils;
+mod test_participant_registration_flow;
+mod test_data_structures;
 mod events;
 mod types;
 
