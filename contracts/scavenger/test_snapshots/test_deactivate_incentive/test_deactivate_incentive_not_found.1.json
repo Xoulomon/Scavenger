@@ -46,13 +46,13 @@
                   ]
                 },
                 {
-                  "string": "Test Manufacturer"
+                  "string": "Acme Corp"
                 },
                 {
-                  "i64": "100"
+                  "i64": "1000000"
                 },
                 {
-                  "i64": "200"
+                  "i64": "2000000"
                 }
               ]
             }
@@ -60,7 +60,8 @@
           "sub_invocations": []
         }
       ]
-    ]
+    ],
+    []
   ],
   "ledger": {
     "protocol_version": 23,
@@ -177,7 +178,7 @@
                           "symbol": "COL_PCT"
                         },
                         "val": {
-                          "u32": 30
+                          "u32": 5
                         }
                       },
                       {
@@ -193,7 +194,7 @@
                           "symbol": "OWN_PCT"
                         },
                         "val": {
-                          "u32": 20
+                          "u32": 50
                         }
                       },
                       {
@@ -230,7 +231,7 @@
                                 "symbol": "latitude"
                               },
                               "val": {
-                                "i64": "100"
+                                "i64": "1000000"
                               }
                             },
                             {
@@ -238,7 +239,7 @@
                                 "symbol": "longitude"
                               },
                               "val": {
-                                "i64": "200"
+                                "i64": "2000000"
                               }
                             },
                             {
@@ -246,7 +247,7 @@
                                 "symbol": "name"
                               },
                               "val": {
-                                "string": "Test Manufacturer"
+                                "string": "Acme Corp"
                               }
                             },
                             {
@@ -450,46 +451,5 @@
       ]
     ]
   },
-  "events": [
-    {
-      "event": {
-        "ext": "v0",
-        "contract_id": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-        "type_": "contract",
-        "body": {
-          "v0": {
-            "topics": [
-              {
-                "symbol": "reg"
-              },
-              {
-                "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM"
-              }
-            ],
-            "data": {
-              "vec": [
-                {
-                  "vec": [
-                    {
-                      "symbol": "Manufacturer"
-                    }
-                  ]
-                },
-                {
-                  "string": "Test Manufacturer"
-                },
-                {
-                  "i64": "100"
-                },
-                {
-                  "i64": "200"
-                }
-              ]
-            }
-          }
-        }
-      },
-      "failed_call": false
-    }
-  ]
+  "events": []
 }

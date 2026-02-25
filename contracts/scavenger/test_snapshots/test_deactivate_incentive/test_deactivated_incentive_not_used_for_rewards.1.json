@@ -1,6 +1,6 @@
 {
   "generators": {
-    "address": 7,
+    "address": 6,
     "nonce": 0,
     "mux_id": 0
   },
@@ -41,18 +41,18 @@
                 {
                   "vec": [
                     {
-                      "symbol": "Recycler"
+                      "symbol": "Manufacturer"
                     }
                   ]
                 },
                 {
-                  "string": "Recycler"
+                  "string": "Acme Corp"
                 },
                 {
-                  "i64": "100"
+                  "i64": "1000000"
                 },
                 {
-                  "i64": "200"
+                  "i64": "2000000"
                 }
               ]
             }
@@ -76,18 +76,18 @@
                 {
                   "vec": [
                     {
-                      "symbol": "Collector"
+                      "symbol": "Recycler"
                     }
                   ]
                 },
                 {
-                  "string": "Collector"
+                  "string": "Recycler One"
                 },
                 {
-                  "i64": "300"
+                  "i64": "500000"
                 },
                 {
-                  "i64": "400"
+                  "i64": "600000"
                 }
               ]
             }
@@ -98,31 +98,24 @@
     ],
     [
       [
-        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOLZM",
+        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM",
         {
           "function": {
             "contract_fn": {
               "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-              "function_name": "register_participant",
+              "function_name": "create_incentive",
               "args": [
                 {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOLZM"
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM"
                 },
                 {
-                  "vec": [
-                    {
-                      "symbol": "Manufacturer"
-                    }
-                  ]
+                  "u32": 0
                 },
                 {
-                  "string": "Manufacturer"
+                  "u64": "100"
                 },
                 {
-                  "i64": "500"
-                },
-                {
-                  "i64": "600"
+                  "u64": "50000"
                 }
               ]
             }
@@ -130,7 +123,77 @@
           "sub_invocations": []
         }
       ]
-    ]
+    ],
+    [
+      [
+        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDR4",
+        {
+          "function": {
+            "contract_fn": {
+              "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+              "function_name": "submit_material",
+              "args": [
+                {
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDR4"
+                },
+                {
+                  "u32": 0
+                },
+                {
+                  "u64": "5000"
+                }
+              ]
+            }
+          },
+          "sub_invocations": []
+        }
+      ]
+    ],
+    [
+      [
+        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM",
+        {
+          "function": {
+            "contract_fn": {
+              "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+              "function_name": "confirm_waste",
+              "args": [
+                {
+                  "u64": "1"
+                },
+                {
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM"
+                }
+              ]
+            }
+          },
+          "sub_invocations": []
+        }
+      ]
+    ],
+    [
+      [
+        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM",
+        {
+          "function": {
+            "contract_fn": {
+              "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+              "function_name": "deactivate_incentive",
+              "args": [
+                {
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM"
+                },
+                {
+                  "u64": "1"
+                }
+              ]
+            }
+          },
+          "sub_invocations": []
+        }
+      ]
+    ],
+    []
   ],
   "ledger": {
     "protocol_version": 23,
@@ -247,7 +310,7 @@
                           "symbol": "COL_PCT"
                         },
                         "val": {
-                          "u32": 30
+                          "u32": 5
                         }
                       },
                       {
@@ -260,10 +323,26 @@
                       },
                       {
                         "key": {
+                          "symbol": "INC_CNT"
+                        },
+                        "val": {
+                          "u64": "1"
+                        }
+                      },
+                      {
+                        "key": {
+                          "symbol": "MAT_CNT"
+                        },
+                        "val": {
+                          "u64": "1"
+                        }
+                      },
+                      {
+                        "key": {
                           "symbol": "OWN_PCT"
                         },
                         "val": {
-                          "u32": 20
+                          "u32": 50
                         }
                       },
                       {
@@ -272,6 +351,209 @@
                         },
                         "val": {
                           "address": "CBUSYNQKASUYFWYC3M2GUEDMX4AIVWPALDBYJPNK6554BREHTGZ2IUNF"
+                        }
+                      },
+                      {
+                        "key": {
+                          "symbol": "TOT_WGT"
+                        },
+                        "val": {
+                          "u64": "5000"
+                        }
+                      },
+                      {
+                        "key": {
+                          "vec": [
+                            {
+                              "symbol": "GEN_INC"
+                            },
+                            {
+                              "u32": 0
+                            }
+                          ]
+                        },
+                        "val": {
+                          "vec": [
+                            {
+                              "u64": "1"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "key": {
+                          "vec": [
+                            {
+                              "symbol": "INC"
+                            },
+                            {
+                              "u64": "1"
+                            }
+                          ]
+                        },
+                        "val": {
+                          "map": [
+                            {
+                              "key": {
+                                "symbol": "active"
+                              },
+                              "val": {
+                                "bool": false
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "created_at"
+                              },
+                              "val": {
+                                "u64": "0"
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "id"
+                              },
+                              "val": {
+                                "u64": "1"
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "remaining_budget"
+                              },
+                              "val": {
+                                "u64": "50000"
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "reward_points"
+                              },
+                              "val": {
+                                "u64": "100"
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "rewarder"
+                              },
+                              "val": {
+                                "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM"
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "total_budget"
+                              },
+                              "val": {
+                                "u64": "50000"
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "waste_type"
+                              },
+                              "val": {
+                                "u32": 0
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "key": {
+                          "vec": [
+                            {
+                              "symbol": "MAT"
+                            },
+                            {
+                              "u64": "1"
+                            }
+                          ]
+                        },
+                        "val": {
+                          "map": [
+                            {
+                              "key": {
+                                "symbol": "confirmer"
+                              },
+                              "val": {
+                                "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM"
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "current_owner"
+                              },
+                              "val": {
+                                "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDR4"
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "id"
+                              },
+                              "val": {
+                                "u64": "1"
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "is_active"
+                              },
+                              "val": {
+                                "bool": true
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "is_confirmed"
+                              },
+                              "val": {
+                                "bool": true
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "submitted_at"
+                              },
+                              "val": {
+                                "u64": "0"
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "submitter"
+                              },
+                              "val": {
+                                "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDR4"
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "verified"
+                              },
+                              "val": {
+                                "bool": false
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "waste_type"
+                              },
+                              "val": {
+                                "u32": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "symbol": "weight"
+                              },
+                              "val": {
+                                "u64": "5000"
+                              }
+                            }
+                          ]
                         }
                       },
                       {
@@ -300,7 +582,7 @@
                                 "symbol": "latitude"
                               },
                               "val": {
-                                "i64": "100"
+                                "i64": "1000000"
                               }
                             },
                             {
@@ -308,7 +590,7 @@
                                 "symbol": "longitude"
                               },
                               "val": {
-                                "i64": "200"
+                                "i64": "2000000"
                               }
                             },
                             {
@@ -316,7 +598,7 @@
                                 "symbol": "name"
                               },
                               "val": {
-                                "string": "Recycler"
+                                "string": "Acme Corp"
                               }
                             },
                             {
@@ -334,7 +616,7 @@
                               "val": {
                                 "vec": [
                                   {
-                                    "symbol": "Recycler"
+                                    "symbol": "Manufacturer"
                                   }
                                 ]
                               }
@@ -368,7 +650,7 @@
                                 "symbol": "latitude"
                               },
                               "val": {
-                                "i64": "300"
+                                "i64": "500000"
                               }
                             },
                             {
@@ -376,7 +658,7 @@
                                 "symbol": "longitude"
                               },
                               "val": {
-                                "i64": "400"
+                                "i64": "600000"
                               }
                             },
                             {
@@ -384,7 +666,7 @@
                                 "symbol": "name"
                               },
                               "val": {
-                                "string": "Collector"
+                                "string": "Recycler One"
                               }
                             },
                             {
@@ -402,7 +684,7 @@
                               "val": {
                                 "vec": [
                                   {
-                                    "symbol": "Collector"
+                                    "symbol": "Recycler"
                                   }
                                 ]
                               }
@@ -414,66 +696,17 @@
                         "key": {
                           "vec": [
                             {
-                              "symbol": "PART"
+                              "symbol": "REW_INC"
                             },
                             {
-                              "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOLZM"
+                              "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM"
                             }
                           ]
                         },
                         "val": {
-                          "map": [
+                          "vec": [
                             {
-                              "key": {
-                                "symbol": "address"
-                              },
-                              "val": {
-                                "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOLZM"
-                              }
-                            },
-                            {
-                              "key": {
-                                "symbol": "latitude"
-                              },
-                              "val": {
-                                "i64": "500"
-                              }
-                            },
-                            {
-                              "key": {
-                                "symbol": "longitude"
-                              },
-                              "val": {
-                                "i64": "600"
-                              }
-                            },
-                            {
-                              "key": {
-                                "symbol": "name"
-                              },
-                              "val": {
-                                "string": "Manufacturer"
-                              }
-                            },
-                            {
-                              "key": {
-                                "symbol": "registered_at"
-                              },
-                              "val": {
-                                "u64": "0"
-                              }
-                            },
-                            {
-                              "key": {
-                                "symbol": "role"
-                              },
-                              "val": {
-                                "vec": [
-                                  {
-                                    "symbol": "Manufacturer"
-                                  }
-                                ]
-                              }
+                              "u64": "1"
                             }
                           ]
                         }
@@ -486,6 +719,72 @@
             "ext": "v0"
           },
           4095
+        ]
+      ],
+      [
+        {
+          "contract_data": {
+            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM",
+            "key": {
+              "ledger_key_nonce": {
+                "nonce": "4270020994084947596"
+              }
+            },
+            "durability": "temporary"
+          }
+        },
+        [
+          {
+            "last_modified_ledger_seq": 0,
+            "data": {
+              "contract_data": {
+                "ext": "v0",
+                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM",
+                "key": {
+                  "ledger_key_nonce": {
+                    "nonce": "4270020994084947596"
+                  }
+                },
+                "durability": "temporary",
+                "val": "void"
+              }
+            },
+            "ext": "v0"
+          },
+          6311999
+        ]
+      ],
+      [
+        {
+          "contract_data": {
+            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM",
+            "key": {
+              "ledger_key_nonce": {
+                "nonce": "4837995959683129791"
+              }
+            },
+            "durability": "temporary"
+          }
+        },
+        [
+          {
+            "last_modified_ledger_seq": 0,
+            "data": {
+              "contract_data": {
+                "ext": "v0",
+                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM",
+                "key": {
+                  "ledger_key_nonce": {
+                    "nonce": "4837995959683129791"
+                  }
+                },
+                "durability": "temporary",
+                "val": "void"
+              }
+            },
+            "ext": "v0"
+          },
+          6311999
         ]
       ],
       [
@@ -510,6 +809,39 @@
                 "key": {
                   "ledger_key_nonce": {
                     "nonce": "5541220902715666415"
+                  }
+                },
+                "durability": "temporary",
+                "val": "void"
+              }
+            },
+            "ext": "v0"
+          },
+          6311999
+        ]
+      ],
+      [
+        {
+          "contract_data": {
+            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM",
+            "key": {
+              "ledger_key_nonce": {
+                "nonce": "8370022561469687789"
+              }
+            },
+            "durability": "temporary"
+          }
+        },
+        [
+          {
+            "last_modified_ledger_seq": 0,
+            "data": {
+              "contract_data": {
+                "ext": "v0",
+                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK3IM",
+                "key": {
+                  "ledger_key_nonce": {
+                    "nonce": "8370022561469687789"
                   }
                 },
                 "durability": "temporary",
@@ -557,10 +889,10 @@
       [
         {
           "contract_data": {
-            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOLZM",
+            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDR4",
             "key": {
               "ledger_key_nonce": {
-                "nonce": "4837995959683129791"
+                "nonce": "2032731177588607455"
               }
             },
             "durability": "temporary"
@@ -572,10 +904,10 @@
             "data": {
               "contract_data": {
                 "ext": "v0",
-                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOLZM",
+                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMDR4",
                 "key": {
                   "ledger_key_nonce": {
-                    "nonce": "4837995959683129791"
+                    "nonce": "2032731177588607455"
                   }
                 },
                 "durability": "temporary",
@@ -722,46 +1054,5 @@
       ]
     ]
   },
-  "events": [
-    {
-      "event": {
-        "ext": "v0",
-        "contract_id": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-        "type_": "contract",
-        "body": {
-          "v0": {
-            "topics": [
-              {
-                "symbol": "reg"
-              },
-              {
-                "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOLZM"
-              }
-            ],
-            "data": {
-              "vec": [
-                {
-                  "vec": [
-                    {
-                      "symbol": "Manufacturer"
-                    }
-                  ]
-                },
-                {
-                  "string": "Manufacturer"
-                },
-                {
-                  "i64": "500"
-                },
-                {
-                  "i64": "600"
-                }
-              ]
-            }
-          }
-        }
-      },
-      "failed_call": false
-    }
-  ]
+  "events": []
 }
