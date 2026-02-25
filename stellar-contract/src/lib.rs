@@ -1027,6 +1027,14 @@ impl ScavengerContract {
         env.storage().instance().get(&("waste_v2", waste_id))
     }
 
+    /// Get all waste IDs owned by a participant (v2 API)
+    pub fn get_participant_wastes_v2(env: Env, participant: Address) -> Vec<u128> {
+        env.storage()
+            .instance()
+            .get(&("participant_wastes", participant))
+            .unwrap_or(Vec::new(&env))
+    }
+
     /// Transfer waste between participants with location tracking
     pub fn transfer_waste_v2(
         env: Env,
