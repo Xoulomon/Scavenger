@@ -1,4 +1,23 @@
-use soroban_sdk::{contracttype, Address, String};
+use soroban_sdk::{contracterror, contracttype, Address, String};
+
+/// Contract error types for access control and validation
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[repr(u32)]
+pub enum Error {
+    /// Caller is not a registered participant
+    NotRegistered = 1,
+    /// Caller is not a manufacturer
+    NotManufacturer = 2,
+    /// Caller is not the contract admin
+    NotAdmin = 3,
+    /// Contract admin has not been set
+    AdminNotSet = 4,
+    /// Caller is not the owner of this waste item
+    NotWasteOwner = 5,
+    /// Waste item not found
+    WasteNotFound = 6,
+}
 
 /// Participant role in the scavenger system
 #[contracttype]
@@ -104,6 +123,10 @@ pub struct Material {
     pub verified: bool,
     /// Whether the material is active (can be deactivated by admin)
     pub is_active: bool,
+    /// Whether the material has been confirmed
+    pub is_confirmed: bool,
+    /// Address of the confirmer (if confirmed)
+    pub confirmer: Address,
 }
 
 impl Material {
@@ -120,10 +143,12 @@ impl Material {
             waste_type,
             weight,
             submitter: submitter.clone(),
-            current_owner: submitter,
+            current_owner: submitter.clone(),
             submitted_at,
             verified: false,
             is_active: true,
+            is_confirmed: false,
+            confirmer: submitter, // Default to submitter, will be updated on confirmation
         }
     }
 }

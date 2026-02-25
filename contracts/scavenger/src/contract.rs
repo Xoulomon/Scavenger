@@ -2,7 +2,7 @@ use soroban_sdk::{contract, contractimpl, token, Address, Env, Vec};
 
 use crate::events;
 use crate::storage::Storage;
-use crate::types::{GlobalMetrics, Incentive, Material, Participant, Role, WasteTransfer, WasteType};
+use crate::types::{Error, GlobalMetrics, Incentive, Material, Participant, Role, WasteTransfer, WasteType};
 
 #[contract]
 pub struct ScavengerContract;
@@ -10,7 +10,7 @@ pub struct ScavengerContract;
 #[contractimpl]
 impl ScavengerContract {
     /// Initialize the contract with admin and configuration
-    pub fn __constructor(
+    pub fn initialize(
         env: &Env,
         admin: Address,
         token_address: Address,
@@ -162,14 +162,25 @@ impl ScavengerContract {
 
         let participant = Participant {
             address: address.clone(),
-            role,
-            name,
+            role: role.clone(),
+            name: name.clone(),
             latitude,
             longitude,
             registered_at: env.ledger().timestamp(),
         };
 
         Storage::set_participant(env, &address, &participant);
+        
+        // Emit participant registered event
+        events::emit_participant_registered(
+            env,
+            &address,
+            &role,
+            &name,
+            latitude,
+            longitude,
+        );
+
         participant
     }
 
@@ -262,7 +273,7 @@ impl ScavengerContract {
 
     /// Get the active incentive with the highest reward for a specific manufacturer and waste type
     /// Returns None if no active incentive is found
-    pub fn get_active_incentive_for_manufacturer(
+    pub fn get_active_incentive(
         env: &Env,
         manufacturer: Address,
         waste_type: WasteType,
@@ -343,6 +354,16 @@ impl ScavengerContract {
         incentive
     }
 
+    /// Deactivate an incentive (rewarder only)
+    pub fn deactivate_incentive(env: &Env, rewarder: Address, incentive_id: u64) {
+        rewarder.require_auth();
+        let mut incentive = Storage::get_incentive(env, incentive_id)
+            .expect("Incentive not found");
+        assert!(incentive.rewarder == rewarder, "Only rewarder can deactivate");
+        incentive.active = false;
+        Storage::set_incentive(env, incentive_id, &incentive);
+    }
+
     /// Submit material for recycling
     pub fn submit_material(
         env: &Env,
@@ -406,6 +427,64 @@ impl ScavengerContract {
         events::emit_waste_deactivated(env, waste_id, &admin);
     }
 
+    /// Confirm a waste material
+    pub fn confirm_waste(env: &Env, waste_id: u64, confirmer: Address) {
+        confirmer.require_auth();
+
+        // Get the material
+        let mut material = Storage::get_material(env, waste_id)
+            .expect("Waste not found");
+
+        // Check if material is active
+        assert!(material.is_active, "Waste is not active");
+
+        // Check confirmer is registered
+        assert!(
+            Storage::is_participant_registered(env, &confirmer),
+            "Confirmer not registered"
+        );
+
+        // Update confirmation status
+        material.is_confirmed = true;
+        material.confirmer = confirmer.clone();
+
+        // Store the updated material
+        Storage::set_material(env, waste_id, &material);
+
+        // Emit confirmation event
+        events::emit_waste_confirmed(env, waste_id, &confirmer);
+    }
+
+    /// Reset waste confirmation status (owner only)
+    /// Allows the waste owner to reset confirmation so it can be re-confirmed
+    pub fn reset_waste_confirmation(env: &Env, waste_id: u64, owner: Address) {
+        owner.require_auth();
+
+        // Get the material
+        let mut material = Storage::get_material(env, waste_id)
+            .expect("Waste not found");
+
+        // Check caller is the current owner
+        assert!(
+            material.current_owner == owner,
+            "Only waste owner can reset confirmation"
+        );
+
+        // Check if material is active
+        assert!(material.is_active, "Waste is not active");
+
+        // Reset confirmation status
+        material.is_confirmed = false;
+        // Clear confirmer address (reset to submitter as default)
+        material.confirmer = material.submitter.clone();
+
+        // Store the updated material
+        Storage::set_material(env, waste_id, &material);
+
+        // Emit reset event
+        events::emit_waste_confirmation_reset(env, waste_id, &owner);
+    }
+
     /// Transfer waste to another participant
     pub fn transfer_waste(
         env: &Env,
@@ -436,6 +515,8 @@ impl ScavengerContract {
         material.current_owner = to.clone();
         Storage::set_material(env, waste_id, &material);
 
+        events::emit_waste_transferred(env, waste_id, &from, &to);
+
         // Record transfer
         let transfer = WasteTransfer::new(
             waste_id,
@@ -464,7 +545,7 @@ impl ScavengerContract {
         let material = Storage::get_material(env, waste_id)
             .expect("Material not found");
 
-        assert!(material.verified, "Material must be verified");
+        assert!(material.is_confirmed, "Material must be confirmed");
 
         // Get manufacturer incentive
         let incentive = Storage::get_incentive(env, incentive_id)
@@ -583,5 +664,71 @@ impl ScavengerContract {
             "Only admin can perform this action"
         );
         admin.require_auth();
+    }
+
+    // ========== Access Control Helper Functions ==========
+
+    /// Verify that the caller is a registered participant
+    fn only_registered(env: &Env, caller: &Address) -> Result<(), Error> {
+        // Authenticate the caller
+        caller.require_auth();
+        
+        // Check if participant exists in storage
+        if !Storage::is_participant_registered(env, caller) {
+            return Err(Error::NotRegistered);
+        }
+        
+        Ok(())
+    }
+
+    /// Verify that the caller is a registered manufacturer
+    fn only_manufacturer(env: &Env, caller: &Address) -> Result<(), Error> {
+        // Authenticate the caller
+        caller.require_auth();
+        
+        // Retrieve participant data
+        let participant = Storage::get_participant(env, caller)
+            .ok_or(Error::NotRegistered)?;
+        
+        // Check role
+        if !participant.role.can_manufacture() {
+            return Err(Error::NotManufacturer);
+        }
+        
+        Ok(())
+    }
+
+    /// Verify that the caller is the contract administrator
+    fn only_admin(env: &Env, caller: &Address) -> Result<(), Error> {
+        // Authenticate the caller
+        caller.require_auth();
+        
+        // Retrieve admin address from storage
+        let admin = Storage::get_admin(env)
+            .ok_or(Error::AdminNotSet)?;
+        
+        // Check if caller is admin
+        if caller != &admin {
+            return Err(Error::NotAdmin);
+        }
+        
+        Ok(())
+    }
+
+    /// Verify that the caller owns the specified waste item
+    fn only_waste_owner(env: &Env, caller: &Address, waste_id: u64) -> Result<(), Error> {
+        // Authenticate the caller
+        caller.require_auth();
+        
+        // Retrieve waste item from storage
+        let material = Storage::get_material(env, waste_id)
+            .ok_or(Error::WasteNotFound)?;
+        
+        // Check ownership
+        if &material.current_owner != caller {
+            return Err(Error::NotWasteOwner);
+        }
+        
+        Ok(())
     }
 }
