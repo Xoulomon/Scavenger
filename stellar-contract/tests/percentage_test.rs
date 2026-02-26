@@ -62,7 +62,7 @@ fn test_set_percentages_exactly_100() {
 }
 
 #[test]
-#[should_panic(expected = "Unauthorized: caller is not admin")]
+#[should_panic(expected = "Caller is not the contract admin")]
 fn test_set_percentages_non_admin() {
     let env = Env::default();
     let contract_id = env.register_contract(None, ScavengerContract);

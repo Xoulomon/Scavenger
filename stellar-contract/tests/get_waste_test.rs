@@ -15,7 +15,7 @@ fn test_get_waste_returns_correct_data() {
     env.mock_all_auths();
 
     // Register participant
-    client.register_participant(&user, &stellar_scavngr_contract::ParticipantRole::Recycler);
+    client.register_participant(&user, &stellar_scavngr_contract::ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Submit material
     let material = client.submit_material(&WasteType::Plastic, &5000, &user, &description);
@@ -69,7 +69,7 @@ fn test_get_waste_multiple_materials() {
     env.mock_all_auths();
 
     // Register participant
-    client.register_participant(&user, &stellar_scavngr_contract::ParticipantRole::Recycler);
+    client.register_participant(&user, &stellar_scavngr_contract::ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Submit multiple materials
     let desc1 = String::from_str(&env, "Plastic bottles");
@@ -107,8 +107,8 @@ fn test_get_waste_after_verification() {
     env.mock_all_auths();
 
     // Register participants
-    client.register_participant(&submitter, &stellar_scavngr_contract::ParticipantRole::Collector);
-    client.register_participant(&verifier, &stellar_scavngr_contract::ParticipantRole::Recycler);
+    client.register_participant(&submitter, &stellar_scavngr_contract::ParticipantRole::Collector, &soroban_sdk::symbol_short!("user"), &0, &0);
+    client.register_participant(&verifier, &stellar_scavngr_contract::ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Submit material
     let material = client.submit_material(&WasteType::Paper, &4000, &submitter, &description);
@@ -136,7 +136,7 @@ fn test_get_waste_consistency() {
     env.mock_all_auths();
 
     // Register participant
-    client.register_participant(&user, &stellar_scavngr_contract::ParticipantRole::Recycler);
+    client.register_participant(&user, &stellar_scavngr_contract::ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Submit material
     let material = client.submit_material(&WasteType::Metal, &7000, &user, &description);
@@ -165,7 +165,7 @@ fn test_get_waste_all_waste_types() {
     env.mock_all_auths();
 
     // Register participant
-    client.register_participant(&user, &stellar_scavngr_contract::ParticipantRole::Recycler);
+    client.register_participant(&user, &stellar_scavngr_contract::ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Submit one of each waste type
     let desc = String::from_str(&env, "Test");
@@ -207,7 +207,7 @@ fn test_get_waste_sequential_ids() {
     env.mock_all_auths();
 
     // Register participant
-    client.register_participant(&user, &stellar_scavngr_contract::ParticipantRole::Recycler);
+    client.register_participant(&user, &stellar_scavngr_contract::ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Submit materials and verify IDs are sequential
     let m1 = client.submit_material(&WasteType::Paper, &1000, &user, &description);
@@ -235,7 +235,7 @@ fn test_get_waste_alias_compatibility() {
     env.mock_all_auths();
 
     // Register participant
-    client.register_participant(&user, &stellar_scavngr_contract::ParticipantRole::Recycler);
+    client.register_participant(&user, &stellar_scavngr_contract::ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Submit material
     let material = client.submit_material(&WasteType::Glass, &6000, &user, &description);
