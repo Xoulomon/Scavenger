@@ -80,6 +80,24 @@ impl ScavengerContract {
         caller.require_auth();
     }
 
+    /// Reentrancy guard lock.
+    fn lock(env: &Env) {
+        let is_locked: bool = env
+            .storage()
+            .instance()
+            .get(&REENTRANCY_GUARD)
+            .unwrap_or(false);
+        if is_locked {
+            panic!("Reentrancy guard: locked");
+        }
+        env.storage().instance().set(&REENTRANCY_GUARD, &true);
+    }
+
+    /// Reentrancy guard unlock.
+    fn unlock(env: &Env) {
+        env.storage().instance().set(&REENTRANCY_GUARD, &false);
+    }
+
     // ========== Access Control Helper Functions ==========
 
     /// Verify that the caller is a registered participant
@@ -179,14 +197,28 @@ impl ScavengerContract {
     pub fn donate_to_charity(env: Env, donor: Address, amount: i128) {
         // Reentrancy guard
         Self::lock(&env);
-
-        donor.require_auth();
+        Self::only_registered(&env, &donor);
 
         // Validate amount
         if amount <= 0 {
             Self::unlock(&env);
             panic!("Donation amount must be greater than zero");
         }
+
+        // Validate donor has enough earned token balance.
+        let donor_key = (donor.clone(),);
+        let mut participant: Participant = env
+            .storage()
+            .instance()
+            .get(&donor_key)
+            .expect("Caller is not a registered participant");
+        let donation_amount = amount as u128;
+        if participant.total_tokens_earned < donation_amount {
+            Self::unlock(&env);
+            panic!("Insufficient balance");
+        }
+        participant.total_tokens_earned -= donation_amount;
+        env.storage().instance().set(&donor_key, &participant);
 
         // Get charity contract address
         let charity_contract = env
@@ -334,7 +366,7 @@ impl ScavengerContract {
         env.storage().instance().set(&TOTAL_TOKENS, &new_total);
 
         // Emit token reward event
-        events::emit_tokens_rewarded(&env, waste_id, &recipient, amount);
+        events::emit_tokens_rewarded(&env, &recipient, amount as u128, waste_id);
 
         // Release lock
         Self::unlock(&env);
@@ -375,7 +407,7 @@ impl ScavengerContract {
         let participant = Participant {
             address: address.clone(),
             role,
-            name,
+            name: name.clone(),
             latitude,
             longitude,
             is_registered: true,
@@ -391,8 +423,8 @@ impl ScavengerContract {
         events::emit_participant_registered(
             &env,
             &address,
-            &role,
-            &name,
+            role.clone(),
+            name.clone(),
             latitude,
             longitude,
         );
@@ -478,8 +510,8 @@ impl ScavengerContract {
             
             let recycler_amount = total_reward.saturating_sub(total_distributed);
             if recycler_amount > 0 {
-                Self::update_participant_stats(env, &material.current_owner, 0, recycler_amount as u64);
-                events::emit_tokens_rewarded(env, &material.current_owner, recycler_amount, waste_id);
+                Self::update_participant_stats(env, &material.submitter, 0, recycler_amount as u64);
+                events::emit_tokens_rewarded(env, &material.submitter, recycler_amount, waste_id);
             }
         }
     }
@@ -758,13 +790,24 @@ impl ScavengerContract {
         env: Env,
         waste_type: WasteType,
     ) -> soroban_sdk::Vec<Incentive> {
-        let mut results = soroban_sdk::Vec::new(&env);
+        let mut results: soroban_sdk::Vec<Incentive> = soroban_sdk::Vec::new(&env);
         let count = Self::get_incentive_count(&env);
 
         for i in 1..=count {
             if let Some(incentive) = Self::get_incentive(&env, i) {
-                if incentive.waste_type == waste_type {
-                    results.push_back(incentive);
+                if incentive.waste_type == waste_type && incentive.active {
+                    // Keep results sorted by reward_points descending.
+                    let mut inserted = false;
+                    for idx in 0..results.len() {
+                        if incentive.reward_points > results.get(idx).unwrap().reward_points {
+                            results.insert(idx, incentive.clone());
+                            inserted = true;
+                            break;
+                        }
+                    }
+                    if !inserted {
+                        results.push_back(incentive);
+                    }
                 }
             }
         }
@@ -1669,6 +1712,46 @@ impl ScavengerContract {
         env.storage().instance().set(&key, &general_incentives);
 
         incentive
+    }
+
+    /// Claim reward points from an incentive for a verified material.
+    /// Keeps backward compatibility with older tests.
+    pub fn claim_incentive_reward(
+        env: Env,
+        incentive_id: u64,
+        material_id: u64,
+        claimer: Address,
+    ) -> i128 {
+        Self::only_registered(&env, &claimer);
+
+        let mut incentive =
+            Self::get_incentive_internal(&env, incentive_id).expect("Incentive not found");
+        if !incentive.active {
+            panic!("Incentive is not active");
+        }
+
+        let material = Self::get_waste_internal(&env, material_id).expect("Material not found");
+        if !material.verified {
+            panic!("Material not verified");
+        }
+        if material.waste_type != incentive.waste_type {
+            panic!("Waste type mismatch");
+        }
+
+        let reward = Self::calculate_incentive_reward(env.clone(), incentive_id, material.weight);
+        if reward == 0 {
+            panic!("No reward available");
+        }
+
+        incentive.remaining_budget = incentive.remaining_budget.saturating_sub(reward);
+        if incentive.remaining_budget == 0 {
+            incentive.active = false;
+        }
+        Self::set_incentive(&env, incentive_id, &incentive);
+
+        Self::update_participant_stats(&env, &claimer, 0, reward);
+
+        reward as i128
     }
 
     /// Deactivate an incentive (only by creator)

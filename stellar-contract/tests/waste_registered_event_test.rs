@@ -1,5 +1,7 @@
 use soroban_sdk::{
-    symbol_short, testutils::{Address as _, Events}, Address, Env, IntoVal, Symbol, Vec,
+    symbol_short,
+    testutils::{Address as _, Events},
+    Address, Env, IntoVal, Symbol, TryIntoVal, Vec,
 };
 use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
@@ -13,7 +15,7 @@ fn test_waste_registered_event_emitted() {
     env.mock_all_auths();
 
     // Register participant
-    client.register_participant(&recycler, &ParticipantRole::Recycler);
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Recycle waste
     let waste_type = WasteType::Plastic;
@@ -39,10 +41,10 @@ fn test_waste_registered_event_emitted() {
         waste_id,
     ).into_val(&env);
     
-    assert_eq!(event.topics, expected_topics);
+    assert_eq!(event.1, expected_topics);
 
     // Check event data contains all required fields
-    let event_data: (WasteType, u128, Address, i128, i128) = event.data.try_into_val(&env).unwrap();
+    let event_data: (WasteType, u128, Address, i128, i128) = event.2.try_into_val(&env).unwrap();
     assert_eq!(event_data.0, waste_type);
     assert_eq!(event_data.1, weight);
     assert_eq!(event_data.2, recycler);
@@ -59,7 +61,7 @@ fn test_waste_registered_event_fields() {
     let recycler = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(&recycler, &ParticipantRole::Recycler);
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Test with different waste types and values
     let test_cases = vec![
@@ -86,10 +88,10 @@ fn test_waste_registered_event_fields() {
             symbol_short!("recycled"),
             waste_id,
         ).into_val(&env);
-        assert_eq!(event.topics, topics);
+        assert_eq!(event.1, topics);
 
         // Verify all fields in event data
-        let event_data: (WasteType, u128, Address, i128, i128) = event.data.try_into_val(&env).unwrap();
+        let event_data: (WasteType, u128, Address, i128, i128) = event.2.try_into_val(&env).unwrap();
         assert_eq!(event_data.0, waste_type, "Waste type mismatch");
         assert_eq!(event_data.1, weight, "Weight mismatch");
         assert_eq!(event_data.2, recycler, "Recycler address mismatch");
@@ -108,8 +110,8 @@ fn test_waste_registered_event_multiple_wastes() {
     let recycler2 = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(&recycler1, &ParticipantRole::Recycler);
-    client.register_participant(&recycler2, &ParticipantRole::Recycler);
+    client.register_participant(&recycler1, &ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
+    client.register_participant(&recycler2, &ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Register multiple wastes
     let waste_id1 = client.recycle_waste(
@@ -133,7 +135,7 @@ fn test_waste_registered_event_multiple_wastes() {
     assert!(all_events.len() >= 2, "Expected at least 2 events");
 
     // Check the last two events correspond to our waste registrations
-    let events_vec: Vec<_> = all_events.iter().collect();
+    let events_vec: std::vec::Vec<_> = all_events.iter().collect();
     let event1 = &events_vec[events_vec.len() - 2];
     let event2 = &events_vec[events_vec.len() - 1];
 
@@ -142,9 +144,9 @@ fn test_waste_registered_event_multiple_wastes() {
         symbol_short!("recycled"),
         waste_id1,
     ).into_val(&env);
-    assert_eq!(event1.topics, topics1);
+    assert_eq!(event1.1, topics1);
 
-    let data1: (WasteType, u128, Address, i128, i128) = event1.data.try_into_val(&env).unwrap();
+    let data1: (WasteType, u128, Address, i128, i128) = event1.2.try_into_val(&env).unwrap();
     assert_eq!(data1.0, WasteType::Plastic);
     assert_eq!(data1.2, recycler1);
 
@@ -153,9 +155,9 @@ fn test_waste_registered_event_multiple_wastes() {
         symbol_short!("recycled"),
         waste_id2,
     ).into_val(&env);
-    assert_eq!(event2.topics, topics2);
+    assert_eq!(event2.1, topics2);
 
-    let data2: (WasteType, u128, Address, i128, i128) = event2.data.try_into_val(&env).unwrap();
+    let data2: (WasteType, u128, Address, i128, i128) = event2.2.try_into_val(&env).unwrap();
     assert_eq!(data2.0, WasteType::Metal);
     assert_eq!(data2.2, recycler2);
 }
@@ -169,7 +171,7 @@ fn test_waste_registered_event_with_boundary_coordinates() {
     let recycler = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(&recycler, &ParticipantRole::Recycler);
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Test with boundary coordinates
     let max_lat: i128 = 90_000_000;
@@ -197,7 +199,7 @@ fn test_waste_registered_event_with_boundary_coordinates() {
         let events = env.events().all();
         let event = events.last().unwrap();
 
-        let event_data: (WasteType, u128, Address, i128, i128) = event.data.try_into_val(&env).unwrap();
+        let event_data: (WasteType, u128, Address, i128, i128) = event.2.try_into_val(&env).unwrap();
         assert_eq!(event_data.3, lat, "Latitude should match");
         assert_eq!(event_data.4, lon, "Longitude should match");
     }
@@ -212,7 +214,7 @@ fn test_waste_registered_event_symbol() {
     let recycler = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(&recycler, &ParticipantRole::Recycler);
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     client.recycle_waste(
         &WasteType::Paper,
@@ -226,6 +228,6 @@ fn test_waste_registered_event_symbol() {
     let event = events.last().unwrap();
 
     // Extract the symbol from topics
-    let symbol: Symbol = event.topics.get(0).unwrap().try_into_val(&env).unwrap();
+    let symbol: Symbol = event.1.get(0).unwrap().try_into_val(&env).unwrap();
     assert_eq!(symbol, symbol_short!("recycled"));
 }

@@ -58,7 +58,7 @@ fn test_reset_waste_confirmation() {
 }
 
 #[test]
-#[should_panic(expected = "Only owner can reset confirmation")]
+#[should_panic(expected = "Caller is not the owner of this waste item")]
 fn test_reset_waste_confirmation_non_owner() {
     let env = Env::default();
     env.mock_all_auths();
@@ -127,7 +127,7 @@ fn test_reset_unconfirmed_waste() {
 }
 
 #[test]
-#[should_panic(expected = "Waste not found")]
+#[should_panic(expected = "Waste item not found")]
 fn test_reset_nonexistent_waste() {
     let env = Env::default();
     env.mock_all_auths();
