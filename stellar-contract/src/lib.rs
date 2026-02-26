@@ -36,7 +36,6 @@ pub struct Participant {
     pub registered_at: u64,
 }
 
-
 /// Represents a manufacturer incentive program for recycling specific waste types
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -413,6 +412,9 @@ impl ScavengerContract {
         longitude: i128,
     ) -> Participant {
         address.require_auth();
+
+        // Validate coordinates
+        validation::validate_coordinates(latitude, longitude);
 
         // Check if already registered
         if Self::is_participant_registered(env.clone(), address.clone()) {
