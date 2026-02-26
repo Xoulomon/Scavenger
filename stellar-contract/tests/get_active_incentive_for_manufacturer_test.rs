@@ -13,7 +13,7 @@ fn test_get_active_incentive_returns_highest_reward() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Create multiple incentives for Plastic with different rewards
     client.create_incentive(&manufacturer, &WasteType::Plastic, &50, &10000);
@@ -21,7 +21,7 @@ fn test_get_active_incentive_returns_highest_reward() {
     client.create_incentive(&manufacturer, &WasteType::Plastic, &70, &15000); // Highest
 
     // Get active incentive
-    let result = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::Plastic);
+    let result = client.get_active_mfr_incentive(&manufacturer, &WasteType::Plastic);
 
     // Should return the one with highest reward (70)
     assert!(result.is_some());
@@ -40,7 +40,7 @@ fn test_get_active_incentive_filters_by_waste_type() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Create incentives for different waste types
     client.create_incentive(&manufacturer, &WasteType::Plastic, &50, &10000);
@@ -48,7 +48,7 @@ fn test_get_active_incentive_filters_by_waste_type() {
     client.create_incentive(&manufacturer, &WasteType::Plastic, &60, &8000); // Highest for Plastic
 
     // Get active incentive for Plastic
-    let result = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::Plastic);
+    let result = client.get_active_mfr_incentive(&manufacturer, &WasteType::Plastic);
 
     // Should return the highest Plastic incentive (60), not Metal (80)
     assert!(result.is_some());
@@ -67,8 +67,8 @@ fn test_get_active_incentive_filters_by_manufacturer() {
     let manufacturer1 = Address::generate(&env);
     let manufacturer2 = Address::generate(&env);
     
-    client.register_participant(&manufacturer1, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
-    client.register_participant(&manufacturer2, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer1, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
+    client.register_participant(&manufacturer2, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Create incentives from different manufacturers
     client.create_incentive(&manufacturer1, &WasteType::Paper, &40, &8000);
@@ -76,7 +76,7 @@ fn test_get_active_incentive_filters_by_manufacturer() {
     client.create_incentive(&manufacturer1, &WasteType::Paper, &50, &10000); // Highest for manufacturer1
 
     // Get active incentive for manufacturer1
-    let result = client.get_active_incentive_for_manufacturer(&manufacturer1, &WasteType::Paper);
+    let result = client.get_active_mfr_incentive(&manufacturer1, &WasteType::Paper);
 
     // Should return manufacturer1's highest (50), not manufacturer2's (90)
     assert!(result.is_some());
@@ -93,7 +93,7 @@ fn test_get_active_incentive_excludes_inactive() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Create incentives
     let incentive1 = client.create_incentive(&manufacturer, &WasteType::Metal, &80, &10000); // Highest but will be deactivated
@@ -103,7 +103,7 @@ fn test_get_active_incentive_excludes_inactive() {
     client.deactivate_incentive(&incentive1.id, &manufacturer);
 
     // Get active incentive
-    let result = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::Metal);
+    let result = client.get_active_mfr_incentive(&manufacturer, &WasteType::Metal);
 
     // Should return the active one (50), not the deactivated one (80)
     assert!(result.is_some());
@@ -122,10 +122,10 @@ fn test_get_active_incentive_returns_none_when_no_incentives() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Get active incentive without creating any
-    let result = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::Glass);
+    let result = client.get_active_mfr_incentive(&manufacturer, &WasteType::Glass);
 
     // Should return None
     assert!(result.is_none());
@@ -139,7 +139,7 @@ fn test_get_active_incentive_returns_none_when_all_inactive() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Create incentives and deactivate all
     let incentive1 = client.create_incentive(&manufacturer, &WasteType::PetPlastic, &50, &10000);
@@ -149,7 +149,7 @@ fn test_get_active_incentive_returns_none_when_all_inactive() {
     client.deactivate_incentive(&incentive2.id, &manufacturer);
 
     // Get active incentive
-    let result = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::PetPlastic);
+    let result = client.get_active_mfr_incentive(&manufacturer, &WasteType::PetPlastic);
 
     // Should return None
     assert!(result.is_none());
@@ -163,14 +163,14 @@ fn test_get_active_incentive_returns_none_for_wrong_waste_type() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Create incentives for Plastic only
     client.create_incentive(&manufacturer, &WasteType::Plastic, &50, &10000);
     client.create_incentive(&manufacturer, &WasteType::Plastic, &60, &12000);
 
     // Query for Metal
-    let result = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::Metal);
+    let result = client.get_active_mfr_incentive(&manufacturer, &WasteType::Metal);
 
     // Should return None
     assert!(result.is_none());
@@ -184,13 +184,13 @@ fn test_get_active_incentive_single_incentive() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Create single incentive
     let created = client.create_incentive(&manufacturer, &WasteType::Glass, &45, &9000);
 
     // Get active incentive
-    let result = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::Glass);
+    let result = client.get_active_mfr_incentive(&manufacturer, &WasteType::Glass);
 
     // Should return the single incentive
     assert!(result.is_some());
@@ -209,7 +209,7 @@ fn test_get_active_incentive_with_equal_rewards() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Create incentives with equal rewards
     client.create_incentive(&manufacturer, &WasteType::Paper, &50, &10000);
@@ -217,7 +217,7 @@ fn test_get_active_incentive_with_equal_rewards() {
     client.create_incentive(&manufacturer, &WasteType::Paper, &50, &12000);
 
     // Get active incentive
-    let result = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::Paper);
+    let result = client.get_active_mfr_incentive(&manufacturer, &WasteType::Paper);
 
     // Should return one of them (any is valid since they're equal)
     assert!(result.is_some());
@@ -239,9 +239,9 @@ fn test_get_active_incentive_excludes_auto_deactivated() {
     let collector = Address::generate(&env);
     let recycler = Address::generate(&env);
     
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
-    client.register_participant(&collector, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
-    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
+    client.register_participant(&collector, &ParticipantRole::Collector, &soroban_sdk::symbol_short!("user"), &0, &0);
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Create incentives
     let incentive1 = client.create_incentive(&manufacturer, &WasteType::Metal, &100, &500); // Will be exhausted
@@ -256,7 +256,7 @@ fn test_get_active_incentive_excludes_auto_deactivated() {
     client.claim_incentive_reward(&incentive1.id, &material.id, &collector);
 
     // Get active incentive
-    let result = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::Metal);
+    let result = client.get_active_mfr_incentive(&manufacturer, &WasteType::Metal);
 
     // Should return the still-active one (80), not the exhausted one (100)
     assert!(result.is_some());
@@ -275,7 +275,7 @@ fn test_get_active_incentive_all_waste_types() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Create incentives for all waste types
     client.create_incentive(&manufacturer, &WasteType::Paper, &30, &5000);
@@ -285,11 +285,11 @@ fn test_get_active_incentive_all_waste_types() {
     client.create_incentive(&manufacturer, &WasteType::Glass, &35, &6000);
 
     // Get active incentive for each type
-    let paper = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::Paper);
-    let pet = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::PetPlastic);
-    let plastic = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::Plastic);
-    let metal = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::Metal);
-    let glass = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::Glass);
+    let paper = client.get_active_mfr_incentive(&manufacturer, &WasteType::Paper);
+    let pet = client.get_active_mfr_incentive(&manufacturer, &WasteType::PetPlastic);
+    let plastic = client.get_active_mfr_incentive(&manufacturer, &WasteType::Plastic);
+    let metal = client.get_active_mfr_incentive(&manufacturer, &WasteType::Metal);
+    let glass = client.get_active_mfr_incentive(&manufacturer, &WasteType::Glass);
 
     // All should return the correct incentive
     assert_eq!(paper.unwrap().reward_points, 30);
@@ -309,13 +309,13 @@ fn test_get_active_incentive_returns_complete_data() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Create incentive
     let created = client.create_incentive(&manufacturer, &WasteType::Plastic, &55, &11000);
 
     // Get active incentive
-    let result = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::Plastic);
+    let result = client.get_active_mfr_incentive(&manufacturer, &WasteType::Plastic);
     let retrieved = result.unwrap();
 
     // Verify all fields are correct
@@ -336,16 +336,16 @@ fn test_get_active_incentive_no_side_effects() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Create incentives
     client.create_incentive(&manufacturer, &WasteType::Metal, &50, &10000);
     client.create_incentive(&manufacturer, &WasteType::Metal, &70, &12000);
 
     // Get active incentive multiple times
-    let result1 = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::Metal);
-    let result2 = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::Metal);
-    let result3 = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::Metal);
+    let result1 = client.get_active_mfr_incentive(&manufacturer, &WasteType::Metal);
+    let result2 = client.get_active_mfr_incentive(&manufacturer, &WasteType::Metal);
+    let result3 = client.get_active_mfr_incentive(&manufacturer, &WasteType::Metal);
 
     // Should be identical (read-only operation)
     assert!(result1.is_some());
@@ -371,7 +371,7 @@ fn test_get_active_incentive_mixed_active_inactive() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Create multiple incentives
     let incentive1 = client.create_incentive(&manufacturer, &WasteType::Glass, &90, &15000); // Highest but will deactivate
@@ -384,7 +384,7 @@ fn test_get_active_incentive_mixed_active_inactive() {
     client.deactivate_incentive(&incentive3.id, &manufacturer);
 
     // Get active incentive
-    let result = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::Glass);
+    let result = client.get_active_mfr_incentive(&manufacturer, &WasteType::Glass);
 
     // Should return highest active (60), not deactivated ones (90, 75)
     assert!(result.is_some());
@@ -404,9 +404,9 @@ fn test_get_active_incentive_multiple_manufacturers_isolation() {
     let manufacturer2 = Address::generate(&env);
     let manufacturer3 = Address::generate(&env);
     
-    client.register_participant(&manufacturer1, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
-    client.register_participant(&manufacturer2, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
-    client.register_participant(&manufacturer3, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer1, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
+    client.register_participant(&manufacturer2, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
+    client.register_participant(&manufacturer3, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Create incentives from different manufacturers for same waste type
     client.create_incentive(&manufacturer1, &WasteType::Plastic, &40, &8000);
@@ -415,19 +415,23 @@ fn test_get_active_incentive_multiple_manufacturers_isolation() {
     client.create_incentive(&manufacturer1, &WasteType::Plastic, &50, &10000);
 
     // Get active incentive for each manufacturer
-    let result1 = client.get_active_incentive_for_manufacturer(&manufacturer1, &WasteType::Plastic);
-    let result2 = client.get_active_incentive_for_manufacturer(&manufacturer2, &WasteType::Plastic);
-    let result3 = client.get_active_incentive_for_manufacturer(&manufacturer3, &WasteType::Plastic);
+    let result1 = client.get_active_mfr_incentive(&manufacturer1, &WasteType::Plastic);
+    let result2 = client.get_active_mfr_incentive(&manufacturer2, &WasteType::Plastic);
+    let result3 = client.get_active_mfr_incentive(&manufacturer3, &WasteType::Plastic);
 
     // Each should return their own highest
-    assert_eq!(result1.unwrap().reward_points, 50);
-    assert_eq!(result1.unwrap().rewarder, manufacturer1);
-    
-    assert_eq!(result2.unwrap().reward_points, 90);
-    assert_eq!(result2.unwrap().rewarder, manufacturer2);
-    
-    assert_eq!(result3.unwrap().reward_points, 60);
-    assert_eq!(result3.unwrap().rewarder, manufacturer3);
+    let incentive1 = result1.unwrap();
+    let incentive2 = result2.unwrap();
+    let incentive3 = result3.unwrap();
+
+    assert_eq!(incentive1.reward_points, 50);
+    assert_eq!(incentive1.rewarder, manufacturer1);
+
+    assert_eq!(incentive2.reward_points, 90);
+    assert_eq!(incentive2.rewarder, manufacturer2);
+
+    assert_eq!(incentive3.reward_points, 60);
+    assert_eq!(incentive3.rewarder, manufacturer3);
 }
 
 #[test]
@@ -438,7 +442,7 @@ fn test_get_active_incentive_large_number_of_incentives() {
     let client = ScavengerContractClient::new(&env, &contract_id);
     
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Create many incentives with varying rewards
     for i in 1..=10 {
@@ -446,7 +450,7 @@ fn test_get_active_incentive_large_number_of_incentives() {
     }
 
     // Get active incentive
-    let result = client.get_active_incentive_for_manufacturer(&manufacturer, &WasteType::Paper);
+    let result = client.get_active_mfr_incentive(&manufacturer, &WasteType::Paper);
 
     // Should return the highest (100)
     assert!(result.is_some());

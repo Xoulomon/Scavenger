@@ -14,7 +14,7 @@ fn test_get_participant_wastes_returns_owned_ids() {
     env.mock_all_auths();
 
     // Register participant
-    client.register_participant(&user, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&user, &ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Submit multiple materials
     let m1 = client.submit_material(&WasteType::Plastic, &1000, &user, &description);
@@ -41,7 +41,7 @@ fn test_get_participant_wastes_empty_result() {
     env.mock_all_auths();
 
     // Register participant but don't submit any wastes
-    client.register_participant(&user, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&user, &ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Get participant wastes
     let waste_ids = client.get_participant_wastes(&user);
@@ -77,8 +77,8 @@ fn test_get_participant_wastes_multiple_participants() {
     env.mock_all_auths();
 
     // Register participants
-    client.register_participant(&user1, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
-    client.register_participant(&user2, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&user1, &ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
+    client.register_participant(&user2, &ParticipantRole::Collector, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // User1 submits 2 wastes
     let m1 = client.submit_material(&WasteType::Paper, &1000, &user1, &description);
@@ -121,8 +121,8 @@ fn test_get_participant_wastes_updates_after_transfer() {
     env.mock_all_auths();
 
     // Register participants
-    client.register_participant(&sender, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
-    client.register_participant(&receiver, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&sender, &ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
+    client.register_participant(&receiver, &ParticipantRole::Collector, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Sender submits wastes
     let m1 = client.submit_material(&WasteType::Plastic, &1000, &sender, &description);
@@ -169,9 +169,9 @@ fn test_get_participant_wastes_after_multiple_transfers() {
     env.mock_all_auths();
 
     // Register participants
-    client.register_participant(&user1, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
-    client.register_participant(&user2, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
-    client.register_participant(&user3, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&user1, &ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
+    client.register_participant(&user2, &ParticipantRole::Collector, &soroban_sdk::symbol_short!("user"), &0, &0);
+    client.register_participant(&user3, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // User1 submits 3 wastes
     let m1 = client.submit_material(&WasteType::Paper, &1000, &user1, &description);
@@ -216,7 +216,7 @@ fn test_get_participant_wastes_all_waste_types() {
     env.mock_all_auths();
 
     // Register participant
-    client.register_participant(&user, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&user, &ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Submit one of each waste type
     let m1 = client.submit_material(&WasteType::Paper, &1000, &user, &description);
@@ -248,7 +248,7 @@ fn test_get_participant_wastes_large_number() {
     env.mock_all_auths();
 
     // Register participant
-    client.register_participant(&user, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&user, &ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Submit 10 wastes
     let mut expected_ids = Vec::new(&env);
@@ -285,7 +285,7 @@ fn test_get_participant_wastes_consistency() {
     env.mock_all_auths();
 
     // Register participant
-    client.register_participant(&user, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&user, &ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Submit wastes
     client.submit_material(&WasteType::Paper, &1000, &user, &description);
@@ -318,8 +318,8 @@ fn test_get_participant_wastes_after_verification() {
     env.mock_all_auths();
 
     // Register participants
-    client.register_participant(&submitter, &ParticipantRole::Collector, &symbol_short!("Test"), &100, &200);
-    client.register_participant(&verifier, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&submitter, &ParticipantRole::Collector, &soroban_sdk::symbol_short!("user"), &0, &0);
+    client.register_participant(&verifier, &ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Submit waste
     let material = client.submit_material(&WasteType::Metal, &5000, &submitter, &description);
@@ -349,7 +349,7 @@ fn test_get_participant_wastes_order() {
     env.mock_all_auths();
 
     // Register participant
-    client.register_participant(&user, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&user, &ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Submit wastes in specific order
     let m1 = client.submit_material(&WasteType::Paper, &1000, &user, &description);
@@ -377,7 +377,7 @@ fn test_get_participant_wastes_no_side_effects() {
     env.mock_all_auths();
 
     // Register participant
-    client.register_participant(&user, &ParticipantRole::Recycler, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&user, &ParticipantRole::Recycler, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Submit waste
     let material = client.submit_material(&WasteType::Glass, &3000, &user, &description);
