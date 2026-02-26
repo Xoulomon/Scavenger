@@ -153,6 +153,21 @@ impl ScavengerContract {
         }
     }
 
+    // ========== Reentrancy Guard Functions ==========
+
+    /// Acquire reentrancy lock
+    fn lock(env: &Env) {
+        if env.storage().instance().get::<Symbol, bool>(&REENTRANCY_GUARD).unwrap_or(false) {
+            panic!("Reentrancy detected");
+        }
+        env.storage().instance().set(&REENTRANCY_GUARD, &true);
+    }
+
+    /// Release reentrancy lock
+    fn unlock(env: &Env) {
+        env.storage().instance().set(&REENTRANCY_GUARD, &false);
+    }
+
     // ========== Charity Contract Functions ==========
 
     /// Set the charity contract address (admin only)
@@ -334,7 +349,7 @@ impl ScavengerContract {
         env.storage().instance().set(&TOTAL_TOKENS, &new_total);
 
         // Emit token reward event
-        events::emit_tokens_rewarded(&env, waste_id, &recipient, amount);
+        events::emit_tokens_rewarded(&env, &recipient, amount as u128, waste_id);
 
         // Release lock
         Self::unlock(&env);
@@ -375,7 +390,7 @@ impl ScavengerContract {
         let participant = Participant {
             address: address.clone(),
             role,
-            name,
+            name: name.clone(),
             latitude,
             longitude,
             is_registered: true,
@@ -478,8 +493,8 @@ impl ScavengerContract {
             
             let recycler_amount = total_reward.saturating_sub(total_distributed);
             if recycler_amount > 0 {
-                Self::update_participant_stats(env, &material.current_owner, 0, recycler_amount as u64);
-                events::emit_tokens_rewarded(env, &material.current_owner, recycler_amount, waste_id);
+                Self::update_participant_stats(env, &material.submitter, 0, recycler_amount as u64);
+                events::emit_tokens_rewarded(env, &material.submitter, recycler_amount, waste_id);
             }
         }
     }
@@ -888,6 +903,13 @@ impl ScavengerContract {
     /// Includes all transfer details: from, to, timestamp, and notes
     pub fn get_waste_transfer_history(env: Env, waste_id: u64) -> Vec<WasteTransfer> {
         Self::get_transfer_history(env, waste_id)
+    }
+
+    /// Get transfer history for a waste (v2 - uses u128 waste_id)
+    /// Returns chronologically ordered list of transfers for new waste system
+    pub fn get_waste_transfer_history_v2(env: Env, waste_id: u128) -> Vec<WasteTransfer> {
+        let key = ("transfer_history", waste_id);
+        env.storage().instance().get(&key).unwrap_or(Vec::new(&env))
     }
 
     /// Record a waste transfer
