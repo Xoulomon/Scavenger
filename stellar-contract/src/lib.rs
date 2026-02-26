@@ -939,6 +939,13 @@ impl ScavengerContract {
     /// Get transfer history for a specific waste
     /// Returns chronologically ordered list of transfers
     pub fn get_transfer_history(env: Env, waste_id: u64) -> Vec<WasteTransfer> {
+        // Check v2 storage first (uses u128 waste_id)
+        let v2_key = ("transfer_history", waste_id as u128);
+        if let Some(history) = env.storage().instance().get::<_, Vec<WasteTransfer>>(&v2_key) {
+            return history;
+        }
+        
+        // Fall back to v1 storage
         let key = ("transfers", waste_id);
         env.storage().instance().get(&key).unwrap_or(Vec::new(&env))
     }
