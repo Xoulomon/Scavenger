@@ -1,5 +1,7 @@
 use soroban_sdk::{
-    symbol_short, testutils::{Address as _, Events}, Address, Env, IntoVal, String, Vec,
+    symbol_short,
+    testutils::{Address as _, Events},
+    Address, Env, IntoVal, String, TryIntoVal, Vec,
 };
 use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
@@ -13,22 +15,34 @@ fn test_waste_transferred_event_emitted() {
     let collector = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(&recycler, &ParticipantRole::Recycler, &String::from_str(&env, "Recycler"), &100, &200);
-    client.register_participant(&collector, &ParticipantRole::Collector, &String::from_str(&env, "Collector"), &300, &400);
+    client.register_participant(
+        &recycler,
+        &ParticipantRole::Recycler,
+        &symbol_short!("recycler"),
+        &100,
+        &200,
+    );
+    client.register_participant(
+        &collector,
+        &ParticipantRole::Collector,
+        &symbol_short!("collector"),
+        &300,
+        &400,
+    );
 
-    let waste_id = client.recycle_waste(
+    let material = client.submit_material(
         &WasteType::Plastic,
         &2500,
         &recycler,
-        &40_000_000,
-        &-74_000_000,
+        &String::from_str(&env, "Transfer test"),
     );
+    let waste_id = material.id;
 
     client.transfer_waste(
-        &waste_id, 
-        &recycler, 
-        &collector, 
-        &String::from_str(&env, "Transfer note")
+        &waste_id,
+        &recycler,
+        &collector,
+        &String::from_str(&env, "Transfer note"),
     );
 
     let events = env.events().all();
@@ -39,9 +53,9 @@ fn test_waste_transferred_event_emitted() {
         waste_id,
     ).into_val(&env);
     
-    assert_eq!(event.topics, expected_topics);
+    assert_eq!(event.1, expected_topics);
 
-    let event_data: (Address, Address) = event.data.try_into_val(&env).unwrap();
+    let event_data: (Address, Address) = event.2.try_into_val(&env).unwrap();
     assert_eq!(event_data.0, recycler);
     assert_eq!(event_data.1, collector);
 }

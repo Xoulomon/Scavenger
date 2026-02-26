@@ -51,7 +51,7 @@ fn test_deactivate_waste() {
 }
 
 #[test]
-#[should_panic(expected = "Unauthorized: caller is not admin")]
+#[should_panic(expected = "Caller is not the contract admin")]
 fn test_deactivate_waste_non_admin() {
     let env = Env::default();
     env.mock_all_auths();
@@ -119,7 +119,7 @@ fn test_deactivate_already_deactivated_waste() {
 }
 
 #[test]
-#[should_panic(expected = "Waste not found")]
+#[should_panic(expected = "Waste item not found")]
 fn test_deactivate_nonexistent_waste() {
     let env = Env::default();
     env.mock_all_auths();

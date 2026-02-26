@@ -67,8 +67,8 @@ pub fn emit_waste_confirmed(
 pub fn emit_participant_registered(
     env: &Env,
     address: &Address,
-    role: &ParticipantRole,
-    name: &Symbol,
+    role: ParticipantRole,
+    name: Symbol,
     latitude: i128,
     longitude: i128,
 ) {
