@@ -13,7 +13,7 @@ fn test_update_incentive_success() {
     env.mock_all_auths();
 
     // Register manufacturer
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Create incentive using the correct signature: (waste_type, reward, max_waste_amount, rewarder)
     let incentive = client.create_incentive(&manufacturer, &WasteType::Paper, &100, &5000);
@@ -28,8 +28,8 @@ fn test_update_incentive_success() {
     // Verify immutable fields unchanged
     assert_eq!(updated.id, incentive.id);
     assert_eq!(updated.waste_type, incentive.waste_type);
-    assert_eq!(updated.reward_pointser, incentive.reward_pointser);
-    assert_eq!(updated.is_active, incentive.is_active);
+    assert_eq!(updated.rewarder, incentive.rewarder);
+    assert_eq!(updated.active, incentive.active);
     assert_eq!(updated.created_at, incentive.created_at);
 
     // Verify persistence
@@ -48,7 +48,7 @@ fn test_update_incentive_not_found() {
     let manufacturer = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Try to update non-existent incentive
     client.update_incentive(&999, &100, &5000);
@@ -64,7 +64,7 @@ fn test_update_incentive_inactive() {
     let manufacturer = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     // Create and deactivate incentive
     let incentive = client.create_incentive(&manufacturer, &WasteType::Paper, &100, &5000);
@@ -84,7 +84,7 @@ fn test_update_incentive_zero_reward() {
     let manufacturer = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     let incentive = client.create_incentive(&manufacturer, &WasteType::Paper, &100, &5000);
 
@@ -93,7 +93,7 @@ fn test_update_incentive_zero_reward() {
 }
 
 #[test]
-#[should_panic(expected = "Max waste amount must be greater than zero")]
+#[should_panic(expected = "Total budget must be greater than zero")]
 fn test_update_incentive_zero_max_waste() {
     let env = Env::default();
     let contract_id = env.register_contract(None, ScavengerContract);
@@ -102,7 +102,7 @@ fn test_update_incentive_zero_max_waste() {
     let manufacturer = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     let incentive = client.create_incentive(&manufacturer, &WasteType::Paper, &100, &5000);
 
@@ -119,7 +119,7 @@ fn test_update_incentive_minimum_values() {
     let manufacturer = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     let incentive = client.create_incentive(&manufacturer, &WasteType::Paper, &100, &5000);
 
@@ -138,7 +138,7 @@ fn test_update_incentive_multiple_times() {
     let manufacturer = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Test"), &100, &200);
+    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &soroban_sdk::symbol_short!("user"), &0, &0);
 
     let incentive = client.create_incentive(&manufacturer, &WasteType::Paper, &100, &5000);
 
