@@ -17,10 +17,21 @@ fn test_reentrancy_guard_donate_to_charity() {
     let admin = Address::generate(&env);
     let charity = Address::generate(&env);
     let donor = Address::generate(&env);
+    let token_address = Address::generate(&env);
+    let rewarder = Address::generate(&env);
 
     // Initialize admin and set charity
     client.initialize_admin(&admin);
     client.set_charity_contract(&admin, &charity);
+    client.set_token_address(&admin, &token_address);
+    client.register_participant(
+        &donor,
+        &ParticipantRole::Recycler,
+        &soroban_sdk::symbol_short!("donor"),
+        &100,
+        &200,
+    );
+    client.reward_tokens(&rewarder, &donor, &1000, &1);
 
     // First donation should succeed
     client.donate_to_charity(&donor, &1000);
