@@ -905,6 +905,13 @@ impl ScavengerContract {
         Self::get_transfer_history(env, waste_id)
     }
 
+    /// Get transfer history for a waste (v2 - uses u128 waste_id)
+    /// Returns chronologically ordered list of transfers for new waste system
+    pub fn get_waste_transfer_history_v2(env: Env, waste_id: u128) -> Vec<WasteTransfer> {
+        let key = ("transfer_history", waste_id);
+        env.storage().instance().get(&key).unwrap_or(Vec::new(&env))
+    }
+
     /// Record a waste transfer
     /// Appends to immutable history
     fn record_transfer(env: &Env, waste_id: u64, from: Address, to: Address, _note: String) {
