@@ -1,102 +1,30 @@
 # Scavenger Mobile App
 
-React Native mobile application for iOS and Android platforms.
+## Overview
+The Scavenger mobile app provides a native experience for waste management tracking and rewards.
 
-## Features
+## Architecture
 
-- **Waste Submission**: Submit waste materials with type and weight
-- **Waste Transfer**: Transfer waste between participants
-- **Statistics**: View personal recycling statistics and rewards
-- **Profile Management**: Manage participant profile and settings
-- **Real-time Updates**: Receive notifications for waste transfers and rewards
+### Technology Stack
+- **Framework:** React Native with Expo
+- **State Management:** Zustand
+- **Navigation:** React Navigation
+- **API Client:** Axios
+- **Offline Storage:** AsyncStorage
+- **Push Notifications:** Expo Notifications
+- **Security:** Expo SecureStore, Biometric Authentication
 
-## Prerequisites
-
-- Node.js 16+
-- React Native CLI
-- Xcode (for iOS development)
-- Android Studio (for Android development)
-
-## Installation
-
-```bash
-cd mobile
-npm install
-```
-
-## Development
-
-### iOS
-```bash
-npm run ios
-```
-
-### Android
-```bash
-npm run android
-```
-
-### Start Metro Bundler
-```bash
-npm start
-```
-
-## Building
-
-### iOS Release Build
-```bash
-npm run build:ios
-```
-
-### Android Release Build
-```bash
-npm run build:android
-```
-
-## Project Structure
-
-```
-src/
-├── App.tsx              # Main app component with navigation
-├── screens/             # Screen components
-│   ├── HomeScreen.tsx
-│   ├── WasteSubmissionScreen.tsx
-│   ├── TransferScreen.tsx
-│   ├── ProfileScreen.tsx
-│   └── StatsScreen.tsx
-├── api/                 # API client
-│   └── wasteApi.ts
-├── store/               # State management (Zustand)
-│   └── appStore.ts
-└── types/               # TypeScript types
-```
-
-## Environment Variables
-
-Create a `.env` file in the mobile directory:
-
-```
-REACT_APP_API_URL=http://localhost:8080
-REACT_APP_CONTRACT_ID=your_contract_id
-REACT_APP_NETWORK=testnet
-```
-
-## Testing
-
-```bash
-npm test
-```
-
-## Linting
-
-```bash
-npm run lint
-```
-
-## Contributing
-
-See the main project CONTRIBUTING.md for guidelines.
-
-## License
-
-MIT
+### Directory Structure
+name: Mobile Build
+on:
+  push:
+    paths:
+      - 'mobile/**'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - run: cd mobile && npm install
+      - run: cd mobile && npm test
