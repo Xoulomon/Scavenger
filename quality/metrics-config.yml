@@ -1,0 +1,77 @@
+# Code Quality Metrics Configuration
+
+metrics:
+  # Code Coverage
+  coverage:
+    threshold: 80
+    target: 90
+    check:
+      - "npm run test:coverage"
+
+  # Linting
+  linting:
+    threshold: 0
+    max_warnings: 5
+    check:
+      - "npm run lint"
+
+  # Complexity
+  complexity:
+    max_per_file: 10
+    max_per_function: 5
+    check:
+      - "npx eslint --max-warnings 0"
+
+  # Duplication
+  duplication:
+    max_percentage: 3
+    check:
+      - "npx jscpd --threshold 3"
+
+  # Security
+  security:
+    threshold: 0
+    high_issues: 0
+    medium_issues: 5
+    check:
+      - "npm run audit"
+
+  # Performance
+  performance:
+    bundle_size_limit: 500 # KB
+    check:
+      - "npm run build -- --analyze"
+
+  # Documentation
+  documentation:
+    min_coverage: 80
+    check:
+      - "npx typedoc --validation"
+
+  # Test Quality
+  test_quality:
+    tests_per_function: 1
+    check:
+      - "npm run test -- --coverage"
+
+thresholds:
+  # Quality Gates
+  gate_fail:
+    - coverage < 80
+    - linting > 0
+    - security_high > 0
+    - duplication > 3
+
+  # Warning Levels
+  gate_warn:
+    - coverage < 85
+    - linting_warnings > 3
+    - security_medium > 3
+    - complexity > 7
+
+  # Improvement Targets
+  targets:
+    coverage: 90
+    security: 0
+    duplication: 2
+    complexity: 5

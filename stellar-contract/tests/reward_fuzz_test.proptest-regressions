@@ -1,7 +1,0 @@
-# Seeds for failure cases proptest has generated in the past. It is
-# automatically read and these particular cases re-run before any
-# novel cases are generated.
-#
-# It is recommended to check this file in to source control so that
-# everyone who runs the test benefits from these saved cases.
-cc d1a1d79fccf0367df9130783b07e33b37d2da700b9d18efe92209ef5c13014e4 # shrinks to reward_points = 1, weight_grams = 15000, collector_pct = 7, owner_pct_offset = 0, num_collectors = 16
