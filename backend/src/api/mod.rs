@@ -1,4 +1,5 @@
 pub mod contracts;
+pub mod health;
 pub mod ws;
 pub mod export;
 pub mod audit;

@@ -1,37 +1,49 @@
-mod services;
-mod middleware;
 mod api;
 mod cache;
 mod compliance;
-mod security;
-mod validation;
-mod search;
+mod config;
 mod errors;
+mod middleware;
+mod search;
+mod security;
+mod serializer;
+mod services;
+mod validation;
 
-use actix_web::{web, App, HttpServer, HttpResponse, HttpRequest, ResponseError};
 use actix_cors::Cors;
-use services::{
-    EmailService, SendGridEmailService, NotificationService, FirebaseNotificationService,
-    ReportService, ReportingService, StorageService, S3StorageService,
-    WebhookManager, ExportService, AuditService, VerificationService, DefaultVerificationService,
-    ArchivalService, FileSystemArchivalStorage,
-};
-use middleware::{RateLimitMiddleware, RateLimitConfig, ValidationMiddleware, CsrfMiddleware, RequestIdMiddleware};
-use cache::Cache;
-use api::{contracts, ws, export, audit, verification, compliance_api, signing_api, search as search_api, archival as archival_api};
+use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, ResponseError};
+use config::AppConfig;
 use errors::AppError;
+use middleware::{CsrfMiddleware, RateLimitConfig, RateLimitMiddleware, RequestIdMiddleware, ValidationMiddleware};
+use cache::Cache;
+use services::{
+    ArchivalService, AuditService, DefaultVerificationService, EmailService,
+    FileSystemArchivalStorage, FirebaseNotificationService, ReportingService, S3StorageService,
+    SendGridEmailService, VerificationService, WebhookManager,
+};
+use api::{
+    archival as archival_api, audit, compliance_api, contracts, export, health,
+    search as search_api, signing_api, verification, ws,
+};
 use std::sync::Arc;
 use tracing::info;
-use tracing_subscriber::{fmt, EnvFilter, prelude::*};
+use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let use_json = std::env::var("LOG_FORMAT")
-        .map(|v| v.to_lowercase() == "json")
-        .unwrap_or(false);
+    // ── Load .env (if present) ─────────────────────────────────────────────
+    dotenv::dotenv().ok();
 
+    // ── Load and validate configuration (fail fast) ───────────────────────
+    let config = AppConfig::from_env().unwrap_or_else(|e| {
+        eprintln!("FATAL: invalid configuration — {}", e);
+        std::process::exit(1);
+    });
+
+    // ── Initialise tracing ─────────────────────────────────────────────────
+    let use_json = config.log.format.to_lowercase() == "json";
     let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new("info"));
+        .unwrap_or_else(|_| EnvFilter::new(&config.log.level));
 
     if use_json {
         tracing_subscriber::registry()
@@ -45,24 +57,23 @@ async fn main() -> std::io::Result<()> {
             .init();
     }
 
-    info!(service = "backend", "Starting Scavenger Backend Server on 0.0.0.0:8080");
+    info!(service = "backend", "Starting Scavenger Backend Server on {}", config.bind_address());
 
+    // ── Build services from validated config ──────────────────────────────
     let email_service: Arc<dyn EmailService> = Arc::new(SendGridEmailService::new(
-        std::env::var("SENDGRID_API_KEY").unwrap_or_default(),
-        std::env::var("FROM_EMAIL").unwrap_or_else(|_| "noreply@scavenger.io".to_string()),
+        config.services.sendgrid_api_key.clone().unwrap_or_default(),
+        config.services.from_email.clone(),
     ));
 
     let notification_service = Arc::new(FirebaseNotificationService::new(
-        std::env::var("FIREBASE_PROJECT_ID").unwrap_or_default(),
+        config.services.firebase_project_id.clone().unwrap_or_default(),
     ));
 
-    let reporting_service = Arc::new(ReportingService::new(
-        std::env::var("STORAGE_PATH").unwrap_or_else(|_| "/tmp".to_string()),
-    ));
+    let reporting_service = Arc::new(ReportingService::new(config.storage.storage_path.clone()));
 
     let storage_service = Arc::new(S3StorageService::new(
-        std::env::var("S3_BUCKET").unwrap_or_default(),
-        std::env::var("AWS_REGION").unwrap_or_else(|_| "us-east-1".to_string()),
+        config.services.s3_bucket.clone().unwrap_or_default(),
+        config.services.aws_region.clone(),
     ));
 
     let webhook_manager = Arc::new(WebhookManager::new());
@@ -70,48 +81,48 @@ async fn main() -> std::io::Result<()> {
     let cache = Cache::new(300);
     let audit_service = AuditService::new();
     let ws_manager = ws::WsConnectionManager::new();
-    let verification_service: Arc<dyn VerificationService> = Arc::new(DefaultVerificationService::new());
-    let csrf_secret = std::env::var("CSRF_SECRET").unwrap_or_else(|_| "change-me-in-production".to_string());
-    let allowed_origins = std::env::var("ALLOWED_ORIGINS")
-        .unwrap_or_else(|_| "http://localhost:3000".to_string());
-    
-    // Initialize search client
+    let verification_service: Arc<dyn VerificationService> =
+        Arc::new(DefaultVerificationService::new());
+
+    // ── Search client ──────────────────────────────────────────────────────
     let search_config = search::SearchClientConfig {
-        url: std::env::var("ELASTICSEARCH_URL").unwrap_or_else(|_| "http://localhost:9200".to_string()),
-        username: std::env::var("ELASTICSEARCH_USERNAME").ok(),
-        password: std::env::var("ELASTICSEARCH_PASSWORD").ok(),
+        url: config.services.elasticsearch_url.clone(),
+        username: config.services.elasticsearch_username.clone(),
+        password: config.services.elasticsearch_password.clone(),
         timeout_seconds: 30,
         validate_certificates: true,
     };
-    
+
     let search_client = match search::SearchClient::new(search_config) {
         Ok(client) => {
             info!("Search client initialized successfully");
             Arc::new(client)
         }
         Err(e) => {
-            info!("Failed to initialize search client: {}. Search functionality will be limited.", e);
+            info!(
+                "Failed to initialize search client: {}. Search functionality will be limited.",
+                e
+            );
             return Err(std::io::Error::new(std::io::ErrorKind::Other, e));
         }
     };
-    
-    // Initialize archival service
-    let archival_storage_path = std::env::var("ARCHIVAL_STORAGE_PATH")
-        .unwrap_or_else(|_| "/tmp/archives".to_string());
+
+    // ── Archival service ───────────────────────────────────────────────────
     let archival_storage = Arc::new(FileSystemArchivalStorage::new(
-        std::path::PathBuf::from(archival_storage_path)
+        std::path::PathBuf::from(&config.storage.archival_storage_path),
     ));
     let archival_service = Arc::new(ArchivalService::new(archival_storage));
-    
-    info!("Archival service initialized");
 
-    info!(
-        cache_ttl = 300,
-        "Cache layer initialized with 5-minute default TTL"
-    );
+    info!("Archival service initialized");
+    info!(cache_ttl = 300, "Cache layer initialized with 5-minute default TTL");
     info!("Audit service initialized");
     info!("WebSocket manager initialized");
     info!("Verification service initialized");
+
+    // Capture values needed inside the closure
+    let allowed_origins = config.server.allowed_origins.clone();
+    let bind_addr = config.bind_address();
+    let config_data = web::Data::new(config);
 
     HttpServer::new(move || {
         let cors = {
@@ -135,6 +146,8 @@ async fn main() -> std::io::Result<()> {
             .wrap(RateLimitMiddleware::new(rate_limit_config.clone()))
             .wrap(ValidationMiddleware)
             .wrap(RequestIdMiddleware)
+            // ── App data ──────────────────────────────────────────────────
+            .app_data(config_data.clone())
             .app_data(web::Data::new(email_service.clone()))
             .app_data(web::Data::new(notification_service.clone()))
             .app_data(web::Data::new(reporting_service.clone()))
@@ -148,9 +161,11 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(archival_service.clone()))
             .app_data(web::JsonConfig::default().error_handler(json_error_handler))
             .default_service(web::route().to(not_found))
-            // Health
-            .route("/health", web::get().to(health_check))
-            // Contract Queries (Task 1)
+            // ── Health probes ─────────────────────────────────────────────
+            .route("/health",  web::get().to(legacy_health_check))
+            .route("/healthz", web::get().to(health::healthz))
+            .route("/readyz",  web::get().to(health::readyz))
+            // ── Contract Queries ──────────────────────────────────────────
             .route("/api/v1/contracts/wastes", web::get().to(contracts::list_wastes))
             .route("/api/v1/contracts/wastes/{id}", web::get().to(contracts::get_waste))
             .route("/api/v1/contracts/participants", web::get().to(contracts::list_participants))
@@ -159,10 +174,10 @@ async fn main() -> std::io::Result<()> {
             .route("/api/v1/contracts/info", web::get().to(contracts::get_contract_info))
             .route("/api/v1/cache/invalidate/waste/{id}", web::post().to(contracts::invalidate_waste_cache))
             .route("/api/v1/cache/invalidate/all", web::post().to(contracts::invalidate_all_cache))
-            // WebSocket (Task 2)
+            // ── WebSocket ─────────────────────────────────────────────────
             .route("/ws", web::get().to(ws::ws_handler))
             .route("/ws/health", web::get().to(ws::ws_health))
-            // Export (Task 3)
+            // ── Export ────────────────────────────────────────────────────
             .route("/api/v1/exports", web::post().to(export::export_data))
             .route("/api/v1/exports", web::get().to(export::list_exports))
             .route("/api/v1/exports/{id}/download", web::get().to(export::download_export))
@@ -170,7 +185,7 @@ async fn main() -> std::io::Result<()> {
             .route("/api/v1/exports/scheduled", web::post().to(export::create_scheduled_export))
             .route("/api/v1/exports/scheduled", web::get().to(export::list_scheduled_exports))
             .route("/api/v1/exports/scheduled/{id}", web::delete().to(export::delete_scheduled_export))
-            // Audit (Task 4)
+            // ── Audit ─────────────────────────────────────────────────────
             .route("/api/v1/audit/logs", web::get().to(audit::list_audit_logs))
             .route("/api/v1/audit/logs/{id}", web::get().to(audit::get_audit_entry))
             .route("/api/v1/audit/summary", web::get().to(audit::get_audit_summary))
@@ -181,7 +196,7 @@ async fn main() -> std::io::Result<()> {
             .route("/api/v1/audit/retention", web::get().to(audit::get_retention_policy))
             .route("/api/v1/audit/retention", web::put().to(audit::update_retention_policy))
             .route("/api/v1/audit/purge", web::post().to(audit::purge_old_logs))
-            // Verification (Task 5)
+            // ── Verification ──────────────────────────────────────────────
             .route("/api/v1/verification/start", web::post().to(verification::start_verification))
             .route("/api/v1/verification/{participant_id}/status", web::get().to(verification::get_verification_status))
             .route("/api/v1/verification/document", web::post().to(verification::submit_document))
@@ -191,7 +206,7 @@ async fn main() -> std::io::Result<()> {
             .route("/api/v1/verification/approve", web::post().to(verification::approve_participant))
             .route("/api/v1/verification/reject", web::post().to(verification::reject_participant))
             .route("/api/v1/verification/{participant_id}/retry", web::post().to(verification::retry_verification))
-            // Compliance Monitoring (Task 6)
+            // ── Compliance ────────────────────────────────────────────────
             .route("/api/v1/compliance/checklists", web::get().to(compliance_api::list_checklists))
             .route("/api/v1/compliance/checklists", web::post().to(compliance_api::create_checklist))
             .route("/api/v1/compliance/check", web::post().to(compliance_api::run_compliance_check))
@@ -200,7 +215,7 @@ async fn main() -> std::io::Result<()> {
             .route("/api/v1/compliance/alert-rules", web::get().to(compliance_api::list_alert_rules))
             .route("/api/v1/compliance/audit-trail", web::get().to(compliance_api::get_audit_trail))
             .route("/api/v1/compliance/report", web::post().to(compliance_api::generate_compliance_report))
-            // Transaction Signing (Task 7)
+            // ── Transaction Signing ───────────────────────────────────────
             .route("/api/v1/signing/sign", web::post().to(signing_api::sign_transaction))
             .route("/api/v1/signing/verify", web::post().to(signing_api::verify_signature))
             .route("/api/v1/signing/multisig", web::post().to(signing_api::create_multisig))
@@ -209,11 +224,11 @@ async fn main() -> std::io::Result<()> {
             .route("/api/v1/signing/events", web::get().to(signing_api::list_events))
             .route("/api/v1/signing/revocations", web::get().to(signing_api::list_revocations))
             .route("/api/v1/signing/documentation", web::get().to(signing_api::get_documentation))
-            // Search (Task 8)
+            // ── Search ────────────────────────────────────────────────────
             .route("/api/v1/search", web::get().to(search_api::search))
             .route("/api/v1/search/suggest", web::get().to(search_api::suggest))
             .route("/api/v1/search/config", web::get().to(search_api::get_search_config))
-            // Archival (Task 9)
+            // ── Archival ──────────────────────────────────────────────────
             .route("/api/v1/archival/policies", web::post().to(archival_api::create_policy))
             .route("/api/v1/archival/policies", web::get().to(archival_api::list_policies))
             .route("/api/v1/archival/policies/{id}", web::get().to(archival_api::get_policy))
@@ -227,13 +242,12 @@ async fn main() -> std::io::Result<()> {
             .route("/api/v1/archival/jobs", web::get().to(archival_api::list_jobs))
             .route("/api/v1/archival/jobs/{id}", web::get().to(archival_api::get_job))
     })
-    .bind("0.0.0.0:8080")?
+    .bind(&bind_addr)?
     .run()
     .await
 }
 
-/// Central fallback for unmatched routes — keeps 404s in the same
-/// unified JSON error envelope as handler-returned `AppError`s.
+/// Fallback for unmatched routes — keeps 404s in the same unified JSON envelope.
 async fn not_found(req: HttpRequest) -> HttpResponse {
     AppError::NotFound {
         resource: "route",
@@ -242,18 +256,21 @@ async fn not_found(req: HttpRequest) -> HttpResponse {
     .error_response()
 }
 
-/// Central fallback for malformed JSON request bodies — keeps 400s in
-/// the same unified JSON error envelope instead of actix's plaintext default.
-fn json_error_handler(err: actix_web::error::JsonPayloadError, _req: &HttpRequest) -> actix_web::Error {
+/// Fallback for malformed JSON request bodies.
+fn json_error_handler(
+    err: actix_web::error::JsonPayloadError,
+    _req: &HttpRequest,
+) -> actix_web::Error {
     let response = AppError::BadRequest(err.to_string()).error_response();
     actix_web::error::InternalError::from_response(err, response).into()
 }
 
-async fn health_check() -> HttpResponse {
+/// Legacy `/health` endpoint — kept for backwards compatibility.
+async fn legacy_health_check() -> HttpResponse {
     HttpResponse::Ok().json(serde_json::json!({
         "status": "healthy",
         "timestamp": chrono::Utc::now().to_rfc3339(),
-        "version": "1.0.0",
+        "version": env!("CARGO_PKG_VERSION"),
         "services": ["contracts", "websocket", "export", "audit", "cache"]
     }))
 }

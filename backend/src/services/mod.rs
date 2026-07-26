@@ -18,6 +18,7 @@ pub mod encryption;
 pub mod encryption_verification;
 pub mod archival;
 pub mod archival_storage;
+pub mod verification;
 
 pub use email::{EmailService, SendGridEmailService};
 pub use notifications::{NotificationService, FirebaseNotificationService};
@@ -38,3 +39,4 @@ pub use archival::{
     StorageTier, ArchiveQuery, ArchiveStats, ArchivalNotification,
 };
 pub use archival_storage::{FileSystemArchivalStorage, S3ArchivalStorage};
+pub use verification::{VerificationService, DefaultVerificationService};

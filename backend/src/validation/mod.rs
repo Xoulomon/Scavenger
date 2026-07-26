@@ -85,6 +85,9 @@ pub fn validate_range(value: u64, field: &str, min: u64, max: u64) -> Option<Val
     }
 }
 
+/// Maximum items per page enforced across all list endpoints.
+pub const MAX_PAGE_SIZE: u32 = 100;
+
 pub fn validate_pagination(page: u32, limit: u32) -> Vec<ValidationError> {
     let mut errors = Vec::new();
     if page == 0 {
@@ -93,13 +96,52 @@ pub fn validate_pagination(page: u32, limit: u32) -> Vec<ValidationError> {
             message: "page must be at least 1".to_string(),
         });
     }
-    if limit == 0 || limit > 100 {
+    if limit == 0 || limit > MAX_PAGE_SIZE {
         errors.push(ValidationError {
             field: "limit".to_string(),
-            message: "limit must be between 1 and 100".to_string(),
+            message: format!("limit must be between 1 and {}", MAX_PAGE_SIZE),
         });
     }
     errors
+}
+
+/// Parameters for cursor-based pagination.
+///
+/// Callers supply either an opaque `cursor` (from a previous response's
+/// `next_cursor` field) **or** a `page`/`limit` pair for offset-based access.
+/// If both are supplied `cursor` takes precedence.
+#[derive(Debug, Clone, Deserialize)]
+pub struct CursorPaginationParams {
+    /// Opaque cursor from a prior response's `pagination.next_cursor`.
+    pub cursor: Option<String>,
+    /// Page number (1-based, offset mode).  Defaults to `1`.
+    pub page: Option<u32>,
+    /// Items per page.  Defaults to `20`, capped at [`MAX_PAGE_SIZE`].
+    pub limit: Option<u32>,
+}
+
+impl CursorPaginationParams {
+    /// Resolved, validated page number (1-based).
+    pub fn resolved_page(&self) -> u32 {
+        self.page.unwrap_or(1).max(1)
+    }
+
+    /// Resolved, validated limit (clamped to MAX_PAGE_SIZE).
+    pub fn resolved_limit(&self) -> u32 {
+        self.limit.unwrap_or(20).clamp(1, MAX_PAGE_SIZE)
+    }
+}
+
+/// Validate [`CursorPaginationParams`].
+///
+/// Unlike the plain `validate_pagination` helper this accepts a `cursor`
+/// field and skips offset validation when a cursor is present.
+pub fn validate_cursor_pagination(params: &CursorPaginationParams) -> Vec<ValidationError> {
+    // When a cursor is provided, skip offset-based field checks.
+    if params.cursor.is_some() {
+        return Vec::new();
+    }
+    validate_pagination(params.resolved_page(), params.resolved_limit())
 }
 
 pub fn validate_email(email: &str) -> Option<ValidationError> {
@@ -295,5 +337,93 @@ mod tests {
         assert!(!errs.is_empty());
         let resp = errs.to_response();
         assert!(resp["errors"].is_array());
+    }
+
+    // ── Cursor pagination tests ───────────────────────────────────────────────
+
+    #[test]
+    fn test_max_page_size_constant() {
+        assert_eq!(MAX_PAGE_SIZE, 100, "MAX_PAGE_SIZE must be 100");
+    }
+
+    #[test]
+    fn test_validate_pagination_max_size_boundary() {
+        assert!(validate_pagination(1, MAX_PAGE_SIZE).is_empty());
+        assert!(!validate_pagination(1, MAX_PAGE_SIZE + 1).is_empty());
+    }
+
+    #[test]
+    fn test_cursor_pagination_defaults() {
+        let params = CursorPaginationParams {
+            cursor: None,
+            page: None,
+            limit: None,
+        };
+        assert_eq!(params.resolved_page(), 1);
+        assert_eq!(params.resolved_limit(), 20);
+    }
+
+    #[test]
+    fn test_cursor_pagination_custom_values() {
+        let params = CursorPaginationParams {
+            cursor: None,
+            page: Some(3),
+            limit: Some(50),
+        };
+        assert_eq!(params.resolved_page(), 3);
+        assert_eq!(params.resolved_limit(), 50);
+    }
+
+    #[test]
+    fn test_cursor_pagination_limit_clamped_to_max() {
+        let params = CursorPaginationParams {
+            cursor: None,
+            page: Some(1),
+            limit: Some(999),
+        };
+        assert_eq!(params.resolved_limit(), MAX_PAGE_SIZE);
+    }
+
+    #[test]
+    fn test_cursor_pagination_limit_clamped_to_min() {
+        let params = CursorPaginationParams {
+            cursor: None,
+            page: Some(1),
+            limit: Some(0),
+        };
+        assert_eq!(params.resolved_limit(), 1);
+    }
+
+    #[test]
+    fn test_validate_cursor_pagination_with_cursor_skips_offset_check() {
+        // A cursor overrides page/limit so validation should pass even with page=0
+        let params = CursorPaginationParams {
+            cursor: Some("opaque_cursor_token".to_string()),
+            page: Some(0),   // would normally fail
+            limit: Some(999), // would normally fail
+        };
+        assert!(validate_cursor_pagination(&params).is_empty());
+    }
+
+    #[test]
+    fn test_validate_cursor_pagination_without_cursor_validates_offsets() {
+        let params = CursorPaginationParams {
+            cursor: None,
+            page: Some(0),
+            limit: Some(10),
+        };
+        let errs = validate_cursor_pagination(&params);
+        assert!(!errs.is_empty());
+        assert!(errs.iter().any(|e| e.field == "page"));
+    }
+
+    #[test]
+    fn test_validate_cursor_pagination_valid_without_cursor() {
+        let params = CursorPaginationParams {
+            cursor: None,
+            page: Some(2),
+            limit: Some(25),
+        };
+        assert!(validate_cursor_pagination(&params).is_empty());
     }
 }
