@@ -108,6 +108,23 @@ pub struct PaginatedResponse<T> {
     pub limit: u32,
     /// Total number of pages.
     pub total_pages: u32,
+    pub has_more: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub next_cursor: Option<String>,
+}
+
+impl<T> PaginatedResponse<T> {
+    pub fn new(items: Vec<T>, total: u32, page: u32, limit: u32) -> Self {
+        Self {
+            items,
+            total,
+            page,
+            limit,
+            total_pages: if limit == 0 { 0 } else { (total + limit - 1) / limit },
+            has_more: false,
+            next_cursor: None,
+        }
+    }
 }
 
 // ── Legacy shims (kept for internal callers not yet migrated) ─────────────────
@@ -184,14 +201,7 @@ impl ApiBuilder {
 
     /// Build a paginated success envelope.
     pub fn paginated_response<T>(items: Vec<T>, total: u32, page: u32, limit: u32) -> PaginatedResponse<T> {
-        let total_pages = if limit == 0 { 0 } else { (total + limit - 1) / limit };
-        PaginatedResponse {
-            items,
-            total,
-            page,
-            limit,
-            total_pages,
-        }
+        PaginatedResponse::new(items, total, page, limit)
     }
 
     fn current_timestamp() -> u64 {

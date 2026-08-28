@@ -13,6 +13,7 @@ use std::sync::Arc;
 
 use crate::cache::ttl::{keys as cache_keys, CacheTtl};
 use crate::cache::{Cache, CacheInvalidationManager, InvalidationEvent};
+use crate::api::pagination::paginate;
 use crate::services::api::{ApiBuilder, PaginatedResponse};
 use crate::validation::{error_response, validate_pagination};
 
@@ -164,16 +165,7 @@ pub async fn list_wastes(
         items.retain(|w| w.participant_id == *pid);
     }
 
-    let total = items.len() as u32;
-    let start = ((page - 1) * limit) as usize;
-    let end = (start + limit as usize).min(items.len());
-    let page_items = if start < items.len() {
-        items[start..end].to_vec()
-    } else {
-        Vec::new()
-    };
-
-    let response = ApiBuilder::paginated_response(page_items, total, page, limit);
+    let response = paginate(&items, page, limit);
     if let Ok(json) = serde_json::to_vec(&response) {
         cache.set_with_ttl(cache_key, json, CacheTtl::WasteList.duration());
     }
@@ -271,16 +263,7 @@ pub async fn list_participants(
         items.retain(|p| p.name.to_lowercase().contains(&search.to_lowercase()));
     }
 
-    let total = items.len() as u32;
-    let start = ((page - 1) * limit) as usize;
-    let end = (start + limit as usize).min(items.len());
-    let page_items = if start < items.len() {
-        items[start..end].to_vec()
-    } else {
-        Vec::new()
-    };
-
-    let response = ApiBuilder::paginated_response(page_items, total, page, limit);
+    let response = paginate(&items, page, limit);
     if let Ok(json) = serde_json::to_vec(&response) {
         cache.set_with_ttl(cache_key, json, CacheTtl::ParticipantList.duration());
     }

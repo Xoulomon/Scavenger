@@ -1,4 +1,5 @@
 use chrono::{DateTime, Duration, Utc};
+use crate::cache::Cache;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use thiserror::Error;
@@ -60,14 +61,14 @@ pub enum AnomalySeverity {
 
 pub struct AnalyticsService {
     metrics_store: HashMap<String, Vec<Metric>>,
-    participant_cache: HashMap<String, ParticipantAnalytics>,
+    participant_cache: Cache,
 }
 
 impl AnalyticsService {
     pub fn new() -> Self {
         Self {
             metrics_store: HashMap::new(),
-            participant_cache: HashMap::new(),
+            participant_cache: Cache::new(300),
         }
     }
 
@@ -110,16 +111,21 @@ impl AnalyticsService {
             last_activity: Utc::now(),
         };
 
-        self.participant_cache
-            .insert(participant_id.to_string(), analytics.clone());
+        if let Ok(data) = serde_json::to_vec(&analytics) {
+            self.participant_cache.set(participant_id.to_string(), data);
+        }
         Ok(analytics)
     }
 
     pub fn get_participant_analytics(&self, participant_id: &str) -> Result<ParticipantAnalytics, AnalyticsError> {
         self.participant_cache
             .get(participant_id)
-            .cloned()
+            .and_then(|data| serde_json::from_slice(&data).ok())
             .ok_or_else(|| AnalyticsError::DataNotFound(participant_id.to_string()))
+    }
+
+    pub fn invalidate_participant_analytics(&self, participant_id: &str) {
+        self.participant_cache.invalidate(participant_id);
     }
 
     pub fn calculate_global_metrics(

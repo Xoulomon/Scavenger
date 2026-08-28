@@ -1,4 +1,5 @@
 use actix_web::{web, HttpResponse};
+use crate::api::pagination::paginate;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
@@ -166,7 +167,7 @@ pub async fn list_exports(query: web::Query<ExportListQuery>) -> HttpResponse {
     }
 
     let items: Vec<ExportHistoryEntry> = Vec::new();
-    let response = ApiBuilder::paginated_response(items, 0, page, limit);
+    let response = paginate(&items, page, limit);
     HttpResponse::Ok().json(ApiBuilder::success_response(response))
 }
 

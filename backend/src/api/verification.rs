@@ -1,6 +1,5 @@
-use crate::services::verification::{MAX_DOC_TYPE_LEN};
 use crate::services::VerificationService;
-use crate::validation::{error_response, sanitize_string, validate_required, ValidationError};
+use crate::validation::{error_response, sanitize_string, validate_doc_type, validate_required, validate_url, ValidationError};
 use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -60,44 +59,6 @@ impl<T> ApiResponse<T> {
             error: Some(error),
         }
     }
-}
-
-/// Validates that a URL is non-empty and uses http/https scheme.
-fn validate_url(url: &str, field: &str) -> Option<ValidationError> {
-    let trimmed = url.trim();
-    if trimmed.is_empty() {
-        return Some(ValidationError {
-            field: field.to_string(),
-            message: format!("{} is required", field),
-        });
-    }
-    if !trimmed.starts_with("http://") && !trimmed.starts_with("https://") {
-        return Some(ValidationError {
-            field: field.to_string(),
-            message: format!("{} must be a valid http/https URL", field),
-        });
-    }
-    None
-}
-
-/// Validates a non-empty, reasonably-sized doc_type identifier.
-/// The maximum length limit is imported from the domain layer (`MAX_DOC_TYPE_LEN`)
-/// so the rule is never duplicated.
-fn validate_doc_type(doc_type: &str) -> Option<ValidationError> {
-    let trimmed = doc_type.trim();
-    if trimmed.is_empty() {
-        return Some(ValidationError {
-            field: "doc_type".to_string(),
-            message: "doc_type is required".to_string(),
-        });
-    }
-    if trimmed.len() > MAX_DOC_TYPE_LEN {
-        return Some(ValidationError {
-            field: "doc_type".to_string(),
-            message: format!("doc_type must be at most {} characters", MAX_DOC_TYPE_LEN),
-        });
-    }
-    None
 }
 
 pub async fn start_verification(

@@ -1,4 +1,5 @@
 use actix_web::{web, HttpResponse};
+use crate::api::pagination::paginate;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
@@ -93,7 +94,7 @@ pub async fn list_audit_logs(audit: web::Data<AuditService>, query: web::Query<A
     let entries = audit.query(audit_query);
     let total = entries.len() as u32;
 
-    let response = ApiBuilder::paginated_response(entries, total, page, limit);
+    let response = paginate(&entries, page, limit);
     HttpResponse::Ok().json(ApiBuilder::success_response(response))
 }
 
