@@ -12,14 +12,11 @@ pub mod geospatial;
 pub mod ml_classification;
 pub mod notification_delivery;
 pub mod notifications;
+pub mod recommendations;
 pub mod reporting;
 pub mod storage;
-pub mod webhook;
-
-// Dead services removed (#906): recommendations, nft, multichain
-// These were exported but never injected into app state or used by any handler.
-
 pub mod verification;
+pub mod webhook;
 pub use analytics::{AnalyticsService, AnomalyFlag, GlobalAnalytics, Metric, ParticipantAnalytics};
 pub use api::ApiBuilder;
 pub use archival::{
