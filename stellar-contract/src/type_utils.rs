@@ -16,6 +16,127 @@
 
 use soroban_sdk::contracttype;
 
+pub fn transfer_item_type_from_u32(value: u32) -> Option<crate::types::TransferItemType> {
+    match value {
+        0 => Some(crate::types::TransferItemType::Material),
+        1 => Some(crate::types::TransferItemType::Token),
+        2 => Some(crate::types::TransferItemType::Incentive),
+        3 => Some(crate::types::TransferItemType::Ownership),
+        _ => None,
+    }
+}
+
+pub fn transfer_item_type_to_u32(value: crate::types::TransferItemType) -> u32 {
+    value as u32
+}
+
+pub fn transfer_item_type_as_str(value: crate::types::TransferItemType) -> &'static str {
+    match value {
+        crate::types::TransferItemType::Material => "MATERIAL",
+        crate::types::TransferItemType::Token => "TOKEN",
+        crate::types::TransferItemType::Incentive => "INCENTIVE",
+        crate::types::TransferItemType::Ownership => "OWNERSHIP",
+    }
+}
+
+pub fn transfer_status_from_u32(value: u32) -> Option<crate::types::TransferStatus> {
+    match value {
+        0 => Some(crate::types::TransferStatus::Pending),
+        1 => Some(crate::types::TransferStatus::InProgress),
+        2 => Some(crate::types::TransferStatus::Completed),
+        3 => Some(crate::types::TransferStatus::Failed),
+        4 => Some(crate::types::TransferStatus::Cancelled),
+        _ => None,
+    }
+}
+
+pub fn transfer_status_to_u32(value: crate::types::TransferStatus) -> u32 {
+    value as u32
+}
+
+pub fn transfer_status_as_str(value: crate::types::TransferStatus) -> &'static str {
+    match value {
+        crate::types::TransferStatus::Pending => "PENDING",
+        crate::types::TransferStatus::InProgress => "IN_PROGRESS",
+        crate::types::TransferStatus::Completed => "COMPLETED",
+        crate::types::TransferStatus::Failed => "FAILED",
+        crate::types::TransferStatus::Cancelled => "CANCELLED",
+    }
+}
+
+pub fn participant_role_from_u32(value: u32) -> Option<crate::types::ParticipantRole> {
+    match value {
+        0 => Some(crate::types::ParticipantRole::Recycler),
+        1 => Some(crate::types::ParticipantRole::Collector),
+        2 => Some(crate::types::ParticipantRole::Manufacturer),
+        _ => None,
+    }
+}
+
+pub fn participant_role_to_u32(value: crate::types::ParticipantRole) -> u32 {
+    value as u32
+}
+
+pub fn participant_role_as_str(value: crate::types::ParticipantRole) -> &'static str {
+    match value {
+        crate::types::ParticipantRole::Recycler => "RECYCLER",
+        crate::types::ParticipantRole::Collector => "COLLECTOR",
+        crate::types::ParticipantRole::Manufacturer => "MANUFACTURER",
+    }
+}
+
+pub fn certification_level_from_u32(value: u32) -> Option<crate::types::CertificationLevel> {
+    match value {
+        0 => Some(crate::types::CertificationLevel::Beginner),
+        1 => Some(crate::types::CertificationLevel::Intermediate),
+        2 => Some(crate::types::CertificationLevel::Advanced),
+        3 => Some(crate::types::CertificationLevel::Expert),
+        _ => None,
+    }
+}
+
+pub fn certification_level_to_u32(value: crate::types::CertificationLevel) -> u32 {
+    value as u32
+}
+
+pub fn certification_level_as_str(value: crate::types::CertificationLevel) -> &'static str {
+    match value {
+        crate::types::CertificationLevel::Beginner => "BEGINNER",
+        crate::types::CertificationLevel::Intermediate => "INTERMEDIATE",
+        crate::types::CertificationLevel::Advanced => "ADVANCED",
+        crate::types::CertificationLevel::Expert => "EXPERT",
+    }
+}
+
+pub fn waste_type_from_u32(value: u32) -> Option<crate::types::WasteType> {
+    match value {
+        0 => Some(crate::types::WasteType::Paper),
+        1 => Some(crate::types::WasteType::PetPlastic),
+        2 => Some(crate::types::WasteType::Plastic),
+        3 => Some(crate::types::WasteType::Metal),
+        4 => Some(crate::types::WasteType::Glass),
+        5 => Some(crate::types::WasteType::Organic),
+        6 => Some(crate::types::WasteType::Electronic),
+        _ => None,
+    }
+}
+
+pub fn waste_type_to_u32(value: crate::types::WasteType) -> u32 {
+    value as u32
+}
+
+pub fn waste_type_as_str(value: crate::types::WasteType) -> &'static str {
+    match value {
+        crate::types::WasteType::Paper => "PAPER",
+        crate::types::WasteType::PetPlastic => "PETPLASTIC",
+        crate::types::WasteType::Plastic => "PLASTIC",
+        crate::types::WasteType::Metal => "METAL",
+        crate::types::WasteType::Glass => "GLASS",
+        crate::types::WasteType::Organic => "ORGANIC",
+        crate::types::WasteType::Electronic => "ELECTRONIC",
+    }
+}
+
 // ─── Type size catalogue ──────────────────────────────────────────────────────
 
 /// Byte-cost reference for XDR-serialised Soroban types.

@@ -1,5 +1,18 @@
 use soroban_sdk::{contracttype, Address, Env, String};
 
+/// Supported upgrade path.
+///
+/// The contract follows a state-preserving migration model: existing participant,
+/// waste, and configuration data remain the source of truth across version bumps.
+/// The upgrade path is limited to known versions and rejects downgrade or
+/// deprecated targets before any persisted state is rewritten.
+///
+/// In practice this means:
+/// - keep persisted records and config intact;
+/// - validate the version transition before mutation;
+/// - reject unknown or deprecated versions safely;
+/// - only then move to the new implementation/version metadata.
+///
 /// Upgrade proposal status
 #[contracttype]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]

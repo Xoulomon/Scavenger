@@ -109,147 +109,15 @@ pub struct AuditReport {
     pub top_actions: Vec<(String, u64)>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AlertRule {
-    pub id: String,
-    pub event_type: String,
-    pub threshold: u32,
-    pub time_window_minutes: u64,
-    pub notification_email: Option<String>,
-    pub enabled: bool,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct RetentionPolicy {
-    pub max_age_days: u64,
-    pub max_entries: u64,
-    pub archive_enabled: bool,
-}
-
-impl Default for RetentionPolicy {
-    fn default() -> Self {
-        Self {
-            max_age_days: 365,
-            max_entries: 10_000_000,
-            archive_enabled: true,
-        }
-    }
-}
-
+/// Read-only audit view. This service only inspects persisted entries and never
+/// appends or mutates audit state. It is intended for query, summary, report, and
+/// export endpoints.
 #[derive(Clone)]
-pub struct AuditService {
+pub struct AuditReadService {
     entries: std::sync::Arc<Mutex<Vec<AuditEntry>>>,
-    alert_rules: std::sync::Arc<Mutex<Vec<AlertRule>>>,
-    retention_policy: std::sync::Arc<Mutex<RetentionPolicy>>,
-    alert_counters: std::sync::Arc<Mutex<HashMap<String, Vec<DateTime<Utc>>>>>,
 }
 
-impl AuditService {
-    pub fn new() -> Self {
-        let policy = RetentionPolicy::default();
-        info!(
-            "AuditService initialized with retention policy: max_age={}d, max_entries={}",
-            policy.max_age_days, policy.max_entries
-        );
-        Self {
-            entries: std::sync::Arc::new(Mutex::new(Vec::new())),
-            alert_rules: std::sync::Arc::new(Mutex::new(Vec::new())),
-            retention_policy: std::sync::Arc::new(Mutex::new(policy)),
-            alert_counters: std::sync::Arc::new(Mutex::new(HashMap::new())),
-        }
-    }
-
-    pub fn log_entry(
-        &self,
-        event_type: AuditEventType,
-        action: AuditAction,
-        user_id: &str,
-        resource_type: &str,
-        details: &str,
-        ip_address: &str,
-        severity: &str,
-    ) -> String {
-        let id = uuid::Uuid::new_v4().to_string();
-        let entry = AuditEntry {
-            id: id.clone(),
-            event_type: event_type.to_string(),
-            action: action.to_string(),
-            user_id: user_id.to_string(),
-            resource_type: resource_type.to_string(),
-            resource_id: None,
-            details: details.to_string(),
-            timestamp: Utc::now(),
-            ip_address: ip_address.to_string(),
-            user_agent: None,
-            severity: severity.to_string(),
-            changes: None,
-        };
-
-        if let Ok(mut entries) = self.entries.lock() {
-            entries.push(entry.clone());
-            self.persist_to_file(&entry);
-            self.check_alerts(&event_type);
-        }
-
-        info!(
-            user = %user_id,
-            action = %action,
-            resource = %resource_type,
-            "Audit log entry created"
-        );
-
-        id
-    }
-
-    fn persist_to_file(&self, entry: &AuditEntry) {
-        if let Ok(mut file) = std::fs::OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open("/tmp/audit.log")
-        {
-            if let Ok(line) = serde_json::to_string(entry) {
-                let _ = writeln!(file, "{}", line);
-            }
-        }
-    }
-
-    pub fn log_entry_with_changes(
-        &self,
-        event_type: AuditEventType,
-        action: AuditAction,
-        user_id: &str,
-        resource_type: &str,
-        resource_id: &str,
-        details: &str,
-        ip_address: &str,
-        user_agent: Option<String>,
-        severity: &str,
-        changes: HashMap<String, serde_json::Value>,
-    ) -> String {
-        let id = uuid::Uuid::new_v4().to_string();
-        let entry = AuditEntry {
-            id: id.clone(),
-            event_type: event_type.to_string(),
-            action: action.to_string(),
-            user_id: user_id.to_string(),
-            resource_type: resource_type.to_string(),
-            resource_id: Some(resource_id.to_string()),
-            details: details.to_string(),
-            timestamp: Utc::now(),
-            ip_address: ip_address.to_string(),
-            user_agent,
-            severity: severity.to_string(),
-            changes: Some(changes),
-        };
-
-        if let Ok(mut entries) = self.entries.lock() {
-            entries.push(entry);
-            self.check_alerts(&event_type);
-        }
-
-        id
-    }
-
+impl AuditReadService {
     pub fn query(&self, query: AuditQuery) -> Vec<AuditEntry> {
         let entries = self.entries.lock().unwrap();
         let mut filtered: Vec<AuditEntry> = entries
@@ -398,6 +266,138 @@ impl AuditService {
             top_actions,
         }
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AlertRule {
+    pub id: String,
+    pub event_type: String,
+    pub threshold: u32,
+    pub time_window_minutes: u64,
+    pub notification_email: Option<String>,
+    pub enabled: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RetentionPolicy {
+    pub max_age_days: u64,
+    pub max_entries: u64,
+    pub archive_enabled: bool,
+}
+
+impl Default for RetentionPolicy {
+    fn default() -> Self {
+        Self {
+            max_age_days: 365,
+            max_entries: 10_000_000,
+            archive_enabled: true,
+        }
+    }
+}
+
+/// Write-only audit service. This path is responsible for appending entries to the
+/// audit trail, enforcing retention policy updates, and alert bookkeeping. It is
+/// intentionally decoupled from the read/report/export logic above.
+#[derive(Clone)]
+pub struct AuditWriteService {
+    entries: std::sync::Arc<Mutex<Vec<AuditEntry>>>,
+    alert_rules: std::sync::Arc<Mutex<Vec<AlertRule>>>,
+    retention_policy: std::sync::Arc<Mutex<RetentionPolicy>>,
+    alert_counters: std::sync::Arc<Mutex<HashMap<String, Vec<DateTime<Utc>>>>>,
+}
+
+impl AuditWriteService {
+    pub fn log_entry(
+        &self,
+        event_type: AuditEventType,
+        action: AuditAction,
+        user_id: &str,
+        resource_type: &str,
+        details: &str,
+        ip_address: &str,
+        severity: &str,
+    ) -> String {
+        let id = uuid::Uuid::new_v4().to_string();
+        let entry = AuditEntry {
+            id: id.clone(),
+            event_type: event_type.to_string(),
+            action: action.to_string(),
+            user_id: user_id.to_string(),
+            resource_type: resource_type.to_string(),
+            resource_id: None,
+            details: details.to_string(),
+            timestamp: Utc::now(),
+            ip_address: ip_address.to_string(),
+            user_agent: None,
+            severity: severity.to_string(),
+            changes: None,
+        };
+
+        if let Ok(mut entries) = self.entries.lock() {
+            entries.push(entry.clone());
+            self.persist_to_file(&entry);
+            self.check_alerts(&event_type);
+        }
+
+        info!(
+            user = %user_id,
+            action = %action,
+            resource = %resource_type,
+            "Audit log entry created"
+        );
+
+        id
+    }
+
+    fn persist_to_file(&self, entry: &AuditEntry) {
+        if let Ok(mut file) = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open("/tmp/audit.log")
+        {
+            if let Ok(line) = serde_json::to_string(entry) {
+                let _ = writeln!(file, "{}", line);
+            }
+        }
+    }
+
+    pub fn log_entry_with_changes(
+        &self,
+        event_type: AuditEventType,
+        action: AuditAction,
+        user_id: &str,
+        resource_type: &str,
+        resource_id: &str,
+        details: &str,
+        ip_address: &str,
+        user_agent: Option<String>,
+        severity: &str,
+        changes: HashMap<String, serde_json::Value>,
+    ) -> String {
+        let id = uuid::Uuid::new_v4().to_string();
+        let entry = AuditEntry {
+            id: id.clone(),
+            event_type: event_type.to_string(),
+            action: action.to_string(),
+            user_id: user_id.to_string(),
+            resource_type: resource_type.to_string(),
+            resource_id: Some(resource_id.to_string()),
+            details: details.to_string(),
+            timestamp: Utc::now(),
+            ip_address: ip_address.to_string(),
+            user_agent,
+            severity: severity.to_string(),
+            changes: Some(changes),
+        };
+
+        if let Ok(mut entries) = self.entries.lock() {
+            entries.push(entry.clone());
+            self.check_alerts(&event_type);
+            self.persist_to_file(&entry);
+        }
+
+        id
+    }
 
     pub fn add_alert_rule(&self, rule: AlertRule) {
         if let Ok(mut rules) = self.alert_rules.lock() {
@@ -463,6 +463,127 @@ impl AuditService {
     }
 }
 
+#[derive(Clone)]
+pub struct AuditService {
+    entries: std::sync::Arc<Mutex<Vec<AuditEntry>>>,
+    alert_rules: std::sync::Arc<Mutex<Vec<AlertRule>>>,
+    retention_policy: std::sync::Arc<Mutex<RetentionPolicy>>,
+    alert_counters: std::sync::Arc<Mutex<HashMap<String, Vec<DateTime<Utc>>>>>,
+}
+
+impl AuditService {
+    pub fn new() -> Self {
+        let policy = RetentionPolicy::default();
+        info!(
+            "AuditService initialized with retention policy: max_age={}d, max_entries={}",
+            policy.max_age_days, policy.max_entries
+        );
+        Self {
+            entries: std::sync::Arc::new(Mutex::new(Vec::new())),
+            alert_rules: std::sync::Arc::new(Mutex::new(Vec::new())),
+            retention_policy: std::sync::Arc::new(Mutex::new(policy)),
+            alert_counters: std::sync::Arc::new(Mutex::new(HashMap::new())),
+        }
+    }
+
+    pub fn read_service(&self) -> AuditReadService {
+        AuditReadService {
+            entries: std::sync::Arc::clone(&self.entries),
+        }
+    }
+
+    pub fn write_service(&self) -> AuditWriteService {
+        AuditWriteService {
+            entries: std::sync::Arc::clone(&self.entries),
+            alert_rules: std::sync::Arc::clone(&self.alert_rules),
+            retention_policy: std::sync::Arc::clone(&self.retention_policy),
+            alert_counters: std::sync::Arc::clone(&self.alert_counters),
+        }
+    }
+
+    pub fn log_entry(
+        &self,
+        event_type: AuditEventType,
+        action: AuditAction,
+        user_id: &str,
+        resource_type: &str,
+        details: &str,
+        ip_address: &str,
+        severity: &str,
+    ) -> String {
+        self.write_service().log_entry(event_type, action, user_id, resource_type, details, ip_address, severity)
+    }
+
+    pub fn log_entry_with_changes(
+        &self,
+        event_type: AuditEventType,
+        action: AuditAction,
+        user_id: &str,
+        resource_type: &str,
+        resource_id: &str,
+        details: &str,
+        ip_address: &str,
+        user_agent: Option<String>,
+        severity: &str,
+        changes: HashMap<String, serde_json::Value>,
+    ) -> String {
+        self.write_service().log_entry_with_changes(
+            event_type,
+            action,
+            user_id,
+            resource_type,
+            resource_id,
+            details,
+            ip_address,
+            user_agent,
+            severity,
+            changes,
+        )
+    }
+
+    pub fn query(&self, query: AuditQuery) -> Vec<AuditEntry> {
+        self.read_service().query(query)
+    }
+
+    pub fn get_entry(&self, id: &str) -> Option<AuditEntry> {
+        self.read_service().get_entry(id)
+    }
+
+    pub fn get_summary(&self) -> AuditSummary {
+        self.read_service().get_summary()
+    }
+
+    pub fn generate_report(
+        &self,
+        start: DateTime<Utc>,
+        end: DateTime<Utc>,
+        event_types: Option<Vec<AuditEventType>>,
+        group_by: Option<String>,
+    ) -> AuditReport {
+        self.read_service().generate_report(start, end, event_types, group_by)
+    }
+
+    pub fn add_alert_rule(&self, rule: AlertRule) {
+        self.write_service().add_alert_rule(rule)
+    }
+
+    pub fn get_alert_rules(&self) -> Vec<AlertRule> {
+        self.write_service().get_alert_rules()
+    }
+
+    pub fn get_retention_policy(&self) -> RetentionPolicy {
+        self.write_service().get_retention_policy()
+    }
+
+    pub fn set_retention_policy(&self, policy: RetentionPolicy) {
+        self.write_service().set_retention_policy(policy)
+    }
+
+    pub fn purge_old_entries(&self) -> u64 {
+        self.write_service().purge_old_entries()
+    }
+}
+
 impl Default for AuditService {
     fn default() -> Self {
         Self::new()
@@ -487,6 +608,59 @@ mod tests {
             "medium",
         );
         assert!(!id.is_empty());
+    }
+
+    #[test]
+    fn test_audit_entries_are_immutable_after_write() {
+        let service = AuditService::new();
+        let id = service.log_entry(
+            AuditEventType::Security,
+            AuditAction::Approve,
+            "user-immutable",
+            "verification",
+            "Approved verification",
+            "127.0.0.1",
+            "high",
+        );
+
+        let entry = service.get_entry(&id).expect("entry should be present");
+        assert_eq!(entry.user_id, "user-immutable");
+        assert_eq!(entry.action, "approve");
+        assert_eq!(entry.event_type, "security");
+
+        let same_entry = service.read_service().get_entry(&id).expect("read service should see same immutable record");
+        assert_eq!(same_entry.id, entry.id);
+        assert_eq!(same_entry.timestamp, entry.timestamp);
+    }
+
+    #[test]
+    fn test_audit_read_service_does_not_mutate_state() {
+        let service = AuditService::new();
+        service.log_entry(
+            AuditEventType::System,
+            AuditAction::Login,
+            "reader-test",
+            "session",
+            "login succeeded",
+            "127.0.0.1",
+            "low",
+        );
+
+        let reader = service.read_service();
+        let entries = reader.query(AuditQuery {
+            event_type: Some(AuditEventType::System),
+            user_id: None,
+            action: None,
+            resource_type: None,
+            start_date: None,
+            end_date: None,
+            severity: None,
+            limit: None,
+            offset: None,
+        });
+
+        assert_eq!(entries.len(), 1);
+        assert_eq!(service.get_summary().total_entries, 1);
     }
 
     #[test]
