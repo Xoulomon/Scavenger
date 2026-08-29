@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Calendar, Download, Filter, MapPin, Clock, User } from 'lucide-react'
+import { Download, Filter, MapPin, Clock, User } from 'lucide-react'
 import { useParticipantWastes } from '@/hooks/useParticipantWastes'
 import { useTransferHistory } from '@/hooks/useTransferHistory'
 import { useWallet } from '@/context/WalletContext'
@@ -10,20 +10,6 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Badge } from '@/components/ui/Badge'
 import { useAppTitle } from '@/hooks/useAppTitle'
-
-interface WasteHistoryEntry {
-  wasteId: number
-  wasteType: string
-  weight: bigint
-  timestamp: number
-  location: { lat: number; lon: number }
-  transfers: Array<{
-    from: string
-    to: string
-    timestamp: number
-    note: string
-  }>
-}
 
 export function WasteHistoryPage() {
   useAppTitle('Waste History')

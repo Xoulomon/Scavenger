@@ -13,7 +13,7 @@ import { StoreProvider } from '@/store'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { getErrorMessage } from '@/lib/contractErrors'
 import { initWebVitals } from '@/lib/webVitals'
-import { getDB, setQueryData, getQueryData, removeQueryData } from '@/lib/indexedDB'
+import { getDB, setQueryData } from '@/lib/indexedDB'
 import '@/i18n/config'
 import './index.css'
 
@@ -57,7 +57,7 @@ persistQueryClient({
   queryClient,
   persister: {
     persistClient: async (client) => {
-      const db = await getDB()
+      const _db = await getDB()
       const queries = client.getQueryCache().getAll()
       
       for (const query of queries) {
@@ -71,11 +71,11 @@ persistQueryClient({
       }
     },
     restoreClient: async () => {
-      const db = await getDB()
-      const tx = db.transaction('queries', 'readonly')
+      const _db = await getDB()
+      const tx = _db.transaction('queries', 'readonly')
       const store = tx.objectStore('queries')
       
-      const queries: Record<string, any> = {}
+      const queries: Record<string, unknown> = {}
       
       for await (const cursor of store) {
         queries[cursor.key] = cursor.value
@@ -103,6 +103,14 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <ErrorBoundary>
+          <WalletProvider>
+            <AuthProvider>
+              <ContractProvider>
+                <App />
+                <Toaster position="top-right" richColors closeButton />
+              </ContractProvider>
+            </AuthProvider>
+          </WalletProvider>
           <StoreProvider>
             <AuthProvider>
               <WalletProvider>

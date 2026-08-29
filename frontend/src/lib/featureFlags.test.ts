@@ -35,8 +35,8 @@ describe('featureFlags', () => {
     expect(evaluateFlag('healthDashboard')).toBe(true)
   })
 
-  it('evaluates a flag with defaultValue=false', () => {
-    expect(evaluateFlag('batchWasteUpload')).toBe(false)
+  it('evaluates a flag with defaultValue=true', () => {
+    expect(evaluateFlag('multiLanguageSupport')).toBe(true)
   })
 
   it('returns false for unknown flag', () => {
@@ -49,26 +49,26 @@ describe('featureFlags', () => {
   })
 
   it('setFlagOverride overrides default value', () => {
-    setFlagOverride('batchWasteUpload', true)
-    expect(isEnabled('batchWasteUpload')).toBe(true)
+    setFlagOverride('performanceSLAs', false)
+    expect(isEnabled('performanceSLAs')).toBe(false)
   })
 
   it('clearFlagOverride restores default', () => {
-    setFlagOverride('batchWasteUpload', true)
-    clearFlagOverride('batchWasteUpload')
-    expect(isEnabled('batchWasteUpload')).toBe(false)
+    setFlagOverride('performanceSLAs', false)
+    clearFlagOverride('performanceSLAs')
+    expect(isEnabled('performanceSLAs')).toBe(true)
   })
 
   it('clearAllOverrides removes all overrides', () => {
     setFlagOverride('healthDashboard', false)
-    setFlagOverride('batchWasteUpload', true)
+    setFlagOverride('multiLanguageSupport', false)
     clearAllOverrides()
     expect(getAllFlagOverrides()).toHaveLength(0)
   })
 
   it('expired overrides are ignored', () => {
-    setFlagOverride('batchWasteUpload', true, -1000) // already expired
-    expect(isEnabled('batchWasteUpload')).toBe(false)
+    setFlagOverride('performanceSLAs', false, -1000) // already expired
+    expect(isEnabled('performanceSLAs')).toBe(true)
   })
 
   it('getAllFlagValues returns all flags', () => {
@@ -78,14 +78,14 @@ describe('featureFlags', () => {
 
   it('setFlagOverride records analytics event', () => {
     clearFlagAnalytics()
-    setFlagOverride('newIncentiveUI', true)
+    setFlagOverride('multiLanguageSupport', false)
     const events = getFlagAnalytics()
-    expect(events.some((e) => e.flagKey === 'newIncentiveUI' && e.value === true)).toBe(true)
+    expect(events.some((e) => e.flagKey === 'multiLanguageSupport' && e.value === false)).toBe(true)
   })
 
   it('getAllFlagOverrides lists active overrides', () => {
-    setFlagOverride('darkModeDefault', true)
+    setFlagOverride('healthDashboard', false)
     const overrides = getAllFlagOverrides()
-    expect(overrides.some((o) => o.key === 'darkModeDefault')).toBe(true)
+    expect(overrides.some((o) => o.key === 'healthDashboard')).toBe(true)
   })
 })

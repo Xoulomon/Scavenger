@@ -81,11 +81,9 @@ where
 
             if !validate_token(token, session_id, &self.secret) {
                 let (req, _) = req.into_parts();
-                let response = HttpResponse::Forbidden()
-                    .json(serde_json::json!({ "error": "Invalid or missing CSRF token" }));
-                return Box::pin(async move {
-                    Ok(ServiceResponse::new(req, response).map_into_right_body())
-                });
+                let response =
+                    HttpResponse::Forbidden().json(serde_json::json!({ "error": "Invalid or missing CSRF token" }));
+                return Box::pin(async move { Ok(ServiceResponse::new(req, response).map_into_right_body()) });
             }
         }
 

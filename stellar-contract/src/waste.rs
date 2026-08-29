@@ -9,6 +9,12 @@
 //! - State-transition guards (active, confirmed, frozen, expired)
 //! - Transfer-route validation between participant roles
 //! - Batch operation helpers
+//!
+//! # Error consolidation audit (issue #1097)
+//! Audited: every fallible function here already returns `Result<_,
+//! errors::Error>` and no local error enum or `panic!`/`.expect()` exists in
+//! this file. No migration was needed. See `errors.rs` for the full audit
+//! covering all four files named in issue #1097.
 
 use crate::errors::Error;
 use crate::types::{ParticipantRole, Waste};

@@ -1,0 +1,23 @@
+{
+  "name": "@scavngr/shared",
+  "version": "0.1.0",
+  "description": "Shared utilities for Scavngr frontend and indexer",
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./src/index.ts",
+    "./logger": "./src/logger.ts",
+    "./config": "./src/config.ts",
+    "./format": "./src/format.ts",
+    "./validation": "./src/validation.ts"
+  },
+  "files": [
+    "src",
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src --ext .ts"
+  },
+  "license": "MIT"
+}

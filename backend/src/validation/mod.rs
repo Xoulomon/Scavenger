@@ -113,6 +113,34 @@ pub fn validate_email(email: &str) -> Option<ValidationError> {
     }
 }
 
+pub fn validate_url(url: &str, field: &str) -> Option<ValidationError> {
+    let trimmed = url.trim();
+    if trimmed.is_empty() {
+        Some(ValidationError { field: field.to_string(), message: format!("{} is required", field) })
+    } else if !trimmed.starts_with("http://") && !trimmed.starts_with("https://") {
+        Some(ValidationError {
+            field: field.to_string(),
+            message: format!("{} must be a valid http/https URL", field),
+        })
+    } else {
+        None
+    }
+}
+
+pub fn validate_doc_type(doc_type: &str) -> Option<ValidationError> {
+    let trimmed = doc_type.trim();
+    if trimmed.is_empty() {
+        return Some(ValidationError { field: "doc_type".to_string(), message: "doc_type is required".to_string() });
+    }
+    if trimmed.len() > crate::services::verification::MAX_DOC_TYPE_LEN {
+        return Some(ValidationError {
+            field: "doc_type".to_string(),
+            message: format!("doc_type must be at most {} characters", crate::services::verification::MAX_DOC_TYPE_LEN),
+        });
+    }
+    None
+}
+
 pub fn validate_export_format(format: &str) -> Option<ValidationError> {
     match format.to_lowercase().as_str() {
         "csv" | "json" | "pdf" => None,

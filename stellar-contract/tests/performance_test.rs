@@ -1,9 +1,7 @@
 #![cfg(test)]
 
 use soroban_sdk::{testutils::Address as _, Address, Env, String, Vec};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 fn setup_contract(env: &Env) -> (ScavengerContractClient<'_>, Address, Address, Address) {
     env.mock_all_auths();
@@ -39,13 +37,7 @@ fn test_gas_participant_registration() {
     client.initialize_admin(&admin);
 
     // Measure registration
-    client.register_participant(
-        &participant,
-        &ParticipantRole::Recycler,
-        &name,
-        &1000000,
-        &2000000,
-    );
+    client.register_participant(&participant, &ParticipantRole::Recycler, &name, &1000000, &2000000);
 
     // Verify registration succeeded
     assert!(client.is_participant_registered(&participant));

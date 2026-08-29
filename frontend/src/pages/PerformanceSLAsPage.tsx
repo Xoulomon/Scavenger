@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Shield, AlertTriangle, CheckCircle2, XCircle, ChevronDown, ChevronUp, Info } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card'
+import { Card, CardContent } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import {
   SLA_TARGETS,

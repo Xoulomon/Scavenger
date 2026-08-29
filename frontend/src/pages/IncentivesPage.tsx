@@ -30,7 +30,9 @@ const WASTE_LABELS: Record<WasteType, string> = {
   [WasteType.PetPlastic]: 'PET Plastic',
   [WasteType.Plastic]: 'Plastic',
   [WasteType.Metal]: 'Metal',
-  [WasteType.Glass]: 'Glass'
+  [WasteType.Glass]: 'Glass',
+  [WasteType.Organic]: 'Organic',
+  [WasteType.Electronic]: 'Electronic',
 }
 
 const ALL_WASTE_TYPES = Object.values(WasteType).filter(

@@ -1,11 +1,7 @@
 #![cfg(test)]
 
-use soroban_sdk::{
-    symbol_short, testutils::Address as _, Address, Env, String as SorobanString,
-};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use soroban_sdk::{symbol_short, testutils::Address as _, Address, Env, String as SorobanString};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 fn setup(env: &Env) -> (ScavengerContractClient, Address) {
     let contract_id = env.register_contract(None, ScavengerContract);
@@ -60,8 +56,20 @@ fn regression_transfer_nonexistent_waste() {
 
     let recycler = Address::generate(&env);
     let collector = Address::generate(&env);
-    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("R"), &0i128, &0i128);
-    client.register_participant(&collector, &ParticipantRole::Collector, &symbol_short!("C"), &0i128, &0i128);
+    client.register_participant(
+        &recycler,
+        &ParticipantRole::Recycler,
+        &symbol_short!("R"),
+        &0i128,
+        &0i128,
+    );
+    client.register_participant(
+        &collector,
+        &ParticipantRole::Collector,
+        &symbol_short!("C"),
+        &0i128,
+        &0i128,
+    );
 
     let note = SorobanString::from_str(&env, "bad");
     client.transfer_waste(&99999u64, &recycler, &collector, &note);
@@ -141,7 +149,13 @@ fn regression_non_manufacturer_incentive() {
     env.mock_all_auths();
     let (client, _) = setup(&env);
     let recycler = Address::generate(&env);
-    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("R"), &0i128, &0i128);
+    client.register_participant(
+        &recycler,
+        &ParticipantRole::Recycler,
+        &symbol_short!("R"),
+        &0i128,
+        &0i128,
+    );
     client.create_incentive(&recycler, &WasteType::Paper, &10u64, &1000u64);
 }
 
@@ -153,8 +167,20 @@ fn regression_transfer_changes_owner() {
 
     let recycler = Address::generate(&env);
     let collector = Address::generate(&env);
-    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("R"), &0i128, &0i128);
-    client.register_participant(&collector, &ParticipantRole::Collector, &symbol_short!("C"), &0i128, &0i128);
+    client.register_participant(
+        &recycler,
+        &ParticipantRole::Recycler,
+        &symbol_short!("R"),
+        &0i128,
+        &0i128,
+    );
+    client.register_participant(
+        &collector,
+        &ParticipantRole::Collector,
+        &symbol_short!("C"),
+        &0i128,
+        &0i128,
+    );
 
     let desc = SorobanString::from_str(&env, "reg");
     let m = client.submit_material(&WasteType::Paper, &1000u64, &recycler, &desc);

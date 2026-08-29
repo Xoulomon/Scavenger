@@ -1,7 +1,7 @@
+use chrono::Utc;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-use serde::{Deserialize, Serialize};
-use chrono::Utc;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SignatureScheme {
@@ -91,16 +91,39 @@ impl TransactionSigningService {
             signer_id: signer_id.to_string(),
             timestamp: Utc::now(),
         };
-        self.signatures.lock().unwrap().insert(transaction_id.to_string(), request.clone());
-        self.record_event("sign", transaction_id, Some(signer_id), format!("signature created by {}", signer_id));
+        self.signatures
+            .lock()
+            .unwrap()
+            .insert(transaction_id.to_string(), request.clone());
+        self.record_event(
+            "sign",
+            transaction_id,
+            Some(signer_id),
+            format!("signature created by {}", signer_id),
+        );
         request
     }
 
     pub fn verify(&self, request: &SignatureRequest) -> SignatureValidation {
         match self.verify_signature(&request.data, &request.signature) {
-            Ok(true) => SignatureValidation { valid: true, signer_id: request.signer_id.clone(), verified_at: Utc::now(), error: None },
-            Ok(false) => SignatureValidation { valid: false, signer_id: request.signer_id.clone(), verified_at: Utc::now(), error: Some("invalid signature".to_string()) },
-            Err(e) => SignatureValidation { valid: false, signer_id: request.signer_id.clone(), verified_at: Utc::now(), error: Some(e) },
+            Ok(true) => SignatureValidation {
+                valid: true,
+                signer_id: request.signer_id.clone(),
+                verified_at: Utc::now(),
+                error: None,
+            },
+            Ok(false) => SignatureValidation {
+                valid: false,
+                signer_id: request.signer_id.clone(),
+                verified_at: Utc::now(),
+                error: Some("invalid signature".to_string()),
+            },
+            Err(e) => SignatureValidation {
+                valid: false,
+                signer_id: request.signer_id.clone(),
+                verified_at: Utc::now(),
+                error: Some(e),
+            },
         }
     }
 
@@ -111,18 +134,51 @@ impl TransactionSigningService {
             signatures: Vec::new(),
             status: SignatureStatus::Pending,
         };
-        self.multi_sig.lock().unwrap().insert(transaction_id.to_string(), multi.clone());
-        self.record_event("multisig_create", transaction_id, None, format!("multisig created requiring {} signatures", required));
+        self.multi_sig
+            .lock()
+            .unwrap()
+            .insert(transaction_id.to_string(), multi.clone());
+        self.record_event(
+            "multisig_create",
+            transaction_id,
+            None,
+            format!("multisig created requiring {} signatures", required),
+        );
         multi
     }
 
-    pub fn add_multisig_signature(&self, transaction_id: &str, request: SignatureRequest) -> Result<MultiSignatureSupport, String> {
-        let mut multi = self.multi_sig.lock().unwrap().get(transaction_id).cloned().ok_or("multisig transaction not found")?;
+    pub fn add_multisig_signature(
+        &self,
+        transaction_id: &str,
+        request: SignatureRequest,
+    ) -> Result<MultiSignatureSupport, String> {
+        let mut multi = self
+            .multi_sig
+            .lock()
+            .unwrap()
+            .get(transaction_id)
+            .cloned()
+            .ok_or("multisig transaction not found")?;
         multi.signatures.push(request);
         let current = multi.signatures.len() as u32;
-        multi.status = if current >= multi.required_signatures { SignatureStatus::Complete } else { SignatureStatus::Partial { current, required: multi.required_signatures } };
-        self.record_event("multisig_add", transaction_id, Some(request.signer_id.clone()), format!("signature added ({}/{})", current, multi.required_signatures));
-        self.multi_sig.lock().unwrap().insert(transaction_id.to_string(), multi.clone());
+        multi.status = if current >= multi.required_signatures {
+            SignatureStatus::Complete
+        } else {
+            SignatureStatus::Partial {
+                current,
+                required: multi.required_signatures,
+            }
+        };
+        self.record_event(
+            "multisig_add",
+            transaction_id,
+            Some(request.signer_id.clone()),
+            format!("signature added ({}/{})", current, multi.required_signatures),
+        );
+        self.multi_sig
+            .lock()
+            .unwrap()
+            .insert(transaction_id.to_string(), multi.clone());
         Ok(multi)
     }
 
@@ -135,7 +191,12 @@ impl TransactionSigningService {
             reason: reason.to_string(),
         };
         self.revocations.lock().unwrap().push(revocation.clone());
-        self.record_event("revoke", transaction_id, Some(revoked_by), format!("revoked: {}", reason));
+        self.record_event(
+            "revoke",
+            transaction_id,
+            Some(revoked_by),
+            format!("revoked: {}", reason),
+        );
         Ok(revocation)
     }
 
@@ -159,7 +220,16 @@ impl TransactionSigningService {
     fn create_signature(&self, data: &[u8]) -> Vec<u8> {
         let mut sig = Vec::new();
         for (i, byte) in data.iter().enumerate() {
-            sig.push(byte.wrapping_add((self.scheme.private_key.get(i % self.scheme.private_key.len()).copied().unwrap_or(0)) as u8));
+            sig.push(
+                byte.wrapping_add(
+                    (self
+                        .scheme
+                        .private_key
+                        .get(i % self.scheme.private_key.len())
+                        .copied()
+                        .unwrap_or(0)) as u8,
+                ),
+            );
         }
         sig
     }

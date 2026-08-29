@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
-import { formatAddress, wasteTypeLabel, formatDate } from '@/lib/helpers'
+import { wasteTypeLabel, formatDate } from '@/lib/helpers'
 
 interface IncentiveDetailModalProps {
   incentive: Incentive | null

@@ -1,44 +1,39 @@
-import React, { useState, useRef } from 'react';
-import { CheckSquare, Square, Trash2, Send, Check, Tag, Download } from 'lucide-react';
-import { cn } from '@/lib/cn';
-import { BATCH_OPERATIONS, BatchOperation } from '@/lib/batchOperations';
-import { Modal } from '@/components/ui/Modal';
-import { Button } from '@/components/ui/Button';
+import React, { useState, useRef } from 'react'
+import { CheckSquare, Square, Trash2, Send, Check, Tag, Download } from 'lucide-react'
+import { cn } from '@/lib/cn'
+import { BATCH_OPERATIONS, BatchOperation } from '@/lib/batchOperations'
 
 interface BatchOperationsUIProps {
-  selectedCount: number;
-  totalCount: number;
-  onSelectAll: () => void;
-  onDeselectAll: () => void;
-  onExecuteOperation: (
-    operation: string,
-    params?: Record<string, any>
-  ) => Promise<void>;
-  isLoading?: boolean;
+  selectedCount: number
+  totalCount: number
+  onSelectAll: () => void
+  onDeselectAll: () => void
+  onExecuteOperation: (operation: string, params?: Record<string, unknown>) => Promise<void>
+  isLoading?: boolean
 }
 
 interface ConfirmDialogState {
-  isOpen: boolean;
-  operation?: BatchOperation;
-  params?: Record<string, any>;
+  isOpen: boolean
+  operation?: BatchOperation
+  params?: Record<string, unknown>
 }
 
 const getOperationIcon = (operationId: string) => {
   switch (operationId) {
     case 'transfer':
-      return <Send className="w-4 h-4" aria-hidden="true" />;
+      return <Send className="w-4 h-4" aria-hidden="true" />
     case 'verify':
-      return <Check className="w-4 h-4" aria-hidden="true" />;
+      return <Check className="w-4 h-4" aria-hidden="true" />
     case 'delete':
-      return <Trash2 className="w-4 h-4" aria-hidden="true" />;
+      return <Trash2 className="w-4 h-4" aria-hidden="true" />
     case 'export':
-      return <Download className="w-4 h-4" aria-hidden="true" />;
+      return <Download className="w-4 h-4" aria-hidden="true" />
     case 'tag':
-      return <Tag className="w-4 h-4" aria-hidden="true" />;
+      return <Tag className="w-4 h-4" aria-hidden="true" />
     default:
-      return null;
+      return null
   }
-};
+}
 
 export const BatchOperationsUI: React.FC<BatchOperationsUIProps> = ({
   selectedCount,
@@ -50,45 +45,42 @@ export const BatchOperationsUI: React.FC<BatchOperationsUIProps> = ({
 }) => {
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState>({
     isOpen: false,
-  });
-  const [tagInput, setTagInput] = useState('');
+  })
+  const [tagInput, setTagInput] = useState('')
 
   // Ref to the button that opened the confirm modal — focus is returned on close
-  const lastTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const lastTriggerRef = useRef<HTMLButtonElement | null>(null)
 
-  const handleOperationClick = (
-    operation: BatchOperation,
-    buttonEl: HTMLButtonElement
-  ) => {
-    lastTriggerRef.current = buttonEl;
+  const handleOperationClick = (operation: BatchOperation, buttonEl: HTMLButtonElement) => {
+    lastTriggerRef.current = buttonEl
     if (operation.requiresConfirmation) {
-      setConfirmDialog({ isOpen: true, operation });
+      setConfirmDialog({ isOpen: true, operation })
     } else if (operation.id === 'tag') {
-      setConfirmDialog({ isOpen: true, operation, params: { tag: tagInput } });
+      setConfirmDialog({ isOpen: true, operation, params: { tag: tagInput } })
     } else {
-      executeOperation(operation);
+      executeOperation(operation)
     }
-  };
+  }
 
   const executeOperation = async (operation: BatchOperation) => {
     try {
-      await onExecuteOperation(operation.id, confirmDialog.params);
-      closeConfirm();
-      setTagInput('');
+      await onExecuteOperation(operation.id, confirmDialog.params)
+      closeConfirm()
+      setTagInput('')
     } catch (error) {
-      console.error('Operation failed:', error);
+      console.error('Operation failed:', error)
     }
-  };
+  }
 
   const closeConfirm = () => {
-    setConfirmDialog({ isOpen: false });
+    setConfirmDialog({ isOpen: false })
     // Restore focus to the triggering button
-    setTimeout(() => lastTriggerRef.current?.focus(), 0);
-  };
+    setTimeout(() => lastTriggerRef.current?.focus(), 0)
+  }
 
-  const isAllSelected = selectedCount === totalCount && totalCount > 0;
-  const hasSelection = selectedCount > 0;
-  const operation = confirmDialog.operation;
+  const isAllSelected = selectedCount === totalCount && totalCount > 0
+  const hasSelection = selectedCount > 0
+  const operation = confirmDialog.operation
 
   return (
     <div className="space-y-4">
@@ -132,16 +124,16 @@ export const BatchOperationsUI: React.FC<BatchOperationsUIProps> = ({
                 key={op.id}
                 onClick={(e) => handleOperationClick(op, e.currentTarget)}
                 disabled={isLoading}
-                aria-label={`${operation.name} ${selectedCount} selected item${selectedCount !== 1 ? 's' : ''}`}
+                aria-label={`${op.name} ${selectedCount} selected item${selectedCount !== 1 ? 's' : ''}`}
                 className={cn(
                   'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                  operation.id === 'delete'
+                  op.id === 'delete'
                     ? 'bg-red-50 text-red-700 hover:bg-red-100 disabled:bg-red-50 disabled:opacity-50'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:bg-gray-100 disabled:opacity-50'
                 )}
               >
-                <span aria-hidden="true">{getOperationIcon(operation.id)}</span>
-                <span>{operation.name}</span>
+                <span aria-hidden="true">{getOperationIcon(op.id)}</span>
+                <span>{op.name}</span>
               </button>
             ))}
           </div>
@@ -166,11 +158,13 @@ export const BatchOperationsUI: React.FC<BatchOperationsUIProps> = ({
       )}
 
       {/* Confirmation Dialog */}
-      {confirmDialog.isOpen && confirmDialog.operation && (
+      {confirmDialog.isOpen && operation && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
           role="presentation"
-          onClick={(e) => { if (e.target === e.currentTarget) setConfirmDialog({ isOpen: false }) }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) closeConfirm()
+          }}
         >
           <div
             role="dialog"
@@ -180,28 +174,27 @@ export const BatchOperationsUI: React.FC<BatchOperationsUIProps> = ({
             className="bg-white rounded-lg p-6 max-w-sm mx-4 space-y-4"
           >
             <h3 id="batch-confirm-title" className="text-lg font-semibold text-gray-900">
-              Confirm {confirmDialog.operation.name}
+              Confirm {operation.name}
             </h3>
             <p id="batch-confirm-desc" className="text-sm text-gray-600">
-              {confirmDialog.operation.description}
+              {operation.description}
             </p>
             <p className="text-sm font-medium text-gray-700">
               This will affect {selectedCount} item{selectedCount !== 1 ? 's' : ''}.
             </p>
-
             <div className="flex gap-3 justify-end">
               <button
-                onClick={() => setConfirmDialog({ isOpen: false })}
+                onClick={closeConfirm}
                 className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 Cancel
               </button>
               <button
-                onClick={() => executeOperation(confirmDialog.operation!)}
-                disabled={isLoading}
+                onClick={() => executeOperation(operation)}
+                disabled={isLoading || (operation.id === 'tag' && !tagInput.trim())}
                 className={cn(
                   'px-4 py-2 rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-                  confirmDialog.operation.id === 'delete'
+                  operation.id === 'delete'
                     ? 'bg-red-600 text-white hover:bg-red-700 disabled:bg-red-400'
                     : 'bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-400'
                 )}
@@ -210,27 +203,10 @@ export const BatchOperationsUI: React.FC<BatchOperationsUIProps> = ({
               </button>
             </div>
           </div>
-        )}
-
-        <div className="flex gap-3 justify-end pt-2">
-          <Button
-            variant="outline"
-            onClick={closeConfirm}
-            disabled={isLoading}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={() => operation && executeOperation(operation)}
-            disabled={isLoading || (operation?.id === 'tag' && !tagInput.trim())}
-            variant={operation?.id === 'delete' ? 'destructive' : 'primary'}
-          >
-            {isLoading ? 'Processing…' : 'Confirm'}
-          </Button>
         </div>
-      </Modal>
+      )}
     </div>
-  );
-};
+  )
+}
 
-export default BatchOperationsUI;
+export default BatchOperationsUI

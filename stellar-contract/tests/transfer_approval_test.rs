@@ -5,14 +5,7 @@ use stellar_scavngr_contract::{
     ParticipantRole, PendingTransferStatus, ScavengerContract, ScavengerContractClient, WasteType,
 };
 
-fn setup(
-    env: &Env,
-) -> (
-    ScavengerContractClient<'_>,
-    Address,
-    Address,
-    Address,
-) {
+fn setup(env: &Env) -> (ScavengerContractClient<'_>, Address, Address, Address) {
     env.mock_all_auths();
     let contract_id = env.register_contract(None, ScavengerContract);
     let client = ScavengerContractClient::new(env, &contract_id);

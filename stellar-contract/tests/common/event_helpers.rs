@@ -58,9 +58,7 @@ use soroban_sdk::{Env, IntoVal, Symbol, TryIntoVal, Val, Vec as SorobanVec};
 // ── Low-level accessors ───────────────────────────────────────────────────────
 
 /// Return all events emitted in `env` as a plain Rust `Vec`.
-pub fn all_events(
-    env: &Env,
-) -> std::vec::Vec<(soroban_sdk::Address, SorobanVec<Val>, Val)> {
+pub fn all_events(env: &Env) -> std::vec::Vec<(soroban_sdk::Address, SorobanVec<Val>, Val)> {
     env.events().all().iter().collect()
 }
 
@@ -79,18 +77,10 @@ pub fn last_event(env: &Env) -> (soroban_sdk::Address, SorobanVec<Val>, Val) {
 
 /// Return the Nth-from-last event (`n=0` → last, `n=1` → second-to-last, …).
 /// Panics if there are fewer than `n + 1` events.
-pub fn nth_last_event(
-    env: &Env,
-    n: usize,
-) -> (soroban_sdk::Address, SorobanVec<Val>, Val) {
+pub fn nth_last_event(env: &Env, n: usize) -> (soroban_sdk::Address, SorobanVec<Val>, Val) {
     let all = env.events().all();
     let len = all.len() as usize;
-    assert!(
-        len > n,
-        "expected at least {} event(s), found {}",
-        n + 1,
-        len
-    );
+    assert!(len > n, "expected at least {} event(s), found {}", n + 1, len);
     let idx = (len - 1 - n) as u32;
     all.get(idx).unwrap()
 }
@@ -101,10 +91,7 @@ pub fn snapshot(env: &Env) -> usize {
 }
 
 /// Return the events emitted *after* the given snapshot count.
-pub fn events_since(
-    env: &Env,
-    before: usize,
-) -> std::vec::Vec<(soroban_sdk::Address, SorobanVec<Val>, Val)> {
+pub fn events_since(env: &Env, before: usize) -> std::vec::Vec<(soroban_sdk::Address, SorobanVec<Val>, Val)> {
     all_events(env).into_iter().skip(before).collect()
 }
 
@@ -152,10 +139,7 @@ pub fn assert_last_event_symbol(env: &Env, sym: Symbol) {
 /// assert_last_event_topics(&env, (symbol_short!("recycled"), waste_id));
 /// ```
 #[track_caller]
-pub fn assert_last_event_topics<T: IntoVal<Env, SorobanVec<Val>>>(
-    env: &Env,
-    expected_topics: T,
-) {
+pub fn assert_last_event_topics<T: IntoVal<Env, SorobanVec<Val>>>(env: &Env, expected_topics: T) {
     let (_, actual, _) = last_event(env);
     let expected: SorobanVec<Val> = expected_topics.into_val(env);
     assert_eq!(actual, expected, "last event topics did not match expected");
@@ -163,18 +147,10 @@ pub fn assert_last_event_topics<T: IntoVal<Env, SorobanVec<Val>>>(
 
 /// Assert the topics of the Nth-from-last event equal `expected_topics`.
 #[track_caller]
-pub fn assert_nth_last_event_topics<T: IntoVal<Env, SorobanVec<Val>>>(
-    env: &Env,
-    n: usize,
-    expected_topics: T,
-) {
+pub fn assert_nth_last_event_topics<T: IntoVal<Env, SorobanVec<Val>>>(env: &Env, n: usize, expected_topics: T) {
     let (_, actual, _) = nth_last_event(env, n);
     let expected: SorobanVec<Val> = expected_topics.into_val(env);
-    assert_eq!(
-        actual, expected,
-        "event[nth_last={}] topics did not match expected",
-        n
-    );
+    assert_eq!(actual, expected, "event[nth_last={}] topics did not match expected", n);
 }
 
 /// Assert that *any* emitted event has `sym` as its first topic.

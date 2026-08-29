@@ -22,7 +22,7 @@
 
 import { PoolClient } from 'pg';
 import { RawContractEvent } from '../types';
-import { parseEvent, ParseError } from './parse';
+import { parseEvent } from './parse';
 import { transformEvent } from './transform';
 import { storeEvent } from './store';
 

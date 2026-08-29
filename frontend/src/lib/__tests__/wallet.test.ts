@@ -23,7 +23,7 @@ describe('wallet service', () => {
     })
 
     it('should return false if wallet is not installed', async () => {
-      vi.mocked(freighterApi.isConnected).mockRejectedValue(new Error('Not installed'))
+      vi.mocked(freighterApi.isConnected).mockRejectedValue(new Error('Not installed.'))
       const result = await walletService.checkWalletInstalled()
       expect(result).toBe(false)
     })
@@ -44,7 +44,7 @@ describe('wallet service', () => {
     })
 
     it('should return null if error occurs', async () => {
-      vi.mocked(freighterApi.getPublicKey).mockRejectedValue(new Error('Failed'))
+      vi.mocked(freighterApi.getPublicKey).mockRejectedValue(new Error('Failed.'))
       const result = await walletService.getWalletPublicKey()
       expect(result).toBeNull()
     })
@@ -60,7 +60,7 @@ describe('wallet service', () => {
 
     it('should throw error with user-declined message', async () => {
       vi.mocked(freighterApi.requestAccess).mockRejectedValue(
-        new Error('User declined')
+        new Error('User declined.')
       )
       await expect(walletService.connectWallet()).rejects.toThrow(
         'Connection rejected by user'
@@ -69,7 +69,7 @@ describe('wallet service', () => {
 
     it('should throw error on connection failure', async () => {
       vi.mocked(freighterApi.requestAccess).mockRejectedValue(
-        new Error('Network error')
+        new Error('A network error occurred during the request.')
       )
       await expect(walletService.connectWallet()).rejects.toThrow(
         'Failed to connect wallet'
@@ -107,11 +107,11 @@ describe('wallet service', () => {
 
     it('should throw error on signing failure', async () => {
       vi.mocked(freighterApi.signTransaction).mockRejectedValue(
-        new Error('Sign failed')
+        new Error('Sign failed.')
       )
       await expect(
         walletService.signTransactionXDR('tx', 'passphrase')
-      ).rejects.toThrow('Failed to sign transaction: Sign failed')
+      ).rejects.toThrow('Failed to sign transaction: Sign failed.')
     })
 
     it('should pass network passphrase to SDK correctly', async () => {
@@ -130,18 +130,18 @@ describe('wallet service', () => {
 
     it('should handle error when signing returns undefined', async () => {
       vi.mocked(freighterApi.signTransaction).mockRejectedValue(
-        new Error('Unknown error')
+        new Error('An unknown error occurred during signing.')
       )
       await expect(
         walletService.signTransactionXDR('tx', 'passphrase')
-      ).rejects.toThrow('Failed to sign transaction: Unknown error')
+      ).rejects.toThrow('Failed to sign transaction: An unknown error occurred during signing.')
     })
   })
 
   describe('checkWalletInstalled edge cases', () => {
     it('should handle various error types gracefully', async () => {
       vi.mocked(freighterApi.isConnected).mockRejectedValue(
-        new Error('Network timeout')
+        new Error('Network timeout.')
       )
       const result = await walletService.checkWalletInstalled()
       expect(result).toBe(false)
@@ -157,7 +157,7 @@ describe('wallet service', () => {
   describe('connectWallet error handling', () => {
     it('should distinguish between user rejection and other errors', async () => {
       vi.mocked(freighterApi.requestAccess).mockRejectedValue(
-        new Error('User declined the connection request')
+        new Error('User declined the connection request.')
       )
       await expect(walletService.connectWallet()).rejects.toThrow(
         'Connection rejected by user'
@@ -166,7 +166,7 @@ describe('wallet service', () => {
 
     it('should handle connection errors with proper message', async () => {
       vi.mocked(freighterApi.requestAccess).mockRejectedValue(
-        new Error('Wallet not responding')
+        new Error('Wallet not responding.')
       )
       await expect(walletService.connectWallet()).rejects.toThrow(
         'Failed to connect wallet'
@@ -199,7 +199,7 @@ describe('wallet service', () => {
 
     it('should handle various error conditions', async () => {
       vi.mocked(freighterApi.getPublicKey).mockRejectedValue(
-        new Error('Access denied')
+        new Error('Access denied.')
       )
       const result = await walletService.getWalletPublicKey()
       expect(result).toBeNull()
@@ -236,7 +236,7 @@ describe('wallet service', () => {
 
     it('should handle null or undefined responses', async () => {
       vi.mocked(freighterApi.getPublicKey).mockRejectedValue(
-        new Error('No key available')
+        new Error('No key available.')
       )
       const result = await walletService.getWalletPublicKey()
       expect(result).toBeNull()

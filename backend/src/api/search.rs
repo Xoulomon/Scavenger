@@ -1,10 +1,19 @@
+use crate::search::{build_search_query, format_search_response, SearchClient};
 use actix_web::{web, HttpResponse, Result};
-use serde::{Deserialize, Serialize};
+use elasticsearch::SearchParts;
+use serde::Deserialize;
 use serde_json::json;
-use crate::search::{SearchClient, SearchQueryBuilder, SearchRequest, SearchFilter, Facet};
 use std::sync::Arc;
 
-/// Search API handlers
+/// Search API handlers.
+///
+/// #1088: query-building (`crate::search::build_search_query`) and
+/// result-formatting (`crate::search::format_search_response`) live in
+/// `search/request.rs` and `search/response.rs` respectively, so both can be
+/// unit tested without an HTTP request or a live Elasticsearch cluster. This
+/// file is now just the glue: parse params, build the query, execute it,
+/// format the response.
+const SEARCHABLE_FIELDS: &[&str] = &["title", "description", "content"];
 
 #[derive(Debug, Deserialize)]
 pub struct SearchParams {
@@ -21,53 +30,39 @@ fn default_size() -> usize {
     20
 }
 
-#[derive(Debug, Serialize)]
-pub struct SearchResponse<T> {
-    pub total: u64,
-    pub hits: Vec<T>,
-    pub took_ms: u64,
-    pub facets: Option<serde_json::Value>,
-}
+/// Perform a search query.
+pub async fn search(client: web::Data<Arc<SearchClient>>, params: web::Query<SearchParams>) -> Result<HttpResponse> {
+    let fields: Vec<String> = SEARCHABLE_FIELDS.iter().map(|f| f.to_string()).collect();
+    let query_body = build_search_query(&params.q, params.from, params.size, &fields, &params.filters);
 
-/// Perform a search query
-pub async fn search(
-    client: web::Data<Arc<SearchClient>>,
-    params: web::Query<SearchParams>,
-) -> Result<HttpResponse> {
-    // Build the search query
-    let query = SearchQueryBuilder::new()
-        .multi_match(vec!["title".to_string(), "description".to_string(), "content".to_string()], &params.q)
-        .from(params.from)
-        .size(params.size)
-        .highlight(vec!["title".to_string(), "description".to_string()])
-        .build();
-    
-    // Execute search
     let start = std::time::Instant::now();
-    
-    // In a real implementation, you'd execute the query against Elasticsearch
-    // For now, return a mock response
-    let response = SearchResponse {
-        total: 0,
-        hits: Vec::<serde_json::Value>::new(),
-        took_ms: start.elapsed().as_millis() as u64,
-        facets: None,
-    };
-    
+
+    let es_response = client
+        .client()
+        .search(SearchParts::None)
+        .body(query_body)
+        .send()
+        .await
+        .map_err(actix_web::error::ErrorInternalServerError)?;
+
+    let es_body: serde_json::Value = es_response
+        .json()
+        .await
+        .map_err(actix_web::error::ErrorInternalServerError)?;
+
+    let took_ms = start.elapsed().as_millis() as u64;
+    let response = format_search_response(&es_body, took_ms);
+
     Ok(HttpResponse::Ok().json(response))
 }
 
 /// Get search suggestions/autocomplete
 pub async fn suggest(
-    client: web::Data<Arc<SearchClient>>,
-    params: web::Query<SearchParams>,
+    _client: web::Data<Arc<SearchClient>>,
+    _params: web::Query<SearchParams>,
 ) -> Result<HttpResponse> {
-    let suggestions = vec![
-        "waste type A",
-        "waste type B",
-        "participant name",
-    ];
-    
+    let suggestions = vec!["waste type A", "waste type B", "participant name"];
+
     Ok(HttpResponse::Ok().json(json!({
         "suggestions": suggestions
     })))

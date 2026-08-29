@@ -5,6 +5,34 @@
 //! **hash-based commitment scheme** — a well-established ZKP primitive —
 //! using the native `env.crypto().sha256()` host function.
 //!
+//! ## Proof scheme: Pedersen-style SHA-256 commitment
+//!
+//! ### Parameters
+//! | Parameter | Value |
+//! |-----------|-------|
+//! | Hash function | SHA-256 (Soroban host built-in) |
+//! | Secret size | 32 bytes |
+//! | Nonce size | 32 bytes (uniform random, client-chosen) |
+//! | Preimage format | `secret ‖ nonce` (64 bytes, simple concatenation) |
+//! | Commitment | `SHA-256(secret ‖ nonce)` — 32 bytes |
+//!
+//! ### Security properties
+//! * **Hiding** — given only the commitment, an observer cannot recover
+//!   `secret` because SHA-256 is a one-way function and a 256-bit random
+//!   `nonce` makes the preimage space computationally infeasible to brute-force
+//!   (2²⁵⁶ possibilities).
+//! * **Binding** — a committer cannot produce a second `(secret', nonce')` that
+//!   hashes to the same commitment, because SHA-256 is collision-resistant
+//!   (128-bit collision resistance, 256-bit second-preimage resistance).
+//!
+//! ### Spec compliance note
+//! This is equivalent to the "hash-based commitment" scheme described in
+//! *Commitment Schemes* (Damgård, 1998) and is widely deployed as the building
+//! block for more complex ZKP protocols.  The scheme is intentionally minimal
+//! so it fits within Soroban's WASM-no-std constraints; it provides the same
+//! hiding/binding guarantees as Pedersen commitments over elliptic curves but
+//! does not require field arithmetic.
+//!
 //! ## Scheme overview
 //!
 //! A participant who wants to prove they know a secret value `v` without
@@ -19,6 +47,17 @@
 //! This gives **hiding** (commitment reveals nothing about `v`) and **binding**
 //! (a committer cannot produce a different `v'` that opens the same
 //! commitment).
+//!
+//! ## Verification cost (budget units, not XLM)
+//!
+//! | Operation | CPU instruction estimate |
+//! |-----------|--------------------------|
+//! | `store_commitment` | ~500 (1 has-check + 1 write) |
+//! | `reveal_commitment` | ~900 (1 read + SHA-256 + 1 write) |
+//! | `cancel_commitment` | ~500 (1 read + 1 write) |
+//!
+//! See [`ZkpCostHints`] for per-constant breakdowns.  Benchmark against real
+//! budget consumption with `soroban contract invoke --diagnostic-events`.
 //!
 //! ## On-chain storage keys
 //!
@@ -497,5 +536,222 @@ mod tests {
         assert!(ZkpCostHints::reveal_cost() > 0);
         // reveal is more expensive than store (includes SHA-256)
         assert!(ZkpCostHints::reveal_cost() > ZkpCostHints::store_cost());
+    }
+
+    // ── Negative tests — invalid/tampered public inputs ───────────────────────
+    // Issue #1112: confirm that every form of input manipulation is rejected.
+
+    /// Flipping a single bit in the secret must cause HashMismatch.
+    #[test]
+    fn tampered_secret_single_bit_rejected() {
+        let env = Env::default();
+        let mut secret_bytes = [0xABu8; 32];
+        let nonce_bytes = [0xCDu8; 32];
+        let secret = BytesN::from_array(&env, &secret_bytes);
+        let nonce  = BytesN::from_array(&env, &nonce_bytes);
+        let commitment = compute_commitment(&env, &secret, &nonce);
+
+        // Tamper: flip one bit in byte 0
+        secret_bytes[0] ^= 0x01;
+        let tampered = BytesN::from_array(&env, &secret_bytes);
+        assert_eq!(
+            verify_preimage(&env, &tampered, &nonce, &commitment),
+            Err(CommitmentError::HashMismatch),
+            "single-bit tamper must be rejected"
+        );
+    }
+
+    /// Flipping a single bit in the nonce must cause HashMismatch.
+    #[test]
+    fn tampered_nonce_single_bit_rejected() {
+        let env = Env::default();
+        let secret_bytes = [0xABu8; 32];
+        let mut nonce_bytes = [0xCDu8; 32];
+        let secret = BytesN::from_array(&env, &secret_bytes);
+        let nonce  = BytesN::from_array(&env, &nonce_bytes);
+        let commitment = compute_commitment(&env, &secret, &nonce);
+
+        // Tamper: flip one bit in the last nonce byte
+        nonce_bytes[31] ^= 0x80;
+        let tampered_nonce = BytesN::from_array(&env, &nonce_bytes);
+        assert_eq!(
+            verify_preimage(&env, &secret, &tampered_nonce, &commitment),
+            Err(CommitmentError::HashMismatch),
+            "single-bit nonce tamper must be rejected"
+        );
+    }
+
+    /// Supplying an all-zeros commitment (invalid / zeroed-out hash) must fail.
+    #[test]
+    fn all_zeros_commitment_rejected() {
+        let env = Env::default();
+        let secret = make_bytes32(&env, 0xAA);
+        let nonce  = make_bytes32(&env, 0xBB);
+        let zero_commitment: Commitment = BytesN::from_array(&env, &[0u8; 32]);
+        assert_eq!(
+            verify_preimage(&env, &secret, &nonce, &zero_commitment),
+            Err(CommitmentError::HashMismatch),
+            "all-zeros commitment is not a valid hash of any secret+nonce"
+        );
+    }
+
+    /// Supplying an all-ones commitment must fail.
+    #[test]
+    fn all_ones_commitment_rejected() {
+        let env = Env::default();
+        let secret = make_bytes32(&env, 0xAA);
+        let nonce  = make_bytes32(&env, 0xBB);
+        let ones_commitment: Commitment = BytesN::from_array(&env, &[0xFFu8; 32]);
+        assert_eq!(
+            verify_preimage(&env, &secret, &nonce, &ones_commitment),
+            Err(CommitmentError::HashMismatch)
+        );
+    }
+
+    /// Swapping secret and nonce (reversed inputs) must fail.
+    #[test]
+    fn swapped_secret_nonce_rejected() {
+        let env = Env::default();
+        let secret = make_bytes32(&env, 0x01);
+        let nonce  = make_bytes32(&env, 0x02);
+        let commitment = compute_commitment(&env, &secret, &nonce);
+        // Verify with secret and nonce swapped
+        assert_eq!(
+            verify_preimage(&env, &nonce, &secret, &commitment),
+            Err(CommitmentError::HashMismatch),
+            "swapped secret/nonce must not verify"
+        );
+    }
+
+    /// reveal_commitment must reject an invalid secret even after a correct one
+    /// was successfully revealed (double-reveal scenario but with wrong data).
+    #[test]
+    fn tampered_secret_on_reveal_rejected() {
+        let env = Env::default();
+        let committer = Address::generate(&env);
+        let secret = make_bytes32(&env, 0x10);
+        let nonce  = make_bytes32(&env, 0x20);
+        let hash   = compute_commitment(&env, &secret, &nonce);
+        store_commitment(&env, &committer, 1, hash, 0);
+
+        // Attempt to reveal with tampered secret
+        let bad_secret = make_bytes32(&env, 0x11);
+        assert_eq!(
+            reveal_commitment(&env, &committer, 1, &bad_secret, &nonce),
+            Err(CommitmentError::HashMismatch),
+            "tampered secret must be rejected during reveal"
+        );
+        // Original commitment still pending
+        let record = get_commitment(&env, &committer, 1).unwrap();
+        assert_eq!(record.status, CommitmentStatus::Pending);
+    }
+
+    /// reveal_commitment must reject a tampered nonce.
+    #[test]
+    fn tampered_nonce_on_reveal_rejected() {
+        let env = Env::default();
+        let committer = Address::generate(&env);
+        let secret = make_bytes32(&env, 0x10);
+        let nonce  = make_bytes32(&env, 0x20);
+        let hash   = compute_commitment(&env, &secret, &nonce);
+        store_commitment(&env, &committer, 1, hash, 0);
+
+        let bad_nonce = make_bytes32(&env, 0x21);
+        assert_eq!(
+            reveal_commitment(&env, &committer, 1, &secret, &bad_nonce),
+            Err(CommitmentError::HashMismatch),
+            "tampered nonce must be rejected during reveal"
+        );
+    }
+
+    /// Attempting to reveal a commitment that belongs to another committer
+    /// must fail with NotFound (different address → different storage key).
+    #[test]
+    fn wrong_committer_returns_not_found() {
+        let env = Env::default();
+        let alice = Address::generate(&env);
+        let bob   = Address::generate(&env);
+        let secret = make_bytes32(&env, 0x10);
+        let nonce  = make_bytes32(&env, 0x20);
+        let hash   = compute_commitment(&env, &secret, &nonce);
+        store_commitment(&env, &alice, 1, hash, 0);
+
+        // Bob tries to reveal Alice's commitment using his address
+        assert_eq!(
+            reveal_commitment(&env, &bob, 1, &secret, &nonce),
+            Err(CommitmentError::NotFound),
+            "revealing with wrong committer address must return NotFound"
+        );
+    }
+
+    /// Revealing a cancelled commitment must fail with Cancelled.
+    #[test]
+    fn reveal_cancelled_commitment_rejected() {
+        let env = Env::default();
+        let committer = Address::generate(&env);
+        let secret = make_bytes32(&env, 0x10);
+        let nonce  = make_bytes32(&env, 0x20);
+        let hash   = compute_commitment(&env, &secret, &nonce);
+        store_commitment(&env, &committer, 1, hash, 0);
+        cancel_commitment(&env, &committer, 1).unwrap();
+
+        assert_eq!(
+            reveal_commitment(&env, &committer, 1, &secret, &nonce),
+            Err(CommitmentError::Cancelled),
+            "revealing a cancelled commitment must be rejected"
+        );
+    }
+
+    /// Cannot store a commitment under an ID that already exists.
+    #[test]
+    #[should_panic(expected = "zkp: commitment already exists")]
+    fn duplicate_commitment_id_panics() {
+        let env = Env::default();
+        let committer = Address::generate(&env);
+        let secret = make_bytes32(&env, 0x10);
+        let nonce  = make_bytes32(&env, 0x20);
+        let hash   = compute_commitment(&env, &secret, &nonce);
+        store_commitment(&env, &committer, 42, hash.clone(), 0);
+        // Second store with same committer + id must panic
+        store_commitment(&env, &committer, 42, hash, 0);
+    }
+
+    /// Cancelling a non-existent commitment returns NotFound.
+    #[test]
+    fn cancel_nonexistent_commitment_returns_not_found() {
+        let env = Env::default();
+        let addr = Address::generate(&env);
+        assert_eq!(
+            cancel_commitment(&env, &addr, 999),
+            Err(CommitmentError::NotFound)
+        );
+    }
+
+    /// All 256 single-byte secret values produce distinct commitments
+    /// (no trivially colliding inputs in the first-byte dimension).
+    #[test]
+    fn all_single_byte_secrets_distinct() {
+        let env = Env::default();
+        let nonce = make_bytes32(&env, 0x00);
+        let commitments: soroban_sdk::Vec<Commitment> = {
+            let mut v = soroban_sdk::Vec::new(&env);
+            for b in 0u8..=255 {
+                let s = make_bytes32(&env, b);
+                v.push_back(compute_commitment(&env, &s, &nonce));
+            }
+            v
+        };
+        // Each commitment must be unique
+        for i in 0..commitments.len() {
+            for j in (i + 1)..commitments.len() {
+                assert_ne!(
+                    commitments.get(i).unwrap(),
+                    commitments.get(j).unwrap(),
+                    "bytes {} and {} produced the same commitment",
+                    i,
+                    j
+                );
+            }
+        }
     }
 }

@@ -2,11 +2,8 @@
 ///
 /// Comprehensive migration tests to validate the smart contract upgrade process,
 /// including data integrity, WASM mechanism verification, and state preservation.
-
 use soroban_sdk::{symbol_short, testutils::Address as _, vec, Address, Env, String};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 fn setup_contract(env: &Env) -> (ScavengerContractClient, Address) {
     env.mock_all_auths();
@@ -299,10 +296,7 @@ fn test_upgrade_participant_index_consistency() {
     );
 
     for participant in participants.iter() {
-        assert!(
-            all_participants.contains(participant),
-            "Participant should be indexed"
-        );
+        assert!(all_participants.contains(participant), "Participant should be indexed");
     }
 }
 
@@ -316,12 +310,7 @@ fn test_upgrade_cross_participant_transfers_integrity() {
     let p_b = &participants[1];
     let p_c = &participants[2];
 
-    let waste_id = client.submit_material(
-        &WasteType::Metal,
-        &1000u64,
-        p_a,
-        &String::from_str(&env, "chain_waste"),
-    );
+    let waste_id = client.submit_material(&WasteType::Metal, &1000u64, p_a, &String::from_str(&env, "chain_waste"));
 
     let _transfer1 = client.transfer_waste(
         &waste_id,
@@ -343,11 +332,7 @@ fn test_upgrade_cross_participant_transfers_integrity() {
 
     // Verify transfer history shows all steps
     let history = client.get_waste_transfer_history(&waste_id);
-    assert_eq!(
-        history.len(),
-        2,
-        "Transfer history should show all transfer steps"
-    );
+    assert_eq!(history.len(), 2, "Transfer history should show all transfer steps");
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

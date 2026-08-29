@@ -19,6 +19,20 @@ jobs:
       - run: rustup component add rustfmt
       - run: cargo fmt --all -- --check
 
+  format-pr:
+    name: Check Formatting (PR only)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: rustup component add rustfmt
+      - run: |
+          CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- '*.rs')
+          if [ -n "$CHANGED" ]; then
+            cargo fmt -- ${CHANGED} -- --check
+          fi
+
   clippy:
     name: Lint with Clippy
     runs-on: ubuntu-latest
@@ -28,6 +42,21 @@ jobs:
       - run: rustup component add clippy
       - uses: Swatinem/rust-cache@v2
       - run: cargo clippy --all-targets --all-features -- -D warnings
+
+  clippy-security:
+    name: Clippy Security Lints
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: rustup component add clippy
+      - uses: Swatinem/rust-cache@v2
+      - run: |
+          cargo clippy --all-targets --all-features -- \
+            -D warnings \
+            -D clippy::unwrap_in_result \
+            -D clippy::mem_forget \
+            -W clippy::pedantic
 
   test:
     name: Unit Tests

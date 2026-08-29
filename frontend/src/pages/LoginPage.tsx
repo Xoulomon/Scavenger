@@ -55,7 +55,7 @@ export function LoginPage() {
       .then((registered) => {
         if (registered) {
           client.getParticipant(address).then((p) => {
-            login({ address, role: p?.role, name: p?.name })
+            login({ role: p?.role, name: p?.name })
             navigate('/dashboard', { replace: true })
           })
         } else {
@@ -73,7 +73,7 @@ export function LoginPage() {
       { address, role, name: name.trim() },
       {
         onSuccess: (participant) => {
-          login({ address, role: participant.role, name: participant.name })
+          login({ role: participant.role, name: participant.name })
           navigate('/dashboard', { replace: true })
         },
       }

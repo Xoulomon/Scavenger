@@ -17,6 +17,12 @@ export {
   tokens as default,
 } from './tokens'
 
+// ── Components ────────────────────────────────────────────────────────────────
+
+export { StatusBadge } from './StatusBadge'
+export { TierBadge } from './TierBadge'
+export { LeaderboardRow } from './LeaderboardRow'
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 /**

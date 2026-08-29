@@ -2,8 +2,8 @@
 
 use soroban_sdk::{symbol_short, testutils::Address as _, Address, Env, String};
 use stellar_scavngr_contract::{
-    calculate_carbon_credits, Material, ParticipantRole, RecyclingStats, ScavengerContract,
-    ScavengerContractClient, WasteType,
+    calculate_carbon_credits, Material, ParticipantRole, RecyclingStats, ScavengerContract, ScavengerContractClient,
+    WasteType,
 };
 
 fn setup(env: &Env) -> (ScavengerContractClient, Address, Address) {

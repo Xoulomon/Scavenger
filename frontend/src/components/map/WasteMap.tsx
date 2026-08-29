@@ -23,6 +23,8 @@ const WASTE_COLORS: Record<WasteType, string> = {
   [WasteType.Plastic]: '#9333ea',
   [WasteType.Metal]: '#64748b',
   [WasteType.Glass]: '#0891b2',
+  [WasteType.Organic]: '#16a34a',
+  [WasteType.Electronic]: '#dc2626',
 }
 
 const WASTE_MARKERS: Record<WasteType, string> = {
@@ -31,6 +33,8 @@ const WASTE_MARKERS: Record<WasteType, string> = {
   [WasteType.Plastic]: 'Pl',
   [WasteType.Metal]: 'Me',
   [WasteType.Glass]: 'Gl',
+  [WasteType.Organic]: 'Or',
+  [WasteType.Electronic]: 'El',
 }
 
 function makeWasteIcon(type: WasteType, confirmed: boolean, active: boolean): L.DivIcon {

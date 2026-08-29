@@ -1,10 +1,10 @@
 export { OverviewTab } from './OverviewTab'
-export { UsersTab } from './UsersTab'
-export { DisputesTab } from './DisputesTab'
+export { UsersTab, type AdminUser, type MockUser } from './UsersTab'
+export { DisputesTab, type Dispute } from './DisputesTab'
 export { WastesTab } from './WastesTab'
 export { IncentivesTab } from './IncentivesTab'
 export { SystemHealthTab } from './SystemHealthTab'
 export { ConfigTab } from './ConfigTab'
 export { AuditLogTab } from './AuditLogTab'
 export { addAuditEntry, getAuditLog, type AuditEntry } from './auditLog'
-export { MOCK_USERS, MOCK_DISPUTES, type MockUser, type Dispute } from './mockData'
+

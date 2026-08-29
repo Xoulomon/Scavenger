@@ -1,4 +1,5 @@
 use actix_web::{web, HttpResponse};
+use crate::api::pagination::paginate;
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
@@ -7,8 +8,7 @@ use crate::services::api::{ApiBuilder, PaginatedResponse};
 use crate::services::email::{EmailService, TransactionalEmail};
 use crate::services::export::ExportService;
 use crate::validation::{
-    error_response, validate_date_range, validate_export_format, validate_pagination,
-    ValidationError,
+    error_response, validate_date_range, validate_export_format, validate_pagination, ValidationError,
 };
 use std::sync::Arc;
 
@@ -72,10 +72,7 @@ pub struct EmailExportRequest {
     pub message: Option<String>,
 }
 
-pub async fn export_data(
-    cache: web::Data<Cache>,
-    body: web::Json<ExportRequest>,
-) -> HttpResponse {
+pub async fn export_data(cache: web::Data<Cache>, body: web::Json<ExportRequest>) -> HttpResponse {
     let mut errors = Vec::new();
 
     if let Some(ref err) = validate_export_format(&body.format) {
@@ -116,10 +113,8 @@ pub async fn export_data(
     ];
 
     let content_bytes = match format.as_str() {
-        "csv" => ExportService::export_to_csv(sample_data)
-            .map(|s| s.into_bytes()),
-        "json" => ExportService::export_to_json(sample_data)
-            .map(|s| s.into_bytes()),
+        "csv" => ExportService::export_to_csv(sample_data).map(|s| s.into_bytes()),
+        "json" => ExportService::export_to_json(sample_data).map(|s| s.into_bytes()),
         "pdf" => ExportService::export_to_pdf(sample_data),
         _ => unreachable!(),
     };
@@ -146,10 +141,7 @@ pub async fn export_data(
     }
 }
 
-pub async fn download_export(
-    cache: web::Data<Cache>,
-    path: web::Path<String>,
-) -> HttpResponse {
+pub async fn download_export(cache: web::Data<Cache>, path: web::Path<String>) -> HttpResponse {
     let export_id = path.into_inner();
     let cache_key = format!("export:{}", export_id);
 
@@ -161,14 +153,11 @@ pub async fn download_export(
                 format!("attachment; filename=\"{}.csv\"", export_id),
             ))
             .body(data),
-        None => HttpResponse::NotFound()
-            .json(ApiBuilder::error_response::<String>("Export not found or expired")),
+        None => HttpResponse::NotFound().json(ApiBuilder::error_response::<String>("Export not found or expired")),
     }
 }
 
-pub async fn list_exports(
-    query: web::Query<ExportListQuery>,
-) -> HttpResponse {
+pub async fn list_exports(query: web::Query<ExportListQuery>) -> HttpResponse {
     let page = query.page.unwrap_or(1);
     let limit = query.limit.unwrap_or(20);
 
@@ -178,7 +167,7 @@ pub async fn list_exports(
     }
 
     let items: Vec<ExportHistoryEntry> = Vec::new();
-    let response = ApiBuilder::paginated_response(items, 0, page, limit);
+    let response = paginate(&items, page, limit);
     HttpResponse::Ok().json(ApiBuilder::success_response(response))
 }
 
@@ -222,11 +211,10 @@ pub async fn send_export_email(
         match email_service.send_transactional(email).await {
             Ok(_) => {}
             Err(e) => {
-                return HttpResponse::InternalServerError()
-                    .json(ApiBuilder::error_response::<String>(format!(
-                        "Failed to send email to {}: {}",
-                        recipient, e
-                    )));
+                return HttpResponse::InternalServerError().json(ApiBuilder::error_response::<String>(format!(
+                    "Failed to send email to {}: {}",
+                    recipient, e
+                )));
             }
         }
     }
@@ -237,9 +225,7 @@ pub async fn send_export_email(
     )))
 }
 
-pub async fn create_scheduled_export(
-    body: web::Json<ScheduledExportConfig>,
-) -> HttpResponse {
+pub async fn create_scheduled_export(body: web::Json<ScheduledExportConfig>) -> HttpResponse {
     let mut errors = Vec::new();
 
     if let Some(ref err) = validate_export_format(&body.format) {
@@ -286,9 +272,7 @@ pub async fn list_scheduled_exports() -> HttpResponse {
     HttpResponse::Ok().json(ApiBuilder::success_response(scheduled))
 }
 
-pub async fn delete_scheduled_export(
-    path: web::Path<String>,
-) -> HttpResponse {
+pub async fn delete_scheduled_export(path: web::Path<String>) -> HttpResponse {
     let export_id = path.into_inner();
     HttpResponse::Ok().json(ApiBuilder::success_response(format!(
         "Scheduled export {} deleted",

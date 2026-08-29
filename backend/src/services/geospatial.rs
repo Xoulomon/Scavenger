@@ -101,7 +101,10 @@ struct GridIndex {
 
 impl GridIndex {
     fn new(cell_size: f64) -> Self {
-        Self { cell_size, buckets: HashMap::new() }
+        Self {
+            cell_size,
+            buckets: HashMap::new(),
+        }
     }
 
     fn cell(&self, lat: f64, lon: f64) -> (i32, i32) {
@@ -127,8 +130,7 @@ impl GridIndex {
     fn candidates_in_radius(&self, lat: f64, lon: f64, radius_m: f64) -> Vec<String> {
         // Approximate degrees of latitude/longitude spanning radius_m
         let delta_lat = radius_m / EARTH_RADIUS_M * (180.0 / std::f64::consts::PI);
-        let delta_lon =
-            delta_lat / lat.to_radians().cos().abs().max(1e-9);
+        let delta_lon = delta_lat / lat.to_radians().cos().abs().max(1e-9);
 
         let min_cell = self.cell(lat - delta_lat, lon - delta_lon);
         let max_cell = self.cell(lat + delta_lat, lon + delta_lon);
@@ -172,14 +174,11 @@ impl GeoService {
 
     pub fn remove_location(&self, id: &str) -> Result<(), GeoError> {
         let mut locs = self.locations.lock().unwrap();
-        let loc = locs
-            .remove(id)
-            .ok_or_else(|| GeoError::NotFound(id.to_string()))?;
-        self.index.lock().unwrap().remove(
-            id,
-            loc.coordinates.lat,
-            loc.coordinates.lon,
-        );
+        let loc = locs.remove(id).ok_or_else(|| GeoError::NotFound(id.to_string()))?;
+        self.index
+            .lock()
+            .unwrap()
+            .remove(id, loc.coordinates.lat, loc.coordinates.lon);
         Ok(())
     }
 
@@ -195,15 +194,17 @@ impl GeoService {
         let dlat = (to.lat - from.lat).to_radians();
         let dlon = (to.lon - from.lon).to_radians();
 
-        let a = (dlat / 2.0).sin().powi(2)
-            + lat1.cos() * lat2.cos() * (dlon / 2.0).sin().powi(2);
+        let a = (dlat / 2.0).sin().powi(2) + lat1.cos() * lat2.cos() * (dlon / 2.0).sin().powi(2);
         let c = 2.0 * a.sqrt().atan2((1.0 - a).sqrt());
         EARTH_RADIUS_M * c
     }
 
     pub fn calculate_distance(&self, q: DistanceQuery) -> DistanceResult {
         let d = Self::haversine_distance(&q.from, &q.to);
-        DistanceResult { distance_m: d, distance_km: d / 1000.0 }
+        DistanceResult {
+            distance_m: d,
+            distance_km: d / 1000.0,
+        }
     }
 
     // ── Proximity search ───────────────────────────────────────────────────
@@ -226,14 +227,17 @@ impl GeoService {
             .iter()
             .filter_map(|id| locs.get(id.as_str()))
             .filter(|loc| {
-                q.filter_tags.iter().all(|(k, v)| {
-                    loc.tags.get(k).map_or(false, |val| val == v)
-                })
+                q.filter_tags
+                    .iter()
+                    .all(|(k, v)| loc.tags.get(k).map_or(false, |val| val == v))
             })
             .filter_map(|loc| {
                 let d = Self::haversine_distance(&q.center, &loc.coordinates);
                 if d <= q.radius_m {
-                    Some(ProximityResult { location: loc.clone(), distance_m: d })
+                    Some(ProximityResult {
+                        location: loc.clone(),
+                        distance_m: d,
+                    })
                 } else {
                     None
                 }
@@ -253,7 +257,10 @@ impl GeoService {
             .values()
             .map(|loc| {
                 let d = Self::haversine_distance(center, &loc.coordinates);
-                ProximityResult { location: loc.clone(), distance_m: d }
+                ProximityResult {
+                    location: loc.clone(),
+                    distance_m: d,
+                }
             })
             .collect();
         results.sort_by(|a, b| a.distance_m.partial_cmp(&b.distance_m).unwrap());
@@ -283,7 +290,11 @@ impl GeoService {
                 segments.push(d);
                 total += d;
             }
-            return Ok(RouteResult { ordered_waypoints: waypoints, total_distance_m: total, segments });
+            return Ok(RouteResult {
+                ordered_waypoints: waypoints,
+                total_distance_m: total,
+                segments,
+            });
         }
 
         // Greedy nearest-neighbour starting from waypoints[0]
@@ -325,9 +336,15 @@ impl Default for GeoService {
 mod tests {
     use super::*;
 
-    fn london() -> Coordinates { Coordinates::new(51.5074, -0.1278).unwrap() }
-    fn paris() -> Coordinates { Coordinates::new(48.8566, 2.3522).unwrap() }
-    fn berlin() -> Coordinates { Coordinates::new(52.5200, 13.4050).unwrap() }
+    fn london() -> Coordinates {
+        Coordinates::new(51.5074, -0.1278).unwrap()
+    }
+    fn paris() -> Coordinates {
+        Coordinates::new(48.8566, 2.3522).unwrap()
+    }
+    fn berlin() -> Coordinates {
+        Coordinates::new(52.5200, 13.4050).unwrap()
+    }
 
     fn make_loc(id: &str, lat: f64, lon: f64) -> GeoLocation {
         GeoLocation {
@@ -355,7 +372,10 @@ mod tests {
     #[test]
     fn test_calculate_distance() {
         let svc = GeoService::new();
-        let r = svc.calculate_distance(DistanceQuery { from: london(), to: paris() });
+        let r = svc.calculate_distance(DistanceQuery {
+            from: london(),
+            to: paris(),
+        });
         assert!(r.distance_km > 330.0 && r.distance_km < 350.0);
     }
 
@@ -363,8 +383,8 @@ mod tests {
     fn test_proximity_search_finds_nearby() {
         let svc = GeoService::new();
         // Add locations near London
-        svc.add_location(make_loc("near", 51.51, -0.12)).unwrap();  // ~500 m away
-        svc.add_location(make_loc("far", 48.85, 2.35)).unwrap();    // Paris
+        svc.add_location(make_loc("near", 51.51, -0.12)).unwrap(); // ~500 m away
+        svc.add_location(make_loc("far", 48.85, 2.35)).unwrap(); // Paris
 
         let results = svc
             .proximity_search(ProximityQuery {
@@ -434,7 +454,10 @@ mod tests {
         let svc = GeoService::new();
         let wps = vec![london(), paris(), berlin()];
         let result = svc
-            .optimise_route(RouteRequest { waypoints: wps, optimize: false })
+            .optimise_route(RouteRequest {
+                waypoints: wps,
+                optimize: false,
+            })
             .unwrap();
         assert_eq!(result.ordered_waypoints.len(), 3);
         assert_eq!(result.segments.len(), 2);
@@ -447,7 +470,10 @@ mod tests {
         // Berlin then Paris then London — greedy from London should prefer Paris next
         let wps = vec![london(), berlin(), paris()];
         let result = svc
-            .optimise_route(RouteRequest { waypoints: wps, optimize: true })
+            .optimise_route(RouteRequest {
+                waypoints: wps,
+                optimize: true,
+            })
             .unwrap();
         assert_eq!(result.ordered_waypoints.len(), 3);
         // London → Paris → Berlin is shorter than London → Berlin → Paris

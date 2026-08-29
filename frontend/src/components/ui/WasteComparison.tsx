@@ -1,4 +1,4 @@
-import { Waste, WasteType } from '@/api/types'
+import { Waste } from '@/api/types'
 import { wasteTypeLabel, formatDate } from '@/lib/helpers'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'

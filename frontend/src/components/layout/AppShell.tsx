@@ -179,6 +179,8 @@ function getOnboardingDataAttribute(href: string): string | undefined {
 }
 
 export function AppShell({ children }: PropsWithChildren) {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { address, isConnected, connect, isLoading } = useWallet()
   const { address, isConnected, connect, disconnect, isLoading } = useWallet()
   const { user, logout } = useAuth()
   const { isVisible, hideTutorial } = useOnboardingTutorial((user?.role as UserRole | undefined) ?? null)
@@ -258,6 +260,7 @@ export function AppShell({ children }: PropsWithChildren) {
                   <Wallet className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
                   <span aria-label={`Connected wallet: ${address}`}>{truncate(address)}</span>
                 </span>
+                <Button variant="ghost" size="sm" onClick={logout}>
                 <Button variant="ghost" size="sm" onClick={disconnect} aria-label="Disconnect wallet">
                   Disconnect
                 </Button>

@@ -3,7 +3,7 @@ import { Bell, Trash2, CheckCheck, Volume2, VolumeX, Settings } from 'lucide-rea
 import { useAppTitle } from '@/hooks/useAppTitle'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useWallet } from '@/context/WalletContext'
-import { NotificationStore, DEFAULT_PREFS, type NotificationType, type NotificationPreferences } from '@/lib/notifications'
+import { NotificationStore, type NotificationType, type NotificationPreferences } from '@/lib/notifications'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Switch } from '@/components/ui/Switch'

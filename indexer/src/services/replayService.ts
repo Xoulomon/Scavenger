@@ -1,4 +1,5 @@
 import { logger } from '../utils/logger';
+import { RawContractEvent } from '../types';
 import { queryEventsForReplay } from '../queries/eventQueries';
 
 export interface ReplayRequest {
@@ -24,7 +25,7 @@ export async function startReplay(request: ReplayRequest): Promise<ReplayResult>
     eventTypes: request.eventTypes,
   });
 
-  processEvents(rows as any).catch(err => {
+  processEvents(rows as unknown as RawContractEvent[]).catch(err => {
     logger.error('Replay processing failed', { replayId, error: String(err) });
   });
 

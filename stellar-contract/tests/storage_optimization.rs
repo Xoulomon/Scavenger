@@ -260,15 +260,15 @@ fn storage_optimization_metrics_consolidation() {
     assert!(supply_chain.total_waste_processed >= 0u128);
 }
 
-/// Gas Savings Summary:
-/// 
-/// Optimization Strategy | Estimated Savings | Implementation Status
-/// ---|---|---
-/// Symbol Compression | 5-10% | Implemented in storage keys
-/// Data Packing | 10-15% | Optimized struct layouts
-/// Lazy Loading | 20-30% | Selective field loading
-/// Index Consolidation | 15-20% | Reduced redundant indexes
-/// Counter Packing | 25-30% | Consolidated counter storage
-/// 
-/// Total Estimated Gas Reduction: 15-25% per operation
-/// Cumulative Savings: Significant for high-volume operations
+// Gas Savings Summary:
+// 
+// Optimization Strategy | Estimated Savings | Implementation Status
+// ---|---|---
+// Symbol Compression | 5-10% | Implemented in storage keys
+// Data Packing | 10-15% | Optimized struct layouts
+// Lazy Loading | 20-30% | Selective field loading
+// Index Consolidation | 15-20% | Reduced redundant indexes
+// Counter Packing | 25-30% | Consolidated counter storage
+// 
+// Total Estimated Gas Reduction: 15-25% per operation
+// Cumulative Savings: Significant for high-volume operations

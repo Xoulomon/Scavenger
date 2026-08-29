@@ -1,14 +1,8 @@
 mod common;
 use common::event_helpers::*;
 
-use soroban_sdk::{
-    symbol_short,
-    testutils::Address as _,
-    Address, Env, IntoVal, Symbol, TryIntoVal, Vec,
-};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use soroban_sdk::{symbol_short, testutils::Address as _, Address, Env, IntoVal, Symbol, TryIntoVal, Vec};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 // ── shared setup ─────────────────────────────────────────────────────────────
 
@@ -48,8 +42,7 @@ fn test_waste_registered_event_emitted() {
 
     // Verify data fields
     let (_, _, data_val) = last_event(&env);
-    let event_data: (WasteType, u128, Address, i128, i128) =
-        data_val.try_into_val(&env).unwrap();
+    let event_data: (WasteType, u128, Address, i128, i128) = data_val.try_into_val(&env).unwrap();
     assert_eq!(event_data.0, waste_type);
     assert_eq!(event_data.1, weight);
     assert_eq!(event_data.2, recycler);
@@ -63,9 +56,9 @@ fn test_waste_registered_event_fields() {
     let (client, recycler) = setup_recycler(&env);
 
     let test_cases = vec![
-        (WasteType::Paper,  1000u128,  51_500_000i128,   0i128),
-        (WasteType::Metal,  5000u128, -33_900_000i128,  151_200_000i128),
-        (WasteType::Glass,  3500u128,  35_700_000i128,  139_700_000i128),
+        (WasteType::Paper, 1000u128, 51_500_000i128, 0i128),
+        (WasteType::Metal, 5000u128, -33_900_000i128, 151_200_000i128),
+        (WasteType::Glass, 3500u128, 35_700_000i128, 139_700_000i128),
     ];
 
     for (waste_type, weight, lat, lon) in test_cases {
@@ -75,13 +68,12 @@ fn test_waste_registered_event_fields() {
         assert_last_event_topics(&env, (symbol_short!("recycled"), waste_id));
 
         let (_, _, data_val) = last_event(&env);
-        let event_data: (WasteType, u128, Address, i128, i128) =
-            data_val.try_into_val(&env).unwrap();
+        let event_data: (WasteType, u128, Address, i128, i128) = data_val.try_into_val(&env).unwrap();
         assert_eq!(event_data.0, waste_type, "Waste type mismatch");
-        assert_eq!(event_data.1, weight,     "Weight mismatch");
-        assert_eq!(event_data.2, recycler,   "Recycler address mismatch");
-        assert_eq!(event_data.3, lat,        "Latitude mismatch");
-        assert_eq!(event_data.4, lon,        "Longitude mismatch");
+        assert_eq!(event_data.1, weight, "Weight mismatch");
+        assert_eq!(event_data.2, recycler, "Recycler address mismatch");
+        assert_eq!(event_data.3, lat, "Latitude mismatch");
+        assert_eq!(event_data.4, lon, "Longitude mismatch");
     }
 }
 
@@ -101,7 +93,7 @@ fn test_waste_registered_event_multiple_wastes() {
     let snap = snapshot(&env);
 
     let waste_id1 = client.recycle_waste(&WasteType::Plastic, &2000, &recycler1, &40_000_000, &-74_000_000);
-    let waste_id2 = client.recycle_waste(&WasteType::Metal,   &3000, &recycler2, &41_000_000, &-73_000_000);
+    let waste_id2 = client.recycle_waste(&WasteType::Metal, &3000, &recycler2, &41_000_000, &-73_000_000);
 
     // ── helpers ────────────────────────────────────────────────────────────
     let new_events = events_since(&env, snap);
@@ -130,19 +122,18 @@ fn test_waste_registered_event_with_boundary_coordinates() {
     let (client, recycler) = setup_recycler(&env);
 
     let boundary_tests = vec![
-        ( 90_000_000i128,  180_000_000i128),
+        (90_000_000i128, 180_000_000i128),
         (-90_000_000i128, -180_000_000i128),
         (0, 0),
-        ( 90_000_000i128, -180_000_000i128),
-        (-90_000_000i128,  180_000_000i128),
+        (90_000_000i128, -180_000_000i128),
+        (-90_000_000i128, 180_000_000i128),
     ];
 
     for (lat, lon) in boundary_tests {
         client.recycle_waste(&WasteType::PetPlastic, &1500, &recycler, &lat, &lon);
 
         let (_, _, data_val) = last_event(&env);
-        let event_data: (WasteType, u128, Address, i128, i128) =
-            data_val.try_into_val(&env).unwrap();
+        let event_data: (WasteType, u128, Address, i128, i128) = data_val.try_into_val(&env).unwrap();
         assert_eq!(event_data.3, lat, "Latitude should match");
         assert_eq!(event_data.4, lon, "Longitude should match");
     }

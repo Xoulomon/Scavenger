@@ -119,11 +119,26 @@ fn test_get_waste_type_string_matches_all_variants() {
     let env = Env::default();
     let client = ScavengerContractClient::new(&env, &env.register_contract(None, ScavengerContract));
 
-    assert_eq!(client.get_waste_type_string(&WasteType::Paper), String::from_str(&env, "PAPER"));
-    assert_eq!(client.get_waste_type_string(&WasteType::PetPlastic), String::from_str(&env, "PETPLASTIC"));
-    assert_eq!(client.get_waste_type_string(&WasteType::Plastic), String::from_str(&env, "PLASTIC"));
-    assert_eq!(client.get_waste_type_string(&WasteType::Metal), String::from_str(&env, "METAL"));
-    assert_eq!(client.get_waste_type_string(&WasteType::Glass), String::from_str(&env, "GLASS"));
+    assert_eq!(
+        client.get_waste_type_string(&WasteType::Paper),
+        String::from_str(&env, "PAPER")
+    );
+    assert_eq!(
+        client.get_waste_type_string(&WasteType::PetPlastic),
+        String::from_str(&env, "PETPLASTIC")
+    );
+    assert_eq!(
+        client.get_waste_type_string(&WasteType::Plastic),
+        String::from_str(&env, "PLASTIC")
+    );
+    assert_eq!(
+        client.get_waste_type_string(&WasteType::Metal),
+        String::from_str(&env, "METAL")
+    );
+    assert_eq!(
+        client.get_waste_type_string(&WasteType::Glass),
+        String::from_str(&env, "GLASS")
+    );
 }
 
 #[test]
@@ -131,9 +146,18 @@ fn test_get_participant_role_string_matches_all_variants() {
     let env = Env::default();
     let client = ScavengerContractClient::new(&env, &env.register_contract(None, ScavengerContract));
 
-    assert_eq!(client.get_participant_role_string(&ParticipantRole::Recycler), String::from_str(&env, "RECYCLER"));
-    assert_eq!(client.get_participant_role_string(&ParticipantRole::Collector), String::from_str(&env, "COLLECTOR"));
-    assert_eq!(client.get_participant_role_string(&ParticipantRole::Manufacturer), String::from_str(&env, "MANUFACTURER"));
+    assert_eq!(
+        client.get_participant_role_string(&ParticipantRole::Recycler),
+        String::from_str(&env, "RECYCLER")
+    );
+    assert_eq!(
+        client.get_participant_role_string(&ParticipantRole::Collector),
+        String::from_str(&env, "COLLECTOR")
+    );
+    assert_eq!(
+        client.get_participant_role_string(&ParticipantRole::Manufacturer),
+        String::from_str(&env, "MANUFACTURER")
+    );
 }
 
 // ── transfers_from / transfers_to (unimplemented indices) ────────────────

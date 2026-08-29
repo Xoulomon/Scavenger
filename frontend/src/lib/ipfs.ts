@@ -37,7 +37,7 @@ export async function uploadToIPFS(
       }
     }
 
-    xhr.onerror = () => reject(new Error('Network error during upload'))
+    xhr.onerror = () => reject(new Error('A network error occurred during the upload operation.'))
     xhr.send(body)
   })
 }

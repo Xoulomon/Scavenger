@@ -1,6 +1,4 @@
-use soroban_sdk::{
-    symbol_short, testutils::Address as _, Address, Env, String as SorobanString,
-};
+use soroban_sdk::{symbol_short, testutils::Address as _, Address, Env, String as SorobanString};
 use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 fn main() {
@@ -24,13 +22,7 @@ fn main() {
     let start = std::time::Instant::now();
     for _ in 0..100 {
         let addr = Address::generate(&env);
-        client.register_participant(
-            &addr,
-            &ParticipantRole::Recycler,
-            &symbol_short!("Reg"),
-            &0i128,
-            &0i128,
-        );
+        client.register_participant(&addr, &ParticipantRole::Recycler, &symbol_short!("Reg"), &0i128, &0i128);
     }
     println!("Participant Registration (100x): {:?}", start.elapsed());
 

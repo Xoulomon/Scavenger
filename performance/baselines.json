@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated": "2026-06-27",
+  "updated": "2026-07-29",
   "contract": {
     "participant_registration_instructions": { "baseline": 500000, "threshold": 750000 },
     "waste_registration_instructions": { "baseline": 800000, "threshold": 1200000 },
@@ -16,5 +16,43 @@
   "database": {
     "query_p95_ms": { "baseline": 400, "threshold": 600 },
     "query_p99_ms": { "baseline": 800, "threshold": 1200 }
+  },
+  "hot_endpoints": {
+    "list_wastes": {
+      "p95_ms": { "baseline": 300, "threshold": 500 },
+      "p99_ms": { "baseline": 600, "threshold": 800 },
+      "avg_ms": { "baseline": 200, "threshold": 400 },
+      "error_rate_pct": { "baseline": 1, "threshold": 5 }
+    },
+    "list_participants": {
+      "p95_ms": { "baseline": 300, "threshold": 500 },
+      "p99_ms": { "baseline": 600, "threshold": 800 },
+      "avg_ms": { "baseline": 200, "threshold": 400 },
+      "error_rate_pct": { "baseline": 1, "threshold": 5 }
+    },
+    "get_contract_stats": {
+      "p95_ms": { "baseline": 400, "threshold": 600 },
+      "p99_ms": { "baseline": 800, "threshold": 1200 },
+      "avg_ms": { "baseline": 250, "threshold": 500 },
+      "error_rate_pct": { "baseline": 1, "threshold": 5 }
+    },
+    "search": {
+      "p95_ms": { "baseline": 500, "threshold": 800 },
+      "p99_ms": { "baseline": 1000, "threshold": 1500 },
+      "avg_ms": { "baseline": 300, "threshold": 600 },
+      "error_rate_pct": { "baseline": 2, "threshold": 10 }
+    },
+    "audit_logs": {
+      "p95_ms": { "baseline": 400, "threshold": 700 },
+      "p99_ms": { "baseline": 800, "threshold": 1200 },
+      "avg_ms": { "baseline": 250, "threshold": 500 },
+      "error_rate_pct": { "baseline": 1, "threshold": 5 }
+    },
+    "sign_transaction": {
+      "p95_ms": { "baseline": 600, "threshold": 900 },
+      "p99_ms": { "baseline": 1200, "threshold": 1800 },
+      "avg_ms": { "baseline": 400, "threshold": 700 },
+      "error_rate_pct": { "baseline": 2, "threshold": 10 }
+    }
   }
 }

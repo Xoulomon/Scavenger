@@ -1,5 +1,3 @@
-import { config } from '../config/app';
-
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 interface LogEntry {
@@ -17,7 +15,7 @@ const LOG_LEVELS: Record<LogLevel, number> = {
   error: 3,
 };
 
-class Logger {
+export class StructuredLogger {
   private level: LogLevel;
   private enableConsole: boolean;
   private logs: LogEntry[] = [];
@@ -29,12 +27,6 @@ class Logger {
 
   private shouldLog(level: LogLevel): boolean {
     return LOG_LEVELS[level] >= LOG_LEVELS[this.level];
-  }
-
-  private formatEntry(entry: LogEntry): string {
-    const { timestamp, level, message, context } = entry;
-    const contextStr = context ? ` ${JSON.stringify(context)}` : '';
-    return `[${timestamp}] ${level.toUpperCase()}: ${message}${contextStr}`;
   }
 
   private createEntry(level: LogLevel, message: string, context?: Record<string, unknown>, error?: Error): LogEntry {
@@ -49,35 +41,37 @@ class Logger {
 
   debug(message: string, context?: Record<string, unknown>): void {
     if (this.shouldLog('debug')) {
-      const entry = this.createEntry('debug', message, context);
-      this.logs.push(entry);
+      this.logs.push(this.createEntry('debug', message, context));
     }
   }
 
   info(message: string, context?: Record<string, unknown>): void {
     if (this.shouldLog('info')) {
-      const entry = this.createEntry('info', message, context);
-      this.logs.push(entry);
+      this.logs.push(this.createEntry('info', message, context));
     }
   }
 
   warn(message: string, context?: Record<string, unknown>): void {
     if (this.shouldLog('warn')) {
-      const entry = this.createEntry('warn', message, context);
-      this.logs.push(entry);
-      if (this.enableConsole) console.warn(this.formatEntry(entry));
+      this.logs.push(this.createEntry('warn', message, context));
+      if (this.enableConsole) console.warn(this.formatEntry(this.logs[this.logs.length - 1]));
     }
   }
 
   error(message: string, error?: Error, context?: Record<string, unknown>): void {
     if (this.shouldLog('error')) {
-      const entry = this.createEntry('error', message, context, error);
-      this.logs.push(entry);
+      this.logs.push(this.createEntry('error', message, context, error));
       if (this.enableConsole) {
-        console.error(this.formatEntry(entry));
+        console.error(this.formatEntry(this.logs[this.logs.length - 1]));
         if (error) console.error(error);
       }
     }
+  }
+
+  private formatEntry(entry: LogEntry): string {
+    const { timestamp, level, message, context } = entry;
+    const contextStr = context ? ` ${JSON.stringify(context)}` : '';
+    return `[${timestamp}] ${level.toUpperCase()}: ${message}${contextStr}`;
   }
 
   getLogs(level?: LogLevel): LogEntry[] {
@@ -93,5 +87,3 @@ class Logger {
     this.level = level;
   }
 }
-
-export const logger = new Logger(config.logging.level, config.logging.enableConsole);

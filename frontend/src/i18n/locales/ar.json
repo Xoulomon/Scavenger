@@ -12,106 +12,24 @@
     "search": "بحث",
     "filter": "تصفية",
     "export": "تصدير",
-    "download": "تنزيل",
     "submit": "إرسال",
     "back": "رجوع",
-    "next": "التالي",
-    "view": "عرض",
-    "refresh": "تحديث",
     "noData": "لا توجد بيانات"
   },
   "nav": {
-    "home": "الرئيسية",
     "dashboard": "لوحة التحكم",
-    "analytics": "التحليلات",
-    "incentives": "الحوافز",
-    "community": "المجتمع",
     "settings": "الإعدادات",
-    "profile": "الملف الشخصي",
-    "rewards": "المكافآت",
-    "waste": "النفايات"
-  },
-  "waste": {
-    "title": "إدارة النفايات",
-    "register": "تسجيل النفايات",
-    "transfer": "نقل النفايات",
-    "details": "تفاصيل النفايات",
-    "type": "نوع النفايات",
-    "quantity": "الكمية",
-    "location": "الموقع",
-    "status": "الحالة",
-    "verify": "التحقق",
-    "history": "سجل النقل",
-    "submit": "إرسال النفايات",
-    "weight": "الوزن (كجم)",
-    "types": {
-      "plastic": "بلاستيك",
-      "metal": "معدن",
-      "paper": "ورق",
-      "glass": "زجاج",
-      "organic": "عضوي"
-    }
-  },
-  "auth": {
-    "connect": "ربط المحفظة",
-    "disconnect": "قطع الاتصال",
-    "connecting": "جارٍ الاتصال...",
-    "connected": "متصل",
-    "walletAddress": "عنوان المحفظة"
-  },
-  "participants": {
-    "title": "المشاركون",
-    "register": "تسجيل",
-    "role": "الدور",
-    "name": "الاسم",
-    "roles": {
-      "recycler": "معيد التدوير",
-      "collector": "جامع",
-      "manufacturer": "مصنّع"
-    }
-  },
-  "rewards": {
-    "title": "المكافآت",
-    "balance": "الرصيد",
-    "earned": "المجموع المكتسب",
-    "claim": "المطالبة بالمكافآت",
-    "history": "سجل المكافآت",
-    "points": "النقاط"
-  },
-  "profile": {
-    "title": "الملف الشخصي",
-    "editProfile": "تعديل الملف",
-    "statistics": "الإحصائيات",
-    "totalWaste": "إجمالي النفايات المُرسلة",
-    "totalRewards": "إجمالي المكافآت"
+    "profile": "الملف الشخصي"
   },
   "errors": {
     "network": "حدث خطأ في الشبكة",
     "unauthorized": "وصول غير مصرح به",
     "notFound": "المورد غير موجود",
-    "validation": "خطأ في التحقق",
     "unknown": "حدث خطأ غير معروف",
-    "walletNotFound": "المحفظة غير موجودة. يرجى تثبيت Freighter.",
-    "contractError": "خطأ في العقد الذكي"
+    "walletNotFound": "المحفظة غير موجودة. يرجى تثبيت Freighter."
   },
   "settings": {
     "language": "اللغة",
-    "theme": "المظهر",
-    "notifications": "الإشعارات",
-    "darkMode": "الوضع الداكن",
-    "lightMode": "الوضع الفاتح"
-  },
-  "locale": {
-    "currency": "العملة",
-    "units": "وحدات القياس",
-    "weight": "الوزن",
-    "distance": "المسافة",
-    "weightKg": "كيلوغرام (kg)",
-    "weightLb": "رطل (lb)",
-    "distanceKm": "كيلومتر (km)",
-    "distanceMi": "ميل (mi)",
-    "localeOverride": "تجاوز الإعدادات المحلية",
-    "autoDetect": "الكشف التلقائي",
-    "formatExample": "مثال التنسيق"
+    "theme": "المظهر"
   }
 }

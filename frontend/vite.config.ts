@@ -104,10 +104,18 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@pages': path.resolve(__dirname, './src/pages'),
-      '@components': path.resolve(__dirname, './src/components'),
-      '@hooks': path.resolve(__dirname, './src/hooks'),
-      '@lib': path.resolve(__dirname, './src/lib')
+      '@/components': path.resolve(__dirname, './src/components'),
+      '@/pages': path.resolve(__dirname, './src/pages'),
+      '@/hooks': path.resolve(__dirname, './src/hooks'),
+      '@/lib': path.resolve(__dirname, './src/lib'),
+      '@/context': path.resolve(__dirname, './src/context'),
+      '@/types': path.resolve(__dirname, './src/types'),
+      '@/config': path.resolve(__dirname, './src/config'),
+      '@/stories': path.resolve(__dirname, './src/stories'),
+      '@/api': path.resolve(__dirname, './src/api'),
+      '@/assets': path.resolve(__dirname, './src/assets'),
+      '@/i18n': path.resolve(__dirname, './src/i18n'),
+      '@/test': path.resolve(__dirname, './src/test')
     }
   },
   test: {

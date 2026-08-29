@@ -1,9 +1,7 @@
 #![cfg(test)]
 
 use soroban_sdk::{testutils::Address as _, Address, Env};
-use stellar_scavngr_contract::{
-    ScavngrContractClient, ParticipantRole, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavngrContractClient, WasteType};
 
 #[test]
 fn regression_test_participant_deregistration() {
@@ -15,13 +13,7 @@ fn regression_test_participant_deregistration() {
     let participant = Address::generate(&env);
 
     client.initialize_admin(&admin);
-    client.register_participant(
-        &participant,
-        &ParticipantRole::Recycler,
-        &"Test".into(),
-        &0i32,
-        &0i32,
-    );
+    client.register_participant(&participant, &ParticipantRole::Recycler, &"Test".into(), &0i32, &0i32);
 
     assert!(client.is_participant_registered(&participant));
 
@@ -41,13 +33,7 @@ fn regression_test_waste_confirmation_workflow() {
     let confirmer = Address::generate(&env);
 
     client.initialize_admin(&admin);
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &"Recycler".into(),
-        &0i32,
-        &0i32,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &"Recycler".into(), &0i32, &0i32);
     client.register_participant(
         &confirmer,
         &ParticipantRole::Collector,
@@ -56,13 +42,7 @@ fn regression_test_waste_confirmation_workflow() {
         &0i32,
     );
 
-    let waste_id = client.submit_material(
-        &recycler,
-        &WasteType::Plastic,
-        &100u128,
-        &0i32,
-        &0i32,
-    );
+    let waste_id = client.submit_material(&recycler, &WasteType::Plastic, &100u128, &0i32, &0i32);
 
     client.confirm_waste_details(&waste_id, &confirmer);
 
@@ -88,12 +68,7 @@ fn regression_test_incentive_budget_exhaustion() {
         &0i32,
     );
 
-    let incentive_id = client.create_incentive(
-        &manufacturer,
-        &WasteType::Plastic,
-        &100u128,
-        &100u128,
-    );
+    let incentive_id = client.create_incentive(&manufacturer, &WasteType::Plastic, &100u128, &100u128);
 
     let incentive = client.get_incentive_by_id(&incentive_id);
     assert_eq!(incentive.budget, 100u128);
@@ -109,13 +84,7 @@ fn regression_test_role_update() {
     let participant = Address::generate(&env);
 
     client.initialize_admin(&admin);
-    client.register_participant(
-        &participant,
-        &ParticipantRole::Recycler,
-        &"Test".into(),
-        &0i32,
-        &0i32,
-    );
+    client.register_participant(&participant, &ParticipantRole::Recycler, &"Test".into(), &0i32, &0i32);
 
     client.update_role(&participant, &ParticipantRole::Collector);
 
@@ -135,13 +104,7 @@ fn regression_test_waste_transfer_history() {
     let manufacturer = Address::generate(&env);
 
     client.initialize_admin(&admin);
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &"Recycler".into(),
-        &0i32,
-        &0i32,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &"Recycler".into(), &0i32, &0i32);
     client.register_participant(
         &collector,
         &ParticipantRole::Collector,
@@ -157,22 +120,9 @@ fn regression_test_waste_transfer_history() {
         &0i32,
     );
 
-    let waste_id = client.submit_material(
-        &recycler,
-        &WasteType::Metal,
-        &200u128,
-        &0i32,
-        &0i32,
-    );
+    let waste_id = client.submit_material(&recycler, &WasteType::Metal, &200u128, &0i32, &0i32);
 
-    client.transfer_waste(
-        &waste_id,
-        &recycler,
-        &collector,
-        &0i32,
-        &0i32,
-        &"First transfer".into(),
-    );
+    client.transfer_waste(&waste_id, &recycler, &collector, &0i32, &0i32, &"First transfer".into());
 
     client.transfer_waste(
         &waste_id,
@@ -198,13 +148,7 @@ fn regression_test_deactivated_waste_cannot_transfer() {
     let collector = Address::generate(&env);
 
     client.initialize_admin(&admin);
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &"Recycler".into(),
-        &0i32,
-        &0i32,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &"Recycler".into(), &0i32, &0i32);
     client.register_participant(
         &collector,
         &ParticipantRole::Collector,
@@ -213,13 +157,7 @@ fn regression_test_deactivated_waste_cannot_transfer() {
         &0i32,
     );
 
-    let waste_id = client.submit_material(
-        &recycler,
-        &WasteType::Plastic,
-        &100u128,
-        &0i32,
-        &0i32,
-    );
+    let waste_id = client.submit_material(&recycler, &WasteType::Plastic, &100u128, &0i32, &0i32);
 
     client.deactivate_waste(&admin, &waste_id);
 
@@ -253,13 +191,7 @@ fn regression_test_participant_stats_accuracy() {
     let recycler = Address::generate(&env);
 
     client.initialize_admin(&admin);
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &"Recycler".into(),
-        &0i32,
-        &0i32,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &"Recycler".into(), &0i32, &0i32);
 
     for i in 0..5 {
         client.submit_material(

@@ -10,7 +10,7 @@ export async function handleReplay(req: http.IncomingMessage, res: http.ServerRe
   }
 
   let body = '';
-  for await (const chunk of req) body += chunk;
+  for await (const chunk of req) {body += chunk;}
 
   let parsed: Record<string, unknown>;
   try {

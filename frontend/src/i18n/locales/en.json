@@ -12,106 +12,24 @@
     "search": "Search",
     "filter": "Filter",
     "export": "Export",
-    "download": "Download",
     "submit": "Submit",
     "back": "Back",
-    "next": "Next",
-    "view": "View",
-    "refresh": "Refresh",
     "noData": "No data available"
   },
   "nav": {
-    "home": "Home",
     "dashboard": "Dashboard",
-    "analytics": "Analytics",
-    "incentives": "Incentives",
-    "community": "Community",
     "settings": "Settings",
-    "profile": "Profile",
-    "rewards": "Rewards",
-    "waste": "Waste"
-  },
-  "waste": {
-    "title": "Waste Management",
-    "register": "Register Waste",
-    "transfer": "Transfer Waste",
-    "details": "Waste Details",
-    "type": "Waste Type",
-    "quantity": "Quantity",
-    "location": "Location",
-    "status": "Status",
-    "verify": "Verify",
-    "history": "Transfer History",
-    "submit": "Submit Waste",
-    "weight": "Weight (kg)",
-    "types": {
-      "plastic": "Plastic",
-      "metal": "Metal",
-      "paper": "Paper",
-      "glass": "Glass",
-      "organic": "Organic"
-    }
-  },
-  "auth": {
-    "connect": "Connect Wallet",
-    "disconnect": "Disconnect",
-    "connecting": "Connecting...",
-    "connected": "Connected",
-    "walletAddress": "Wallet Address"
-  },
-  "participants": {
-    "title": "Participants",
-    "register": "Register",
-    "role": "Role",
-    "name": "Name",
-    "roles": {
-      "recycler": "Recycler",
-      "collector": "Collector",
-      "manufacturer": "Manufacturer"
-    }
-  },
-  "rewards": {
-    "title": "Rewards",
-    "balance": "Balance",
-    "earned": "Total Earned",
-    "claim": "Claim Rewards",
-    "history": "Reward History",
-    "points": "Points"
-  },
-  "profile": {
-    "title": "Profile",
-    "editProfile": "Edit Profile",
-    "statistics": "Statistics",
-    "totalWaste": "Total Waste Submitted",
-    "totalRewards": "Total Rewards"
+    "profile": "Profile"
   },
   "errors": {
     "network": "Network error occurred",
     "unauthorized": "Unauthorized access",
     "notFound": "Resource not found",
-    "validation": "Validation error",
     "unknown": "An unknown error occurred",
-    "walletNotFound": "Wallet not found. Please install Freighter.",
-    "contractError": "Smart contract error"
+    "walletNotFound": "Wallet not found. Please install Freighter."
   },
   "settings": {
     "language": "Language",
-    "theme": "Theme",
-    "notifications": "Notifications",
-    "darkMode": "Dark Mode",
-    "lightMode": "Light Mode"
-  },
-  "locale": {
-    "currency": "Currency",
-    "units": "Measurement Units",
-    "weight": "Weight",
-    "distance": "Distance",
-    "weightKg": "Kilograms (kg)",
-    "weightLb": "Pounds (lb)",
-    "distanceKm": "Kilometres (km)",
-    "distanceMi": "Miles (mi)",
-    "localeOverride": "Locale Override",
-    "autoDetect": "Auto-detect",
-    "formatExample": "Format Example"
+    "theme": "Theme"
   }
 }

@@ -36,7 +36,7 @@ export function validateOptionalInt(
   field: string,
   opts: { min?: number; max?: number } = {}
 ): number | undefined {
-  if (raw === null || raw === undefined || raw === '') return undefined;
+  if (raw === null || raw === undefined || raw === '') {return undefined;}
 
   const n = Number(raw);
   if (!Number.isInteger(n)) {
@@ -61,7 +61,7 @@ export function validateOptionalEnum<T extends string>(
   field: string,
   allowed: readonly T[]
 ): T | undefined {
-  if (raw === null || raw === undefined || raw === '') return undefined;
+  if (raw === null || raw === undefined || raw === '') {return undefined;}
   if (!allowed.includes(raw as T)) {
     throw new RequestValidationError([
       { field, message: `must be one of: ${allowed.join(', ')}` },
@@ -120,7 +120,7 @@ export function validateReplayBody(raw: Record<string, unknown>): ReplayBody {
     }
   }
 
-  if (errors.length > 0) throw new RequestValidationError(errors);
+  if (errors.length > 0) {throw new RequestValidationError(errors);}
 
   return {
     fromLedger: raw.fromLedger as number,
@@ -192,7 +192,7 @@ export function validateEventQueryParams(url: URL): EventQueryParams {
     }
   }
 
-  if (errors.length > 0) throw new RequestValidationError(errors);
+  if (errors.length > 0) {throw new RequestValidationError(errors);}
 
   result.eventType = url.searchParams.get('type') ?? undefined;
   result.contractId = url.searchParams.get('contractId') ?? undefined;

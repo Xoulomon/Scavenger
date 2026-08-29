@@ -83,7 +83,7 @@ describe('useImageUpload', () => {
 
   it('sets error state when upload fails', async () => {
     const { uploadToIPFS } = await import('@/lib/ipfs')
-    vi.mocked(uploadToIPFS).mockRejectedValueOnce(new Error('Network error'))
+    vi.mocked(uploadToIPFS).mockRejectedValueOnce(new Error('A network error occurred during upload.'))
 
     const { result } = renderHook(() => useImageUpload())
     await act(async () => {

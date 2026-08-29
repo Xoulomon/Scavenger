@@ -4,7 +4,7 @@ export interface AnalyticsEvent {
   type: string;
   userId: string;
   action: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
   timestamp: number;
 }
 
@@ -28,16 +28,16 @@ export class AnalyticsService {
     return new Promise((resolve, reject) => {
       const key = `analytics:${event.type}:${event.action}`;
       this.client.hincrby(key, 'count', 1, (err) => {
-        if (err) reject(err);
+        if (err) {reject(err);}
 
         this.client.zadd(
           `analytics:timeline:${event.type}`,
           event.timestamp,
           JSON.stringify(event),
           (err) => {
-            if (err) reject(err);
+            if (err) {reject(err);}
             this.client.expire(key, 86400 * 30, (err) => {
-              if (err) reject(err);
+              if (err) {reject(err);}
               resolve();
             });
           }
@@ -62,7 +62,7 @@ export class AnalyticsService {
     return this.trackEvent(event);
   }
 
-  async trackUserAction(userId: string, action: string, metadata: Record<string, any>): Promise<void> {
+  async trackUserAction(userId: string, action: string, metadata: Record<string, unknown>): Promise<void> {
     const event: AnalyticsEvent = {
       type: 'user',
       userId,
@@ -73,21 +73,21 @@ export class AnalyticsService {
     return this.trackEvent(event);
   }
 
-  async getEventCount(type: string, action: string, hours: number = 24): Promise<number> {
+  async getEventCount(type: string, action: string, _hours: number = 24): Promise<number> {
     return new Promise((resolve, reject) => {
       const key = `analytics:${type}:${action}`;
       this.client.hget(key, 'count', (err, count) => {
-        if (err) reject(err);
+        if (err) {reject(err);}
         resolve(parseInt(count || '0', 10));
       });
     });
   }
 
-  async getUsageReport(type: string, hours: number = 24): Promise<Record<string, number>> {
+  async getUsageReport(type: string, _hours: number = 24): Promise<Record<string, number>> {
     return new Promise((resolve, reject) => {
       const pattern = `analytics:${type}:*`;
       this.client.keys(pattern, (err, keys) => {
-        if (err) reject(err);
+        if (err) {reject(err);}
 
         const report: Record<string, number> = {};
         let processed = 0;
@@ -118,8 +118,6 @@ export class AnalyticsService {
     steps: string[],
     hours: number = 24
   ): Promise<FunnelStep[]> {
-    const now = Date.now();
-    const startTime = now - hours * 3600000;
 
     const result: FunnelStep[] = [];
     let previousCount = 0;
@@ -157,7 +155,7 @@ export class AnalyticsService {
   async getCustomMetric(metricName: string): Promise<number> {
     return new Promise((resolve, reject) => {
       this.client.get(`metric:${metricName}`, (err, value) => {
-        if (err) reject(err);
+        if (err) {reject(err);}
         resolve(parseInt(value || '0', 10));
       });
     });
@@ -165,8 +163,8 @@ export class AnalyticsService {
 
   async setCustomMetric(metricName: string, value: number): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.client.set(`metric:${metricName}`, value, (err) => {
-        if (err) reject(err);
+      this.client.set(`metric:${metricName}`, String(value), (err) => {
+        if (err) {reject(err);}
         resolve();
       });
     });
@@ -175,7 +173,7 @@ export class AnalyticsService {
   async incrementCustomMetric(metricName: string, amount: number = 1): Promise<number> {
     return new Promise((resolve, reject) => {
       this.client.incrby(`metric:${metricName}`, amount, (err, value) => {
-        if (err) reject(err);
+        if (err) {reject(err);}
         resolve(value || 0);
       });
     });

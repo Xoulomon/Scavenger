@@ -3,10 +3,7 @@ mod tests {
     use crate::errors::{
         codes,
         conversion::{from_validation_errors, from_validation_field},
-        types::{
-            AppError, AuthError, ContractError, ErrorCategory, ExportError, StorageError,
-            ValidationError,
-        },
+        types::{AppError, AuthError, ContractError, ErrorCategory, ExportError, StorageError, ValidationError},
     };
 
     // ── Category classification ───────────────────────────────────────────────

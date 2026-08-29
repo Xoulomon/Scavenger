@@ -25,6 +25,6 @@ export const config = {
 
 export function validateConfig(): void {
   if (!config.stellar.contractId) {
-    throw new Error('CONTRACT_ID environment variable is required');
+    throw new Error('CONTRACT_ID environment variable is required.');
   }
 }

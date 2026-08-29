@@ -1,4 +1,4 @@
-use super::types::{AppError, ExportError, EmailError, StorageError, ValidationError, FieldError, SerializationError};
+use super::types::{AppError, EmailError, ExportError, FieldError, SerializationError, StorageError, ValidationError};
 
 // ── serde_json ────────────────────────────────────────────────────────────────
 

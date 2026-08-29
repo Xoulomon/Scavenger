@@ -1,0 +1,33 @@
+# Gitleaks configuration for the Scavenger project
+# Comprehensive secret scanning with allowlist for test fixtures
+
+[extend]
+# Use gitleaks default rules
+useDefault = true
+
+# Global allowlists for common false positives
+[allowlist]
+paths = [
+  '''.*/security-tests/tests/.*\.ts$''',
+  '''.*/docs/.*\.md$''', 
+  '''.*/README\.md$''',
+  '''.*\.env\.example$''',
+  '''.*docker-compose.*\.yml$''',
+  '''.*k8s/.*\.yml$''',
+  '''.*/config/.*\.md$'''
+]
+regexes = [
+  '''INVALID_JWT_TOKEN_FOR_TESTING''',
+  '''\$\{YOUR_API_TOKEN\}''',
+  '''\$\{[A-Z_][A-Z0-9_]*\}''',
+  '''\$[A-Z_][A-Z0-9_]*''',
+  '''(test|demo|example|placeholder|dummy|dev|localhost)[\w-]*''',
+  '''postgresql://.*@(localhost|postgres|127\.0\.0\.1)''',
+  '''redis://.*(localhost|redis|127\.0\.0\.1)''',
+  '''user:pass(word)?@''',
+  '''scavenger_pass|scavngr_dev|dev_pass|dev_user''',
+  '''SBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX''',
+  '''postgres:password@''',
+  '''dev_user:dev_pass@''',
+  '''staging_user:\*\*\*@'''
+]

@@ -256,14 +256,16 @@ const PROTECTED_ROUTES = [
 ]
 
 export const router = createBrowserRouter([
-  { path: '/', element: <LandingPage />, errorElement: <RouteErrorBoundary /> },
+  { path: '/', element: <Navigate to="/login" replace /> },
   { path: '/login', element: <LoginPage />, errorElement: <RouteErrorBoundary /> },
+  { path: '/', element: <LandingPage />, errorElement: <RouteErrorBoundary /> },
   {
     element: <ProtectedLayout />,
+    errorElement: <RouteErrorBoundary />,
     children: PROTECTED_ROUTES.map((route) => ({
       ...route,
       errorElement: <RouteErrorBoundary />,
     })),
   },
-  { path: '*', element: <NotFoundPage /> },
+  { path: '*', element: <NotFoundPage />, errorElement: <RouteErrorBoundary /> },
 ])

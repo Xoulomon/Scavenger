@@ -77,4 +77,5 @@ describe('map data helpers', () => {
     expect(participantMatchesLocationSearch(participantPoint, { locationQuery: 'downtown' })).toBe(true)
     expect(participantMatchesLocationSearch(participantPoint, { locationQuery: 'collector' })).toBe(false)
   })
-}
+})
+

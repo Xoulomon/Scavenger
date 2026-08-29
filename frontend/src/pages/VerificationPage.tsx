@@ -8,7 +8,6 @@ import {
   ChevronRight,
   ZoomIn,
   ZoomOut,
-  Star,
   History,
 } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -19,7 +18,6 @@ import { networkConfig } from '@/lib/stellar'
 import { wasteTypeLabel, formatDate, formatAddress } from '@/lib/helpers'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { useAppTitle } from '@/hooks/useAppTitle'
 import type { Material } from '@/api/types'
@@ -85,7 +83,7 @@ function useVerifyMaterial() {
 
   return useMutation({
     mutationFn: async ({ materialId }: { materialId: bigint }) => {
-      if (!address) throw new Error('No wallet')
+      if (!address) throw new Error('No wallet connected.')
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,

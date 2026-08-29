@@ -1,95 +1,41 @@
-// API Response Types
-export interface ApiResponse<T> {
-  data: T;
-  status: number;
-  message?: string;
+// Re-export all types from shared package for backward compatibility
+export * from '@scavngr/types'
+
+// Frontend-specific extensions and UI types
+export interface UiState {
+  sidebarOpen: boolean
+  theme: 'light' | 'dark' | 'system'
+  notifications: NotificationItem[]
 }
 
-export interface ApiError {
-  code: string;
-  message: string;
-  details?: Record<string, unknown>;
+export interface NotificationItem {
+  id: string
+  type: 'success' | 'error' | 'warning' | 'info'
+  title: string
+  description?: string
+  timestamp: number
+  read: boolean
 }
 
-// Participant Types
-export interface Participant {
-  address: string;
-  role: ParticipantRole;
-  name: string;
-  latitude: number;
-  longitude: number;
-  registeredAt: number;
+export interface TableColumn<T = Record<string, unknown>> {
+  key: keyof T
+  label: string
+  sortable?: boolean
+  render?: (value: unknown, item: T) => React.ReactNode
 }
 
-export enum ParticipantRole {
-  Recycler = 0,
-  Collector = 1,
-  Manufacturer = 2,
+export interface ModalProps {
+  isOpen: boolean
+  onClose: () => void
+  title?: string
+  size?: 'sm' | 'md' | 'lg' | 'xl'
 }
 
-// Waste Types
-export interface Waste {
-  id: string;
-  type: WasteType;
-  weight: number;
-  owner: string;
-  latitude: number;
-  longitude: number;
-  status: WasteStatus;
-  createdAt: number;
-}
-
-export enum WasteType {
-  Plastic = 'plastic',
-  Paper = 'paper',
-  Metal = 'metal',
-  Glass = 'glass',
-  Organic = 'organic',
-}
-
-export enum WasteStatus {
-  Submitted = 'submitted',
-  Verified = 'verified',
-  Transferred = 'transferred',
-  Deactivated = 'deactivated',
-}
-
-// Incentive Types
-export interface Incentive {
-  id: string;
-  rewarder: string;
-  wasteType: WasteType;
-  rewardPoints: number;
-  budget: number;
-  active: boolean;
-  createdAt: number;
-}
-
-// Contract Configuration
-export interface ContractConfig {
-  contractId: string;
-  network: 'TESTNET' | 'MAINNET' | 'FUTURENET' | 'STANDALONE';
-  rpcUrl: string;
-}
-
-// Form Types
-export interface RegistrationFormData {
-  name: string;
-  role: ParticipantRole;
-  latitude: number;
-  longitude: number;
-}
-
-export interface WasteSubmissionFormData {
-  type: WasteType;
-  weight: number;
-  latitude: number;
-  longitude: number;
-}
-
-// Query Result Types
-export interface QueryResult<T> {
-  data: T | null;
-  isLoading: boolean;
-  error: ApiError | null;
+export interface FormFieldProps {
+  name: string
+  label: string
+  required?: boolean
+  disabled?: boolean
+  error?: string
+  help?: string
 }

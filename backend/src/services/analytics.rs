@@ -1,4 +1,5 @@
-use chrono::{DateTime, Utc, Duration};
+use chrono::{DateTime, Duration, Utc};
+use crate::cache::Cache;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use thiserror::Error;
@@ -60,14 +61,14 @@ pub enum AnomalySeverity {
 
 pub struct AnalyticsService {
     metrics_store: HashMap<String, Vec<Metric>>,
-    participant_cache: HashMap<String, ParticipantAnalytics>,
+    participant_cache: Cache,
 }
 
 impl AnalyticsService {
     pub fn new() -> Self {
         Self {
             metrics_store: HashMap::new(),
-            participant_cache: HashMap::new(),
+            participant_cache: Cache::new(300),
         }
     }
 
@@ -110,19 +111,21 @@ impl AnalyticsService {
             last_activity: Utc::now(),
         };
 
-        self.participant_cache
-            .insert(participant_id.to_string(), analytics.clone());
+        if let Ok(data) = serde_json::to_vec(&analytics) {
+            self.participant_cache.set(participant_id.to_string(), data);
+        }
         Ok(analytics)
     }
 
-    pub fn get_participant_analytics(
-        &self,
-        participant_id: &str,
-    ) -> Result<ParticipantAnalytics, AnalyticsError> {
+    pub fn get_participant_analytics(&self, participant_id: &str) -> Result<ParticipantAnalytics, AnalyticsError> {
         self.participant_cache
             .get(participant_id)
-            .cloned()
+            .and_then(|data| serde_json::from_slice(&data).ok())
             .ok_or_else(|| AnalyticsError::DataNotFound(participant_id.to_string()))
+    }
+
+    pub fn invalidate_participant_analytics(&self, participant_id: &str) {
+        self.participant_cache.invalidate(participant_id);
     }
 
     pub fn calculate_global_metrics(
@@ -134,12 +137,7 @@ impl AnalyticsService {
         let avg_time = self
             .metrics_store
             .get("processing_time")
-            .map(|m| {
-                m.iter()
-                    .map(|metric| metric.value)
-                    .sum::<f64>()
-                    / m.len() as f64
-            })
+            .map(|m| m.iter().map(|metric| metric.value).sum::<f64>() / m.len() as f64)
             .unwrap_or(0.0);
 
         let efficiency = if total_waste > 0 {
@@ -158,20 +156,13 @@ impl AnalyticsService {
         })
     }
 
-    pub fn detect_anomalies(
-        &self,
-        metrics: &[Metric],
-    ) -> Result<Vec<AnomalyFlag>, AnalyticsError> {
+    pub fn detect_anomalies(&self, metrics: &[Metric]) -> Result<Vec<AnomalyFlag>, AnalyticsError> {
         if metrics.is_empty() {
             return Ok(Vec::new());
         }
 
         let avg = metrics.iter().map(|m| m.value).sum::<f64>() / metrics.len() as f64;
-        let variance = metrics
-            .iter()
-            .map(|m| (m.value - avg).powi(2))
-            .sum::<f64>()
-            / metrics.len() as f64;
+        let variance = metrics.iter().map(|m| (m.value - avg).powi(2)).sum::<f64>() / metrics.len() as f64;
         let std_dev = variance.sqrt();
 
         let anomalies: Vec<AnomalyFlag> = metrics
@@ -199,10 +190,7 @@ impl AnalyticsService {
         Ok(anomalies)
     }
 
-    pub fn archive_historical_data(
-        &mut self,
-        days_old: i64,
-    ) -> Result<usize, AnalyticsError> {
+    pub fn archive_historical_data(&mut self, days_old: i64) -> Result<usize, AnalyticsError> {
         let cutoff = Utc::now() - Duration::days(days_old);
         let mut archived_count = 0;
 
@@ -215,11 +203,7 @@ impl AnalyticsService {
         Ok(archived_count)
     }
 
-    pub fn get_metric_history(
-        &self,
-        metric_name: &str,
-        limit: usize,
-    ) -> Result<Vec<Metric>, AnalyticsError> {
+    pub fn get_metric_history(&self, metric_name: &str, limit: usize) -> Result<Vec<Metric>, AnalyticsError> {
         let metrics = self
             .metrics_store
             .get(metric_name)

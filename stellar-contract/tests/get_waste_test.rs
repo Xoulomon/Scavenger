@@ -210,26 +210,11 @@ fn test_get_waste_all_waste_types() {
     let glass = client.submit_material(&WasteType::Glass, &5000, &user, &desc);
 
     // Verify all can be retrieved
-    assert_eq!(
-        client.get_waste(&paper.id).unwrap().waste_type,
-        WasteType::Paper
-    );
-    assert_eq!(
-        client.get_waste(&pet.id).unwrap().waste_type,
-        WasteType::PetPlastic
-    );
-    assert_eq!(
-        client.get_waste(&plastic.id).unwrap().waste_type,
-        WasteType::Plastic
-    );
-    assert_eq!(
-        client.get_waste(&metal.id).unwrap().waste_type,
-        WasteType::Metal
-    );
-    assert_eq!(
-        client.get_waste(&glass.id).unwrap().waste_type,
-        WasteType::Glass
-    );
+    assert_eq!(client.get_waste(&paper.id).unwrap().waste_type, WasteType::Paper);
+    assert_eq!(client.get_waste(&pet.id).unwrap().waste_type, WasteType::PetPlastic);
+    assert_eq!(client.get_waste(&plastic.id).unwrap().waste_type, WasteType::Plastic);
+    assert_eq!(client.get_waste(&metal.id).unwrap().waste_type, WasteType::Metal);
+    assert_eq!(client.get_waste(&glass.id).unwrap().waste_type, WasteType::Glass);
 }
 
 #[test]

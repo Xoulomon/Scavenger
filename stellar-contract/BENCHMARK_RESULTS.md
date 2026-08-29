@@ -1,5 +1,9 @@
 # Contract Performance Benchmarks
 
+> **See also:** [`docs/BENCHMARK_REGRESSION.md`](../docs/BENCHMARK_REGRESSION.md) for the full
+> regression runbook — local run process, accepted thresholds, pre-merge checklist, and
+> baseline update procedures (Issue #1108).
+
 ## Running Benchmarks
 
 ### Criterion benchmarks (recommended)

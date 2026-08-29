@@ -11,7 +11,7 @@ interface DateRangeSelectorProps {
   onChange: (range: DateRange) => void;
 }
 
-export function DateRangeSelector({ value, onChange }: DateRangeSelectorProps) {
+export function DateRangeSelector({ value: _value, onChange }: DateRangeSelectorProps) {
   const presets = [
     { label: 'Last 7 days', days: 7 },
     { label: 'Last 30 days', days: 30 },

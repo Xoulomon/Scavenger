@@ -1,7 +1,5 @@
 use soroban_sdk::{symbol_short, testutils::Address as _, Address, Env};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 #[test]
 fn test_incentive_creation_by_manufacturer() {
@@ -40,13 +38,7 @@ fn test_non_manufacturer_creation_fails_recycler() {
     let recycler = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("Rec"),
-        &100,
-        &200,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &100, &200);
 
     client.create_incentive(&recycler, &WasteType::Plastic, &50, &10000);
 }
@@ -386,9 +378,7 @@ fn test_get_incentives_by_waste_type() {
     let plastic_incentives = client.get_incentives_by_waste_type(&WasteType::Plastic);
 
     assert_eq!(plastic_incentives.len(), 2);
-    assert!(plastic_incentives
-        .iter()
-        .all(|i| i.waste_type == WasteType::Plastic));
+    assert!(plastic_incentives.iter().all(|i| i.waste_type == WasteType::Plastic));
 }
 
 #[test]

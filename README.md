@@ -14,6 +14,7 @@ A decentralized recycling platform built on Stellar blockchain using Soroban sma
 | Document | Description |
 |----------|-------------|
 | [Architecture Diagram](docs/architecture-diagram.svg) | Visual overview of all system components and data flow |
+| [Local Dev Setup Guide](docs/local-dev-setup.md) | Complete local development setup covering all four workspaces |
 | [API Reference Guide](docs/API_REFERENCE_GUIDE.md) | Comprehensive contract function reference with examples and quick reference cards |
 | [Deployment Runbook](docs/DEPLOYMENT_RUNBOOK.md) | Step-by-step testnet and mainnet deployment with rollback procedures |
 | [Troubleshooting Guide](docs/TROUBLESHOOTING_GUIDE.md) | Common errors, debugging tips, and performance tuning |
@@ -64,7 +65,7 @@ It covers prerequisites, both the Docker and run-it-directly paths, every enviro
 variable, per-component run commands, a verification checklist, and troubleshooting
 for contracts, indexer, frontend, backend, and mobile.
 
-Related: [Docker specifics](docs/DEV_ENVIRONMENT.md) · [Contributing](CONTRIBUTING.md) · [Architecture](docs/ARCHITECTURE.md) · [API Reference](docs/API_REFERENCE.md)
+Related: [Local Dev Setup](docs/local-dev-setup.md) · [Docker specifics](docs/DEV_ENVIRONMENT.md) · [Contributing](CONTRIBUTING.md) · [Architecture](docs/ARCHITECTURE.md) · [API Reference](docs/API_REFERENCE.md)
 
 ## Contract API
 
@@ -174,3 +175,20 @@ Pull requests must pass all CI checks before merging. Configure branch protectio
 ## License
 
 MIT License - see LICENSE file for details
+
+## Configuration
+
+### TypeScript
+- Base config: `tsconfig.base.json`
+- Extended by each package
+- See `backend/tsconfig.json`, `frontend/tsconfig.json`, `indexer/tsconfig.json`
+
+### ESLint
+- Base config: `eslint.config.base.js`
+- Extended by each package
+- See `backend/eslint.config.js`, `frontend/eslint.config.js`, `indexer/eslint.config.js`
+
+### Adding a New Package
+1. Copy the `tsconfig.json` and `eslint.config.js` from an existing package
+2. Update the extends path if needed
+3. Add package-specific overrides

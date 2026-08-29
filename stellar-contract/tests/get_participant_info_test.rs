@@ -1,9 +1,7 @@
 #![cfg(test)]
 
 use soroban_sdk::{testutils::Address as _, Address, Env, String};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 // ========== Basic Functionality Tests ==========
 
@@ -129,10 +127,7 @@ fn test_get_participant_info_all_roles() {
     // Verify roles
     assert_eq!(recycler_info.participant.role, ParticipantRole::Recycler);
     assert_eq!(collector_info.participant.role, ParticipantRole::Collector);
-    assert_eq!(
-        manufacturer_info.participant.role,
-        ParticipantRole::Manufacturer
-    );
+    assert_eq!(manufacturer_info.participant.role, ParticipantRole::Manufacturer);
 }
 
 // ========== Statistics Integration Tests ==========
@@ -503,9 +498,6 @@ fn test_get_participant_info_read_only() {
     let stats_after = info_after.stats;
 
     // Should be identical (read-only operation)
-    assert_eq!(
-        stats_before.total_submissions,
-        stats_after.total_submissions
-    );
+    assert_eq!(stats_before.total_submissions, stats_after.total_submissions);
     assert_eq!(stats_before.total_weight, stats_after.total_weight);
 }

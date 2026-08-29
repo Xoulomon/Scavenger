@@ -12,106 +12,24 @@
     "search": "Buscar",
     "filter": "Filtrar",
     "export": "Exportar",
-    "download": "Descargar",
     "submit": "Enviar",
     "back": "Atrás",
-    "next": "Siguiente",
-    "view": "Ver",
-    "refresh": "Actualizar",
     "noData": "No hay datos disponibles"
   },
   "nav": {
-    "home": "Inicio",
     "dashboard": "Panel",
-    "analytics": "Análisis",
-    "incentives": "Incentivos",
-    "community": "Comunidad",
     "settings": "Configuración",
-    "profile": "Perfil",
-    "rewards": "Recompensas",
-    "waste": "Residuos"
-  },
-  "waste": {
-    "title": "Gestión de Residuos",
-    "register": "Registrar Residuo",
-    "transfer": "Transferir Residuo",
-    "details": "Detalles del Residuo",
-    "type": "Tipo de Residuo",
-    "quantity": "Cantidad",
-    "location": "Ubicación",
-    "status": "Estado",
-    "verify": "Verificar",
-    "history": "Historial de Transferencias",
-    "submit": "Enviar Residuo",
-    "weight": "Peso (kg)",
-    "types": {
-      "plastic": "Plástico",
-      "metal": "Metal",
-      "paper": "Papel",
-      "glass": "Vidrio",
-      "organic": "Orgánico"
-    }
-  },
-  "auth": {
-    "connect": "Conectar Billetera",
-    "disconnect": "Desconectar",
-    "connecting": "Conectando...",
-    "connected": "Conectado",
-    "walletAddress": "Dirección de Billetera"
-  },
-  "participants": {
-    "title": "Participantes",
-    "register": "Registrar",
-    "role": "Rol",
-    "name": "Nombre",
-    "roles": {
-      "recycler": "Reciclador",
-      "collector": "Recolector",
-      "manufacturer": "Fabricante"
-    }
-  },
-  "rewards": {
-    "title": "Recompensas",
-    "balance": "Saldo",
-    "earned": "Total Ganado",
-    "claim": "Reclamar Recompensas",
-    "history": "Historial de Recompensas",
-    "points": "Puntos"
-  },
-  "profile": {
-    "title": "Perfil",
-    "editProfile": "Editar Perfil",
-    "statistics": "Estadísticas",
-    "totalWaste": "Total de Residuos Enviados",
-    "totalRewards": "Total de Recompensas"
+    "profile": "Perfil"
   },
   "errors": {
     "network": "Error de red",
     "unauthorized": "Acceso no autorizado",
     "notFound": "Recurso no encontrado",
-    "validation": "Error de validación",
     "unknown": "Ocurrió un error desconocido",
-    "walletNotFound": "Billetera no encontrada. Por favor instale Freighter.",
-    "contractError": "Error en el contrato inteligente"
+    "walletNotFound": "Billetera no encontrada. Por favor instale Freighter."
   },
   "settings": {
     "language": "Idioma",
-    "theme": "Tema",
-    "notifications": "Notificaciones",
-    "darkMode": "Modo Oscuro",
-    "lightMode": "Modo Claro"
-  },
-  "locale": {
-    "currency": "Moneda",
-    "units": "Unidades de Medida",
-    "weight": "Peso",
-    "distance": "Distancia",
-    "weightKg": "Kilogramos (kg)",
-    "weightLb": "Libras (lb)",
-    "distanceKm": "Kilómetros (km)",
-    "distanceMi": "Millas (mi)",
-    "localeOverride": "Anular Configuración Regional",
-    "autoDetect": "Detección Automática",
-    "formatExample": "Ejemplo de Formato"
+    "theme": "Tema"
   }
 }

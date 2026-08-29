@@ -47,12 +47,7 @@ fn test_verify_material_increases_reputation() {
     let recycler = register(&client, &env, ParticipantRole::Recycler);
     let submitter = register(&client, &env, ParticipantRole::Recycler);
 
-    let mat = client.submit_material(
-        &WasteType::Plastic,
-        &5000,
-        &submitter,
-        &String::from_str(&env, "test"),
-    );
+    let mat = client.submit_material(&WasteType::Plastic, &5000, &submitter, &String::from_str(&env, "test"));
     client.verify_material(&mat.id, &recycler);
 
     let p = client.get_participant(&submitter).unwrap();
@@ -67,7 +62,9 @@ fn test_transfer_increases_reputation() {
     let collector = register(&client, &env, ParticipantRole::Collector);
 
     let waste_id = client.recycle_waste(&WasteType::Metal, &10_000, &recycler, &0, &0);
-    client.transfer_waste_v2(&waste_id, &recycler, &collector, &0, &0).unwrap();
+    client
+        .transfer_waste_v2(&waste_id, &recycler, &collector, &0, &0)
+        .unwrap();
 
     let r = client.get_participant(&recycler).unwrap();
     let c = client.get_participant(&collector).unwrap();
@@ -83,7 +80,9 @@ fn test_confirm_increases_reputation() {
     let collector = register(&client, &env, ParticipantRole::Collector);
 
     let waste_id = client.recycle_waste(&WasteType::Glass, &5_000, &recycler, &0, &0);
-    client.transfer_waste_v2(&waste_id, &recycler, &collector, &0, &0).unwrap();
+    client
+        .transfer_waste_v2(&waste_id, &recycler, &collector, &0, &0)
+        .unwrap();
     client.confirm_waste_details(&waste_id, &recycler);
 
     let r = client.get_participant(&recycler).unwrap();
@@ -98,12 +97,7 @@ fn test_penalize_reputation() {
 
     // Give some positive score first via verify
     let submitter = register(&client, &env, ParticipantRole::Recycler);
-    let mat = client.submit_material(
-        &WasteType::Paper,
-        &5000,
-        &submitter,
-        &String::from_str(&env, "t"),
-    );
+    let mat = client.submit_material(&WasteType::Paper, &5000, &submitter, &String::from_str(&env, "t"));
     client.verify_material(&mat.id, &recycler);
 
     let before = client.get_participant(&submitter).unwrap().reputation_score;
@@ -150,12 +144,7 @@ fn test_badge_bronze() {
     // 10 verifications × 10 pts = 100 → Bronze
     for _ in 0..10 {
         let submitter = register(&client, &env, ParticipantRole::Recycler);
-        let mat = client.submit_material(
-            &WasteType::Paper,
-            &5000,
-            &submitter,
-            &String::from_str(&env, "t"),
-        );
+        let mat = client.submit_material(&WasteType::Paper, &5000, &submitter, &String::from_str(&env, "t"));
         client.verify_material(&mat.id, &recycler);
     }
     assert_eq!(client.get_reputation_badge(&recycler), ReputationBadge::Bronze);
@@ -170,12 +159,7 @@ fn test_get_participants_by_reputation() {
 
     // Give r1 some score via verify
     let submitter = register(&client, &env, ParticipantRole::Recycler);
-    let mat = client.submit_material(
-        &WasteType::Metal,
-        &5000,
-        &submitter,
-        &String::from_str(&env, "t"),
-    );
+    let mat = client.submit_material(&WasteType::Metal, &5000, &submitter, &String::from_str(&env, "t"));
     client.verify_material(&mat.id, &r1);
 
     // r2 stays at 0, penalize to negative
@@ -214,12 +198,7 @@ fn test_decay_reduces_score() {
     // Build up score
     for _ in 0..5 {
         let submitter = register(&client, &env, ParticipantRole::Recycler);
-        let mat = client.submit_material(
-            &WasteType::Paper,
-            &5000,
-            &submitter,
-            &String::from_str(&env, "t"),
-        );
+        let mat = client.submit_material(&WasteType::Paper, &5000, &submitter, &String::from_str(&env, "t"));
         client.verify_material(&mat.id, &recycler);
     }
     let score_before = client.get_participant(&recycler).unwrap().reputation_score;
@@ -252,12 +231,7 @@ fn test_multiple_verifications_accumulate() {
     let submitter = register(&client, &env, ParticipantRole::Recycler);
 
     for _ in 0..3 {
-        let mat = client.submit_material(
-            &WasteType::Plastic,
-            &5000,
-            &submitter,
-            &String::from_str(&env, "t"),
-        );
+        let mat = client.submit_material(&WasteType::Plastic, &5000, &submitter, &String::from_str(&env, "t"));
         client.verify_material(&mat.id, &recycler);
     }
     let p = client.get_participant(&submitter).unwrap();
@@ -283,12 +257,7 @@ fn test_badge_silver() {
     // 50 verifications × 10 pts = 500 → Silver
     for _ in 0..50 {
         let submitter = register(&client, &env, ParticipantRole::Recycler);
-        let mat = client.submit_material(
-            &WasteType::Paper,
-            &5000,
-            &submitter,
-            &String::from_str(&env, "t"),
-        );
+        let mat = client.submit_material(&WasteType::Paper, &5000, &submitter, &String::from_str(&env, "t"));
         client.verify_material(&mat.id, &recycler);
     }
     assert_eq!(client.get_reputation_badge(&recycler), ReputationBadge::Silver);

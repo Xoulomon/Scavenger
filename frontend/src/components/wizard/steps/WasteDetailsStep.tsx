@@ -1,9 +1,10 @@
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
 import { Input } from '../../ui/Input';
+import { WasteSubmissionFormData } from '../types';
 
 interface WasteDetailsStepProps {
-  register: UseFormRegister<any>;
-  errors: FieldErrors;
+  register: UseFormRegister<WasteSubmissionFormData>;
+  errors: FieldErrors<WasteSubmissionFormData>;
 }
 
 export function WasteDetailsStep({ register, errors }: WasteDetailsStepProps) {

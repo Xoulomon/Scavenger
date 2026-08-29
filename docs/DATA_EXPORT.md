@@ -79,21 +79,21 @@ PDF exports include:
 ### Export all waste as CSV
 ```bash
 curl -X GET "http://localhost:8080/api/export/waste?format=csv" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Authorization: Bearer ${YOUR_API_TOKEN}" \
   -o waste_export.csv
 ```
 
 ### Export waste from specific date range as JSON
 ```bash
 curl -X GET "http://localhost:8080/api/export/waste?format=json&start_date=2024-01-01&end_date=2024-12-31" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Authorization: Bearer ${YOUR_API_TOKEN}" \
   -o waste_export.json
 ```
 
 ### Export participant statistics as PDF
 ```bash
 curl -X GET "http://localhost:8080/api/export/stats?format=pdf" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Authorization: Bearer ${YOUR_API_TOKEN}" \
   -o stats_export.pdf
 ```
 

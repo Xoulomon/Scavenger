@@ -12,11 +12,18 @@
 
 use soroban_sdk::{testutils::Address as _, Address, Env, String, Symbol, Vec};
 
-use crate::{ScavengerContract, ScavengerContractClient, ParticipantRole, WasteType};
+use crate::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
-fn setup() -> (Env, ScavengerContractClient<'static>, Address, Address, Address, Address) {
+fn setup() -> (
+    Env,
+    ScavengerContractClient<'static>,
+    Address,
+    Address,
+    Address,
+    Address,
+) {
     let env = Env::default();
     env.mock_all_auths();
 

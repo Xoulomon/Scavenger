@@ -5,7 +5,7 @@
 
 import { useMutation, UseMutationOptions, UseMutationResult } from '@tanstack/react-query';
 import { useOnlineStatus } from './useOnlineStatus';
-import { queueMutation, QueuedMutation } from '../lib/offline/storage';
+import { queueMutation } from '../lib/offline/storage';
 
 interface OfflineMutationOptions<TData, TError, TVariables>
   extends UseMutationOptions<TData, TError, TVariables> {

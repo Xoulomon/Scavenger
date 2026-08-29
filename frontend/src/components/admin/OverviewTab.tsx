@@ -1,9 +1,12 @@
 import { Users, Package, Gift } from 'lucide-react'
 import { StatCard } from '@/components/ui/StatCard'
 import { useAdminMetrics } from '@/hooks/useAdminDashboard'
-import { MOCK_USERS } from './mockData'
 
-export function OverviewTab() {
+interface OverviewTabProps {
+  registeredUsersCount?: number
+}
+
+export function OverviewTab({ registeredUsersCount = 0 }: OverviewTabProps) {
   const { data: metrics, isLoading } = useAdminMetrics()
 
   return (
@@ -25,7 +28,7 @@ export function OverviewTab() {
         <StatCard
           icon={<Users className="h-4 w-4" />}
           label="Registered Users"
-          value={MOCK_USERS.length}
+          value={registeredUsersCount}
           variant="success"
           isLoading={false}
         />
@@ -33,3 +36,4 @@ export function OverviewTab() {
     </div>
   )
 }
+

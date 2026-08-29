@@ -1,25 +1,11 @@
 import { useState, useMemo } from 'react'
 import { Search, MapPin, Award, Zap, Filter } from 'lucide-react'
 import { useSearch } from '@/hooks/useSearch'
-import { useContractQuery } from '@/hooks/useContractQuery'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Badge } from '@/components/ui/Badge'
-import { Button } from '@/components/ui/Button'
 import { useAppTitle } from '@/hooks/useAppTitle'
-
-interface ParticipantResult {
-  address: string
-  name: string
-  role: string
-  location: { lat: number; lon: number }
-  stats: {
-    totalWaste: bigint
-    verifications: number
-    rewards: bigint
-  }
-}
 
 export function ParticipantSearchPage() {
   useAppTitle('Find Participants')
@@ -104,7 +90,7 @@ export function ParticipantSearchPage() {
             </div>
             <div>
               <label className="text-sm font-medium">Sort By</label>
-              <Select value={sortBy} onChange={(e) => setSortBy(e.target.value as any)}>
+              <Select value={sortBy} onChange={(e) => setSortBy(e.target.value as 'name' | 'rewards' | 'waste')}>
                 <option value="name">Name (A-Z)</option>
                 <option value="rewards">Highest Rewards</option>
                 <option value="waste">Most Waste Processed</option>

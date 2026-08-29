@@ -11,7 +11,7 @@ export class CacheManager {
     return this.cache.get(`participant:${address}`);
   }
 
-  async setParticipant(address: string, data: any) {
+  async setParticipant(address: string, data: Record<string, unknown>) {
     return this.cache.set(`participant:${address}`, data, 'participant');
   }
 
@@ -23,7 +23,7 @@ export class CacheManager {
     return this.cache.get(`waste:${wasteId}`);
   }
 
-  async setWaste(wasteId: string, data: any) {
+  async setWaste(wasteId: string, data: Record<string, unknown>) {
     return this.cache.set(`waste:${wasteId}`, data, 'waste');
   }
 
@@ -35,7 +35,7 @@ export class CacheManager {
     return this.cache.get(`incentive:${incentiveId}`);
   }
 
-  async setIncentive(incentiveId: string, data: any) {
+  async setIncentive(incentiveId: string, data: Record<string, unknown>) {
     return this.cache.set(`incentive:${incentiveId}`, data, 'incentive');
   }
 
@@ -47,7 +47,7 @@ export class CacheManager {
     return this.cache.get('metrics:global');
   }
 
-  async setMetrics(data: any) {
+  async setMetrics(data: Record<string, unknown>) {
     return this.cache.set('metrics:global', data, 'metrics');
   }
 

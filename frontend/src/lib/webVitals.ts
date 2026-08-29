@@ -63,7 +63,7 @@ export function initWebVitals(
       const lcpObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries()
         const lastEntry = entries[entries.length - 1]
-        const e = lastEntry as any
+        const e = lastEntry as { renderTime?: number; loadTime?: number; id?: string }
         const lcp: WebVital = {
           name: 'LCP',
           value: e.renderTime || e.loadTime,
@@ -83,7 +83,7 @@ export function initWebVitals(
       let clsValue = 0
       const clsObserver = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
-          const e = entry as any
+          const e = entry as { hadRecentInput?: boolean; value?: number }
           if (!('hadRecentInput' in e) || !e.hadRecentInput) {
             clsValue += e.value
           }
@@ -203,7 +203,7 @@ export function sendMetricsToAnalytics(metrics: PerformanceMetrics): void {
 export function getMetrics(): PerformanceMetrics {
   return {
     ...performance.timing,
-  } as any
+  } as PerformanceMetrics
 }
 
 /**

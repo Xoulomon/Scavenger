@@ -152,7 +152,7 @@ function useTransferWaste() {
       to: string
       note: string
     }) => {
-      if (!address) throw new Error('No wallet connected')
+      if (!address) throw new Error('No wallet connected.')
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,

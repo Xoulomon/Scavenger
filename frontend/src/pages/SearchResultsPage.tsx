@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useSearch } from '@/hooks/useSearch'
-import { SearchPanel, DEFAULT_FILTERS } from '@/components/ui/SearchPanel'
+import { SearchPanel } from '@/components/ui/SearchPanel'
 import { WasteDetailsModal } from '@/components/modals/WasteDetailsModal'
 import { filtersToSearchParams, searchParamsToFilters } from '@/lib/searchStorage'
 import type { SearchFilters } from '@/lib/searchStorage'

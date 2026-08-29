@@ -1,7 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use soroban_sdk::{
-    symbol_short, testutils::Address as _, Address, Env, String as SorobanString,
-};
+use soroban_sdk::{symbol_short, testutils::Address as _, Address, Env, String as SorobanString};
 use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 fn setup(env: &Env) -> (ScavengerContractClient, Address) {
@@ -88,12 +86,7 @@ fn bench_waste_submission(c: &mut Criterion) {
             env.mock_all_auths();
             let (client, _admin, participant) = setup_with_participant(&env);
             let desc = SorobanString::from_str(&env, "bench");
-            client.submit_material(
-                &black_box(WasteType::Paper),
-                &black_box(1000u64),
-                &participant,
-                &desc,
-            );
+            client.submit_material(&black_box(WasteType::Paper), &black_box(1000u64), &participant, &desc);
         })
     });
 
@@ -103,12 +96,7 @@ fn bench_waste_submission(c: &mut Criterion) {
             env.mock_all_auths();
             let (client, _admin, participant) = setup_with_participant(&env);
             let desc = SorobanString::from_str(&env, "bench");
-            client.submit_material(
-                &black_box(WasteType::Metal),
-                &black_box(5000u64),
-                &participant,
-                &desc,
-            );
+            client.submit_material(&black_box(WasteType::Metal), &black_box(5000u64), &participant, &desc);
         })
     });
 
@@ -134,12 +122,7 @@ fn bench_waste_submission(c: &mut Criterion) {
             let (client, _admin, participant) = setup_with_participant(&env);
             let desc = SorobanString::from_str(&env, "bench");
             for _ in 0..10 {
-                client.submit_material(
-                    &WasteType::Plastic,
-                    &1000u64,
-                    &participant,
-                    &desc,
-                );
+                client.submit_material(&WasteType::Plastic, &1000u64, &participant, &desc);
             }
         })
     });
@@ -173,19 +156,9 @@ fn bench_waste_transfer(c: &mut Criterion) {
                 &0i128,
             );
             let desc = SorobanString::from_str(&env, "bench");
-            let material = client.submit_material(
-                &WasteType::Paper,
-                &1000u64,
-                &recycler,
-                &desc,
-            );
+            let material = client.submit_material(&WasteType::Paper, &1000u64, &recycler, &desc);
             let note = SorobanString::from_str(&env, "transfer");
-            client.transfer_waste(
-                &black_box(material.id),
-                &recycler,
-                &collector,
-                &note,
-            );
+            client.transfer_waste(&black_box(material.id), &recycler, &collector, &note);
         })
     });
 

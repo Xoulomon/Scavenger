@@ -582,15 +582,9 @@ fn test_get_all_participants_with_different_roles() {
     assert_eq!(participants.len(), 3);
 
     // Verify we can get participant details for each
-    let p1 = client
-        .get_participant(&participants.get(0).unwrap())
-        .unwrap();
-    let p2 = client
-        .get_participant(&participants.get(1).unwrap())
-        .unwrap();
-    let p3 = client
-        .get_participant(&participants.get(2).unwrap())
-        .unwrap();
+    let p1 = client.get_participant(&participants.get(0).unwrap()).unwrap();
+    let p2 = client.get_participant(&participants.get(1).unwrap()).unwrap();
+    let p3 = client.get_participant(&participants.get(2).unwrap()).unwrap();
 
     assert_eq!(p1.role, ParticipantRole::Recycler);
     assert_eq!(p2.role, ParticipantRole::Collector);

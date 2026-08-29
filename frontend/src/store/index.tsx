@@ -125,19 +125,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
 export function useAuthStore(): AuthSlice {
   const ctx = useContext(AuthStoreContext)
-  if (!ctx) throw new Error('useAuthStore must be used within StoreProvider')
+  if (!ctx) throw new Error('UseAuthStore must be used within StoreProvider.')
   return ctx
 }
 
 export function useWalletStore(): WalletSlice {
   const ctx = useContext(WalletStoreContext)
-  if (!ctx) throw new Error('useWalletStore must be used within StoreProvider')
+  if (!ctx) throw new Error('UseWalletStore must be used within StoreProvider.')
   return ctx
 }
 
 export function useUiStore(): UiSlice {
   const ctx = useContext(UiStoreContext)
-  if (!ctx) throw new Error('useUiStore must be used within StoreProvider')
+  if (!ctx) throw new Error('UseUiStore must be used within StoreProvider.')
   return ctx
 }
 

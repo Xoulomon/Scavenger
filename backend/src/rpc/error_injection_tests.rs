@@ -28,7 +28,7 @@ mod tests {
         Mock, MockServer, ResponseTemplate,
     };
 
-    use crate::rpc::client::{RpcError, RetryConfig, StellarRpcClient, StellarRpcConfig};
+    use crate::rpc::client::{RetryConfig, RpcError, StellarRpcClient, StellarRpcConfig};
 
     // ── helpers ───────────────────────────────────────────────────────────────
 
@@ -245,9 +245,7 @@ mod tests {
         let server = MockServer::start().await;
 
         Mock::given(method("GET"))
-            .respond_with(
-                ResponseTemplate::new(200).set_body_string("{ not valid json !!!"),
-            )
+            .respond_with(ResponseTemplate::new(200).set_body_string("{ not valid json !!!"))
             .mount(&server)
             .await;
 
@@ -323,7 +321,11 @@ mod tests {
 
         let client = StellarRpcClient::new(config_for(&server)).unwrap();
         let result = client.submit_transaction("AAAA").await;
-        assert!(result.is_ok(), "submit_transaction should succeed after retry, got: {:?}", result);
+        assert!(
+            result.is_ok(),
+            "submit_transaction should succeed after retry, got: {:?}",
+            result
+        );
         assert_eq!(result.unwrap().hash, "abc123");
 
         let reqs = server.received_requests().await.unwrap();
@@ -356,10 +358,16 @@ mod tests {
 
     #[test]
     fn test_rpc_error_display_variants() {
-        let e = RpcError::Http { status: 500, message: "oops".to_string() };
+        let e = RpcError::Http {
+            status: 500,
+            message: "oops".to_string(),
+        };
         assert!(e.to_string().contains("500"));
 
-        let e = RpcError::RetriesExhausted { attempts: 3, last_error: "timeout".to_string() };
+        let e = RpcError::RetriesExhausted {
+            attempts: 3,
+            last_error: "timeout".to_string(),
+        };
         assert!(e.to_string().contains("3"));
 
         let e = RpcError::RateLimited;

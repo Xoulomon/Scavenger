@@ -7,17 +7,17 @@ proptest! {
         let env = Env::default();
         let contract_id = env.register_contract(None, stellar_scavngr_contract::Contract);
         let client = stellar_scavngr_contract::Client::new(&env, &contract_id);
-        
+
         let admin = Address::generate(&env);
         let submitter = Address::generate(&env);
-        
+
         client.initialize_admin(&admin);
         client.register_participant(&submitter, &0i32, &"Recycler".to_string(), &40i32, &-74i32);
-        
+
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             client.submit_material(&submitter, &0i32, &weight, &40i32, &-74i32)
         }));
-        
+
         prop_assert!(result.is_ok());
     }
 
@@ -26,17 +26,17 @@ proptest! {
         let env = Env::default();
         let contract_id = env.register_contract(None, stellar_scavngr_contract::Contract);
         let client = stellar_scavngr_contract::Client::new(&env, &contract_id);
-        
+
         let admin = Address::generate(&env);
         let submitter = Address::generate(&env);
-        
+
         client.initialize_admin(&admin);
         client.register_participant(&submitter, &0i32, &"Recycler".to_string(), &40i32, &-74i32);
-        
+
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             client.submit_material(&submitter, &waste_type, &100u128, &40i32, &-74i32)
         }));
-        
+
         prop_assert!(result.is_ok());
     }
 
@@ -48,17 +48,17 @@ proptest! {
         let env = Env::default();
         let contract_id = env.register_contract(None, stellar_scavngr_contract::Contract);
         let client = stellar_scavngr_contract::Client::new(&env, &contract_id);
-        
+
         let admin = Address::generate(&env);
         let submitter = Address::generate(&env);
-        
+
         client.initialize_admin(&admin);
         client.register_participant(&submitter, &0i32, &"Recycler".to_string(), &40i32, &-74i32);
-        
+
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             client.submit_material(&submitter, &0i32, &100u128, &lat, &lon)
         }));
-        
+
         prop_assert!(result.is_ok());
     }
 
@@ -67,19 +67,19 @@ proptest! {
         let env = Env::default();
         let contract_id = env.register_contract(None, stellar_scavngr_contract::Contract);
         let client = stellar_scavngr_contract::Client::new(&env, &contract_id);
-        
+
         let admin = Address::generate(&env);
         let submitter = Address::generate(&env);
-        
+
         client.initialize_admin(&admin);
         client.register_participant(&submitter, &0i32, &"Recycler".to_string(), &40i32, &-74i32);
-        
+
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             for _ in 0..batch_size {
                 client.submit_material(&submitter, &0i32, &100u128, &40i32, &-74i32);
             }
         }));
-        
+
         prop_assert!(result.is_ok());
     }
 }

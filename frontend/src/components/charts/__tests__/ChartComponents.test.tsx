@@ -57,6 +57,11 @@ describe('Chart Components', () => {
       );
       expect(container).toBeTruthy();
     });
+
+    it('should render with default colors when colors prop is omitted', () => {
+      const { container } = render(<PieChartComponent data={mockPieData} />);
+      expect(container).toBeTruthy();
+    });
   });
 
   describe('AreaChartComponent', () => {
@@ -75,3 +80,4 @@ describe('Chart Components', () => {
     });
   });
 });
+

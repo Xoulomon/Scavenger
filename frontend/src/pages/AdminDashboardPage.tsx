@@ -1,16 +1,7 @@
-import { useState } from 'react'
-import {
-  Users,
-  Package,
-  Gift,
-  Settings,
-  ShieldAlert,
-  Activity,
-  AlertTriangle,
-  Heart,
-} from 'lucide-react'
+import { ShieldAlert, AlertTriangle } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { useAppTitle } from '@/hooks/useAppTitle'
+import { useAdminTabs } from '@/hooks/useAdminTabs'
 import {
   OverviewTab,
   UsersTab,
@@ -22,28 +13,11 @@ import {
   AuditLogTab,
 } from '@/components/admin'
 
-type Tab = 'overview' | 'users' | 'disputes' | 'wastes' | 'incentives' | 'health' | 'config' | 'audit'
-
-const TABS: { id: Tab; label: string; icon: React.ReactNode; adminOnly?: boolean }[] = [
-  { id: 'overview', label: 'Overview', icon: <Activity className="h-4 w-4" /> },
-  { id: 'users', label: 'Users', icon: <Users className="h-4 w-4" /> },
-  { id: 'disputes', label: 'Disputes', icon: <AlertTriangle className="h-4 w-4" /> },
-  { id: 'wastes', label: 'Wastes', icon: <Package className="h-4 w-4" /> },
-  { id: 'incentives', label: 'Incentives', icon: <Gift className="h-4 w-4" /> },
-  { id: 'health', label: 'System Health', icon: <Heart className="h-4 w-4" /> },
-  { id: 'config', label: 'Config', icon: <Settings className="h-4 w-4" />, adminOnly: true },
-  { id: 'audit', label: 'Audit Log', icon: <ShieldAlert className="h-4 w-4" /> },
-]
-
 export function AdminDashboardPage() {
   useAppTitle('Admin Dashboard')
   const { user } = useAuth()
-  const [activeTab, setActiveTab] = useState<Tab>('overview')
-
   const isAdmin = user?.role === 'Admin'
-
-  // Filter tabs based on permissions
-  const visibleTabs = TABS.filter((t) => !t.adminOnly || isAdmin)
+  const { activeTab, setActiveTab, visibleTabs } = useAdminTabs({ isAdmin })
 
   return (
     <div className="space-y-6 px-4 py-6 sm:space-y-8 sm:py-8">
@@ -100,3 +74,4 @@ export function AdminDashboardPage() {
     </div>
   )
 }
+

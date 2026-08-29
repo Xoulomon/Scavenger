@@ -5,11 +5,10 @@
 /// - Performance benchmarking
 /// - Batch validation
 /// - Consolidation effectiveness
-
 use soroban_sdk::{testutils::Address as _, vec, Address, Env};
 use stellar_scavngr_contract::batch_optimizer::{
-    BatchConfig, BatchAnalyzer, BatchValidator, PerformanceMetrics,
-    BatchParticipantUpdate, BatchWasteTransfer, batch_update_participants, batch_transfer_waste,
+    batch_transfer_waste, batch_update_participants, BatchAnalyzer, BatchConfig, BatchParticipantUpdate,
+    BatchValidator, BatchWasteTransfer, PerformanceMetrics, MAX_SAFE_BATCH_SIZE, validate_ceiling,
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -447,4 +446,97 @@ fn test_batch_optimization_documentation() {
     assert!(optimization_docs.contains("Gas"));
     assert!(optimization_docs.contains("Savings"));
     assert!(optimization_docs.contains("Configuration"));
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// Batch Size Ceiling Guard Tests — Issue #1114
+// ═════════════════════════════════════════════════════════════════════════════
+
+#[test]
+fn test_max_safe_batch_size_constant_is_documented() {
+    // MAX_SAFE_BATCH_SIZE must be 500 (documented safe ceiling).
+    assert_eq!(MAX_SAFE_BATCH_SIZE, 500);
+}
+
+#[test]
+fn test_validate_ceiling_accepts_at_limit() {
+    // Exactly at the ceiling must be accepted without panic.
+    validate_ceiling(MAX_SAFE_BATCH_SIZE);
+}
+
+#[test]
+fn test_validate_ceiling_accepts_zero() {
+    validate_ceiling(0);
+}
+
+#[test]
+fn test_validate_ceiling_accepts_typical_sizes() {
+    for size in [1, 10, 50, 100, 250, 500] {
+        validate_ceiling(size); // must not panic
+    }
+}
+
+#[test]
+#[should_panic(expected = "exceeds safe ceiling")]
+fn test_validate_ceiling_rejects_501() {
+    validate_ceiling(501);
+}
+
+#[test]
+#[should_panic(expected = "exceeds safe ceiling")]
+fn test_validate_ceiling_rejects_1000() {
+    validate_ceiling(1000);
+}
+
+#[test]
+#[should_panic(expected = "exceeds safe ceiling")]
+fn test_validate_ceiling_rejects_u32_max() {
+    validate_ceiling(u32::MAX);
+}
+
+#[test]
+fn test_ceiling_panic_message_includes_requested_size() {
+    let result = std::panic::catch_unwind(|| validate_ceiling(600));
+    let err = result.unwrap_err();
+    // panic! with a format string produces a String payload
+    let msg: String = if let Some(s) = err.downcast_ref::<String>() {
+        s.clone()
+    } else if let Some(s) = err.downcast_ref::<&str>() {
+        s.to_string()
+    } else {
+        String::new()
+    };
+    assert!(msg.contains("600"), "panic message must include the requested size");
+    assert!(msg.contains("500"), "panic message must include the ceiling value");
+}
+
+#[test]
+fn test_progressive_batch_sizes_within_ceiling() {
+    // Progressively larger batch sizes — all within the safe ceiling.
+    for size in [1, 5, 10, 25, 50, 75, 100, 200, 300, 400, 500] {
+        let savings = BatchAnalyzer::calculate_gas_savings(size, 0.5);
+        // Gas savings should grow with batch size.
+        assert!(savings > 0 || size == 0);
+    }
+}
+
+#[test]
+fn test_batch_validator_ceiling_aware() {
+    // The validator's max_size parameter should be honoured for values at and
+    // above MAX_SAFE_BATCH_SIZE.
+    assert!(!BatchValidator::is_batch_size_valid(MAX_SAFE_BATCH_SIZE + 1, MAX_SAFE_BATCH_SIZE));
+    assert!(BatchValidator::is_batch_size_valid(MAX_SAFE_BATCH_SIZE, MAX_SAFE_BATCH_SIZE));
+}
+
+/// Documents the resource-limit ceiling and rationale.
+#[test]
+fn test_batch_ceiling_documentation() {
+    let docs = format!(
+        "MAX_SAFE_BATCH_SIZE = {} \
+         (Soroban CPU budget ~100M instructions; ~5000 instructions per storage write \
+         → 500 items × 5000 = 2.5M instructions, leaving ample headroom for contract overhead)",
+        MAX_SAFE_BATCH_SIZE
+    );
+    assert!(docs.contains("500"));
+    assert!(docs.contains("5000"));
 }

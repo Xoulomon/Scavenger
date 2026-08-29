@@ -72,19 +72,19 @@ export class RateLimiter {
 
     return new Promise((resolve, reject) => {
       this.client.zremrangebyscore(key, '-inf', windowStart, (err) => {
-        if (err) reject(err);
+        if (err) {reject(err);}
 
         this.client.zcard(key, (err, count) => {
-          if (err) reject(err);
+          if (err) {reject(err);}
 
           const remaining = Math.max(0, endpointConfig.maxRequests - (count || 0));
           const allowed = remaining > 0;
 
           if (allowed) {
             this.client.zadd(key, now, `${now}:${Math.random()}`, (err) => {
-              if (err) reject(err);
+              if (err) {reject(err);}
               this.client.expire(key, Math.ceil(endpointConfig.windowMs / 1000), (err) => {
-                if (err) reject(err);
+                if (err) {reject(err);}
                 resolve({
                   allowed: true,
                   remaining: remaining - 1,
@@ -121,13 +121,13 @@ export class RateLimiter {
     const pattern = endpoint ? `ratelimit:${identifier}:${endpoint}` : `ratelimit:${identifier}:*`;
     return new Promise((resolve, reject) => {
       this.client.keys(pattern, (err, keys) => {
-        if (err) reject(err);
+        if (err) {reject(err);}
         if (keys.length === 0) {
           resolve();
           return;
         }
         this.client.del(...keys, (err) => {
-          if (err) reject(err);
+          if (err) {reject(err);}
           resolve();
         });
       });

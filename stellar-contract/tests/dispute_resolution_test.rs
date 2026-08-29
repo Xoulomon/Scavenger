@@ -1,9 +1,7 @@
 #![cfg(test)]
 
 use soroban_sdk::{symbol_short, testutils::Address as _, Address, Env, String};
-use stellar_scavngr_contract::{
-    DisputeStatus, ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{DisputeStatus, ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -23,11 +21,7 @@ fn register(client: &ScavengerContractClient, env: &Env, role: ParticipantRole) 
     addr
 }
 
-fn make_waste(
-    client: &ScavengerContractClient,
-    env: &Env,
-    recycler: &Address,
-) -> u128 {
+fn make_waste(client: &ScavengerContractClient, env: &Env, recycler: &Address) -> u128 {
     client.recycle_waste(&WasteType::Plastic, &10_000, recycler, &0, &0)
 }
 
@@ -38,11 +32,7 @@ fn test_create_dispute_pending() {
     let recycler = register(&client, &env, ParticipantRole::Recycler);
     let waste_id = make_waste(&client, &env, &recycler);
 
-    let dispute = client.create_dispute(
-        &recycler,
-        &waste_id,
-        &String::from_str(&env, "Wrong weight"),
-    );
+    let dispute = client.create_dispute(&recycler, &waste_id, &String::from_str(&env, "Wrong weight"));
 
     assert_eq!(dispute.waste_id, waste_id);
     assert_eq!(dispute.disputer, recycler);
@@ -83,11 +73,7 @@ fn test_resolve_dispute_accepted() {
     let recycler = register(&client, &env, ParticipantRole::Recycler);
     let waste_id = make_waste(&client, &env, &recycler);
 
-    let dispute = client.create_dispute(
-        &recycler,
-        &waste_id,
-        &String::from_str(&env, "Weight mismatch"),
-    );
+    let dispute = client.create_dispute(&recycler, &waste_id, &String::from_str(&env, "Weight mismatch"));
 
     let resolved = client.resolve_dispute(
         &admin,
@@ -108,18 +94,9 @@ fn test_resolve_dispute_rejected() {
     let recycler = register(&client, &env, ParticipantRole::Recycler);
     let waste_id = make_waste(&client, &env, &recycler);
 
-    let dispute = client.create_dispute(
-        &recycler,
-        &waste_id,
-        &String::from_str(&env, "Transfer issue"),
-    );
+    let dispute = client.create_dispute(&recycler, &waste_id, &String::from_str(&env, "Transfer issue"));
 
-    let resolved = client.resolve_dispute(
-        &admin,
-        &dispute.id,
-        &false,
-        &String::from_str(&env, "No evidence"),
-    );
+    let resolved = client.resolve_dispute(&admin, &dispute.id, &false, &String::from_str(&env, "No evidence"));
 
     assert_eq!(resolved.status, DisputeStatus::Rejected);
     let waste = client.get_waste_v2(&waste_id).unwrap();
@@ -134,17 +111,8 @@ fn test_transfer_allowed_after_resolution() {
     let collector = register(&client, &env, ParticipantRole::Collector);
     let waste_id = make_waste(&client, &env, &recycler);
 
-    let dispute = client.create_dispute(
-        &recycler,
-        &waste_id,
-        &String::from_str(&env, "Issue"),
-    );
-    client.resolve_dispute(
-        &admin,
-        &dispute.id,
-        &false,
-        &String::from_str(&env, "Rejected"),
-    );
+    let dispute = client.create_dispute(&recycler, &waste_id, &String::from_str(&env, "Issue"));
+    client.resolve_dispute(&admin, &dispute.id, &false, &String::from_str(&env, "Rejected"));
 
     let result = client.try_transfer_waste_v2(&waste_id, &recycler, &collector, &0, &0);
     assert!(result.is_ok());
@@ -170,11 +138,7 @@ fn test_cannot_resolve_twice() {
     let recycler = register(&client, &env, ParticipantRole::Recycler);
     let waste_id = make_waste(&client, &env, &recycler);
 
-    let dispute = client.create_dispute(
-        &recycler,
-        &waste_id,
-        &String::from_str(&env, "Issue"),
-    );
+    let dispute = client.create_dispute(&recycler, &waste_id, &String::from_str(&env, "Issue"));
     client.resolve_dispute(&admin, &dispute.id, &true, &String::from_str(&env, "OK"));
     client.resolve_dispute(&admin, &dispute.id, &false, &String::from_str(&env, "Again"));
 }
@@ -187,17 +151,8 @@ fn test_resolve_requires_admin() {
     let recycler = register(&client, &env, ParticipantRole::Recycler);
     let waste_id = make_waste(&client, &env, &recycler);
 
-    let dispute = client.create_dispute(
-        &recycler,
-        &waste_id,
-        &String::from_str(&env, "Issue"),
-    );
-    client.resolve_dispute(
-        &recycler,
-        &dispute.id,
-        &true,
-        &String::from_str(&env, "Self-resolve"),
-    );
+    let dispute = client.create_dispute(&recycler, &waste_id, &String::from_str(&env, "Issue"));
+    client.resolve_dispute(&recycler, &dispute.id, &true, &String::from_str(&env, "Self-resolve"));
 }
 
 // ── 10. get_disputes filters by Pending ──────────────────────────────────────
@@ -263,11 +218,7 @@ fn test_get_dispute_by_id() {
     let recycler = register(&client, &env, ParticipantRole::Recycler);
     let waste_id = make_waste(&client, &env, &recycler);
 
-    let created = client.create_dispute(
-        &recycler,
-        &waste_id,
-        &String::from_str(&env, "Quality issue"),
-    );
+    let created = client.create_dispute(&recycler, &waste_id, &String::from_str(&env, "Quality issue"));
 
     let fetched = client.get_dispute(&created.id).unwrap();
     assert_eq!(fetched.id, created.id);

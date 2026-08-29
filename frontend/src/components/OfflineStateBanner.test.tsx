@@ -202,7 +202,7 @@ describe('Offline State Handling', () => {
     })
 
     it('should handle retry errors gracefully', async () => {
-      const mockRetry = vi.fn().mockRejectedValue(new Error('Retry failed'))
+      const mockRetry = vi.fn().mockRejectedValue(new Error('Retry failed.'))
       render(<OfflineStateBanner isOnline={false} onRetry={mockRetry} />)
 
       const retryButton = screen.getByTestId('retry-button')

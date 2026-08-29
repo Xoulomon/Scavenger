@@ -1,6 +1,14 @@
-//! Incentive management domain module (issue #925).
+//! Incentive management domain module — Issue #925, updated #1102
 //!
 //! Re-exports incentive-related types for domain-scoped imports.
+//!
+//! # Module boundary (consistent with participant and waste splits)
+//!
+//! | Layer            | Module               | Responsibility                                    |
+//! |------------------|----------------------|---------------------------------------------------|
+//! | Domain logic     | `incentive`          | Reward calculation, scheduling, budget exhaustion |
+//! | Storage          | `incentive_storage`  | Raw CRUD: read/write/delete Incentive records     |
+//! | Domain re-export | `incentive_mgmt` (this) | Re-exports types for domain-scoped imports     |
 //!
 //! State-changing operations on `ScavengerContract` in `lib.rs`:
 //! - `create_incentive` (manufacturer only)

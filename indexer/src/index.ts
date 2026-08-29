@@ -11,7 +11,7 @@ async function main() {
   const contractId = process.env.CONTRACT_ID;
 
   if (!rpcUrl || !contractId) {
-    throw new Error('STELLAR_RPC_URL and CONTRACT_ID must be set');
+    throw new Error('STELLAR_RPC_URL and CONTRACT_ID must be set.');
   }
 
   logger.info('Starting Scavngr indexer', { rpcUrl, contractId });

@@ -52,7 +52,7 @@ export async function migrateUp(): Promise<void> {
       'SELECT 1 FROM migrations WHERE name = $1',
       [name],
     );
-    if (rows.length > 0) continue; // already applied
+    if (rows.length > 0) {continue;} // already applied
 
     const sql = fs.readFileSync(path.join(MIGRATIONS_DIR, file), 'utf8');
     await pool.query(sql);

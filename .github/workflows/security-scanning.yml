@@ -115,21 +115,27 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefix ${{ matrix.workspace }}
 
-      - name: npm audit
+      - name: npm audit (fail on moderate+)
         run: |
           npm audit --prefix ${{ matrix.workspace }} \
-            --audit-level=high \
+            --audit-level=moderate \
             --json > npm-audit-${{ matrix.workspace }}.json || true
 
-      - name: Check for critical vulnerabilities
+      - name: Check for high/critical vulnerabilities
         run: |
           CRITICAL=$(jq '.metadata.vulnerabilities.critical // 0' \
             npm-audit-${{ matrix.workspace }}.json)
           HIGH=$(jq '.metadata.vulnerabilities.high // 0' \
             npm-audit-${{ matrix.workspace }}.json)
-          echo "Critical: $CRITICAL, High: $HIGH"
+          MODERATE=$(jq '.metadata.vulnerabilities.moderate // 0' \
+            npm-audit-${{ matrix.workspace }}.json)
+          echo "Critical: $CRITICAL, High: $HIGH, Moderate: $MODERATE"
           if [ "$CRITICAL" -gt "0" ]; then
             echo "::error::Critical npm vulnerabilities found in ${{ matrix.workspace }}"
+            exit 1
+          fi
+          if [ "$HIGH" -gt "0" ]; then
+            echo "::error::High npm vulnerabilities found in ${{ matrix.workspace }}"
             exit 1
           fi
 
@@ -142,7 +148,7 @@ jobs:
           retention-days: 30
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # 4. Secret Scanning (gitleaks)
+  # 4. Secret Scanning (gitleaks) - Enhanced with custom config
   # ─────────────────────────────────────────────────────────────────────────────
   secret-scan:
     name: Secret Scanning
@@ -152,11 +158,13 @@ jobs:
         with:
           fetch-depth: 0  # full history for gitleaks
 
-      - name: Run gitleaks
+      - name: Run gitleaks with custom config
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}  # optional for SARIF upload
+        with:
+          config-path: .gitleaks.toml
 
       - name: Upload gitleaks SARIF
         uses: github/codeql-action/upload-sarif@v3
@@ -164,6 +172,23 @@ jobs:
         with:
           sarif_file: results.sarif
         continue-on-error: true  # SARIF upload is best-effort
+
+      - name: Generate remediation report on failure
+        if: failure()
+        run: |
+          echo "## Secret Detection Report" >> $GITHUB_STEP_SUMMARY
+          echo "Secrets were detected in the repository. Please review and remediate:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Run \`./scripts/secret-detection.sh scan\` locally" >> $GITHUB_STEP_SUMMARY
+          echo "2. Review the generated remediation suggestions" >> $GITHUB_STEP_SUMMARY
+          echo "3. Remove or rotate any real credentials found" >> $GITHUB_STEP_SUMMARY
+          echo "4. Update documentation to use placeholder tokens" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Prevention" >> $GITHUB_STEP_SUMMARY
+          echo "- Install pre-commit hooks: \`./scripts/secret-detection.sh install-hooks\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Use environment variables for all secrets" >> $GITHUB_STEP_SUMMARY
+          echo "- Never commit real credentials" >> $GITHUB_STEP_SUMMARY
 
   # ─────────────────────────────────────────────────────────────────────────────
   # 5. Container Scanning (Trivy)

@@ -152,7 +152,7 @@ function useVerifyMaterial() {
 
   return useMutation({
     mutationFn: async ({ materialId }: { materialId: bigint }) => {
-      if (!address) throw new Error('No wallet connected')
+      if (!address) throw new Error('No wallet connected.')
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,

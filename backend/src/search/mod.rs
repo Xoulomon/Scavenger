@@ -1,16 +1,20 @@
-pub mod index;
-pub mod query_builder;
-pub mod filters;
-pub mod facets;
 pub mod client;
+pub mod facets;
+pub mod filters;
+pub mod index;
 pub mod pipeline;
+pub mod query_builder;
+pub mod request;
+pub mod response;
 
-pub use index::{SearchIndex, IndexConfig, IndexMapping};
-pub use query_builder::{SearchQueryBuilder, SearchQuery};
-pub use filters::{SearchFilter, FilterType};
-pub use facets::{FacetedSearch, Facet, FacetResult};
 pub use client::{SearchClient, SearchClientConfig};
-pub use pipeline::{IndexingPipeline, IndexingError};
+pub use facets::{Facet, FacetResult, FacetedSearch};
+pub use filters::{FilterType, SearchFilter};
+pub use index::{IndexConfig, IndexMapping, SearchIndex};
+pub use pipeline::{IndexingError, IndexingPipeline};
+pub use query_builder::{SearchQuery, SearchQueryBuilder};
+pub use request::{build_search_query, parse_filter};
+pub use response::{format_search_response, SearchResponse};
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

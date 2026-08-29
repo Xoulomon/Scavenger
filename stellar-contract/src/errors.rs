@@ -19,6 +19,52 @@
 
 use soroban_sdk::contracterror;
 
+// ── Error consolidation audit (issue #1097) ────────────────────────────────────
+//
+// Scope of the audit: `waste.rs`, `incentive.rs`, `transfer_mgmt.rs`, and
+// `participant.rs`, as named in the issue.
+//
+// Findings:
+// - `waste.rs`, `incentive.rs`, and `participant.rs` all exist and already
+//   fully delegate error handling to this `Error` enum: every fallible
+//   function in those three files returns `Result<_, Error>`, and none of
+//   them define a local error enum or call `panic!`/`.expect()`. No
+//   migration was needed in these files.
+// - `transfer_mgmt.rs` does not exist in this codebase. Waste-transfer logic
+//   (`transfer_waste`, `transfer_waste_v2`, `batch_transfer_waste`, the
+//   auction functions, etc.) lives directly in `lib.rs`.
+// - The actual duplicate-error-definition problem is in `lib.rs` itself: it
+//   contains roughly 130 `panic!(...)`/`.expect(...)` call sites using ad hoc
+//   string messages (e.g. `panic!("Admin already initialized")`,
+//   `.expect("Waste not found")`) instead of the equivalent variant already
+//   defined below (`Error::AlreadyInitialized`, `Error::WasteNotFound`, …).
+//   This was not part of the issue's named file list, and is a much larger
+//   change: converting it means changing the signature of every affected
+//   `pub fn` in `ScavengerContract` from `T` to `Result<T, Error>` across an
+//   ~8,000-line file that over 100 test files exercise, several of them via
+//   `#[should_panic(expected = "<exact string>")]` on the current panic text.
+//   This environment has no Rust toolchain available to compile or run the
+//   test suite, so that migration was not attempted blind here — it needs to
+//   be done with a working `cargo test` loop to catch signature and
+//   string-assertion breakage as it happens.
+//
+// Migration note (no breaking change made in this PR): no `Error` variant
+// numbering changed here, and no `lib.rs` function signatures changed, so
+// existing on-chain event/error consumers are unaffected by this PR. The
+// recommended follow-up, once a toolchain is available: convert `lib.rs`'s
+// panics to `Result<_, Error>` one functional section at a time (Admin →
+// Participant → Waste → Incentive → …), reusing the existing variants below
+// wherever the condition already matches one (adding new variants, never
+// renumbering existing ones, if a truly new condition is found). Because
+// Soroban's generated contract client exposes both a panicking `foo()` and a
+// `try_foo()` returning `Result` for any function returning `Result<T, E>`
+// where `E` derives `#[contracterror]`, this does not change how off-chain
+// callers invoke the contract — only how they observe failures (a typed
+// error code via `try_foo()` instead of a free-text panic message). Any
+// existing `#[should_panic(expected = "...")]` test assertions on the
+// affected functions will need to become `assert_eq!(result, Err(Error::X))`
+// as part of that follow-up.
+
 /// Typed error codes for the Scavngr contract.
 ///
 /// Every public function that can fail returns `Result<T, Error>`.

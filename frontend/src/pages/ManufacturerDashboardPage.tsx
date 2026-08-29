@@ -29,7 +29,9 @@ const WASTE_TYPE_LABELS: Record<WasteType, string> = {
   [WasteType.PetPlastic]: 'PET Plastic',
   [WasteType.Plastic]: 'Plastic',
   [WasteType.Metal]: 'Metal',
-  [WasteType.Glass]: 'Glass'
+  [WasteType.Glass]: 'Glass',
+  [WasteType.Organic]: 'Organic',
+  [WasteType.Electronic]: 'Electronic',
 }
 
 // ── Distribute Rewards Dialog ─────────────────────────────────────────────────

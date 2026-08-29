@@ -66,6 +66,8 @@ const WASTE_TYPE_LABELS: Record<number, string> = {
   [WasteType.Plastic]: 'Plastic',
   [WasteType.Metal]: 'Metal',
   [WasteType.Glass]: 'Glass',
+  [WasteType.Organic]: 'Organic',
+  [WasteType.Electronic]: 'Electronic',
 }
 
 const PIE_COLORS = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6']
@@ -329,6 +331,8 @@ const WASTE_TYPE_ICONS: Record<number, string> = {
   [WasteType.Plastic]: '🧴',
   [WasteType.Metal]: '🔩',
   [WasteType.Glass]: '🫙',
+  [WasteType.Organic]: '🌱',
+  [WasteType.Electronic]: '💻',
 }
 
 const TIMELINE_PAGE_SIZE = 10

@@ -45,7 +45,7 @@ describe('useToast', () => {
 
   it('calls sonner.toast.error with error message', () => {
     const { result } = renderHook(() => useToast())
-    const error = new Error('Something went wrong')
+    const error = new Error('An unexpected error occurred during the operation.')
 
     result.current.error(error)
 
@@ -75,8 +75,8 @@ describe('useToast', () => {
   it('supports multiple error messages', () => {
     const { result } = renderHook(() => useToast())
 
-    result.current.error(new Error('Error 1'))
-    result.current.error(new Error('Error 2'))
+    result.current.error(new Error('An error occurred during toast test 1.'))
+    result.current.error(new Error('An error occurred during toast test 2.'))
 
     expect(sonner.toast.error).toHaveBeenCalledTimes(2)
   })
@@ -95,7 +95,7 @@ describe('useToast', () => {
     const { result } = renderHook(() => useToast())
 
     result.current.success('Success')
-    result.current.error(new Error('Error'))
+    result.current.error(new Error('An error occurred during the test.'))
     result.current.info('Info')
 
     expect(sonner.toast.success).toHaveBeenCalledTimes(1)

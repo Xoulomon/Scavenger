@@ -1,7 +1,5 @@
 use soroban_sdk::{testutils::Address as _, Address, Env, Symbol};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteGrade, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteGrade, WasteType};
 
 fn setup() -> (Env, ScavengerContractClient<'static>, Address) {
     let env = Env::default();
@@ -184,22 +182,10 @@ fn test_grade_stats_recorded() {
 #[test]
 fn test_apply_grade_multiplier() {
     use stellar_scavngr_contract::ScavengerContract;
-    assert_eq!(
-        ScavengerContract::apply_grade_multiplier(100, WasteGrade::A),
-        150
-    );
-    assert_eq!(
-        ScavengerContract::apply_grade_multiplier(100, WasteGrade::B),
-        120
-    );
-    assert_eq!(
-        ScavengerContract::apply_grade_multiplier(100, WasteGrade::C),
-        100
-    );
-    assert_eq!(
-        ScavengerContract::apply_grade_multiplier(100, WasteGrade::D),
-        70
-    );
+    assert_eq!(ScavengerContract::apply_grade_multiplier(100, WasteGrade::A), 150);
+    assert_eq!(ScavengerContract::apply_grade_multiplier(100, WasteGrade::B), 120);
+    assert_eq!(ScavengerContract::apply_grade_multiplier(100, WasteGrade::C), 100);
+    assert_eq!(ScavengerContract::apply_grade_multiplier(100, WasteGrade::D), 70);
 }
 
 // ── 12. Grade persists after transfer ────────────────────────────────────────

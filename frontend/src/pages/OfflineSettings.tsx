@@ -8,7 +8,7 @@ import { useAsync } from '../hooks/useAsync';
 import { useResource } from '../hooks/useResource';
 import { getDatabaseSize, clearAllData, getPendingMutations } from '../lib/offline/storage';
 import { syncManager } from '../lib/offline/syncManager';
-import { Download, Trash2, RefreshCw, Database, Wifi } from 'lucide-react';
+import { Trash2, RefreshCw, Database, Wifi } from 'lucide-react';
 
 export function OfflineSettings() {
   const isOnline = useOnlineStatus();

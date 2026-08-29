@@ -1,7 +1,5 @@
 use soroban_sdk::{symbol_short, testutils::Address as _, Address, Env};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 #[test]
 fn test_get_incentives_by_rewarder_empty() {
@@ -234,8 +232,7 @@ fn test_get_incentives_by_rewarder_returns_full_structs() {
         &200,
     );
 
-    let created_incentive =
-        client.create_incentive(&manufacturer, &WasteType::Plastic, &100, &10000);
+    let created_incentive = client.create_incentive(&manufacturer, &WasteType::Plastic, &100, &10000);
 
     let incentives = client.get_incentives_by_rewarder(&manufacturer);
     assert_eq!(incentives.len(), 1);
@@ -444,12 +441,7 @@ fn test_get_incentives_by_rewarder_large_number() {
             3 => WasteType::Glass,
             _ => WasteType::PetPlastic,
         };
-        client.create_incentive(
-            &manufacturer,
-            &waste_type,
-            &(100 + i * 10),
-            &(10000 + i * 1000),
-        );
+        client.create_incentive(&manufacturer, &waste_type, &(100 + i * 10), &(10000 + i * 1000));
     }
 
     let incentives = client.get_incentives_by_rewarder(&manufacturer);

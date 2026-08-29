@@ -1,9 +1,7 @@
 #![cfg(test)]
 
 use soroban_sdk::{testutils::Address as _, Address, Env};
-use stellar_scavngr_contract::{
-    ScavngrContractClient, ParticipantRole, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavngrContractClient, WasteType};
 
 #[test]
 fn load_test_batch_waste_submission() {
@@ -15,23 +13,11 @@ fn load_test_batch_waste_submission() {
     let recycler = Address::generate(&env);
 
     client.initialize_admin(&admin);
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &"Recycler".into(),
-        &0i32,
-        &0i32,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &"Recycler".into(), &0i32, &0i32);
 
     // Simulate 100 waste submissions
     for i in 0..100 {
-        let waste_id = client.submit_material(
-            &recycler,
-            &WasteType::Plastic,
-            &(100u128 + i as u128),
-            &0i32,
-            &0i32,
-        );
+        let waste_id = client.submit_material(&recycler, &WasteType::Plastic, &(100u128 + i as u128), &0i32, &0i32);
         assert!(waste_id > 0);
     }
 
@@ -50,13 +36,7 @@ fn load_test_concurrent_transfers() {
     let collector = Address::generate(&env);
 
     client.initialize_admin(&admin);
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &"Recycler".into(),
-        &0i32,
-        &0i32,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &"Recycler".into(), &0i32, &0i32);
     client.register_participant(
         &collector,
         &ParticipantRole::Collector,
@@ -68,25 +48,12 @@ fn load_test_concurrent_transfers() {
     // Create 50 wastes and transfer them
     let mut waste_ids = Vec::new();
     for i in 0..50 {
-        let waste_id = client.submit_material(
-            &recycler,
-            &WasteType::Metal,
-            &(50u128 + i as u128),
-            &0i32,
-            &0i32,
-        );
+        let waste_id = client.submit_material(&recycler, &WasteType::Metal, &(50u128 + i as u128), &0i32, &0i32);
         waste_ids.push(waste_id);
     }
 
     for waste_id in waste_ids {
-        client.transfer_waste(
-            &waste_id,
-            &recycler,
-            &collector,
-            &0i32,
-            &0i32,
-            &"Batch transfer".into(),
-        );
+        client.transfer_waste(&waste_id, &recycler, &collector, &0i32, &0i32, &"Batch transfer".into());
     }
 
     let collector_wastes = client.get_participant_wastes(&collector);
@@ -145,23 +112,11 @@ fn load_test_query_performance() {
     let recycler = Address::generate(&env);
 
     client.initialize_admin(&admin);
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &"Recycler".into(),
-        &0i32,
-        &0i32,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &"Recycler".into(), &0i32, &0i32);
 
     // Create 200 wastes
     for i in 0..200 {
-        client.submit_material(
-            &recycler,
-            &WasteType::Plastic,
-            &(100u128 + i as u128),
-            &0i32,
-            &0i32,
-        );
+        client.submit_material(&recycler, &WasteType::Plastic, &(100u128 + i as u128), &0i32, &0i32);
     }
 
     // Query participant wastes multiple times
@@ -186,13 +141,7 @@ fn load_test_high_volume_transfers() {
     let manufacturer = Address::generate(&env);
 
     client.initialize_admin(&admin);
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &"Recycler".into(),
-        &0i32,
-        &0i32,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &"Recycler".into(), &0i32, &0i32);
     client.register_participant(
         &collector,
         &ParticipantRole::Collector,
@@ -210,22 +159,9 @@ fn load_test_high_volume_transfers() {
 
     // Create 75 wastes and move through supply chain
     for i in 0..75 {
-        let waste_id = client.submit_material(
-            &recycler,
-            &WasteType::Plastic,
-            &(100u128 + i as u128),
-            &0i32,
-            &0i32,
-        );
+        let waste_id = client.submit_material(&recycler, &WasteType::Plastic, &(100u128 + i as u128), &0i32, &0i32);
 
-        client.transfer_waste(
-            &waste_id,
-            &recycler,
-            &collector,
-            &0i32,
-            &0i32,
-            &"To collector".into(),
-        );
+        client.transfer_waste(&waste_id, &recycler, &collector, &0i32, &0i32, &"To collector".into());
 
         client.transfer_waste(
             &waste_id,

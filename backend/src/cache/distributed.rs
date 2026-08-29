@@ -1,7 +1,7 @@
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
-use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug)]
 pub struct CacheMetrics {
@@ -140,11 +140,7 @@ impl DistributedCache {
 
     pub fn invalidate_with_pattern(&self, pattern: &str) {
         if let Ok(mut store) = self.store.lock() {
-            let keys: Vec<String> = store
-                .keys()
-                .filter(|k| k.contains(pattern))
-                .cloned()
-                .collect();
+            let keys: Vec<String> = store.keys().filter(|k| k.contains(pattern)).cloned().collect();
             for key in keys {
                 store.remove(&key);
             }

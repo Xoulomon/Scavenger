@@ -16,10 +16,10 @@ const BATCH_SIZE = 200;
 
 export async function processEvents(
   events: RawContractEvent[],
-  metrics?: { eventsProcessed: number; eventsFailed: number; eventsByType: Record<string, number> },
+  metrics?: { eventsProcessed: number; eventsFailed: number; eventsByType: Record<string, number>; reorgsDetected?: number },
   broadcastEvent?: (event: Record<string, unknown>) => void
 ): Promise<void> {
-  if (events.length === 0) return;
+  if (events.length === 0) {return;}
 
   await withTransaction(async (client: PoolClient) => {
     const ledgerGroups = new Map<number, RawContractEvent[]>();
@@ -34,7 +34,7 @@ export async function processEvents(
       const reorged = await detectAndHandleReorg(client, ledger, incomingHashes);
       if (reorged) {
         logger.warn('Reorg detected', { ledger });
-        if (metrics) metrics.reorgsDetected = (metrics as any).reorgsDetected ?? 0 + 1;
+        if (metrics) {metrics.reorgsDetected = (metrics.reorgsDetected ?? 0) + 1;}
       }
 
       for (const event of ledgerEvents) {
@@ -59,7 +59,7 @@ export async function processEvents(
             ledger: event.ledgerSequence,
             error: String(err),
           });
-          if (metrics) metrics.eventsFailed++;
+          if (metrics) {metrics.eventsFailed++;}
         }
       }
 
@@ -72,7 +72,7 @@ export async function processEvents(
 export async function runIndexer(
   config: StreamerConfig,
   pollIntervalMs = 5000,
-  metrics?: { eventsProcessed: number; eventsFailed: number; eventsByType: Record<string, number> },
+  metrics?: { eventsProcessed: number; eventsFailed: number; eventsByType: Record<string, number>; reorgsDetected?: number },
   broadcastEvent?: (event: Record<string, unknown>) => void
 ): Promise<void> {
   await setSyncing(true);
@@ -83,7 +83,7 @@ export async function runIndexer(
       const { lastLedger } = await getSyncStatus();
       const latestLedger = await getLatestLedger(config.rpcUrl);
 
-      if (lastLedger >= latestLedger) return;
+      if (lastLedger >= latestLedger) {return;}
 
       const fromLedger = lastLedger === 0 ? config.startLedger : lastLedger + 1;
       const toLedger = Math.min(fromLedger + BATCH_SIZE - 1, latestLedger);

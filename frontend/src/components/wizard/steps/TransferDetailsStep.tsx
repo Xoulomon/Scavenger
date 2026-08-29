@@ -1,9 +1,10 @@
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
 import { Input } from '../../ui/Input';
+import { TransferFormData } from '../types';
 
 interface TransferDetailsStepProps {
-  register: UseFormRegister<any>;
-  errors: FieldErrors;
+  register: UseFormRegister<TransferFormData>;
+  errors: FieldErrors<TransferFormData>;
 }
 
 export function TransferDetailsStep({ register, errors }: TransferDetailsStepProps) {

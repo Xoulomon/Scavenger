@@ -1,9 +1,7 @@
 #![cfg(test)]
 
 use soroban_sdk::{testutils::Address as _, Address, Env, String};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 fn setup() -> (Env, ScavengerContractClient<'static>, Address) {
     let env = Env::default();
@@ -21,11 +19,7 @@ fn register(client: &ScavengerContractClient, env: &Env, role: ParticipantRole) 
     addr
 }
 
-fn create_waste(
-    client: &ScavengerContractClient,
-    _env: &Env,
-    owner: &Address,
-) -> u128 {
+fn create_waste(client: &ScavengerContractClient, _env: &Env, owner: &Address) -> u128 {
     client.recycle_waste(&WasteType::Plastic, &5000u128, owner, &0i128, &0i128)
 }
 

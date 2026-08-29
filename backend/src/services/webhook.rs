@@ -1,10 +1,10 @@
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
-use tracing::{warn, error, info};
+use tracing::{error, info, warn};
+use uuid::Uuid;
 
 // ── Domain types ─────────────────────────────────────────────────────────────
 
@@ -153,9 +153,15 @@ impl WebhookManager {
     pub fn update(&self, id: &str, req: UpdateWebhookRequest) -> Option<Webhook> {
         let mut webhooks = self.webhooks.lock().unwrap();
         webhooks.get_mut(id).map(|webhook| {
-            if let Some(url) = req.url { webhook.url = url; }
-            if let Some(events) = req.events { webhook.events = events; }
-            if let Some(active) = req.active { webhook.active = active; }
+            if let Some(url) = req.url {
+                webhook.url = url;
+            }
+            if let Some(events) = req.events {
+                webhook.events = events;
+            }
+            if let Some(active) = req.active {
+                webhook.active = active;
+            }
             webhook.updated_at = Utc::now();
             webhook.clone()
         })
@@ -203,9 +209,9 @@ impl WebhookManager {
         };
 
         for webhook in webhooks {
-            let payload    = payload.clone();
-            let dlq        = self.dlq.clone();
-            let delays     = self.retry_config.delays.clone();
+            let payload = payload.clone();
+            let dlq = self.dlq.clone();
+            let delays = self.retry_config.delays.clone();
 
             tokio::spawn(async move {
                 deliver_with_retry(&webhook, &payload, &delays, dlq).await;
@@ -281,9 +287,7 @@ async fn send_webhook(
     webhook: &Webhook,
     payload: &WebhookPayload,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let client = reqwest::Client::builder()
-        .timeout(Duration::from_secs(10))
-        .build()?;
+    let client = reqwest::Client::builder().timeout(Duration::from_secs(10)).build()?;
 
     let body = serde_json::to_string(payload)?;
 

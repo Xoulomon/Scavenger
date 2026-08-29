@@ -1,7 +1,6 @@
 import { Popup } from 'react-leaflet'
 import { WasteMapPoint } from '@/hooks/useMapData'
 import { wasteTypeLabel, formatDate } from '@/lib/helpers'
-import { Badge } from '@/components/ui/Badge'
 import { AddressDisplay } from '@/components/ui/AddressDisplay'
 
 interface Props {

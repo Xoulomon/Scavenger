@@ -11,18 +11,9 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { useAppTitle } from '@/hooks/useAppTitle'
 
-interface RewardEntry {
-  wasteId: number
-  wasteType: string
-  weight: bigint
-  rewardPoints: bigint
-  timestamp: number
-  status: 'pending' | 'verified' | 'claimed'
-}
-
 export function RewardTrackingPage() {
   useAppTitle('Reward Tracking')
-  const { address } = useWallet()
+  const { address: _address } = useWallet()
   const { stats, wastes, isLoading } = useRewards()
   const [filterStatus, setFilterStatus] = useState<string>('all')
   const [dateRange, setDateRange] = useState({ start: '', end: '' })

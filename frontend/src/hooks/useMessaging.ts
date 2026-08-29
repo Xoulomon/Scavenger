@@ -96,7 +96,7 @@ export function useMessaging(userAddress: string | null) {
   }, [userAddress])
 
   const sendMessage = useCallback(async (data: ComposeData) => {
-    if (!userAddress) throw new Error('Not authenticated')
+    if (!userAddress) throw new Error('Not authenticated.')
     const threadId = data.threadId ?? `thread_${Date.now()}_${Math.random().toString(36).slice(2)}`
     await addDoc(collection(db, 'messages'), {
       from: userAddress,

@@ -59,7 +59,7 @@ export async function withQueryCache<T>(
 ): Promise<T> {
   if (cache) {
     const cached = await cache.get(cacheKey);
-    if (cached !== null) return cached;
+    if (cached !== null) {return cached;}
     const result = await loader();
     await cache.set(cacheKey, result, ttlType);
     return result;

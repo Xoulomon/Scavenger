@@ -79,3 +79,8 @@ demo/*-secret.txt
 
 *storybook.log
 storybook-static
+
+# Security reports
+security-reports/
+gitleaks-report.json
+*.sarif
