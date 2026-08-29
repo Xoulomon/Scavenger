@@ -1,7 +1,8 @@
+import { memo, useMemo } from 'react'
 import { BarChart3 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 
-const data = [
+const MONTHLY_DATA = [
   { month: 'Jan', plastic: 45, metal: 30, glass: 25 },
   { month: 'Feb', plastic: 52, metal: 35, glass: 28 },
   { month: 'Mar', plastic: 61, metal: 42, glass: 33 },
@@ -10,10 +11,14 @@ const data = [
   { month: 'Jun', plastic: 73, metal: 51, glass: 42 },
 ]
 
-const maxVal = Math.max(...data.flatMap((d) => [d.plastic, d.metal, d.glass]))
-const chartH = 120
+const CHART_HEIGHT = 120
 
-export function MonthlyTrendsChart() {
+function MonthlyTrendsChartComponent() {
+  // Memoize max value calculation
+  const maxVal = useMemo(
+    () => Math.max(...MONTHLY_DATA.flatMap((d) => [d.plastic, d.metal, d.glass])),
+    []
+  )
   return (
     <Card>
       <CardHeader>
@@ -24,9 +29,9 @@ export function MonthlyTrendsChart() {
       </CardHeader>
       <CardContent>
         <div className="flex items-end gap-2 h-[120px]" role="img" aria-label="Monthly waste trends bar chart">
-          {data.map((d) => (
+          {MONTHLY_DATA.map((d) => (
             <div key={d.month} className="flex flex-1 flex-col items-center gap-0.5">
-              <div className="flex w-full items-end gap-0.5" style={{ height: chartH }}>
+              <div className="flex w-full items-end gap-0.5" style={{ height: CHART_HEIGHT }}>
                 {[
                   { val: d.plastic, color: 'bg-blue-500' },
                   { val: d.metal, color: 'bg-green-500' },
@@ -35,7 +40,7 @@ export function MonthlyTrendsChart() {
                   <div
                     key={i}
                     className={`flex-1 rounded-t ${color} transition-all duration-500`}
-                    style={{ height: `${(val / maxVal) * chartH}px` }}
+                    style={{ height: `${(val / maxVal) * CHART_HEIGHT}px` }}
                     title={`${val}`}
                   />
                 ))}
@@ -60,3 +65,6 @@ export function MonthlyTrendsChart() {
     </Card>
   )
 }
+
+// Memoize component to prevent re-renders when parent re-renders with same props
+export const MonthlyTrendsChart = memo(MonthlyTrendsChartComponent)

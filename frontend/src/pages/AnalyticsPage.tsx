@@ -14,7 +14,7 @@ import { RecyclingRateChart } from '@/components/analytics/RecyclingRateChart'
 import { TopMaterialsChart } from '@/components/analytics/TopMaterialsChart'
 import { ParticipantContributionChart } from '@/components/analytics/ParticipantContributionChart'
 import { QuickStatsCard } from '@/components/analytics/QuickStatsCard'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 
 export function AnalyticsPage() {
   useAppTitle('Analytics')
@@ -24,6 +24,22 @@ export function AnalyticsPage() {
     start: null,
     end: null,
   })
+
+  // Memoize callback handlers to prevent unnecessary re-renders of child components
+  const handleDateRangeChange = useCallback(
+    (newRange: { start: Date | null; end: Date | null }) => {
+      setDateRange(newRange)
+    },
+    []
+  )
+
+  const handleExportCSV = useCallback(() => {
+    exportToCSV()
+  }, [exportToCSV])
+
+  const handleExportPDF = useCallback(() => {
+    exportToPDF()
+  }, [exportToPDF])
 
   return (
     <div className="space-y-6">
@@ -35,12 +51,12 @@ export function AnalyticsPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <DateRangeSelector value={dateRange} onChange={setDateRange} />
-          <Button onClick={exportToCSV} variant="outline" size="sm">
+          <DateRangeSelector value={dateRange} onChange={handleDateRangeChange} />
+          <Button onClick={handleExportCSV} variant="outline" size="sm">
             <Download className="h-4 w-4 mr-2" />
             CSV
           </Button>
-          <Button onClick={exportToPDF} variant="outline" size="sm">
+          <Button onClick={handleExportPDF} variant="outline" size="sm">
             <Download className="h-4 w-4 mr-2" />
             PDF
           </Button>

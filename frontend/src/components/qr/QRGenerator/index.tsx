@@ -1,22 +1,23 @@
 import { useRef } from 'react'
 import { Button } from '../../ui/Button'
 import { Card } from '../../ui/Card'
+import { encodeQR, sanitizeQRData } from '@/lib/qr'
 
 interface QRGeneratorProps {
   wasteId: string
   wasteName?: string
 }
 
-const QR_API = 'https://api.qrserver.com/v1/create-qr-code/'
-
 export function QRGenerator({ wasteId, wasteName }: QRGeneratorProps) {
   const imgRef = useRef<HTMLImageElement>(null)
 
-  const src = `${QR_API}?size=200x200&data=${encodeURIComponent(wasteId)}&ecc=H`
+  // Sanitize and encode the QR data
+  const sanitizedId = sanitizeQRData(wasteId)
+  const src = encodeQR(sanitizedId)
 
   const downloadQR = () => {
     const link = document.createElement('a')
-    link.download = `waste-${wasteId}.png`
+    link.download = `waste-${sanitizedId}.png`
     link.href = src
     link.click()
   }
@@ -31,14 +32,14 @@ export function QRGenerator({ wasteId, wasteName }: QRGeneratorProps) {
         <img
           ref={imgRef}
           src={src}
-          alt={`QR code for waste ${wasteId}`}
+          alt={`QR code for waste ${sanitizedId}`}
           width={200}
           height={200}
           className="rounded-md border"
         />
       </div>
 
-      <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">ID: {wasteId}</p>
+      <p className="mb-4 text-sm text-gray-600 dark:text-gray-400">ID: {sanitizedId}</p>
 
       <Button onClick={downloadQR}>Download QR Code</Button>
     </Card>
