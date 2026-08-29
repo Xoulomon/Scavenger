@@ -1,3 +1,16 @@
+/**
+ * Generic contract query hooks for parameter-based queries.
+ *
+ * These hooks are used when you need to query data for a specific entity (by ID/address).
+ * For hooks that use context (e.g., current wallet), see individual hook files instead.
+ *
+ * Example:
+ *   - useParticipantStats(address) — query stats for a specific address
+ *   - useParticipant() from useParticipant.ts — query current wallet's participant
+ *
+ * See Issue #1056 for the consolidation effort.
+ */
+
 import { useQuery } from '@tanstack/react-query'
 import { ScavengerClient } from '@/api/client'
 import { WasteType } from '@/api/types'
@@ -14,7 +27,11 @@ function useClient() {
   })
 }
 
-export function useParticipant(address: string | undefined) {
+/**
+ * Query participant data by address.
+ * For getting current wallet's participant, use useParticipant() from useParticipant.ts instead.
+ */
+export function useParticipantById(address: string | undefined) {
   const client = useClient()
   return useQuery({
     queryKey: cacheKeys.participant(address ?? ''),
@@ -24,16 +41,20 @@ export function useParticipant(address: string | undefined) {
   })
 }
 
-export function useParticipantStats(address: string | undefined) {
-  const client = useClient()
-  return useQuery({
-    queryKey: cacheKeys.participantStats(address ?? ''),
-    queryFn: () => client.getStats(address!),
-    enabled: !!address,
-    staleTime: 60_000,
-  })
+/**
+ * Deprecated: Use useParticipantStats from useParticipantStats.ts instead.
+ * Kept for backward compatibility.
+ */
+export function useParticipant(address: string | undefined) {
+  return useParticipantById(address)
 }
 
+export { useParticipantStats } from '@/hooks/useParticipantStats'
+
+/**
+ * Query waste data by ID.
+ * For getting current participant's wastes, use useWastes() from useWastes.ts instead.
+ */
 export function useWaste(id: bigint | undefined) {
   const client = useClient()
   return useQuery({
@@ -44,24 +65,13 @@ export function useWaste(id: bigint | undefined) {
   })
 }
 
-export function useMetrics() {
-  const client = useClient()
-  return useQuery({
-    queryKey: cacheKeys.metrics(),
-    queryFn: () => client.getMetrics(),
-    staleTime: 2 * 60_000,
-  })
-}
+export { useMetrics } from '@/hooks/useMetrics'
+export { useActiveIncentives } from '@/hooks/useActiveIncentives'
 
-export function useActiveIncentives() {
-  const client = useClient()
-  return useQuery({
-    queryKey: cacheKeys.activeIncentives(),
-    queryFn: () => client.getActiveIncentives(),
-    staleTime: 5 * 60_000,
-  })
-}
-
+/**
+ * Query incentives by waste type.
+ * For getting all incentives, use useActiveIncentives() instead.
+ */
 export function useIncentives(wasteType: WasteType | undefined) {
   const client = useClient()
   return useQuery({
@@ -72,11 +82,4 @@ export function useIncentives(wasteType: WasteType | undefined) {
   })
 }
 
-export function useSupplyChainStats() {
-  const client = useClient()
-  return useQuery({
-    queryKey: cacheKeys.supplyChainStats(),
-    queryFn: () => client.getSupplyChainStats(),
-    staleTime: 2 * 60_000,
-  })
-}
+export { useSupplyChainStats } from '@/hooks/useSupplyChainStats'
