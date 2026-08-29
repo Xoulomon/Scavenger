@@ -9,6 +9,7 @@
     "bundle:analyze": "node scripts/bundle-analysis.mjs",
     "preview": "vite preview",
     "lint": "eslint . --max-warnings 0",
+    "lint:prune": "ts-prune --error",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest --run",
