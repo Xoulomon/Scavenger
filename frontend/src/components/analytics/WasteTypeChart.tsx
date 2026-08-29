@@ -1,7 +1,8 @@
+import { memo, useMemo } from 'react'
 import { PieChart } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 
-const data = [
+const WASTE_DATA = [
   { label: 'Plastic', value: 35, color: '#3b82f6' },
   { label: 'Metal', value: 25, color: '#22c55e' },
   { label: 'Glass', value: 20, color: '#a855f7' },
@@ -9,23 +10,30 @@ const data = [
   { label: 'E-Waste', value: 8, color: '#ef4444' },
 ]
 
-const total = data.reduce((sum, d) => sum + d.value, 0)
+function WasteTypeChartComponent() {
+  // Memoize data transformation to prevent recalculation on every render
+  const { total, slices } = useMemo(() => {
+    const total = WASTE_DATA.reduce((sum, d) => sum + d.value, 0)
+    const radius = 60
+    const cx = 80
+    const cy = 80
+    const circumference = 2 * Math.PI * radius
 
-export function WasteTypeChart() {
-  // Build SVG donut chart
-  let cumulative = 0
+    let cumulative = 0
+    const slices = WASTE_DATA.map((d) => {
+      const offset = circumference * (1 - cumulative / total)
+      const dash = (d.value / total) * circumference
+      cumulative += d.value
+      return { ...d, offset, dash }
+    })
+
+    return { total, slices }
+  }, [])
+
   const radius = 60
   const cx = 80
   const cy = 80
   const circumference = 2 * Math.PI * radius
-
-  const slices = data.map((d) => {
-    const offset = circumference * (1 - cumulative / total)
-    const dash = (d.value / total) * circumference
-    cumulative += d.value
-    return { ...d, offset, dash }
-  })
-
   return (
     <Card>
       <CardHeader>
@@ -59,7 +67,7 @@ export function WasteTypeChart() {
             </text>
           </svg>
           <div className="flex-1 space-y-2">
-            {data.map((d) => (
+            {WASTE_DATA.map((d) => (
               <div key={d.label} className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded-full" style={{ backgroundColor: d.color }} />
@@ -74,3 +82,6 @@ export function WasteTypeChart() {
     </Card>
   )
 }
+
+// Memoize component to prevent re-renders when parent re-renders with same props
+export const WasteTypeChart = memo(WasteTypeChartComponent)
