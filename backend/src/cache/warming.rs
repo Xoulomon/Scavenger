@@ -1,8 +1,8 @@
+use crate::cache::invalidation::{CacheInvalidationManager, InvalidationEvent};
+use crate::cache::Cache;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
-use crate::cache::Cache;
-use crate::cache::invalidation::{CacheInvalidationManager, InvalidationEvent};
 
 #[derive(Debug, Clone)]
 pub struct WarmTask {

@@ -1,6 +1,6 @@
 export interface ConflictData {
-  local: any
-  remote: any
+  local: unknown
+  remote: unknown
   timestamp: number
 }
 
@@ -9,7 +9,7 @@ export type ConflictResolutionStrategy = 'local-wins' | 'remote-wins' | 'manual'
 export function resolveConflict(
   conflict: ConflictData,
   strategy: ConflictResolutionStrategy = 'remote-wins'
-): any {
+): unknown {
   switch (strategy) {
     case 'local-wins':
       return conflict.local
@@ -24,7 +24,7 @@ export function resolveConflict(
   }
 }
 
-export function detectConflict(localData: any, remoteData: any): boolean {
+export function detectConflict(localData: unknown, remoteData: unknown): boolean {
   // Simple conflict detection - if data is different and both exist
   if (!localData || !remoteData) return false
 
@@ -38,10 +38,10 @@ export function detectConflict(localData: any, remoteData: any): boolean {
 
 export async function handleSyncConflict(
   key: string,
-  localData: any,
-  remoteData: any,
+  localData: unknown,
+  remoteData: unknown,
   strategy: ConflictResolutionStrategy = 'remote-wins'
-): Promise<any> {
+): Promise<unknown> {
   const conflict: ConflictData = {
     local: localData,
     remote: remoteData,

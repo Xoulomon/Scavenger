@@ -128,11 +128,7 @@ impl RateLimitState {
 
     /// Check and record a request for `key` against `config`.
     /// Returns `Ok((remaining_min, remaining_hr))` or `Err(retry_after_secs)`.
-    fn check_and_record(
-        &mut self,
-        key: &str,
-        config: &RateLimitConfig,
-    ) -> Result<(usize, usize), u64> {
+    fn check_and_record(&mut self, key: &str, config: &RateLimitConfig) -> Result<(usize, usize), u64> {
         self.metrics.total_requests += 1;
         let now = Instant::now();
 
@@ -150,7 +146,8 @@ impl RateLimitState {
 
         if min_count >= config.requests_per_minute as usize {
             self.metrics.rate_limited_requests += 1;
-            let retry_after = self.minute_buckets
+            let retry_after = self
+                .minute_buckets
                 .get(&min_key)
                 .and_then(|b| b.first().copied())
                 .map(|oldest| {
@@ -164,7 +161,8 @@ impl RateLimitState {
 
         if hr_count >= config.requests_per_hour as usize {
             self.metrics.rate_limited_requests += 1;
-            let retry_after = self.hour_buckets
+            let retry_after = self
+                .hour_buckets
                 .get(&hr_key)
                 .and_then(|b| b.first().copied())
                 .map(|oldest| {
@@ -296,11 +294,7 @@ where
     forward_ready!(service);
 
     fn call(&self, req: ServiceRequest) -> Self::Future {
-        let client_ip = req
-            .connection_info()
-            .peer_addr()
-            .unwrap_or("unknown")
-            .to_string();
+        let client_ip = req.connection_info().peer_addr().unwrap_or("unknown").to_string();
 
         let path = req.path().to_string();
         let config = self.config_for_path(&path);
@@ -332,11 +326,7 @@ where
                             "message": "Too many requests. Check the Retry-After header.",
                             "retry_after_seconds": retry_after,
                         }));
-                    Err(actix_web::error::InternalError::from_response(
-                        "rate_limit_exceeded",
-                        response,
-                    )
-                    .into())
+                    Err(actix_web::error::InternalError::from_response("rate_limit_exceeded", response).into())
                 })
             }
             Ok((remaining_min, remaining_hr)) => {
@@ -345,12 +335,8 @@ where
                     let mut res = service.call(req).await?;
                     let h = res.headers_mut();
                     use actix_web::http::header::{HeaderName, HeaderValue};
-                    let insert = |h: &mut actix_web::http::header::HeaderMap,
-                                  k: &'static str,
-                                  v: String| {
-                        if let (Ok(name), Ok(val)) =
-                            (HeaderName::from_static(k), HeaderValue::from_str(&v))
-                        {
+                    let insert = |h: &mut actix_web::http::header::HeaderMap, k: &'static str, v: String| {
+                        if let (Ok(name), Ok(val)) = (HeaderName::from_static(k), HeaderValue::from_str(&v)) {
                             h.insert(name, val);
                         }
                     };
@@ -407,16 +393,11 @@ mod tests {
     #[test]
     fn test_rate_limit_tiers() {
         assert!(
-            RateLimitTier::Anonymous.config().requests_per_minute
-                < RateLimitTier::Free.config().requests_per_minute
+            RateLimitTier::Anonymous.config().requests_per_minute < RateLimitTier::Free.config().requests_per_minute
         );
+        assert!(RateLimitTier::Free.config().requests_per_minute < RateLimitTier::Premium.config().requests_per_minute);
         assert!(
-            RateLimitTier::Free.config().requests_per_minute
-                < RateLimitTier::Premium.config().requests_per_minute
-        );
-        assert!(
-            RateLimitTier::Premium.config().requests_per_minute
-                < RateLimitTier::Admin.config().requests_per_minute
+            RateLimitTier::Premium.config().requests_per_minute < RateLimitTier::Admin.config().requests_per_minute
         );
     }
 
@@ -499,10 +480,7 @@ mod tests {
     fn test_config_for_path_health_fallback() {
         let mw = RateLimitMiddleware::new(RateLimitConfig::default());
         let c = mw.config_for_path("/health");
-        assert_eq!(
-            c.requests_per_minute,
-            RateLimitConfig::default().requests_per_minute
-        );
+        assert_eq!(c.requests_per_minute, RateLimitConfig::default().requests_per_minute);
     }
 
     #[test]

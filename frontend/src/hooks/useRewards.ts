@@ -22,7 +22,7 @@ export function useRewards(): RewardsData {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['rewards', address],
     queryFn: async (): Promise<{ stats: ParticipantStats; wastes: Waste[] }> => {
-      if (!address) throw new Error('No address')
+      if (!address) throw new Error('No address.')
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,

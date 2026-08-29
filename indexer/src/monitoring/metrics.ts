@@ -16,7 +16,7 @@ export interface IndexerMetrics {
   errorsLastHour: number;
 }
 
-let metricsStartTime = Date.now();
+const metricsStartTime = Date.now();
 
 export async function collectMetrics(): Promise<IndexerMetrics> {
   const pool = getPool();
@@ -81,7 +81,7 @@ function parseInterval(interval: unknown): number {
     const days = obj.days ?? 0;
     return seconds + minutes * 60 + hours * 3600 + days * 86400;
   }
-  if (typeof interval === 'number') return interval;
+  if (typeof interval === 'number') {return interval;}
   if (typeof interval === 'string') {
     const match = interval.match(/(\d+):(\d+):(\d+)/);
     if (match) {

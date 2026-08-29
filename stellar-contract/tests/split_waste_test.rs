@@ -166,7 +166,9 @@ fn test_split_max_10_parts() {
     let (client, _admin, owner) = setup(&env);
 
     let waste_id = register_waste(&client, &owner, 1000);
-    let weights = vec![&env, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128];
+    let weights = vec![
+        &env, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128,
+    ];
 
     let child_ids = client.split_waste(&waste_id, &owner, &weights);
     assert_eq!(child_ids.len(), 10);
@@ -242,7 +244,9 @@ fn test_split_too_many_weights() {
 
     let waste_id = register_waste(&client, &owner, 1100);
     // 11 weights
-    let weights = vec![&env, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128];
+    let weights = vec![
+        &env, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128, 100u128,
+    ];
 
     let result = client.try_split_waste(&waste_id, &owner, &weights);
     assert_eq!(result, Err(Ok(Error::TooManySplits)));

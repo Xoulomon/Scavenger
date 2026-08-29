@@ -18,9 +18,9 @@ interface AppConfig {
 }
 
 function validateContractConfig(config: ContractConfig): void {
-  if (!config.contractId) throw new Error('VITE_CONTRACT_ID is required');
-  if (!config.network) throw new Error('VITE_NETWORK is required');
-  if (!config.rpcUrl) throw new Error('VITE_RPC_URL is required');
+  if (!config.contractId) throw new Error('VITE_CONTRACT_ID is required.');
+  if (!config.network) throw new Error('VITE_NETWORK is required.');
+  if (!config.rpcUrl) throw new Error('VITE_RPC_URL is required.');
 }
 
 function loadConfig(): AppConfig {

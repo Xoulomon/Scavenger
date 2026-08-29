@@ -6,7 +6,7 @@ import { UserRole } from '@/hooks/useOnboarding'
 import { Button } from '@/components/ui/Button'
 import { Checkbox } from '@/components/ui/Checkbox'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/Dialog'
-import { Play, X } from 'lucide-react'
+import { Play } from 'lucide-react'
 
 interface OnboardingTutorialProps {
   userRole: UserRole | null

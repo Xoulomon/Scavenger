@@ -4,7 +4,7 @@ interface ScavengerDB extends DBSchema {
   queries: {
     key: string
     value: {
-      data: any
+      data: unknown
       timestamp: number
       queryKey: string[]
     }
@@ -14,7 +14,7 @@ interface ScavengerDB extends DBSchema {
     value: {
       id: string
       mutationKey: string[]
-      variables: any
+      variables: unknown
       timestamp: number
       status: 'pending' | 'synced' | 'failed'
       retryCount: number
@@ -23,7 +23,7 @@ interface ScavengerDB extends DBSchema {
   cache: {
     key: string
     value: {
-      data: any
+      data: unknown
       timestamp: number
       expiresAt?: number
     }
@@ -60,7 +60,7 @@ export function getDB() {
 }
 
 // Query persistence functions
-export async function setQueryData(key: string, data: any, queryKey: string[]) {
+export async function setQueryData(key: string, data: unknown, queryKey: string[]) {
   const db = await getDB()
   await db.put('queries', {
     data,
@@ -102,7 +102,7 @@ export async function clearExpiredQueries() {
 export async function addMutationToQueue(mutation: {
   id: string
   mutationKey: string[]
-  variables: any
+  variables: unknown
 }) {
   const db = await getDB()
   await db.put('mutations', {
@@ -162,7 +162,7 @@ export async function clearOldMutations() {
 }
 
 // General cache functions
-export async function setCacheData(key: string, data: any, ttl?: number) {
+export async function setCacheData(key: string, data: unknown, ttl?: number) {
   const db = await getDB()
   await db.put('cache', {
     data,

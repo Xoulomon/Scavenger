@@ -127,7 +127,10 @@ fn test_state_consistency_after_failed_operation() {
 
     // Verify state unchanged
     let final_stats = client.get_stats(&participant);
-    assert_eq!(initial_stats, final_stats, "State should remain consistent after failed operation");
+    assert_eq!(
+        initial_stats, final_stats,
+        "State should remain consistent after failed operation"
+    );
 }
 
 #[test]

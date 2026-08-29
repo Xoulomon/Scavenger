@@ -10,7 +10,7 @@ const WASTE_TYPES: { value: WasteType; label: string; icon: React.ReactNode }[] 
   { value: WasteType.Glass, label: 'Glass', icon: <GlassWater className="h-5 w-5" /> },
 ];
 
-export function WasteTypeStep({ register, formData, setValue }: WasteTypeStepProps) {
+export function WasteTypeStep({ register: _register, formData, setValue }: WasteTypeStepProps) {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Waste Type</h2>

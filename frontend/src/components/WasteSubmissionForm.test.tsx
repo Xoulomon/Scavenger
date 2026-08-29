@@ -153,15 +153,30 @@ describe('WasteSubmissionForm', () => {
     expect(mockOnCancel).toHaveBeenCalledOnce()
   })
 
-  it('disables submit while uploading images', () => {
+  it('renders summary when submit succeeds', async () => {
+    const user = userEvent.setup()
     vi.mocked(useImageUpload).mockReturnValue({
       ...defaultImageUpload,
-      isUploading: true,
+      images: [{ id: '1', file: new File([], 'test.jpg'), preview: '', progress: 100, cid: 'Qm123' }],
+      cids: ['Qm123'],
     })
+    mockOnSubmit.mockResolvedValue(undefined)
 
     renderForm()
 
-    const submitButton = screen.getByText('Uploading photos...')
-    expect(submitButton.closest('button')).toBeDisabled()
+    await user.click(screen.getByLabelText('Select material type'))
+    await user.click(screen.getByText('Paper'))
+    await user.type(screen.getByLabelText('Weight *'), '500')
+    await user.type(screen.getByLabelText('Latitude'), '40.7128')
+    await user.type(screen.getByLabelText('Longitude'), '-74.006')
+    await user.click(screen.getByText('Submit Waste'))
+
+    await waitFor(() => {
+      expect(screen.getByText('Waste Submitted Successfully')).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByText('Done'))
+    expect(mockOnCancel).toHaveBeenCalled()
   })
 })
+

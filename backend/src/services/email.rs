@@ -43,10 +43,7 @@ pub struct DigestEmail {
 
 #[async_trait::async_trait]
 pub trait EmailService: Send + Sync {
-    async fn send_transactional(
-        &self,
-        email: TransactionalEmail,
-    ) -> Result<String, EmailError>;
+    async fn send_transactional(&self, email: TransactionalEmail) -> Result<String, EmailError>;
     async fn send_digest(&self, email: DigestEmail) -> Result<String, EmailError>;
     async fn add_to_unsubscribe_list(&self, email: &str) -> Result<(), EmailError>;
     async fn is_unsubscribed(&self, email: &str) -> Result<bool, EmailError>;
@@ -73,10 +70,7 @@ impl SendGridEmailService {
 
 #[async_trait::async_trait]
 impl EmailService for SendGridEmailService {
-    async fn send_transactional(
-        &self,
-        email: TransactionalEmail,
-    ) -> Result<String, EmailError> {
+    async fn send_transactional(&self, email: TransactionalEmail) -> Result<String, EmailError> {
         self.validate_email(&email.recipient)?;
 
         let client = reqwest::Client::new();
@@ -103,9 +97,7 @@ impl EmailService for SendGridEmailService {
         if response.status().is_success() {
             Ok(uuid::Uuid::new_v4().to_string())
         } else {
-            Err(EmailError::ServiceError(
-                "Failed to send email".to_string(),
-            ))
+            Err(EmailError::ServiceError("Failed to send email".to_string()))
         }
     }
 
@@ -136,9 +128,7 @@ impl EmailService for SendGridEmailService {
         if response.status().is_success() {
             Ok(uuid::Uuid::new_v4().to_string())
         } else {
-            Err(EmailError::ServiceError(
-                "Failed to send digest".to_string(),
-            ))
+            Err(EmailError::ServiceError("Failed to send digest".to_string()))
         }
     }
 
@@ -167,10 +157,7 @@ mod tests {
     #[tokio::test]
     async fn test_unsubscribe_list() {
         let service = SendGridEmailService::new("key".to_string(), "from@test.com".to_string());
-        assert!(service
-            .add_to_unsubscribe_list("test@example.com")
-            .await
-            .is_ok());
+        assert!(service.add_to_unsubscribe_list("test@example.com").await.is_ok());
         assert!(service.is_unsubscribed("test@example.com").await.is_ok());
     }
 

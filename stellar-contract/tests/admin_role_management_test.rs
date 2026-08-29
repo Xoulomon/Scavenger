@@ -1,9 +1,7 @@
 #![cfg(test)]
 
 use soroban_sdk::{symbol_short, testutils::Address as _, vec, Address, Env};
-use stellar_scavngr_contract::{
-    Error, ParticipantRole, ScavengerContract, ScavengerContractClient,
-};
+use stellar_scavngr_contract::{Error, ParticipantRole, ScavengerContract, ScavengerContractClient};
 
 fn setup(env: &Env) -> (ScavengerContractClient, Address) {
     env.mock_all_auths();
@@ -35,10 +33,7 @@ fn test_transfer_admin_single_to_multiple() {
     let new_admin_2 = Address::generate(&env);
     let new_admin_3 = Address::generate(&env);
 
-    client.transfer_admin(
-        &admin,
-        &vec![&env, new_admin_1.clone(), new_admin_2, new_admin_3],
-    );
+    client.transfer_admin(&admin, &vec![&env, new_admin_1.clone(), new_admin_2, new_admin_3]);
     // After transfer, get_admin should return one of the admins (usually the first)
     assert_eq!(client.get_admin(), new_admin_1);
 }

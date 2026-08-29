@@ -58,8 +58,10 @@ fn test_transfer_admin_emits_event() {
     let env = Env::default();
     let (client, admin) = setup(&env);
     client.transfer_admin(&admin, &vec![&env, Address::generate(&env)]);
-    let found = env.events().all().iter().any(|(_, topics, _)| {
-        topics == soroban_sdk::vec![&env, symbol_short!("adm_xfr").into_val(&env)]
-    });
+    let found = env
+        .events()
+        .all()
+        .iter()
+        .any(|(_, topics, _)| topics == soroban_sdk::vec![&env, symbol_short!("adm_xfr").into_val(&env)]);
     assert!(found, "AdminTransferred event not emitted");
 }

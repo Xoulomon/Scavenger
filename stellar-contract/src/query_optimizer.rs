@@ -1,5 +1,21 @@
 // Query Optimization Engine
 // Implements query analysis, optimization rules, plan caching, and cost estimation
+//
+// ## Resource-cost audit (issue #1098)
+//
+// This module has no call sites in `lib.rs` (verified via repo-wide search),
+// so it currently has no effect on the deployed contract's resource costs —
+// see the equivalent note in `storage_optimizer.rs` for the full context and
+// the documented per-operation budget. `QueryPlan`/`QueryOptimizer` values
+// here are in-memory only (no ledger storage I/O of their own); the
+// optimization they model is about which *other* storage calls a caller
+// should make (cache vs. index vs. full scan), not storage they perform
+// themselves.
+//
+// Fixed here: `QueryPlan::new` used to construct a throwaway
+// `Env::default()` purely to obtain an empty `Vec` for `execution_order`,
+// which spins up an entire host environment for no reason on every call.
+// It now takes the caller's existing `&Env` instead.
 
 use soroban_sdk::{Env, Vec, Map, Symbol, symbol_short};
 
@@ -28,13 +44,13 @@ pub struct QueryPlan {
 }
 
 impl QueryPlan {
-    pub fn new(query_type: QueryType) -> Self {
+    pub fn new(env: &Env, query_type: QueryType) -> Self {
         Self {
             query_type,
             use_cache: false,
             use_index: false,
             estimated_cost: 0,
-            execution_order: Vec::new(&Env::default()),
+            execution_order: Vec::new(env),
         }
     }
 
@@ -75,7 +91,7 @@ impl QueryOptimizer {
         }
 
         // Build optimization plan based on query type
-        let mut plan = QueryPlan::new(query_type.clone());
+        let mut plan = QueryPlan::new(env, query_type.clone());
         
         match query_type {
             QueryType::GetParticipant => {
@@ -218,7 +234,8 @@ mod tests {
 
     #[test]
     fn test_query_plan_with_cache() {
-        let plan = QueryPlan::new(QueryType::GetParticipant).with_cache();
+        let env = Env::default();
+        let plan = QueryPlan::new(&env, QueryType::GetParticipant).with_cache();
         assert!(plan.use_cache);
     }
 

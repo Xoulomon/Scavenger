@@ -26,6 +26,8 @@ const RATES: Record<WasteType, number> = {
   [WasteType.Plastic]: 3,
   [WasteType.Metal]: 8,
   [WasteType.Glass]: 4,
+  [WasteType.Organic]: 2,
+  [WasteType.Electronic]: 6,
 }
 
 function calcReward(wasteType: WasteType, weightGrams: number): number {

@@ -30,7 +30,7 @@ export const SubmissionError: Story = {
   args: {
     onSubmit: async () => {
       await new Promise((r) => setTimeout(r, 1000))
-      throw new Error('Network error: could not reach server')
+      throw new Error('Network error: could not reach server.')
     },
     onCancel: () => console.log('Cancelled'),
   },

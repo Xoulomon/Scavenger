@@ -7,6 +7,12 @@
 //! - Reward calculation (flat-rate and tiered)
 //! - Scheduling guards (starts_at / ends_at)
 //! - Budget exhaustion logic
+//!
+//! # Error consolidation audit (issue #1097)
+//! Audited: every fallible function here already returns `Result<_,
+//! errors::Error>` and no local error enum or `panic!`/`.expect()` exists in
+//! this file. No migration was needed. See `errors.rs` for the full audit
+//! covering all four files named in issue #1097.
 
 use soroban_sdk::Env;
 

@@ -9,18 +9,11 @@ import { StatCard } from '@/components/ui/StatCard'
 import { Button } from '@/components/ui/Button'
 import { useAppTitle } from '@/hooks/useAppTitle'
 
-interface WasteStats {
-  type: string
-  count: number
-  weight: bigint
-  percentage: number
-}
-
 export function WasteStatisticsPage() {
   useAppTitle('Waste Statistics')
   const { address } = useWallet()
   const { wastes, isLoading: wastesLoading } = useParticipantWastes(address)
-  const { stats: supplyChainStats, isLoading: statsLoading } = useSupplyChainStats()
+  const { stats: supplyChainStats, isLoading: _statsLoading } = useSupplyChainStats()
 
   const wasteStats = useMemo(() => {
     if (!wastes) return []

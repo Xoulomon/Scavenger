@@ -22,7 +22,14 @@ fn setup(env: &Env) -> (ScavengerContractClient, Address, Address) {
     (client, admin, owner)
 }
 
-fn make_waste(client: &ScavengerContractClient, owner: &Address, waste_type: WasteType, weight: u128, lat: i128, lon: i128) -> u128 {
+fn make_waste(
+    client: &ScavengerContractClient,
+    owner: &Address,
+    waste_type: WasteType,
+    weight: u128,
+    lat: i128,
+    lon: i128,
+) -> u128 {
     client.recycle_waste(&waste_type, &weight, owner, &lat, &lon)
 }
 

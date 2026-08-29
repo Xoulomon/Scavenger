@@ -39,7 +39,7 @@ export function TransferWizard({ onComplete, onCancel }: { onComplete: (data: Tr
     localStorage.setItem('transfer_draft', JSON.stringify({ ...formData, step: currentStep }));
   };
 
-  const loadDraft = () => {
+  const _loadDraft = () => {
     const draft = localStorage.getItem('transfer_draft');
     if (draft) {
       const parsed = JSON.parse(draft);

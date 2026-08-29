@@ -19,6 +19,7 @@ reasoning is the part that is otherwise lost when contributors move on.
 | [0004](./0004-contract-storage-key-layout.md) | Tier contract storage by access pattern, with typed tuple keys | Accepted | Contract |
 | [0005](./0005-indexer-relational-schema.md) | Project events into a normalised Postgres schema, keeping raw events | Accepted | Indexer |
 | [0006](./0006-wallet-based-authentication-flow.md) | Authenticate with wallet signatures; treat frontend session state as UI only | Accepted | Frontend / Auth |
+| [0007](./0007-multichain-backend-boundary.md) | Multichain and Contract Upgrade Boundaries in the Backend Service | Accepted | Backend / Architecture |
 
 Template: [`template.md`](./template.md)
 

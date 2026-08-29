@@ -2,6 +2,27 @@
  * Feature Flag System
  * Supports gradual rollouts, A/B testing, and environment-specific flags.
  * Flags are persisted in localStorage with remote override support.
+ *
+ * FLAG LIFECYCLE:
+ * 1. Add: Create new flag with rolloutPercentage=0 and environments=['development']
+ * 2. Test: Increase rolloutPercentage gradually in development/staging
+ * 3. Ship: Set rolloutPercentage=100 when fully stable and ready for production
+ * 4. Retire: Remove flag and all UI branches gated by it after shipping (typically after 1-2 releases)
+ *
+ * To add a new flag:
+ *   - Define in FLAGS object below with rolloutPercentage: 0 initially
+ *   - Use useFlag(flagKey) in components to gate the feature
+ *   - Run tests: npm test
+ *
+ * To ship a flag:
+ *   - Remove rolloutPercentage limits (set to 100 or undefined)
+ *   - Ensure UI branches are present
+ *   - Deploy and monitor metrics
+ *
+ * To retire a flag:
+ *   - Remove all useFlag() checks and branches from UI
+ *   - Remove flag definition from FLAGS
+ *   - Run tests to ensure no references remain
  */
 
 export type FlagValue = boolean | string | number
@@ -47,46 +68,6 @@ export const FLAGS: Record<string, FeatureFlag> = {
     defaultValue: true,
     environments: ['all'],
     analyticsId: 'flag_performance_slas',
-  },
-  batchWasteUpload: {
-    key: 'batchWasteUpload',
-    description: 'Enable batch CSV upload for waste submissions',
-    defaultValue: false,
-    rolloutPercentage: 50,
-    environments: ['development', 'staging'],
-    analyticsId: 'flag_batch_upload',
-  },
-  newIncentiveUI: {
-    key: 'newIncentiveUI',
-    description: 'Redesigned incentives marketplace UI',
-    defaultValue: false,
-    rolloutPercentage: 25,
-    environments: ['all'],
-    analyticsId: 'flag_new_incentive_ui',
-  },
-  predictiveAnalytics: {
-    key: 'predictiveAnalytics',
-    description: 'AI-powered predictive analytics features',
-    defaultValue: false,
-    rolloutPercentage: 10,
-    environments: ['production'],
-    analyticsId: 'flag_predictive_analytics',
-  },
-  darkModeDefault: {
-    key: 'darkModeDefault',
-    description: 'Enable dark mode as default theme',
-    defaultValue: false,
-    rolloutPercentage: 0,
-    environments: ['all'],
-    analyticsId: 'flag_dark_mode_default',
-  },
-  carbonCreditIntegration: {
-    key: 'carbonCreditIntegration',
-    description: 'Carbon credit marketplace integration',
-    defaultValue: false,
-    rolloutPercentage: 5,
-    environments: ['staging', 'production'],
-    analyticsId: 'flag_carbon_credits',
   },
   multiLanguageSupport: {
     key: 'multiLanguageSupport',

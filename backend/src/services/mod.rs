@@ -1,39 +1,36 @@
-pub mod email;
-pub mod notifications;
-pub mod reporting;
-pub mod storage;
-pub mod api;
-pub mod webhook;
-pub mod export;
-pub mod audit;
 pub mod analytics;
-pub mod notification_delivery;
-pub mod ml_classification;
-pub mod geospatial;
-pub mod contract_upgrades;
-pub mod encryption;
-pub mod encryption_verification;
+pub mod api;
 pub mod archival;
 pub mod archival_storage;
-
-// Dead services removed (#906): recommendations, nft, multichain
-// These were exported but never injected into app state or used by any handler.
-
+pub mod audit;
+pub mod contract_upgrades;
+pub mod email;
+pub mod encryption;
+pub mod encryption_verification;
+pub mod export;
+pub mod geospatial;
+pub mod ml_classification;
+pub mod notification_delivery;
+pub mod notifications;
+pub mod recommendations;
+pub mod reporting;
+pub mod storage;
 pub mod verification;
-pub use verification::{VerificationService, DefaultVerificationService};
-pub use email::{EmailService, SendGridEmailService};
-pub use notifications::{NotificationService, FirebaseNotificationService};
-pub use reporting::{ReportService, ReportingService};
-pub use storage::{StorageService, S3StorageService};
+pub mod webhook;
+pub use analytics::{AnalyticsService, AnomalyFlag, GlobalAnalytics, Metric, ParticipantAnalytics};
 pub use api::ApiBuilder;
-pub use webhook::{WebhookManager, WebhookEvent, Webhook};
-pub use export::{ExportService, ExportFormat, ExportData};
-pub use audit::{AuditService, AuditEntry, AuditEventType, AuditAction, AuditQuery};
-pub use analytics::{AnalyticsService, Metric, ParticipantAnalytics, GlobalAnalytics, AnomalyFlag};
-pub use encryption::{DataEncryptionService, EncryptionKey, EncryptedData, EncryptionMetrics};
-pub use encryption_verification::EncryptionMonitoringService;
 pub use archival::{
-    ArchivalService, RetentionPolicy, ArchiveRecord, ArchiveJob, ArchiveStatus,
-    StorageTier, ArchiveQuery, ArchiveStats, ArchivalNotification,
+    ArchivalNotification, ArchivalService, ArchiveJob, ArchiveQuery, ArchiveRecord, ArchiveStats, ArchiveStatus,
+    RetentionPolicy, StorageTier,
 };
 pub use archival_storage::{FileSystemArchivalStorage, S3ArchivalStorage};
+pub use audit::{AuditAction, AuditEntry, AuditEventType, AuditQuery, AuditService};
+pub use email::{EmailService, SendGridEmailService};
+pub use encryption::{DataEncryptionService, EncryptedData, EncryptionKey, EncryptionMetrics};
+pub use encryption_verification::EncryptionMonitoringService;
+pub use export::{ExportData, ExportFormat, ExportService};
+pub use notifications::{FirebaseNotificationService, NotificationService};
+pub use reporting::{ReportService, ReportingService};
+pub use storage::{S3StorageService, StorageService};
+pub use verification::{DefaultVerificationService, VerificationService};
+pub use webhook::{Webhook, WebhookEvent, WebhookManager};

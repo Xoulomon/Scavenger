@@ -8,10 +8,54 @@ use soroban_sdk::{Address, Env, Vec};
 
 use crate::types::{Participant, Waste, WasteTransfer};
 
+// ─── Safety ceiling ───────────────────────────────────────────────────────────
+
+/// Hard upper limit on batch sizes enforced by [`validate_ceiling`].
+///
+/// Soroban's CPU/memory budgets mean that processing more than 500 items in a
+/// single contract invocation will reliably exhaust resources.  This constant
+/// sets a conservative safe ceiling; any caller that exceeds it receives a
+/// clear `panic!` rather than a silent budget-exhaustion trap.
+///
+/// # Rationale
+/// Each batch item costs roughly 5 000 CPU instructions for a storage write.
+/// The per-invocation Soroban CPU budget is ~100 M instructions.  Allowing up
+/// to 500 items leaves comfortable headroom for the surrounding contract logic
+/// (~2.5 M instructions for batch writes + overhead).
+pub const MAX_SAFE_BATCH_SIZE: u32 = 500;
+
+/// Rejects a requested batch size that exceeds [`MAX_SAFE_BATCH_SIZE`].
+///
+/// Call this at the top of any batch function *before* iterating so that the
+/// error surfaces immediately with a readable message rather than triggering a
+/// cryptic budget-exhaustion panic deep inside a loop.
+///
+/// # Panics
+/// Panics with `"batch size N exceeds safe ceiling of 500"` when
+/// `requested > MAX_SAFE_BATCH_SIZE`.
+///
+/// # Examples
+/// ```rust,ignore
+/// validate_ceiling(updates.len() as u32);
+/// ```
+pub fn validate_ceiling(requested: u32) {
+    if requested > MAX_SAFE_BATCH_SIZE {
+        panic!(
+            "batch size {} exceeds safe ceiling of {}",
+            requested, MAX_SAFE_BATCH_SIZE
+        );
+    }
+}
+
+// ─── Configuration ────────────────────────────────────────────────────────────
+
 /// Configuration for batch operations
 #[derive(Clone, Copy)]
 pub struct BatchConfig {
-    /// Maximum items to process in a single batch
+    /// Maximum items to process in a single batch.
+    ///
+    /// Must not exceed [`MAX_SAFE_BATCH_SIZE`]; values above the ceiling will
+    /// be rejected by [`validate_ceiling`] at runtime.
     pub max_batch_size: u32,
     /// Whether to consolidate reads before batch processing
     pub consolidate_reads: bool,
@@ -70,6 +114,9 @@ pub fn batch_update_participants(
     updates: &Vec<BatchParticipantUpdate>,
     config: BatchConfig,
 ) -> BatchResult {
+    // Reject oversized batches before any iteration.
+    validate_ceiling(updates.len() as u32);
+
     let mut processed_count = 0u32;
     let mut failed_count = 0u32;
 
@@ -123,6 +170,9 @@ pub fn batch_transfer_waste(
     transfers: &Vec<BatchWasteTransfer>,
     config: BatchConfig,
 ) -> BatchResult {
+    // Reject oversized batches before any iteration.
+    validate_ceiling(transfers.len() as u32);
+
     let mut processed_count = 0u32;
     let mut failed_count = 0u32;
 
@@ -330,5 +380,37 @@ mod tests {
 
         let size2 = BatchAnalyzer::recommend_batch_size("waste_transfer", 50);
         assert!(size2 <= 100);
+    }
+
+    // ── Ceiling guard tests ───────────────────────────────────────────────────
+
+    /// validate_ceiling accepts any count ≤ MAX_SAFE_BATCH_SIZE.
+    #[test]
+    fn ceiling_guard_accepts_valid_sizes() {
+        validate_ceiling(0);
+        validate_ceiling(1);
+        validate_ceiling(100);
+        validate_ceiling(MAX_SAFE_BATCH_SIZE);
+    }
+
+    /// validate_ceiling panics for counts that exceed the safe ceiling.
+    #[test]
+    #[should_panic(expected = "exceeds safe ceiling")]
+    fn ceiling_guard_rejects_oversized_batch() {
+        validate_ceiling(MAX_SAFE_BATCH_SIZE + 1);
+    }
+
+    /// validate_ceiling panics for very large batch sizes.
+    #[test]
+    #[should_panic(expected = "exceeds safe ceiling")]
+    fn ceiling_guard_rejects_very_large_batch() {
+        validate_ceiling(u32::MAX);
+    }
+
+    /// BatchValidator::is_batch_size_valid rejects anything above max.
+    #[test]
+    fn validator_rejects_over_ceiling() {
+        assert!(!BatchValidator::is_batch_size_valid(MAX_SAFE_BATCH_SIZE + 1, MAX_SAFE_BATCH_SIZE));
+        assert!(BatchValidator::is_batch_size_valid(MAX_SAFE_BATCH_SIZE, MAX_SAFE_BATCH_SIZE));
     }
 }

@@ -32,6 +32,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
+    "@scavngr/types": "workspace:*",
     "@stellar/stellar-sdk": "^12.0.0"
   },
   "peerDependencies": {

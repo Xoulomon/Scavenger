@@ -3,11 +3,13 @@ import { WasteType } from '@/api/types'
 // ── CO2 saved per kg of material recycled (kg CO2e / kg) ─────────────────────
 // Sources: EPA, WRAP, European Environment Agency
 const CO2_PER_KG: Record<WasteType, number> = {
-  [WasteType.Paper]: 0.9,       // 0.9 kg CO2e saved per kg paper recycled
-  [WasteType.PetPlastic]: 1.5,  // 1.5 kg CO2e saved per kg PET plastic
-  [WasteType.Plastic]: 1.2,     // 1.2 kg CO2e saved per kg mixed plastic
-  [WasteType.Metal]: 4.0,       // 4.0 kg CO2e saved per kg metal (aluminium-weighted)
-  [WasteType.Glass]: 0.3,       // 0.3 kg CO2e saved per kg glass
+  [WasteType.Paper]: 0.9,
+  [WasteType.PetPlastic]: 1.5,
+  [WasteType.Plastic]: 1.2,
+  [WasteType.Metal]: 4.0,
+  [WasteType.Glass]: 0.3,
+  [WasteType.Organic]: 0.5,
+  [WasteType.Electronic]: 2.0,
 }
 
 // ── Energy saved per kg (kWh / kg) ───────────────────────────────────────────
@@ -17,6 +19,8 @@ const ENERGY_PER_KG: Record<WasteType, number> = {
   [WasteType.Plastic]: 4.5,
   [WasteType.Metal]: 14.0,
   [WasteType.Glass]: 0.7,
+  [WasteType.Organic]: 0.8,
+  [WasteType.Electronic]: 6.0,
 }
 
 // ── Water saved per kg (litres / kg) ─────────────────────────────────────────
@@ -26,6 +30,8 @@ const WATER_PER_KG: Record<WasteType, number> = {
   [WasteType.Plastic]: 13.0,
   [WasteType.Metal]: 40.0,
   [WasteType.Glass]: 1.5,
+  [WasteType.Organic]: 3.0,
+  [WasteType.Electronic]: 8.0,
 }
 
 // ── Trees saved per kg (1 tree absorbs ~21 kg CO2/year) ──────────────────────

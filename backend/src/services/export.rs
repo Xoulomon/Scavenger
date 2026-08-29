@@ -118,8 +118,7 @@ impl ExportService {
         use printpdf::*;
         use std::io::BufWriter;
 
-        let (document, page1, layer1) =
-            PdfDocument::new("Scavenger Export", Mm(210.0), Mm(297.0), "Layer 1");
+        let (document, page1, layer1) = PdfDocument::new("Scavenger Export", Mm(210.0), Mm(297.0), "Layer 1");
         let font = document.add_builtin_font(BuiltinFont::Helvetica)?;
         let current_layer = document.get_page(page1).get_layer(layer1);
 
@@ -145,10 +144,7 @@ impl ExportService {
         Ok(buffer)
     }
 
-    pub fn export(
-        format: ExportFormat,
-        data: Vec<ExportData>,
-    ) -> Result<Vec<u8>, Box<dyn Error>> {
+    pub fn export(format: ExportFormat, data: Vec<ExportData>) -> Result<Vec<u8>, Box<dyn Error>> {
         match format {
             ExportFormat::CSV => {
                 let csv = Self::export_to_csv(data)?;
@@ -185,11 +181,7 @@ impl ExportService {
         data: Vec<ExportData>,
         anonymize: bool,
     ) -> Result<Vec<u8>, Box<dyn Error>> {
-        let processed = if anonymize {
-            Self::anonymize_data(data)
-        } else {
-            data
-        };
+        let processed = if anonymize { Self::anonymize_data(data) } else { data };
         Self::export(format, processed)
     }
 }
@@ -341,12 +333,7 @@ mod tests {
 
     #[test]
     fn test_export_with_anonymization() {
-        let result = ExportService::export_with_anonymization(
-            ExportFormat::JSON,
-            sample_data(),
-            true,
-        )
-        .unwrap();
+        let result = ExportService::export_with_anonymization(ExportFormat::JSON, sample_data(), true).unwrap();
         let content = String::from_utf8(result).unwrap();
         assert!(!content.contains("waste-001"));
     }
@@ -354,7 +341,14 @@ mod tests {
     #[test]
     fn test_export_tracker() {
         let tracker = ExportTracker::new();
-        let id = tracker.record_export("csv", "waste", Some("user-001".to_string()), Some(1024), Some(10), false);
+        let id = tracker.record_export(
+            "csv",
+            "waste",
+            Some("user-001".to_string()),
+            Some(1024),
+            Some(10),
+            false,
+        );
         assert_eq!(tracker.get_history().len(), 1);
         assert_eq!(tracker.get_history()[0].format, "csv");
     }

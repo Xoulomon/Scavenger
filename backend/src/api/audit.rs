@@ -1,11 +1,11 @@
 use actix_web::{web, HttpResponse};
+use crate::api::pagination::paginate;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
 use crate::services::api::{ApiBuilder, PaginatedResponse};
 use crate::services::audit::{
-    AuditAction, AuditEntry, AuditEventType, AuditQuery, AuditReport, AuditService,
-    AlertRule, RetentionPolicy,
+    AlertRule, AuditAction, AuditEntry, AuditEventType, AuditQuery, AuditReport, AuditService, RetentionPolicy,
 };
 use crate::validation::{error_response, validate_pagination, ValidationError};
 
@@ -46,10 +46,7 @@ pub struct RetentionPolicyRequest {
     pub archive_enabled: bool,
 }
 
-pub async fn list_audit_logs(
-    audit: web::Data<AuditService>,
-    query: web::Query<AuditLogQueryParams>,
-) -> HttpResponse {
+pub async fn list_audit_logs(audit: web::Data<AuditService>, query: web::Query<AuditLogQueryParams>) -> HttpResponse {
     let page = query.page.unwrap_or(1);
     let limit = query.limit.unwrap_or(20);
 
@@ -81,12 +78,14 @@ pub async fn list_audit_logs(
             _ => None,
         }),
         resource_type: query.resource_type.clone(),
-        start_date: query.start_date.as_ref().and_then(|d| {
-            DateTime::parse_from_rfc3339(d).ok().map(|dt| dt.to_utc())
-        }),
-        end_date: query.end_date.as_ref().and_then(|d| {
-            DateTime::parse_from_rfc3339(d).ok().map(|dt| dt.to_utc())
-        }),
+        start_date: query
+            .start_date
+            .as_ref()
+            .and_then(|d| DateTime::parse_from_rfc3339(d).ok().map(|dt| dt.to_utc())),
+        end_date: query
+            .end_date
+            .as_ref()
+            .and_then(|d| DateTime::parse_from_rfc3339(d).ok().map(|dt| dt.to_utc())),
         severity: query.severity.clone(),
         limit: Some(limit),
         offset: Some((page - 1) * limit),
@@ -95,19 +94,15 @@ pub async fn list_audit_logs(
     let entries = audit.query(audit_query);
     let total = entries.len() as u32;
 
-    let response = ApiBuilder::paginated_response(entries, total, page, limit);
+    let response = paginate(&entries, page, limit);
     HttpResponse::Ok().json(ApiBuilder::success_response(response))
 }
 
-pub async fn get_audit_entry(
-    audit: web::Data<AuditService>,
-    path: web::Path<String>,
-) -> HttpResponse {
+pub async fn get_audit_entry(audit: web::Data<AuditService>, path: web::Path<String>) -> HttpResponse {
     let entry_id = path.into_inner();
     match audit.get_entry(&entry_id) {
         Some(entry) => HttpResponse::Ok().json(ApiBuilder::success_response(entry)),
-        None => HttpResponse::NotFound()
-            .json(ApiBuilder::error_response::<String>("Audit entry not found")),
+        None => HttpResponse::NotFound().json(ApiBuilder::error_response::<String>("Audit entry not found")),
     }
 }
 
@@ -123,15 +118,13 @@ pub async fn generate_audit_report(
     let start = match DateTime::parse_from_rfc3339(&body.start_date) {
         Ok(dt) => dt.to_utc(),
         Err(_) => {
-            return HttpResponse::BadRequest()
-                .json(ApiBuilder::error_response::<String>("Invalid start_date format"));
+            return HttpResponse::BadRequest().json(ApiBuilder::error_response::<String>("Invalid start_date format"));
         }
     };
     let end = match DateTime::parse_from_rfc3339(&body.end_date) {
         Ok(dt) => dt.to_utc(),
         Err(_) => {
-            return HttpResponse::BadRequest()
-                .json(ApiBuilder::error_response::<String>("Invalid end_date format"));
+            return HttpResponse::BadRequest().json(ApiBuilder::error_response::<String>("Invalid end_date format"));
         }
     };
 
@@ -153,21 +146,20 @@ pub async fn generate_audit_report(
     HttpResponse::Ok().json(ApiBuilder::success_response(report))
 }
 
-pub async fn export_audit_logs(
-    audit: web::Data<AuditService>,
-    query: web::Query<AuditLogQueryParams>,
-) -> HttpResponse {
+pub async fn export_audit_logs(audit: web::Data<AuditService>, query: web::Query<AuditLogQueryParams>) -> HttpResponse {
     let audit_query = AuditQuery {
         event_type: None,
         user_id: None,
         action: None,
         resource_type: None,
-        start_date: query.start_date.as_ref().and_then(|d| {
-            DateTime::parse_from_rfc3339(d).ok().map(|dt| dt.to_utc())
-        }),
-        end_date: query.end_date.as_ref().and_then(|d| {
-            DateTime::parse_from_rfc3339(d).ok().map(|dt| dt.to_utc())
-        }),
+        start_date: query
+            .start_date
+            .as_ref()
+            .and_then(|d| DateTime::parse_from_rfc3339(d).ok().map(|dt| dt.to_utc())),
+        end_date: query
+            .end_date
+            .as_ref()
+            .and_then(|d| DateTime::parse_from_rfc3339(d).ok().map(|dt| dt.to_utc())),
         severity: None,
         limit: None,
         offset: None,
@@ -175,8 +167,7 @@ pub async fn export_audit_logs(
 
     let entries = audit.query(audit_query);
 
-    let mut csv_content =
-        String::from("ID,Event Type,Action,User ID,Resource,Details,Timestamp,IP Address,Severity\n");
+    let mut csv_content = String::from("ID,Event Type,Action,User ID,Resource,Details,Timestamp,IP Address,Severity\n");
     for entry in &entries {
         csv_content.push_str(&format!(
             "{},{},{},{},{},{},{},{},{}\n",
@@ -194,17 +185,11 @@ pub async fn export_audit_logs(
 
     HttpResponse::Ok()
         .insert_header(("Content-Type", "text/csv"))
-        .insert_header((
-            "Content-Disposition",
-            "attachment; filename=\"audit_log_export.csv\"",
-        ))
+        .insert_header(("Content-Disposition", "attachment; filename=\"audit_log_export.csv\""))
         .body(csv_content)
 }
 
-pub async fn create_alert_rule(
-    audit: web::Data<AuditService>,
-    body: web::Json<AlertRuleRequest>,
-) -> HttpResponse {
+pub async fn create_alert_rule(audit: web::Data<AuditService>, body: web::Json<AlertRuleRequest>) -> HttpResponse {
     let rule = AlertRule {
         id: uuid::Uuid::new_v4().to_string(),
         event_type: body.event_type.clone(),
@@ -299,18 +284,17 @@ mod tests {
     #[actix_web::test]
     async fn test_get_audit_entry() {
         let audit = setup_audit_service();
-        let entry_id = audit
-            .query(AuditQuery {
-                event_type: None,
-                user_id: None,
-                action: None,
-                resource_type: None,
-                start_date: None,
-                end_date: None,
-                severity: None,
-                limit: Some(1),
-                offset: None,
-            })[0]
+        let entry_id = audit.query(AuditQuery {
+            event_type: None,
+            user_id: None,
+            action: None,
+            resource_type: None,
+            start_date: None,
+            end_date: None,
+            severity: None,
+            limit: Some(1),
+            offset: None,
+        })[0]
             .id
             .clone();
         let resp = get_audit_entry(web::Data::new(audit), web::Path::from(entry_id)).await;

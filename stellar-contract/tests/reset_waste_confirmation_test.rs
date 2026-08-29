@@ -1,8 +1,6 @@
 #![cfg(test)]
 use soroban_sdk::{testutils::Address as _, Address, Env};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 fn create_test_contract(env: &Env) -> (ScavengerContractClient<'_>, Address) {
     let contract_id = env.register_contract(None, ScavengerContract);
@@ -34,13 +32,7 @@ fn test_reset_waste_confirmation() {
     );
 
     // Register waste
-    let waste_id = client.recycle_waste(
-        &WasteType::Plastic,
-        &1000,
-        &owner,
-        &45_000_000,
-        &-93_000_000,
-    );
+    let waste_id = client.recycle_waste(&WasteType::Plastic, &1000, &owner, &45_000_000, &-93_000_000);
 
     // Register confirmer
     client.register_participant(
@@ -87,13 +79,7 @@ fn test_reset_waste_confirmation_non_owner() {
     );
 
     // Register waste
-    let waste_id = client.recycle_waste(
-        &WasteType::Plastic,
-        &1000,
-        &owner,
-        &45_000_000,
-        &-93_000_000,
-    );
+    let waste_id = client.recycle_waste(&WasteType::Plastic, &1000, &owner, &45_000_000, &-93_000_000);
 
     // Register confirmer
     client.register_participant(
@@ -131,13 +117,7 @@ fn test_reset_unconfirmed_waste() {
     );
 
     // Register waste
-    let waste_id = client.recycle_waste(
-        &WasteType::Plastic,
-        &1000,
-        &owner,
-        &45_000_000,
-        &-93_000_000,
-    );
+    let waste_id = client.recycle_waste(&WasteType::Plastic, &1000, &owner, &45_000_000, &-93_000_000);
 
     // Try to reset unconfirmed waste (should panic)
     client.reset_waste_confirmation(&waste_id, &owner);

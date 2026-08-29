@@ -1,5 +1,8 @@
 #![cfg(test)]
-use soroban_sdk::{testutils::{Address as _, Ledger as _}, Address, Env};
+use soroban_sdk::{
+    testutils::{Address as _, Ledger as _},
+    Address, Env,
+};
 use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 fn setup(env: &Env) -> (ScavengerContractClient, Address, Address, Address, Address) {
@@ -96,7 +99,9 @@ fn test_transfer_expired_waste_fails() {
     let id = client.recycle_waste(&WasteType::Plastic, &1000, &recycler, &0, &0);
 
     // Advance ledger past TTL
-    env.ledger().with_mut(|li| { li.timestamp += 200; });
+    env.ledger().with_mut(|li| {
+        li.timestamp += 200;
+    });
 
     let result = client.try_transfer_waste_v2(&id, &recycler, &collector, &0, &0);
     assert!(result.is_err());
@@ -113,7 +118,9 @@ fn test_get_expired_wastes() {
     let id1 = client.recycle_waste(&WasteType::Plastic, &1000, &recycler, &0, &0);
     let id2 = client.recycle_waste(&WasteType::Metal, &1000, &recycler, &0, &0); // no TTL
 
-    env.ledger().with_mut(|li| { li.timestamp += 200; });
+    env.ledger().with_mut(|li| {
+        li.timestamp += 200;
+    });
 
     let expired = client.get_expired_wastes();
     assert_eq!(expired.len(), 1);
@@ -134,7 +141,9 @@ fn test_cleanup_expired_wastes() {
     let id2 = client.recycle_waste(&WasteType::Plastic, &2000, &recycler, &0, &0);
     let id3 = client.recycle_waste(&WasteType::Metal, &1000, &recycler, &0, &0); // no TTL
 
-    env.ledger().with_mut(|li| { li.timestamp += 200; });
+    env.ledger().with_mut(|li| {
+        li.timestamp += 200;
+    });
 
     let count = client.cleanup_expired_wastes(&admin);
     assert_eq!(count, 2);
@@ -165,7 +174,9 @@ fn test_cleanup_skips_already_deactivated() {
     let id = client.recycle_waste(&WasteType::Plastic, &1000, &recycler, &0, &0);
     client.deactivate_waste(&id, &admin); // manually deactivate first
 
-    env.ledger().with_mut(|li| { li.timestamp += 200; });
+    env.ledger().with_mut(|li| {
+        li.timestamp += 200;
+    });
 
     let count = client.cleanup_expired_wastes(&admin);
     assert_eq!(count, 0); // already inactive, should be skipped
@@ -180,7 +191,9 @@ fn test_batch_transfer_rejects_expired_waste() {
     client.set_waste_ttl(&admin, &WasteType::Plastic, &100);
 
     let id = client.recycle_waste(&WasteType::Plastic, &1000, &recycler, &0, &0);
-    env.ledger().with_mut(|li| { li.timestamp += 200; });
+    env.ledger().with_mut(|li| {
+        li.timestamp += 200;
+    });
 
     let mut ids = soroban_sdk::Vec::new(&env);
     ids.push_back(id);

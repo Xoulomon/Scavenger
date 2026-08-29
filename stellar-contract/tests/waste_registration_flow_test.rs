@@ -4,9 +4,7 @@ use soroban_sdk::{
     testutils::{Address as _, Events},
     Address, Env, String,
 };
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 // ========== Test Setup Helpers ==========
 

@@ -1,6 +1,6 @@
+use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, Mutex};
-use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum InvalidationEvent {
@@ -47,7 +47,10 @@ impl CacheInvalidationManager {
 
     pub fn trigger(&self, event: InvalidationEvent) -> Vec<String> {
         let keys: Vec<String> = self.subscribers.lock().unwrap().clone();
-        self.event_history.lock().unwrap().push((event.clone(), chrono::Utc::now()));
+        self.event_history
+            .lock()
+            .unwrap()
+            .push((event.clone(), chrono::Utc::now()));
         keys
     }
 
@@ -65,22 +68,50 @@ impl CacheInvalidationManager {
         ]
     }
 
-    pub fn generate_invalidation_strategy(&self, event: &InvalidationEvent, cache: &crate::cache::Cache) -> Vec<InvalidationStrategy> {
+    pub fn generate_invalidation_strategy(
+        &self,
+        event: &InvalidationEvent,
+        cache: &crate::cache::Cache,
+    ) -> Vec<InvalidationStrategy> {
         let mut strategies = Vec::new();
         match event {
             InvalidationEvent::WasteCreated(id) => {
-                strategies.push(InvalidationStrategy { strategy_type: InvalidationStrategyType::ExactKey, pattern: None, keys: vec![format!("contract:waste:{}", id)] });
-                strategies.push(InvalidationStrategy { strategy_type: InvalidationStrategyType::PatternMatch, pattern: Some("contract:wastes:".to_string()), keys: vec![] });
+                strategies.push(InvalidationStrategy {
+                    strategy_type: InvalidationStrategyType::ExactKey,
+                    pattern: None,
+                    keys: vec![format!("contract:waste:{}", id)],
+                });
+                strategies.push(InvalidationStrategy {
+                    strategy_type: InvalidationStrategyType::PatternMatch,
+                    pattern: Some("contract:wastes:".to_string()),
+                    keys: vec![],
+                });
             }
             InvalidationEvent::WasteUpdated(id) => {
-                strategies.push(InvalidationStrategy { strategy_type: InvalidationStrategyType::ExactKey, pattern: None, keys: vec![format!("contract:waste:{}", id)] });
-                strategies.push(InvalidationStrategy { strategy_type: InvalidationStrategyType::TimeBased, pattern: None, keys: vec!["contract:stats".to_string()] });
+                strategies.push(InvalidationStrategy {
+                    strategy_type: InvalidationStrategyType::ExactKey,
+                    pattern: None,
+                    keys: vec![format!("contract:waste:{}", id)],
+                });
+                strategies.push(InvalidationStrategy {
+                    strategy_type: InvalidationStrategyType::TimeBased,
+                    pattern: None,
+                    keys: vec!["contract:stats".to_string()],
+                });
             }
             InvalidationEvent::StatsUpdated => {
-                strategies.push(InvalidationStrategy { strategy_type: InvalidationStrategyType::ExactKey, pattern: None, keys: vec!["contract:stats".to_string()] });
+                strategies.push(InvalidationStrategy {
+                    strategy_type: InvalidationStrategyType::ExactKey,
+                    pattern: None,
+                    keys: vec!["contract:stats".to_string()],
+                });
             }
             InvalidationEvent::GlobalInvalidation => {
-                strategies.push(InvalidationStrategy { strategy_type: InvalidationStrategyType::PatternMatch, pattern: Some("contract:".to_string()), keys: vec![] });
+                strategies.push(InvalidationStrategy {
+                    strategy_type: InvalidationStrategyType::PatternMatch,
+                    pattern: Some("contract:".to_string()),
+                    keys: vec![],
+                });
             }
             _ => {}
         }
@@ -89,15 +120,25 @@ impl CacheInvalidationManager {
 
     pub fn apply_strategy(&self, strategy: &InvalidationStrategy, cache: &crate::cache::Cache) {
         match strategy.strategy_type {
-            InvalidationStrategyType::ExactKey => for key in &strategy.keys { cache.invalidate(key); },
-            InvalidationStrategyType::PatternMatch => if let Some(pattern) = &strategy.pattern { cache.invalidate_pattern(pattern); },
+            InvalidationStrategyType::ExactKey => {
+                for key in &strategy.keys {
+                    cache.invalidate(key);
+                }
+            }
+            InvalidationStrategyType::PatternMatch => {
+                if let Some(pattern) = &strategy.pattern {
+                    cache.invalidate_pattern(pattern);
+                }
+            }
             _ => {}
         }
     }
 }
 
 impl Default for CacheInvalidationManager {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 pub struct CacheWarmingStrategy {
@@ -109,7 +150,11 @@ pub struct CacheWarmingStrategy {
 impl Default for CacheWarmingStrategy {
     fn default() -> Self {
         Self {
-            priority_keys: vec!["contract:stats".to_string(), "contract:wastes".to_string(), "contract:participants".to_string()],
+            priority_keys: vec![
+                "contract:stats".to_string(),
+                "contract:wastes".to_string(),
+                "contract:participants".to_string(),
+            ],
             warm_on_startup: true,
             warm_interval: 300,
         }

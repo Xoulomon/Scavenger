@@ -1,9 +1,7 @@
 #![cfg(test)]
 
 use soroban_sdk::{symbol_short, testutils::Address as _, vec, Address, Env, String};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 fn setup(env: &Env) -> (ScavengerContractClient, Address, Address, Address) {
     env.mock_all_auths();
@@ -13,20 +11,8 @@ fn setup(env: &Env) -> (ScavengerContractClient, Address, Address, Address) {
     let recycler = Address::generate(env);
     let verifier = Address::generate(env);
     client.initialize_admin(&admin);
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("rec"),
-        &0,
-        &0,
-    );
-    client.register_participant(
-        &verifier,
-        &ParticipantRole::Recycler,
-        &symbol_short!("ver"),
-        &0,
-        &0,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("rec"), &0, &0);
+    client.register_participant(&verifier, &ParticipantRole::Recycler, &symbol_short!("ver"), &0, &0);
     let _ = admin;
     (client, admin, recycler, verifier)
 }
@@ -149,11 +135,7 @@ fn test_batch_verify_basic() {
     ];
     let submitted = client.batch_submit_materials(&materials, &recycler);
 
-    let ids = vec![
-        &env,
-        submitted.get(0).unwrap().id,
-        submitted.get(1).unwrap().id,
-    ];
+    let ids = vec![&env, submitted.get(0).unwrap().id, submitted.get(1).unwrap().id];
     let verified = client.batch_verify_materials(&ids, &verifier);
 
     assert_eq!(verified.len(), 2);
@@ -200,11 +182,7 @@ fn test_batch_verify_updates_stats() {
         (WasteType::Metal, 1000u64, desc(&env, "can")),
     ];
     let submitted = client.batch_submit_materials(&materials, &recycler);
-    let ids = vec![
-        &env,
-        submitted.get(0).unwrap().id,
-        submitted.get(1).unwrap().id,
-    ];
+    let ids = vec![&env, submitted.get(0).unwrap().id, submitted.get(1).unwrap().id];
     client.batch_verify_materials(&ids, &verifier);
 
     let stats = client.get_stats(&recycler).unwrap();
@@ -232,13 +210,7 @@ fn test_batch_verify_non_recycler_panics() {
     let (client, _, recycler, _) = setup(&env);
 
     let collector = Address::generate(&env);
-    client.register_participant(
-        &collector,
-        &ParticipantRole::Collector,
-        &symbol_short!("col"),
-        &0,
-        &0,
-    );
+    client.register_participant(&collector, &ParticipantRole::Collector, &symbol_short!("col"), &0, &0);
 
     let materials = vec![&env, (WasteType::Plastic, 1000u64, desc(&env, "test"))];
     let submitted = client.batch_submit_materials(&materials, &recycler);

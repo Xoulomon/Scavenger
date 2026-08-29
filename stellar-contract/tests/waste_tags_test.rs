@@ -1,7 +1,5 @@
 use soroban_sdk::{testutils::Address as _, Address, Env, String, Symbol};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 fn setup() -> (Env, ScavengerContractClient<'static>, Address) {
     let env = Env::default();

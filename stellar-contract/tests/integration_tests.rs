@@ -9,8 +9,8 @@ use soroban_sdk::{
 };
 
 use crate::{
-    ScavengerContract, ScavengerContractClient, ParticipantRole, WasteType, ProcessingStatus,
-    WasteGrade, CertificationLevel,
+    CertificationLevel, ParticipantRole, ProcessingStatus, ScavengerContract, ScavengerContractClient, WasteGrade,
+    WasteType,
 };
 
 /// Test fixture for common setup
@@ -80,13 +80,10 @@ fn test_complete_waste_lifecycle() {
     let fixture = IntegrationTestFixture::new();
 
     // 1. Recycler submits waste
-    let waste_id = fixture.contract.recycle_waste(
-        &WasteType::Plastic,
-        &5000,
-        &fixture.recycler,
-        &40_000_000,
-        &-74_000_000,
-    );
+    let waste_id =
+        fixture
+            .contract
+            .recycle_waste(&WasteType::Plastic, &5000, &fixture.recycler, &40_000_000, &-74_000_000);
     assert_eq!(waste_id, 1);
 
     // 2. Verify waste was created
@@ -111,11 +108,9 @@ fn test_complete_waste_lifecycle() {
     assert_eq!(waste.current_owner, fixture.collector);
 
     // 5. Update processing status
-    let waste = fixture.contract.update_processing_status(
-        &waste_id,
-        &fixture.collector,
-        &ProcessingStatus::Sorted,
-    );
+    let waste = fixture
+        .contract
+        .update_processing_status(&waste_id, &fixture.collector, &ProcessingStatus::Sorted);
     assert_eq!(waste.processing_status, ProcessingStatus::Sorted);
 
     // 6. Transfer to manufacturer
@@ -131,7 +126,7 @@ fn test_complete_waste_lifecycle() {
     // 7. Verify final state
     let waste = fixture.contract.get_waste_v2(&waste_id).unwrap();
     assert_eq!(waste.current_owner, fixture.manufacturer);
-    
+
     // 8. Check transfer history
     let history = fixture.contract.get_waste_transfer_history_v2(&waste_id);
     assert_eq!(history.len(), 2); // Two transfers
@@ -182,12 +177,9 @@ fn test_batch_waste_transfer() {
     }
 
     // Batch transfer all wastes
-    let result = fixture.contract.batch_transfer_waste(
-        &waste_ids,
-        &fixture.collector,
-        &40_100_000,
-        &-74_100_000,
-    );
+    let result = fixture
+        .contract
+        .batch_transfer_waste(&waste_ids, &fixture.collector, &40_100_000, &-74_100_000);
     assert!(result.is_ok());
 
     let transfers = result.unwrap();
@@ -205,28 +197,25 @@ fn test_waste_confirmation_flow() {
     let fixture = IntegrationTestFixture::new();
 
     // Create waste
-    let waste_id = fixture.contract.recycle_waste(
-        &WasteType::Glass,
-        &3000,
-        &fixture.recycler,
-        &40_000_000,
-        &-74_000_000,
-    );
+    let waste_id =
+        fixture
+            .contract
+            .recycle_waste(&WasteType::Glass, &3000, &fixture.recycler, &40_000_000, &-74_000_000);
 
     // Transfer to collector
-    fixture.contract.transfer_waste_v2(
-        &waste_id,
-        &fixture.recycler,
-        &fixture.collector,
-        &40_100_000,
-        &-74_100_000,
-    ).unwrap();
+    fixture
+        .contract
+        .transfer_waste_v2(
+            &waste_id,
+            &fixture.recycler,
+            &fixture.collector,
+            &40_100_000,
+            &-74_100_000,
+        )
+        .unwrap();
 
     // Confirm waste details
-    let waste = fixture.contract.confirm_waste_details(
-        &waste_id,
-        &fixture.collector,
-    );
+    let waste = fixture.contract.confirm_waste_details(&waste_id, &fixture.collector);
     assert!(waste.is_confirmed);
 
     // Verify confirmation
@@ -239,29 +228,27 @@ fn test_waste_grading_system() {
     let fixture = IntegrationTestFixture::new();
 
     // Create waste
-    let waste_id = fixture.contract.recycle_waste(
-        &WasteType::Plastic,
-        &2000,
-        &fixture.recycler,
-        &40_000_000,
-        &-74_000_000,
-    );
+    let waste_id =
+        fixture
+            .contract
+            .recycle_waste(&WasteType::Plastic, &2000, &fixture.recycler, &40_000_000, &-74_000_000);
 
     // Transfer to collector for grading
-    fixture.contract.transfer_waste_v2(
-        &waste_id,
-        &fixture.recycler,
-        &fixture.collector,
-        &40_100_000,
-        &-74_100_000,
-    ).unwrap();
+    fixture
+        .contract
+        .transfer_waste_v2(
+            &waste_id,
+            &fixture.recycler,
+            &fixture.collector,
+            &40_100_000,
+            &-74_100_000,
+        )
+        .unwrap();
 
     // Grade the waste
-    let waste = fixture.contract.set_waste_grade(
-        &waste_id,
-        &WasteGrade::A,
-        &fixture.collector,
-    );
+    let waste = fixture
+        .contract
+        .set_waste_grade(&waste_id, &WasteGrade::A, &fixture.collector);
     assert_eq!(waste.grade, WasteGrade::A);
 
     // Verify grade history
@@ -277,7 +264,7 @@ fn test_incentive_creation_and_query() {
     let incentive = fixture.contract.create_incentive(
         &fixture.manufacturer,
         &WasteType::Plastic,
-        &100,  // reward points per kg
+        &100,   // reward points per kg
         &10000, // total budget
     );
 
@@ -313,7 +300,7 @@ fn test_participant_stats_tracking() {
     // Get participant info
     let info = fixture.contract.get_participant_info(&fixture.recycler).unwrap();
     assert!(info.participant.total_waste_processed > 0);
-    
+
     // Get stats
     let stats = fixture.contract.get_stats(&fixture.recycler).unwrap();
     assert_eq!(stats.total_submissions, 5);
@@ -324,13 +311,10 @@ fn test_error_handling_invalid_transfer() {
     let fixture = IntegrationTestFixture::new();
 
     // Create waste
-    let waste_id = fixture.contract.recycle_waste(
-        &WasteType::Plastic,
-        &5000,
-        &fixture.recycler,
-        &40_000_000,
-        &-74_000_000,
-    );
+    let waste_id =
+        fixture
+            .contract
+            .recycle_waste(&WasteType::Plastic, &5000, &fixture.recycler, &40_000_000, &-74_000_000);
 
     // Try invalid transfer (recycler to recycler - same role)
     let another_recycler = Address::generate(&fixture.env);
@@ -359,13 +343,10 @@ fn test_waste_reservation_workflow() {
     let fixture = IntegrationTestFixture::new();
 
     // Create waste
-    let waste_id = fixture.contract.recycle_waste(
-        &WasteType::Metal,
-        &4000,
-        &fixture.recycler,
-        &40_000_000,
-        &-74_000_000,
-    );
+    let waste_id =
+        fixture
+            .contract
+            .recycle_waste(&WasteType::Metal, &4000, &fixture.recycler, &40_000_000, &-74_000_000);
 
     // Reserve waste
     let result = fixture.contract.reserve_waste(
@@ -398,10 +379,7 @@ fn test_waste_reservation_workflow() {
     assert!(transfer_result.is_err());
 
     // Cancel reservation
-    let cancel_result = fixture.contract.cancel_reservation(
-        &waste_id,
-        &fixture.collector,
-    );
+    let cancel_result = fixture.contract.cancel_reservation(&waste_id, &fixture.collector);
     assert!(cancel_result.is_ok());
 }
 
@@ -411,13 +389,9 @@ fn test_global_metrics() {
 
     // Create some waste
     for _ in 0..3 {
-        fixture.contract.recycle_waste(
-            &WasteType::Plastic,
-            &1000,
-            &fixture.recycler,
-            &40_000_000,
-            &-74_000_000,
-        );
+        fixture
+            .contract
+            .recycle_waste(&WasteType::Plastic, &1000, &fixture.recycler, &40_000_000, &-74_000_000);
     }
 
     // Get global metrics
@@ -450,10 +424,9 @@ fn test_leaderboard_queries() {
     assert!(top_recyclers.len() > 0);
 
     // Get participant rank
-    let rank = fixture.contract.get_participant_rank(
-        &fixture.recycler,
-        &Symbol::new(&fixture.env, "weight"),
-    );
+    let rank = fixture
+        .contract
+        .get_participant_rank(&fixture.recycler, &Symbol::new(&fixture.env, "weight"));
     assert!(rank > 0);
 }
 
@@ -462,13 +435,10 @@ fn test_contamination_marking() {
     let fixture = IntegrationTestFixture::new();
 
     // Create waste
-    let waste_id = fixture.contract.recycle_waste(
-        &WasteType::Plastic,
-        &3000,
-        &fixture.recycler,
-        &40_000_000,
-        &-74_000_000,
-    );
+    let waste_id =
+        fixture
+            .contract
+            .recycle_waste(&WasteType::Plastic, &3000, &fixture.recycler, &40_000_000, &-74_000_000);
 
     // Mark as contaminated
     let waste = fixture.contract.mark_contaminated(
@@ -491,13 +461,10 @@ fn test_waste_split_merge() {
     let fixture = IntegrationTestFixture::new();
 
     // Create a large waste item
-    let waste_id = fixture.contract.recycle_waste(
-        &WasteType::Metal,
-        &10000,
-        &fixture.recycler,
-        &40_000_000,
-        &-74_000_000,
-    );
+    let waste_id =
+        fixture
+            .contract
+            .recycle_waste(&WasteType::Metal, &10000, &fixture.recycler, &40_000_000, &-74_000_000);
 
     // Split into smaller pieces
     let mut weights = Vec::new(&fixture.env);
@@ -505,11 +472,7 @@ fn test_waste_split_merge() {
     weights.push_back(3000);
     weights.push_back(3000);
 
-    let result = fixture.contract.split_waste(
-        &waste_id,
-        &fixture.recycler,
-        &weights,
-    );
+    let result = fixture.contract.split_waste(&waste_id, &fixture.recycler, &weights);
     assert!(result.is_ok());
 
     let child_ids = result.unwrap();
@@ -524,10 +487,7 @@ fn test_waste_split_merge() {
     merge_ids.push_back(child_ids.get(0).unwrap());
     merge_ids.push_back(child_ids.get(1).unwrap());
 
-    let merge_result = fixture.contract.merge_wastes(
-        &merge_ids,
-        &fixture.recycler,
-    );
+    let merge_result = fixture.contract.merge_wastes(&merge_ids, &fixture.recycler);
     assert!(merge_result.is_ok());
 
     let merged_id = merge_result.unwrap();

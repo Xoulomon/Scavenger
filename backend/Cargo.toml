@@ -5,49 +5,57 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
+# #1085: audited against actual `use`/path references in src/. Anything not
+# reachable that way was dropped; see the removed list below the table for
+# what was cut and why. `url` and `sha2` were added because search/client.rs
+# and services/archival_storage.rs already import them directly but they
+# were missing from this manifest (only reachable before as transitive deps
+# of elasticsearch/aws-sdk-s3, which does not make them usable via `use`).
 actix-web = "4.4"
-actix-rt = "2.9"
 tokio = { version = "1.35", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 uuid = { version = "1.6", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 thiserror = "1.0"
-log = "0.4"
-env_logger = "0.11"
-dotenv = "0.15"
 reqwest = { version = "0.11", features = ["json"] }
-lettre = { version = "0.11", features = ["smtp-transport", "builder"] }
-handlebars = "4.4"
-aws-config = "1.0"
-aws-sdk-s3 = "1.0"
-tokio-util = "0.7"
 bytes = "1.5"
-image = "0.24"
-pdf = "0.9"
-csv = "1.3"
 async-trait = "0.1"
 anyhow = "1.0"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
-tracing-actix-web = "0.7"
 futures = "0.3"
 printpdf = "0.7"
 actix-ws = "0.3"
-actix-web-actors = "4.2"
 rand = "0.8"
 hex = "0.4"
 actix-cors = "0.7"
 elasticsearch = "8.5.0-alpha.1"
-serde_derive = "1.0"
 flate2 = "1.0"
 base64 = "0.22"
 urlencoding = "2.1"
+url = "2"
+sha2 = "0.10"
+
+# Removed as confirmed-unused by #1085 (no `use`/path reference anywhere in
+# src/ — verified by grepping every crate root against the source tree):
+#   actix-rt        — actix-web's `#[actix_web::main]`/`#[actix_web::test]` macros
+#                      pull in their own runtime; nothing calls actix_rt directly.
+#   log, env_logger — superseded by tracing/tracing-subscriber; no `log::`/init call.
+#   dotenv          — no `dotenv::dotenv()` call; env vars are read via std::env.
+#   lettre          — email.rs sends via a raw reqwest::Client, not lettre.
+#   handlebars      — no template rendering call exists; only mentioned in a doc comment.
+#   aws-config, aws-sdk-s3 — storage.rs defines types only, no S3 client is built.
+#   tokio-util      — no reference.
+#   image, pdf, csv — reporting/export services build these formats by hand
+#                      (printpdf for PDFs, manual string building for CSV);
+#                      these crates are never called.
+#   tracing-actix-web — no TracingLogger/middleware usage.
+#   actix-web-actors  — actix-ws already covers the one websocket handler in use.
 
 [dev-dependencies]
-mockall = "0.12"
-tokio-test = "0.4"
-tempfile = "3"
+# mockall, tokio-test, tempfile removed by #1085: no `#[automock]`/`mock!`,
+# `tokio_test::`, or `tempfile::` reference anywhere in src/.
 wiremock = "0.6"
 
 [lib]

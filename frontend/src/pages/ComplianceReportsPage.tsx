@@ -2,8 +2,6 @@ import { useState, useMemo, useCallback } from 'react'
 import {
   FileText,
   FileBarChart,
-  Calendar,
-  Users,
   Eye,
   Download,
   Clock,
@@ -14,10 +12,8 @@ import {
   History,
   ClipboardList,
   Printer,
-  Send,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
-import { StatCard } from '@/components/ui/StatCard'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'

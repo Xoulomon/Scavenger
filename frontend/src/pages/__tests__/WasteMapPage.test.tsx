@@ -76,4 +76,4 @@ describe('WasteMapPage', () => {
 
     expect(await screen.findByText('No waste locations match the current filters.')).toBeInTheDocument()
   })
-}
+})

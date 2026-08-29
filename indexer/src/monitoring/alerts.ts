@@ -111,7 +111,7 @@ export async function evaluateRules(rules: AlertRule[] = DEFAULT_RULES): Promise
 }
 
 export function startAlertChecker(intervalMs = 60000): void {
-  if (checkInterval) return;
+  if (checkInterval) {return;}
   checkInterval = setInterval(() => {
     evaluateRules().catch(err => {
       logger.error('Alert check cycle failed', { error: String(err) });

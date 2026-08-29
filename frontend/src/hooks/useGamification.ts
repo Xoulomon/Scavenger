@@ -17,7 +17,7 @@ import {
 
 const LS_KEY = (addr: string) => `scavngr_gamification_${addr}`
 
-function loadEarnedIds(addr: string): string[] {
+function _loadEarnedIds(addr: string): string[] {
   try {
     const raw = localStorage.getItem(LS_KEY(addr))
     return raw ? (JSON.parse(raw) as string[]) : []
@@ -40,7 +40,7 @@ export interface GamificationData {
 
 export function useGamification(): GamificationData {
   const { address } = useWallet()
-  const { stats, wastes, isLoadingStats } = useProfileStats()
+  const { stats, wastes: _wastes, isLoadingStats } = useProfileStats()
   const { addNotification } = useNotifications(address)
   const [newBadges, setNewBadges] = useState<Badge[]>([])
   const prevStatsRef = useRef<UserStats | null>(null)

@@ -1,9 +1,7 @@
 #![cfg(test)]
 
 use soroban_sdk::{testutils::Address as _, Address, Env, String};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 // ========== Basic Functionality Tests ==========
 
@@ -74,10 +72,7 @@ fn test_get_participant_earnings_after_material_submission() {
 
     // Get earnings
     let earnings = client.get_participant_earnings(&collector);
-    assert!(
-        earnings > 0,
-        "Earnings should be greater than 0 after verification"
-    );
+    assert!(earnings > 0, "Earnings should be greater than 0 after verification");
 }
 
 // ========== Multiple Submissions Tests ==========
@@ -165,10 +160,7 @@ fn test_get_participant_earnings_different_waste_types() {
 
     // Get total earnings
     let total_earnings = client.get_participant_earnings(&collector);
-    assert!(
-        total_earnings > 0,
-        "Should have earnings from multiple waste types"
-    );
+    assert!(total_earnings > 0, "Should have earnings from multiple waste types");
 }
 
 // ========== Role-Specific Tests ==========

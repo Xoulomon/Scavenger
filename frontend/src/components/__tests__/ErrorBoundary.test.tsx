@@ -23,7 +23,7 @@ describe('ErrorBoundary', () => {
 
   it('displays error message when error is thrown', () => {
     const ThrowError = () => {
-      throw new Error('Test error message')
+      throw new Error('Test error message encountered.')
     }
 
     render(
@@ -33,12 +33,12 @@ describe('ErrorBoundary', () => {
     )
 
     expect(screen.getByText('Something went wrong.')).toBeInTheDocument()
-    expect(screen.getByText('Test error message')).toBeInTheDocument()
+    expect(screen.getByText('Test error message encountered.')).toBeInTheDocument()
   })
 
   it('displays default fallback UI with error alert role', () => {
     const ThrowError = () => {
-      throw new Error('Unexpected error')
+      throw new Error('An unexpected error occurred during the test.')
     }
 
     render(
@@ -53,7 +53,7 @@ describe('ErrorBoundary', () => {
 
   it('renders custom fallback when provided', () => {
     const ThrowError = () => {
-      throw new Error('Test error')
+      throw new Error('A test error occurred in the component.')
     }
 
     render(
@@ -68,7 +68,7 @@ describe('ErrorBoundary', () => {
   it('displays "Try again" button that resets error state', async () => {
     const user = userEvent.setup()
     const ThrowError = () => {
-      throw new Error('Test error')
+      throw new Error('A test error occurred in the component.')
     }
 
     render(
@@ -86,7 +86,7 @@ describe('ErrorBoundary', () => {
 
   it('catches errors from nested components', () => {
     const NestedError = () => {
-      throw new Error('Nested component error')
+      throw new Error('Nested component error occurred.')
     }
 
     render(
@@ -98,13 +98,13 @@ describe('ErrorBoundary', () => {
     )
 
     expect(screen.getByText('Something went wrong.')).toBeInTheDocument()
-    expect(screen.getByText('Nested component error')).toBeInTheDocument()
+    expect(screen.getByText('Nested component error occurred.')).toBeInTheDocument()
   })
 
   it('logs error and component stack on error', () => {
     const consoleErrorSpy = vi.spyOn(console, 'error')
     const ThrowError = () => {
-      throw new Error('Logged error')
+      throw new Error('A logged error occurred in the boundary.')
     }
 
     render(
@@ -122,7 +122,7 @@ describe('ErrorBoundary', () => {
 
   it('maintains error state across re-renders', () => {
     const ThrowError = () => {
-      throw new Error('Persistent error')
+      throw new Error('A persistent error occurred during re-render.')
     }
 
     const { rerender } = render(

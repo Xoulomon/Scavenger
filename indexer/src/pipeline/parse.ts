@@ -35,7 +35,7 @@ function asArray(v: unknown): unknown[] {
 }
 
 function bigStr(v: unknown): string {
-  if (v === null || v === undefined) return '0';
+  if (v === null || v === undefined) {return '0';}
   return String(v);
 }
 

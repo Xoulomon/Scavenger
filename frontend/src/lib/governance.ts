@@ -121,8 +121,8 @@ export function castVote(proposalId: string, voterAddress: string, choice: VoteC
   if (idx === -1) throw new Error(`Proposal ${proposalId} not found`)
 
   const proposal = proposals[idx]!
-  if (proposal.status !== 'active') throw new Error('Proposal is not active')
-  if (Date.now() > proposal.votingEndsAt) throw new Error('Voting period has ended')
+  if (proposal.status !== 'active') throw new Error('Proposal is not active.')
+  if (Date.now() > proposal.votingEndsAt) throw new Error('Voting period has ended.')
 
   // Replace existing vote from same voter
   proposal.votes = proposal.votes.filter((v) => v.voterAddress !== voterAddress)
@@ -149,7 +149,7 @@ export function vetoProposal(proposalId: string, vetoerAddress: string, reason: 
   if (idx === -1) throw new Error(`Proposal ${proposalId} not found`)
 
   const proposal = proposals[idx]!
-  if (proposal.status === 'vetoed') throw new Error('Already vetoed')
+  if (proposal.status === 'vetoed') throw new Error('Already vetoed.')
 
   const veto: Veto = {
     id: generateId(),

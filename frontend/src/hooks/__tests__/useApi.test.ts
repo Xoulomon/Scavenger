@@ -86,7 +86,7 @@ describe('useContractQuery', () => {
   })
 
   it('surfaces errors from the client', async () => {
-    mockGetParticipant.mockRejectedValue(new Error('not found'))
+    mockGetParticipant.mockRejectedValue(new Error('Not found.'))
 
     const { result } = renderHook(
       () =>

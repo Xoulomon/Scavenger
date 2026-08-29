@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 /// #803 - ML Waste Classification Service
 /// Model serving endpoint, versioning, monitoring, and evaluation for waste image classification.
 use serde::{Deserialize, Serialize};
@@ -5,7 +6,6 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use thiserror::Error;
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
 
 // ── Errors ────────────────────────────────────────────────────────────────────
 
@@ -147,10 +147,22 @@ pub struct MockInferenceEngine;
 impl InferenceEngine for MockInferenceEngine {
     async fn predict(&self, _image_data: &[u8]) -> Result<Vec<ClassificationPrediction>, ClassificationError> {
         Ok(vec![
-            ClassificationPrediction { category: WasteCategory::Plastic, confidence: 0.82 },
-            ClassificationPrediction { category: WasteCategory::Paper,   confidence: 0.10 },
-            ClassificationPrediction { category: WasteCategory::Metal,   confidence: 0.05 },
-            ClassificationPrediction { category: WasteCategory::Other,   confidence: 0.03 },
+            ClassificationPrediction {
+                category: WasteCategory::Plastic,
+                confidence: 0.82,
+            },
+            ClassificationPrediction {
+                category: WasteCategory::Paper,
+                confidence: 0.10,
+            },
+            ClassificationPrediction {
+                category: WasteCategory::Metal,
+                confidence: 0.05,
+            },
+            ClassificationPrediction {
+                category: WasteCategory::Other,
+                confidence: 0.03,
+            },
         ])
     }
 }
@@ -183,15 +195,10 @@ impl ClassificationService {
         {
             let versions = self.versions.lock().unwrap();
             if versions.iter().any(|v| v.version_id == version.version_id) {
-                return Err(ClassificationError::VersionConflict(
-                    version.version_id.clone(),
-                ));
+                return Err(ClassificationError::VersionConflict(version.version_id.clone()));
             }
         }
-        self.engines
-            .lock()
-            .unwrap()
-            .insert(version.version_id.clone(), engine);
+        self.engines.lock().unwrap().insert(version.version_id.clone(), engine);
         self.versions.lock().unwrap().push(version);
         Ok(())
     }
@@ -210,12 +217,7 @@ impl ClassificationService {
     }
 
     pub fn active_version(&self) -> Option<ModelVersion> {
-        self.versions
-            .lock()
-            .unwrap()
-            .iter()
-            .find(|v| v.is_active)
-            .cloned()
+        self.versions.lock().unwrap().iter().find(|v| v.is_active).cloned()
     }
 
     pub fn list_versions(&self) -> Vec<ModelVersion> {
@@ -224,14 +226,9 @@ impl ClassificationService {
 
     // ── Inference ──────────────────────────────────────────────────────────
 
-    pub async fn classify(
-        &self,
-        req: ClassificationRequest,
-    ) -> Result<ClassificationResult, ClassificationError> {
+    pub async fn classify(&self, req: ClassificationRequest) -> Result<ClassificationResult, ClassificationError> {
         if req.image.is_empty() {
-            return Err(ClassificationError::InvalidInput(
-                "Empty image data".to_string(),
-            ));
+            return Err(ClassificationError::InvalidInput("Empty image data".to_string()));
         }
 
         // Resolve version
@@ -295,9 +292,7 @@ impl ClassificationService {
         samples: Vec<EvaluationSample>,
     ) -> Result<EvaluationReport, ClassificationError> {
         if samples.is_empty() {
-            return Err(ClassificationError::InvalidInput(
-                "No evaluation samples".to_string(),
-            ));
+            return Err(ClassificationError::InvalidInput("No evaluation samples".to_string()));
         }
 
         let engine = self
@@ -340,14 +335,30 @@ impl ClassificationService {
         let per_class_metrics = per_class
             .into_iter()
             .map(|(cls, (tp, fp, fn_))| {
-                let precision = if tp + fp == 0 { 0.0 } else { tp as f64 / (tp + fp) as f64 };
-                let recall = if tp + fn_ == 0 { 0.0 } else { tp as f64 / (tp + fn_) as f64 };
+                let precision = if tp + fp == 0 {
+                    0.0
+                } else {
+                    tp as f64 / (tp + fp) as f64
+                };
+                let recall = if tp + fn_ == 0 {
+                    0.0
+                } else {
+                    tp as f64 / (tp + fn_) as f64
+                };
                 let f1 = if precision + recall == 0.0 {
                     0.0
                 } else {
                     2.0 * precision * recall / (precision + recall)
                 };
-                (cls, ClassMetrics { precision, recall, f1, support: tp + fn_ })
+                (
+                    cls,
+                    ClassMetrics {
+                        precision,
+                        recall,
+                        f1,
+                        support: tp + fn_,
+                    },
+                )
             })
             .collect();
 
@@ -370,8 +381,7 @@ impl ClassificationService {
         }
         let total = logs.len();
         let avg_latency = logs.iter().map(|l| l.latency_ms).sum::<u64>() as f64 / total as f64;
-        let avg_confidence =
-            logs.iter().map(|l| l.top_confidence).sum::<f64>() / total as f64;
+        let avg_confidence = logs.iter().map(|l| l.top_confidence).sum::<f64>() / total as f64;
         let low_confidence = logs.iter().filter(|l| l.top_confidence < 0.6).count();
 
         let mut by_category: HashMap<String, usize> = HashMap::new();

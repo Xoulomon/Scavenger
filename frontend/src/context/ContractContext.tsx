@@ -37,7 +37,7 @@ export const ContractProvider: React.FC<{ children: ReactNode }> = ({ children }
 export const useContract = () => {
   const context = useContext(ContractContext)
   if (context === undefined) {
-    throw new Error('useContract must be used within a ContractProvider')
+    throw new Error('UseContract must be used within a ContractProvider.')
   }
   return context
 }

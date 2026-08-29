@@ -5,11 +5,26 @@ use serde_json::Value;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum FilterType {
-    Term { field: String, value: Value },
-    Range { field: String, min: Option<Value>, max: Option<Value> },
-    Exists { field: String },
-    Prefix { field: String, value: String },
-    Match { field: String, query: String },
+    Term {
+        field: String,
+        value: Value,
+    },
+    Range {
+        field: String,
+        min: Option<Value>,
+        max: Option<Value>,
+    },
+    Exists {
+        field: String,
+    },
+    Prefix {
+        field: String,
+        value: String,
+    },
+    Match {
+        field: String,
+        query: String,
+    },
 }
 
 /// Search filter structure
@@ -37,7 +52,7 @@ impl SearchFilter {
             operator: FilterOperator::And,
         }
     }
-    
+
     pub fn range(field: impl Into<String>, min: Option<Value>, max: Option<Value>) -> Self {
         Self {
             filter: FilterType::Range {
@@ -48,12 +63,10 @@ impl SearchFilter {
             operator: FilterOperator::And,
         }
     }
-    
+
     pub fn exists(field: impl Into<String>) -> Self {
         Self {
-            filter: FilterType::Exists {
-                field: field.into(),
-            },
+            filter: FilterType::Exists { field: field.into() },
             operator: FilterOperator::And,
         }
     }

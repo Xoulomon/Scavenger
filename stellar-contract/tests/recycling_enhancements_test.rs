@@ -2,8 +2,7 @@
 
 use soroban_sdk::{testutils::Address as _, vec, Address, Env, Vec};
 use stellar_scavngr_contract::{
-    MaterialComposition, ProcessingStatus, ScavengerContract, ScavengerContractClient, WasteType,
-    ParticipantRole,
+    MaterialComposition, ParticipantRole, ProcessingStatus, ScavengerContract, ScavengerContractClient, WasteType,
 };
 
 fn setup_contract(env: &Env) -> (ScavengerContractClient, Address, Address, Address) {
@@ -35,12 +34,7 @@ fn setup_contract(env: &Env) -> (ScavengerContractClient, Address, Address, Addr
     (client, admin, recycler, collector)
 }
 
-fn submit_waste(
-    client: &ScavengerContractClient,
-    recycler: &Address,
-    waste_type: WasteType,
-    weight: u128,
-) -> u128 {
+fn submit_waste(client: &ScavengerContractClient, recycler: &Address, waste_type: WasteType, weight: u128) -> u128 {
     client.recycle_waste(&waste_type, &weight, recycler, &1_000_000, &2_000_000)
 }
 
@@ -154,9 +148,18 @@ fn test_set_waste_composition() {
 
     let composition = vec![
         &env,
-        MaterialComposition { material_type: WasteType::Metal, percentage: 60 },
-        MaterialComposition { material_type: WasteType::Plastic, percentage: 30 },
-        MaterialComposition { material_type: WasteType::Glass, percentage: 10 },
+        MaterialComposition {
+            material_type: WasteType::Metal,
+            percentage: 60,
+        },
+        MaterialComposition {
+            material_type: WasteType::Plastic,
+            percentage: 30,
+        },
+        MaterialComposition {
+            material_type: WasteType::Glass,
+            percentage: 10,
+        },
     ];
 
     let result = client.set_waste_composition(&waste_id, &collector, &composition);
@@ -173,8 +176,14 @@ fn test_composition_percentages_must_sum_to_100() {
 
     let composition = vec![
         &env,
-        MaterialComposition { material_type: WasteType::Metal, percentage: 60 },
-        MaterialComposition { material_type: WasteType::Plastic, percentage: 30 },
+        MaterialComposition {
+            material_type: WasteType::Metal,
+            percentage: 60,
+        },
+        MaterialComposition {
+            material_type: WasteType::Plastic,
+            percentage: 30,
+        },
         // Missing 10% - should fail
     ];
 
@@ -212,7 +221,10 @@ fn test_only_verifiers_can_set_composition() {
 
     let composition = vec![
         &env,
-        MaterialComposition { material_type: WasteType::Metal, percentage: 100 },
+        MaterialComposition {
+            material_type: WasteType::Metal,
+            percentage: 100,
+        },
     ];
 
     // Recycler should not be able to set composition
@@ -231,14 +243,26 @@ fn test_get_wastes_by_composition() {
 
     let composition1 = vec![
         &env,
-        MaterialComposition { material_type: WasteType::Metal, percentage: 70 },
-        MaterialComposition { material_type: WasteType::Plastic, percentage: 30 },
+        MaterialComposition {
+            material_type: WasteType::Metal,
+            percentage: 70,
+        },
+        MaterialComposition {
+            material_type: WasteType::Plastic,
+            percentage: 30,
+        },
     ];
 
     let composition2 = vec![
         &env,
-        MaterialComposition { material_type: WasteType::Metal, percentage: 40 },
-        MaterialComposition { material_type: WasteType::Plastic, percentage: 60 },
+        MaterialComposition {
+            material_type: WasteType::Metal,
+            percentage: 40,
+        },
+        MaterialComposition {
+            material_type: WasteType::Plastic,
+            percentage: 60,
+        },
     ];
 
     client.set_waste_composition(&waste_id1, &collector, &composition1);
@@ -272,13 +296,22 @@ fn test_composition_can_be_updated() {
 
     let composition1 = vec![
         &env,
-        MaterialComposition { material_type: WasteType::Metal, percentage: 100 },
+        MaterialComposition {
+            material_type: WasteType::Metal,
+            percentage: 100,
+        },
     ];
 
     let composition2 = vec![
         &env,
-        MaterialComposition { material_type: WasteType::Metal, percentage: 50 },
-        MaterialComposition { material_type: WasteType::Plastic, percentage: 50 },
+        MaterialComposition {
+            material_type: WasteType::Metal,
+            percentage: 50,
+        },
+        MaterialComposition {
+            material_type: WasteType::Plastic,
+            percentage: 50,
+        },
     ];
 
     client.set_waste_composition(&waste_id, &collector, &composition1);
@@ -298,7 +331,10 @@ fn test_composition_single_material_100_percent() {
 
     let composition = vec![
         &env,
-        MaterialComposition { material_type: WasteType::Metal, percentage: 100 },
+        MaterialComposition {
+            material_type: WasteType::Metal,
+            percentage: 100,
+        },
     ];
 
     let result = client.set_waste_composition(&waste_id, &collector, &composition);

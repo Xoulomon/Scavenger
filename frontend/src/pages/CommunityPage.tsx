@@ -1,7 +1,7 @@
 import { Award, Trophy, Star, TrendingUp } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { Badge } from '@/components/ui/Badge'
 import { useAppTitle } from '@/hooks/useAppTitle'
+import { LeaderboardRow } from '@/design-system'
 import { ContributorRecognition } from '@/components/community/ContributorRecognition'
 
 interface LeaderboardEntry {
@@ -60,41 +60,17 @@ export function CommunityPage() {
           <CardContent>
             <div className="space-y-3">
               {mockLeaderboard.map((entry) => (
-                <div
+                <LeaderboardRow
                   key={entry.rank}
-                  className="flex items-center gap-4 rounded-lg border p-3 transition-colors hover:bg-accent"
+                  rank={entry.rank}
+                  address={entry.address}
+                  points={entry.points}
+                  tier={entry.badge}
                 >
-                  <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-bold ${
-                      entry.rank === 1
-                        ? 'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400'
-                        : entry.rank === 2
-                          ? 'bg-gray-400/20 text-gray-600 dark:text-gray-400'
-                          : entry.rank === 3
-                            ? 'bg-orange-500/20 text-orange-600 dark:text-orange-400'
-                            : 'bg-muted text-muted-foreground'
-                    }`}
-                  >
-                    #{entry.rank}
+                  <div className="text-xs text-muted-foreground">
+                    {entry.wasteCount} items recycled
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-sm font-medium">{entry.address}</span>
-                      <Badge variant="secondary" className="text-xs">
-                        {entry.badge}
-                      </Badge>
-                    </div>
-                    <div className="mt-1 flex gap-4 text-xs text-muted-foreground">
-                      <span>{entry.wasteCount} items recycled</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-primary">
-                      {entry.points.toLocaleString()}
-                    </div>
-                    <div className="text-xs text-muted-foreground">points</div>
-                  </div>
-                </div>
+                </LeaderboardRow>
               ))}
             </div>
           </CardContent>

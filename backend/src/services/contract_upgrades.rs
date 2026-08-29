@@ -1,3 +1,4 @@
+use chrono::{DateTime, Utc};
 /// #805 - Automated Contract Upgrade Service
 /// Upgrade automation, validation, migration, rollback, and testing for Soroban contracts.
 use serde::{Deserialize, Serialize};
@@ -5,7 +6,6 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 use thiserror::Error;
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
 
 // ── Errors ────────────────────────────────────────────────────────────────────
 
@@ -171,7 +171,10 @@ impl UpgradeValidator for DefaultValidator {
                 message: if plan.to_version > plan.from_version {
                     "Version is correctly incremented".to_string()
                 } else {
-                    format!("to_version {} must be > from_version {}", plan.to_version, plan.from_version)
+                    format!(
+                        "to_version {} must be > from_version {}",
+                        plan.to_version, plan.from_version
+                    )
                 },
             },
             ValidationCheck {
@@ -257,12 +260,7 @@ impl ContractUpgradeService {
         self.plans.lock().unwrap().insert(plan.id.clone(), plan);
     }
 
-    fn transition(
-        &self,
-        plan: &mut UpgradePlan,
-        new_status: UpgradeStatus,
-        event: &str,
-    ) -> Result<(), UpgradeError> {
+    fn transition(&self, plan: &mut UpgradePlan, new_status: UpgradeStatus, event: &str) -> Result<(), UpgradeError> {
         if plan.status.is_terminal() {
             return Err(UpgradeError::InvalidTransition {
                 from: plan.status.as_str().to_string(),
@@ -366,7 +364,11 @@ impl ContractUpgradeService {
             }
         }
 
-        let result = MigrationResult { steps_completed: completed, steps_failed: failed, errors };
+        let result = MigrationResult {
+            steps_completed: completed,
+            steps_failed: failed,
+            errors,
+        };
 
         let mut plan = plan;
         plan.migration_result = Some(result.clone());
@@ -422,10 +424,7 @@ impl ContractUpgradeService {
             state_snapshot,
             created_at: Utc::now(),
         };
-        self.snapshots
-            .lock()
-            .unwrap()
-            .insert(plan_id.to_string(), snap.clone());
+        self.snapshots.lock().unwrap().insert(plan_id.to_string(), snap.clone());
         snap
     }
 
@@ -472,14 +471,7 @@ mod tests {
     }
 
     fn simple_plan(svc: &ContractUpgradeService) -> UpgradePlan {
-        svc.create_plan(
-            "v2 upgrade",
-            "Add new storage fields",
-            1,
-            2,
-            "abc123wasmhash",
-            None,
-        )
+        svc.create_plan("v2 upgrade", "Add new storage fields", 1, 2, "abc123wasmhash", None)
     }
 
     #[tokio::test]
@@ -490,10 +482,7 @@ mod tests {
 
         let report = svc.validate(&plan.id).await.unwrap();
         assert!(report.all_passed);
-        assert_eq!(
-            svc.get_plan(&plan.id).unwrap().status,
-            UpgradeStatus::MigrationReady
-        );
+        assert_eq!(svc.get_plan(&plan.id).unwrap().status, UpgradeStatus::MigrationReady);
     }
 
     #[tokio::test]
@@ -529,10 +518,7 @@ mod tests {
         assert_eq!(result.steps_failed, 0);
         assert!(state.contains_key("new_key"));
         assert!(!state.contains_key("old_key"));
-        assert_eq!(
-            svc.get_plan(&plan.id).unwrap().status,
-            UpgradeStatus::Deploying
-        );
+        assert_eq!(svc.get_plan(&plan.id).unwrap().status, UpgradeStatus::Deploying);
     }
 
     #[tokio::test]
@@ -564,10 +550,7 @@ mod tests {
         let mut state = HashMap::new();
         svc.run_migration(&plan.id, &mut state).await.unwrap();
         svc.complete_upgrade(&plan.id).unwrap();
-        assert_eq!(
-            svc.get_plan(&plan.id).unwrap().status,
-            UpgradeStatus::Completed
-        );
+        assert_eq!(svc.get_plan(&plan.id).unwrap().status, UpgradeStatus::Completed);
     }
 
     #[tokio::test]
@@ -586,10 +569,7 @@ mod tests {
         let snap = svc.rollback(&plan.id, &mut state).unwrap();
         assert_eq!(snap.from_version, 1);
         assert_eq!(state["key"], "original_val");
-        assert_eq!(
-            svc.get_plan(&plan.id).unwrap().status,
-            UpgradeStatus::RolledBack
-        );
+        assert_eq!(svc.get_plan(&plan.id).unwrap().status, UpgradeStatus::RolledBack);
     }
 
     #[tokio::test]

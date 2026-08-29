@@ -3,9 +3,7 @@ use soroban_sdk::{
     testutils::{Address as _, Events},
     Address, Env, IntoVal, String, TryIntoVal, Vec,
 };
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 #[test]
 fn test_waste_transferred_event_emitted() {
@@ -50,8 +48,7 @@ fn test_waste_transferred_event_emitted() {
     let events = env.events().all();
     let event = events.last().unwrap();
 
-    let expected_topics: Vec<soroban_sdk::Val> =
-        (symbol_short!("transfer"), waste_id).into_val(&env);
+    let expected_topics: Vec<soroban_sdk::Val> = (symbol_short!("transfer"), waste_id).into_val(&env);
 
     assert_eq!(event.1, expected_topics);
 

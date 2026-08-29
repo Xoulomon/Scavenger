@@ -1,4 +1,4 @@
-import { Trophy, Medal } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 
 const mockLeaderboard = [

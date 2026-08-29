@@ -1,12 +1,10 @@
 #![cfg(test)]
 
 use proptest::prelude::*;
-use soroban_sdk::{
-    symbol_short, testutils::Address as _, Address, Env, String as SorobanString,
-};
+use soroban_sdk::{symbol_short, testutils::Address as _, Address, Env, String as SorobanString};
 use stellar_scavngr_contract::{
-    CertificationLevel, ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-    calculate_carbon_credits,
+    calculate_carbon_credits, CertificationLevel, ParticipantRole, ScavengerContract, ScavengerContractClient,
+    WasteType,
 };
 
 fn setup_env() -> (Env, ScavengerContractClient<'static>, Address) {

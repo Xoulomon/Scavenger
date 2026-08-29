@@ -45,7 +45,7 @@ export function WasteSubmissionWizard({ onComplete, onCancel }: { onComplete: (d
     localStorage.setItem('waste_submission_draft', JSON.stringify({ ...formData, step: currentStep }));
   };
 
-  const loadDraft = () => {
+  const _loadDraft = () => {
     const draft = localStorage.getItem('waste_submission_draft');
     if (draft) {
       const parsed = JSON.parse(draft);

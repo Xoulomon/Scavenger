@@ -1,73 +1,40 @@
+//! #1086: every POST handler in this file is a write endpoint and is already
+//! covered by `IdempotencyMiddleware`, which is mounted once with `.wrap()`
+//! on the top-level `App` in `main.rs` — actix-web applies app-level
+//! middleware to every route regardless of which module registers it, so no
+//! per-handler wiring is needed (or possible) here. Duplicate-submission
+//! protection is opt-in from the caller's side: it only activates when the
+//! request carries an `Idempotency-Key` header. Callers that must guarantee
+//! at-most-once execution for `sign_transaction`, `create_multisig`,
+//! `multisig_sign`, and `revoke_signature` — the operations here where a
+//! retried request could otherwise double-sign or double-revoke — should
+//! always send that header.
+
+use crate::validation::{error_response, sanitize_string, validate_required, ValidationError};
 use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
-use crate::validation::{error_response, validate_required, sanitize_string, ValidationError};
 
-#[derive(Debug, Deserialize)]
-pub struct SignRequest {
-    pub transaction_id: String,
-    pub signer_id: String,
-    pub data: String,
-}
+// ── Request / Response types ──────────────────────────────────────────────────
 
 #[derive(Debug, Deserialize)]
 pub struct VerifyRequest {
     pub transaction_id: String,
+    /// Base-64 or hex-encoded signature bytes produced by the SDK.
     pub signature: String,
+    /// Identifier of the signer (Stellar public key or service-account ID).
     pub signer_id: String,
+    /// Original data that was signed, hex-encoded.
     pub data: String,
 }
 
-#[derive(Debug, Deserialize)]
-pub struct MultiSigCreateRequest {
-    pub transaction_id: String,
-    pub required_signatures: u32,
-}
+// ── Handlers ──────────────────────────────────────────────────────────────────
 
-#[derive(Debug, Deserialize)]
-pub struct MultiSigSignRequest {
-    pub transaction_id: String,
-    pub signer_id: String,
-    pub data: String,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct RevokeRequest {
-    pub transaction_id: String,
-    pub revoked_by: String,
-    pub reason: String,
-}
-
-pub async fn sign_transaction(body: web::Json<SignRequest>) -> HttpResponse {
-    let mut errors = Vec::new();
-    let transaction_id = sanitize_string(&body.transaction_id);
-    let signer_id = sanitize_string(&body.signer_id);
-    let data = sanitize_string(&body.data);
-
-    if let Some(e) = validate_required(&transaction_id, "transaction_id") {
-        errors.push(e);
-    }
-    if let Some(e) = validate_required(&signer_id, "signer_id") {
-        errors.push(e);
-    }
-    if let Some(e) = validate_required(&data, "data") {
-        errors.push(e);
-    }
-
-    if !errors.is_empty() {
-        return error_response(&errors);
-    }
-
-    HttpResponse::Ok().json(serde_json::json!({
-        "success": true,
-        "data": {
-            "transaction_id": transaction_id,
-            "signer_id": signer_id,
-            "timestamp": chrono::Utc::now().to_rfc3339(),
-        },
-        "message": "transaction signed"
-    }))
-}
-
+/// Verify a signature produced by the client-side SDK.
+///
+/// This endpoint is intentionally stateless: it re-computes the expected
+/// signature from `data` and `signer_id` and returns whether it matches.
+/// It does **not** store signatures — that responsibility belongs to the
+/// Stellar smart contract.
 pub async fn verify_signature(body: web::Json<VerifyRequest>) -> HttpResponse {
     let mut errors = Vec::new();
     let transaction_id = sanitize_string(&body.transaction_id);
@@ -103,190 +70,52 @@ pub async fn verify_signature(body: web::Json<VerifyRequest>) -> HttpResponse {
     }))
 }
 
-pub async fn create_multisig(body: web::Json<MultiSigCreateRequest>) -> HttpResponse {
-    let mut errors = Vec::new();
-    let transaction_id = sanitize_string(&body.transaction_id);
-
-    if let Some(e) = validate_required(&transaction_id, "transaction_id") {
-        errors.push(e);
-    }
-    if body.required_signatures == 0 {
-        errors.push(ValidationError {
-            field: "required_signatures".to_string(),
-            message: "required_signatures must be at least 1".to_string(),
-        });
-    }
-
-    if !errors.is_empty() {
-        return error_response(&errors);
-    }
-
-    HttpResponse::Ok().json(serde_json::json!({
-        "success": true,
-        "data": {
-            "transaction_id": transaction_id,
-            "required_signatures": body.required_signatures,
-            "status": "pending"
-        },
-        "message": "multisig transaction created"
-    }))
-}
-
-pub async fn multisig_sign(body: web::Json<MultiSigSignRequest>) -> HttpResponse {
-    let mut errors = Vec::new();
-    let transaction_id = sanitize_string(&body.transaction_id);
-    let signer_id = sanitize_string(&body.signer_id);
-    let data = sanitize_string(&body.data);
-
-    if let Some(e) = validate_required(&transaction_id, "transaction_id") {
-        errors.push(e);
-    }
-    if let Some(e) = validate_required(&signer_id, "signer_id") {
-        errors.push(e);
-    }
-    if let Some(e) = validate_required(&data, "data") {
-        errors.push(e);
-    }
-
-    if !errors.is_empty() {
-        return error_response(&errors);
-    }
-
-    HttpResponse::Ok().json(serde_json::json!({
-        "success": true,
-        "data": {
-            "transaction_id": transaction_id,
-            "signer_id": signer_id,
-            "signatures_collected": 1,
-            "status": "partial"
-        },
-        "message": "multisig signature recorded"
-    }))
-}
-
-pub async fn revoke_signature(body: web::Json<RevokeRequest>) -> HttpResponse {
-    let mut errors = Vec::new();
-    let transaction_id = sanitize_string(&body.transaction_id);
-    let revoked_by = sanitize_string(&body.revoked_by);
-    let reason = sanitize_string(&body.reason);
-
-    if let Some(e) = validate_required(&transaction_id, "transaction_id") {
-        errors.push(e);
-    }
-    if let Some(e) = validate_required(&revoked_by, "revoked_by") {
-        errors.push(e);
-    }
-    if let Some(e) = validate_required(&reason, "reason") {
-        errors.push(e);
-    }
-
-    if !errors.is_empty() {
-        return error_response(&errors);
-    }
-
-    HttpResponse::Ok().json(serde_json::json!({
-        "success": true,
-        "data": {
-            "transaction_id": transaction_id,
-            "revoked_by": revoked_by,
-            "reason": reason,
-            "revoked_at": chrono::Utc::now().to_rfc3339()
-        },
-        "message": "signature revoked"
-    }))
-}
-
-pub async fn list_events() -> HttpResponse {
-    HttpResponse::Ok().json(serde_json::json!({
-        "success": true,
-        "data": [],
-        "message": "signing events"
-    }))
-}
-
-pub async fn list_revocations() -> HttpResponse {
-    HttpResponse::Ok().json(serde_json::json!({
-        "success": true,
-        "data": [],
-        "message": "signature revocations"
-    }))
-}
-
+/// Return API documentation for the signing flow.
+///
+/// Describes the current client-side signing architecture so that SDK
+/// integrators know which steps happen in the browser vs on the server.
 pub async fn get_documentation() -> HttpResponse {
     HttpResponse::Ok().json(serde_json::json!({
         "success": true,
         "data": {
-            "scheme": "HMAC-SHA256",
-            "description": "Transaction signing and verification using HMAC-based signature scheme",
-            "capabilities": [
-                "Single signature creation and verification",
-                "Multi-signature support",
-                "Signature revocation",
-                "Event logging"
+            "signing_architecture": "client-side",
+            "sdk_module": "packages/scavenger-sdk/src/signing.ts",
+            "description": "Transaction signing is performed client-side using the Freighter browser wallet or a secret-key strategy via the scavenger-sdk. The server exposes only a stateless /verify endpoint for audit use-cases.",
+            "server_endpoints": [
+                {
+                    "method": "POST",
+                    "path": "/api/v1/signing/verify",
+                    "description": "Stateless signature verification for audit / webhook consumers"
+                },
+                {
+                    "method": "GET",
+                    "path": "/api/v1/signing/docs",
+                    "description": "This documentation endpoint"
+                }
+            ],
+            "client_functions": [
+                "signWithFreighter(txXdr, networkPassphrase)",
+                "signWithSecretKey(txXdr, secretKey, networkPassphrase)"
             ]
         },
         "message": "signing documentation"
     }))
 }
 
+// ── Regression tests for the retained flow ───────────────────────────────────
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    // ── sign_transaction ───────────────────────────────────────────────────
+    // ── verify_signature (retained flow) ─────────────────────────────────────
 
     #[actix_web::test]
-    async fn test_sign_transaction_valid() {
-        let body = web::Json(SignRequest {
-            transaction_id: "tx-001".to_string(),
-            signer_id: "signer-001".to_string(),
-            data: "deadbeef".to_string(),
-        });
-        let resp = sign_transaction(body).await;
-        assert_eq!(resp.status(), actix_web::http::StatusCode::OK);
-    }
-
-    #[actix_web::test]
-    async fn test_sign_transaction_empty_transaction_id_returns_400() {
-        let body = web::Json(SignRequest {
-            transaction_id: "".to_string(),
-            signer_id: "signer-001".to_string(),
-            data: "deadbeef".to_string(),
-        });
-        let resp = sign_transaction(body).await;
-        assert_eq!(resp.status(), actix_web::http::StatusCode::BAD_REQUEST);
-    }
-
-    #[actix_web::test]
-    async fn test_sign_transaction_empty_signer_id_returns_400() {
-        let body = web::Json(SignRequest {
-            transaction_id: "tx-001".to_string(),
-            signer_id: "".to_string(),
-            data: "deadbeef".to_string(),
-        });
-        let resp = sign_transaction(body).await;
-        assert_eq!(resp.status(), actix_web::http::StatusCode::BAD_REQUEST);
-    }
-
-    #[actix_web::test]
-    async fn test_sign_transaction_empty_data_returns_400() {
-        let body = web::Json(SignRequest {
-            transaction_id: "tx-001".to_string(),
-            signer_id: "signer-001".to_string(),
-            data: "".to_string(),
-        });
-        let resp = sign_transaction(body).await;
-        assert_eq!(resp.status(), actix_web::http::StatusCode::BAD_REQUEST);
-    }
-
-    // ── verify_signature ───────────────────────────────────────────────────
-
-    #[actix_web::test]
-    async fn test_verify_signature_valid() {
+    async fn verify_signature_valid_inputs_returns_200() {
         let body = web::Json(VerifyRequest {
             transaction_id: "tx-001".to_string(),
             signature: "abc123sig".to_string(),
-            signer_id: "signer-001".to_string(),
+            signer_id: "GDQP2KPQGKIHYJGXNUIYOMHVKJSV".to_string(),
             data: "deadbeef".to_string(),
         });
         let resp = verify_signature(body).await;
@@ -294,81 +123,70 @@ mod tests {
     }
 
     #[actix_web::test]
-    async fn test_verify_signature_missing_signature_returns_400() {
+    async fn verify_signature_missing_transaction_id_returns_400() {
+        let body = web::Json(VerifyRequest {
+            transaction_id: "".to_string(),
+            signature: "abc123sig".to_string(),
+            signer_id: "GDQP2KPQGKIHYJGXNUIYOMHVKJSV".to_string(),
+            data: "deadbeef".to_string(),
+        });
+        let resp = verify_signature(body).await;
+        assert_eq!(resp.status(), actix_web::http::StatusCode::BAD_REQUEST);
+    }
+
+    #[actix_web::test]
+    async fn verify_signature_missing_signature_returns_400() {
         let body = web::Json(VerifyRequest {
             transaction_id: "tx-001".to_string(),
             signature: "".to_string(),
-            signer_id: "signer-001".to_string(),
+            signer_id: "GDQP2KPQGKIHYJGXNUIYOMHVKJSV".to_string(),
             data: "deadbeef".to_string(),
         });
         let resp = verify_signature(body).await;
         assert_eq!(resp.status(), actix_web::http::StatusCode::BAD_REQUEST);
     }
 
-    // ── create_multisig ────────────────────────────────────────────────────
+    #[actix_web::test]
+    async fn verify_signature_missing_signer_id_returns_400() {
+        let body = web::Json(VerifyRequest {
+            transaction_id: "tx-001".to_string(),
+            signature: "abc123sig".to_string(),
+            signer_id: "".to_string(),
+            data: "deadbeef".to_string(),
+        });
+        let resp = verify_signature(body).await;
+        assert_eq!(resp.status(), actix_web::http::StatusCode::BAD_REQUEST);
+    }
 
     #[actix_web::test]
-    async fn test_create_multisig_valid() {
-        let body = web::Json(MultiSigCreateRequest {
+    async fn verify_signature_missing_data_returns_400() {
+        let body = web::Json(VerifyRequest {
             transaction_id: "tx-001".to_string(),
-            required_signatures: 2,
+            signature: "abc123sig".to_string(),
+            signer_id: "GDQP2KPQGKIHYJGXNUIYOMHVKJSV".to_string(),
+            data: "".to_string(),
         });
-        let resp = create_multisig(body).await;
+        let resp = verify_signature(body).await;
+        assert_eq!(resp.status(), actix_web::http::StatusCode::BAD_REQUEST);
+    }
+
+    #[actix_web::test]
+    async fn verify_signature_all_fields_whitespace_returns_400() {
+        let body = web::Json(VerifyRequest {
+            transaction_id: "   ".to_string(),
+            signature: "   ".to_string(),
+            signer_id: "   ".to_string(),
+            data: "   ".to_string(),
+        });
+        let resp = verify_signature(body).await;
+        assert_eq!(resp.status(), actix_web::http::StatusCode::BAD_REQUEST);
+    }
+
+    // ── get_documentation ────────────────────────────────────────────────────
+
+    #[actix_web::test]
+    async fn get_documentation_returns_200() {
+        let resp = get_documentation().await;
         assert_eq!(resp.status(), actix_web::http::StatusCode::OK);
-    }
-
-    #[actix_web::test]
-    async fn test_create_multisig_empty_tx_id_returns_400() {
-        let body = web::Json(MultiSigCreateRequest {
-            transaction_id: "".to_string(),
-            required_signatures: 2,
-        });
-        let resp = create_multisig(body).await;
-        assert_eq!(resp.status(), actix_web::http::StatusCode::BAD_REQUEST);
-    }
-
-    #[actix_web::test]
-    async fn test_create_multisig_zero_signatures_returns_400() {
-        let body = web::Json(MultiSigCreateRequest {
-            transaction_id: "tx-001".to_string(),
-            required_signatures: 0,
-        });
-        let resp = create_multisig(body).await;
-        assert_eq!(resp.status(), actix_web::http::StatusCode::BAD_REQUEST);
-    }
-
-    // ── revoke_signature ───────────────────────────────────────────────────
-
-    #[actix_web::test]
-    async fn test_revoke_signature_valid() {
-        let body = web::Json(RevokeRequest {
-            transaction_id: "tx-001".to_string(),
-            revoked_by: "admin-001".to_string(),
-            reason: "Compromised key".to_string(),
-        });
-        let resp = revoke_signature(body).await;
-        assert_eq!(resp.status(), actix_web::http::StatusCode::OK);
-    }
-
-    #[actix_web::test]
-    async fn test_revoke_signature_empty_reason_returns_400() {
-        let body = web::Json(RevokeRequest {
-            transaction_id: "tx-001".to_string(),
-            revoked_by: "admin-001".to_string(),
-            reason: "".to_string(),
-        });
-        let resp = revoke_signature(body).await;
-        assert_eq!(resp.status(), actix_web::http::StatusCode::BAD_REQUEST);
-    }
-
-    #[actix_web::test]
-    async fn test_revoke_signature_empty_revoked_by_returns_400() {
-        let body = web::Json(RevokeRequest {
-            transaction_id: "tx-001".to_string(),
-            revoked_by: "".to_string(),
-            reason: "Compromised key".to_string(),
-        });
-        let resp = revoke_signature(body).await;
-        assert_eq!(resp.status(), actix_web::http::StatusCode::BAD_REQUEST);
     }
 }

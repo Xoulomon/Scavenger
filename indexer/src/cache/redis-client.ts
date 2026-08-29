@@ -38,7 +38,7 @@ export class RedisCache {
   async get<T>(key: string): Promise<T | null> {
     return new Promise((resolve, reject) => {
       this.client.get(key, (err, data) => {
-        if (err) reject(err);
+        if (err) {reject(err);}
         if (data) {
           this.stats.hits++;
           resolve(JSON.parse(data));
@@ -54,7 +54,7 @@ export class RedisCache {
     const ttl = type ? this.ttl[type] || 3600 : 3600;
     return new Promise((resolve, reject) => {
       this.client.setex(key, ttl, JSON.stringify(value), (err) => {
-        if (err) reject(err);
+        if (err) {reject(err);}
         this.stats.sets++;
         resolve();
       });
@@ -64,7 +64,7 @@ export class RedisCache {
   async del(key: string): Promise<void> {
     return new Promise((resolve, reject) => {
       this.client.del(key, (err) => {
-        if (err) reject(err);
+        if (err) {reject(err);}
         this.stats.deletes++;
         resolve();
       });
@@ -74,13 +74,13 @@ export class RedisCache {
   async invalidatePattern(pattern: string): Promise<void> {
     return new Promise((resolve, reject) => {
       this.client.keys(pattern, (err, keys) => {
-        if (err) reject(err);
+        if (err) {reject(err);}
         if (keys.length === 0) {
           resolve();
           return;
         }
         this.client.del(...keys, (err) => {
-          if (err) reject(err);
+          if (err) {reject(err);}
           this.stats.deletes += keys.length;
           resolve();
         });
@@ -88,9 +88,9 @@ export class RedisCache {
     });
   }
 
-  async warmCache(key: string, loader: () => Promise<any>, type?: string): Promise<any> {
-    const cached = await this.get(key);
-    if (cached) return cached;
+  async warmCache<T>(key: string, loader: () => Promise<T>, type?: string): Promise<T> {
+    const cached = await this.get<T>(key);
+    if (cached) {return cached;}
 
     const data = await loader();
     await this.set(key, data, type);

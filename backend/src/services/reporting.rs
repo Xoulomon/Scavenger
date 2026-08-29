@@ -86,7 +86,11 @@ impl ReportService for ReportingService {
             format: request.format,
             status: "completed".to_string(),
             created_at: chrono::Utc::now().to_rfc3339(),
-            file_url: Some(format!("https://storage.example.com/{}.{}", uuid::Uuid::new_v4(), request.format)),
+            file_url: Some(format!(
+                "https://storage.example.com/{}.{}",
+                uuid::Uuid::new_v4(),
+                request.format
+            )),
         })
     }
 
@@ -107,14 +111,10 @@ impl ReportService for ReportingService {
 
     async fn schedule_report(&self, scheduled: ScheduledReport) -> Result<String, ReportError> {
         if scheduled.report_type.is_empty() {
-            return Err(ReportError::InvalidReport(
-                "Empty report_type".to_string(),
-            ));
+            return Err(ReportError::InvalidReport("Empty report_type".to_string()));
         }
         if scheduled.email_recipients.is_empty() {
-            return Err(ReportError::InvalidReport(
-                "No email recipients".to_string(),
-            ));
+            return Err(ReportError::InvalidReport("No email recipients".to_string()));
         }
 
         Ok(uuid::Uuid::new_v4().to_string())
@@ -125,11 +125,7 @@ impl ReportService for ReportingService {
             ReportTemplate {
                 name: "waste_report".to_string(),
                 description: "Waste collection and processing report".to_string(),
-                fields: vec![
-                    "waste_type".to_string(),
-                    "quantity".to_string(),
-                    "date".to_string(),
-                ],
+                fields: vec!["waste_type".to_string(), "quantity".to_string(), "date".to_string()],
             },
             ReportTemplate {
                 name: "participants_report".to_string(),

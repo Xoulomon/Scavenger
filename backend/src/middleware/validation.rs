@@ -52,12 +52,9 @@ where
 
             if !content_type.starts_with("application/json") {
                 let (req, _) = req.into_parts();
-                let response = HttpResponse::UnsupportedMediaType().json(
-                    serde_json::json!({ "error": "Content-Type must be application/json" }),
-                );
-                return Box::pin(async move {
-                    Ok(ServiceResponse::new(req, response).map_into_right_body())
-                });
+                let response = HttpResponse::UnsupportedMediaType()
+                    .json(serde_json::json!({ "error": "Content-Type must be application/json" }));
+                return Box::pin(async move { Ok(ServiceResponse::new(req, response).map_into_right_body()) });
             }
 
             if let Some(length) = req
@@ -68,12 +65,9 @@ where
             {
                 if length > MAX_BODY_BYTES {
                     let (req, _) = req.into_parts();
-                    let response = HttpResponse::PayloadTooLarge().json(
-                        serde_json::json!({ "error": "Request body must not exceed 1MB" }),
-                    );
-                    return Box::pin(async move {
-                        Ok(ServiceResponse::new(req, response).map_into_right_body())
-                    });
+                    let response = HttpResponse::PayloadTooLarge()
+                        .json(serde_json::json!({ "error": "Request body must not exceed 1MB" }));
+                    return Box::pin(async move { Ok(ServiceResponse::new(req, response).map_into_right_body()) });
                 }
             }
         }

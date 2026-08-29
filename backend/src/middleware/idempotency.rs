@@ -205,9 +205,7 @@ where
             let status = svc_res.status();
             let (http_req, body) = svc_res.into_parts();
 
-            let bytes = actix_web::body::to_bytes(body.into_body())
-                .await
-                .unwrap_or_default();
+            let bytes = actix_web::body::to_bytes(body.into_body()).await.unwrap_or_default();
 
             // Only cache successful/client-error responses
             if status.is_success() || status.is_client_error() {
@@ -293,9 +291,7 @@ mod tests {
         let resp = test::call_service(&app, req).await;
         assert_eq!(resp.status(), StatusCode::OK);
         assert_eq!(
-            resp.headers()
-                .get(STATUS_HEADER)
-                .and_then(|v| v.to_str().ok()),
+            resp.headers().get(STATUS_HEADER).and_then(|v| v.to_str().ok()),
             Some("created")
         );
         assert_eq!(counter.load(Ordering::SeqCst), 1);
@@ -328,10 +324,7 @@ mod tests {
         let resp2 = test::call_service(&app, r2).await;
 
         assert_eq!(
-            resp2
-                .headers()
-                .get(STATUS_HEADER)
-                .and_then(|v| v.to_str().ok()),
+            resp2.headers().get(STATUS_HEADER).and_then(|v| v.to_str().ok()),
             Some("replayed")
         );
         // Handler must NOT have been called again

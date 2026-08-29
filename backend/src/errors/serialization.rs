@@ -35,7 +35,10 @@ impl AppError {
     pub fn to_response_body(&self) -> ApiResponse<()> {
         let fields = validation_fields(self).map(|fs| {
             fs.into_iter()
-                .map(|f| FieldDetail { field: f.field, message: f.message })
+                .map(|f| FieldDetail {
+                    field: f.field,
+                    message: f.message,
+                })
                 .collect::<Vec<_>>()
         });
 

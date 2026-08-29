@@ -1,9 +1,7 @@
 #![cfg(test)]
 
 use soroban_sdk::{symbol_short, testutils::Address as _, Address, Env, String};
-use stellar_scavngr_contract::{
-    Error, ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{Error, ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 /// Boots a contract with an admin, a stellar-asset token, and the seller and
 /// buyer pre-funded with that token. Seller is also pre-credited with
@@ -16,29 +14,15 @@ fn setup_marketplace(env: &Env) -> (ScavengerContractClient<'_>, Address, Addres
     let client = ScavengerContractClient::new(env, &contract_id);
 
     let admin = Address::generate(env);
-    let token = env
-        .register_stellar_asset_contract_v2(admin.clone())
-        .address();
+    let token = env.register_stellar_asset_contract_v2(admin.clone()).address();
 
     client.initialize_admin(&admin);
     client.set_token_address(&admin, &token);
 
     let seller = Address::generate(env);
     let buyer = Address::generate(env);
-    client.register_participant(
-        &seller,
-        &ParticipantRole::Recycler,
-        &symbol_short!("seller"),
-        &0,
-        &0,
-    );
-    client.register_participant(
-        &buyer,
-        &ParticipantRole::Recycler,
-        &symbol_short!("buyer"),
-        &0,
-        &0,
-    );
+    client.register_participant(&seller, &ParticipantRole::Recycler, &symbol_short!("seller"), &0, &0);
+    client.register_participant(&buyer, &ParticipantRole::Recycler, &symbol_short!("buyer"), &0, &0);
 
     // Mint tokens to the buyer so they can pay for listings.
     soroban_sdk::token::StellarAssetClient::new(env, &token).mint(&buyer, &1_000_000);

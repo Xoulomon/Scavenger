@@ -1,9 +1,7 @@
 #![cfg(test)]
 
-use soroban_sdk::{testutils::Address as _, symbol_short, Address, Env, String};
-use stellar_scavngr_contract::{
-    Error, ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use soroban_sdk::{symbol_short, testutils::Address as _, Address, Env, String};
+use stellar_scavngr_contract::{Error, ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 fn setup(env: &Env) -> (ScavengerContractClient, Address, Address) {
     let contract_id = env.register_contract(None, ScavengerContract);
@@ -12,13 +10,7 @@ fn setup(env: &Env) -> (ScavengerContractClient, Address, Address) {
     client.initialize_admin(&admin);
 
     let owner = Address::generate(env);
-    client.register_participant(
-        &owner,
-        &ParticipantRole::Recycler,
-        &symbol_short!("owner"),
-        &0,
-        &0,
-    );
+    client.register_participant(&owner, &ParticipantRole::Recycler, &symbol_short!("owner"), &0, &0);
     (client, admin, owner)
 }
 
@@ -40,7 +32,9 @@ fn test_admin_can_reconcile_within_threshold() {
 
     let waste_id = make_waste(&client, &owner, 1000);
 
-    let record = client.reconcile_waste(&waste_id, &990u128, &admin, &reason(&env)).unwrap();
+    let record = client
+        .reconcile_waste(&waste_id, &990u128, &admin, &reason(&env))
+        .unwrap();
 
     assert_eq!(record.waste_id, waste_id);
     assert_eq!(record.original_weight, 1000);
@@ -59,7 +53,9 @@ fn test_reconcile_increase_weight_within_threshold() {
 
     let waste_id = make_waste(&client, &owner, 1000);
 
-    let record = client.reconcile_waste(&waste_id, &1050u128, &admin, &reason(&env)).unwrap();
+    let record = client
+        .reconcile_waste(&waste_id, &1050u128, &admin, &reason(&env))
+        .unwrap();
 
     assert_eq!(record.original_weight, 1000);
     assert_eq!(record.adjusted_weight, 1050);
@@ -75,7 +71,9 @@ fn test_exactly_10_percent_threshold_is_allowed() {
 
     // 10 % of 1000 = 100 → verified_weight = 900 (exactly 10% less)
     let waste_id = make_waste(&client, &owner, 1000);
-    let record = client.reconcile_waste(&waste_id, &900u128, &admin, &reason(&env)).unwrap();
+    let record = client
+        .reconcile_waste(&waste_id, &900u128, &admin, &reason(&env))
+        .unwrap();
 
     assert_eq!(record.adjusted_weight, 900);
 }
@@ -87,7 +85,9 @@ fn test_reconcile_updates_audit_log() {
     let (client, admin, owner) = setup(&env);
 
     let waste_id = make_waste(&client, &owner, 1000);
-    client.reconcile_waste(&waste_id, &950u128, &admin, &reason(&env)).unwrap();
+    client
+        .reconcile_waste(&waste_id, &950u128, &admin, &reason(&env))
+        .unwrap();
 
     let log = client.get_reconciliation_log(&waste_id);
     assert_eq!(log.len(), 1);
@@ -107,9 +107,13 @@ fn test_multiple_reconciliations_accumulate_in_log() {
 
     let waste_id = make_waste(&client, &owner, 1000);
 
-    client.reconcile_waste(&waste_id, &950u128, &admin, &reason(&env)).unwrap();
+    client
+        .reconcile_waste(&waste_id, &950u128, &admin, &reason(&env))
+        .unwrap();
     // Second reconcile from the new weight of 950
-    client.reconcile_waste(&waste_id, &905u128, &admin, &reason(&env)).unwrap();
+    client
+        .reconcile_waste(&waste_id, &905u128, &admin, &reason(&env))
+        .unwrap();
 
     let log = client.get_reconciliation_log(&waste_id);
     assert_eq!(log.len(), 2);
@@ -126,7 +130,9 @@ fn test_auditor_can_reconcile() {
     client.grant_permission(&admin, &auditor, &1u32).unwrap();
 
     let waste_id = make_waste(&client, &owner, 1000);
-    let record = client.reconcile_waste(&waste_id, &980u128, &auditor, &reason(&env)).unwrap();
+    let record = client
+        .reconcile_waste(&waste_id, &980u128, &auditor, &reason(&env))
+        .unwrap();
 
     assert_eq!(record.adjusted_weight, 980);
 }
@@ -257,7 +263,9 @@ fn test_reconcile_reason_stored_in_record() {
     let waste_id = make_waste(&client, &owner, 1000);
     let custom_reason = String::from_str(&env, "sensor drift detected");
 
-    client.reconcile_waste(&waste_id, &970u128, &admin, &custom_reason).unwrap();
+    client
+        .reconcile_waste(&waste_id, &970u128, &admin, &custom_reason)
+        .unwrap();
 
     let log = client.get_reconciliation_log(&waste_id);
     let entry = log.get(0).unwrap();

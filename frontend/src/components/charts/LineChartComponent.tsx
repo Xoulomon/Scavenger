@@ -1,4 +1,5 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { DEFAULT_CHART_MARGIN, DEFAULT_GRID_PROPS, DEFAULT_RESPONSIVE_PROPS, defaultTooltipProps, defaultLegendProps } from './chartConfig';
 
 interface LineChartProps {
   data: Record<string, unknown>[];
@@ -8,13 +9,13 @@ interface LineChartProps {
 
 export function LineChartComponent({ data, xKey, lines }: LineChartProps) {
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" />
+    <ResponsiveContainer {...DEFAULT_RESPONSIVE_PROPS}>
+      <LineChart data={data} margin={DEFAULT_CHART_MARGIN}>
+        <CartesianGrid {...DEFAULT_GRID_PROPS} />
         <XAxis dataKey={xKey} />
         <YAxis />
-        <Tooltip />
-        <Legend />
+        <Tooltip {...defaultTooltipProps} />
+        <Legend {...defaultLegendProps} />
         {lines.map((line) => (
           <Line
             key={line.key}
@@ -29,3 +30,4 @@ export function LineChartComponent({ data, xKey, lines }: LineChartProps) {
     </ResponsiveContainer>
   );
 }
+

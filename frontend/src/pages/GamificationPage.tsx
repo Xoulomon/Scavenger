@@ -4,7 +4,7 @@ import { useGamification } from '@/hooks/useGamification'
 import { Badge as BadgeType, Challenge, LeaderboardEntry, Level } from '@/lib/gamification'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
-import { Trophy, Star, Zap, Target, Calendar } from 'lucide-react'
+import { Trophy, Star, Zap, Calendar } from 'lucide-react'
 import { cn } from '@/lib/cn'
 
 // ── Confetti ──────────────────────────────────────────────────────────────────

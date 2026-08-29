@@ -1,6 +1,13 @@
+use crate::services::notification_delivery::{ChannelSender, PushSender};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::sync::Arc;
 use thiserror::Error;
+
+// #1087: this module owns *what* to notify and *when* — device registration,
+// user preferences, and scheduling decisions. The actual wire send (the
+// "how") is delegated to a `ChannelSender` from `notification_delivery.rs`,
+// which is also where retry/delivery-tracking logic for that send lives.
 
 #[derive(Debug, Error)]
 pub enum NotificationError {
@@ -48,24 +55,21 @@ pub trait NotificationService: Send + Sync {
         device_token: &str,
         notification: PushNotification,
     ) -> Result<String, NotificationError>;
-    async fn set_preferences(
-        &self,
-        preference: NotificationPreference,
-    ) -> Result<(), NotificationError>;
+    async fn set_preferences(&self, preference: NotificationPreference) -> Result<(), NotificationError>;
     async fn get_preferences(&self, user_id: &str) -> Result<NotificationPreference, NotificationError>;
-    async fn schedule_notification(
-        &self,
-        scheduled: ScheduledNotification,
-    ) -> Result<String, NotificationError>;
+    async fn schedule_notification(&self, scheduled: ScheduledNotification) -> Result<String, NotificationError>;
 }
 
 pub struct FirebaseNotificationService {
-    project_id: String,
+    sender: Arc<dyn ChannelSender>,
 }
 
 impl FirebaseNotificationService {
     pub fn new(project_id: String) -> Self {
-        Self { project_id }
+        let sender = Arc::new(PushSender {
+            firebase_project_id: project_id,
+        });
+        Self { sender }
     }
 
     fn validate_token(&self, token: &str) -> Result<(), NotificationError> {
@@ -82,9 +86,7 @@ impl NotificationService for FirebaseNotificationService {
         self.validate_token(&token.token)?;
 
         if token.user_id.is_empty() {
-            return Err(NotificationError::InvalidToken(
-                "Empty user_id".to_string(),
-            ));
+            return Err(NotificationError::InvalidToken("Empty user_id".to_string()));
         }
 
         Ok(uuid::Uuid::new_v4().to_string())
@@ -98,50 +100,22 @@ impl NotificationService for FirebaseNotificationService {
         self.validate_token(device_token)?;
 
         if notification.title.is_empty() {
-            return Err(NotificationError::ServiceError(
-                "Empty title".to_string(),
-            ));
+            return Err(NotificationError::ServiceError("Empty title".to_string()));
         }
 
-        let client = reqwest::Client::new();
-        let body = serde_json::json!({
-            "message": {
-                "token": device_token,
-                "notification": {
-                    "title": notification.title,
-                    "body": notification.body
-                },
-                "data": notification.data
-            }
-        });
-
-        let response = client
-            .post(format!(
-                "https://fcm.googleapis.com/v1/projects/{}/messages:send",
-                self.project_id
-            ))
-            .json(&body)
-            .send()
+        // "How" the push is actually delivered (the FCM call, retries at the
+        // channel level) lives in notification_delivery.rs's PushSender.
+        self.sender
+            .send(device_token, &notification.title, &notification.body)
             .await
             .map_err(|e| NotificationError::ServiceError(e.to_string()))?;
 
-        if response.status().is_success() {
-            Ok(uuid::Uuid::new_v4().to_string())
-        } else {
-            Err(NotificationError::ServiceError(
-                "Failed to send notification".to_string(),
-            ))
-        }
+        Ok(uuid::Uuid::new_v4().to_string())
     }
 
-    async fn set_preferences(
-        &self,
-        preference: NotificationPreference,
-    ) -> Result<(), NotificationError> {
+    async fn set_preferences(&self, preference: NotificationPreference) -> Result<(), NotificationError> {
         if preference.user_id.is_empty() {
-            return Err(NotificationError::InvalidToken(
-                "Empty user_id".to_string(),
-            ));
+            return Err(NotificationError::InvalidToken("Empty user_id".to_string()));
         }
         Ok(())
     }
@@ -158,16 +132,11 @@ impl NotificationService for FirebaseNotificationService {
         })
     }
 
-    async fn schedule_notification(
-        &self,
-        scheduled: ScheduledNotification,
-    ) -> Result<String, NotificationError> {
+    async fn schedule_notification(&self, scheduled: ScheduledNotification) -> Result<String, NotificationError> {
         self.validate_token(&scheduled.device_token)?;
 
         if scheduled.notification.title.is_empty() {
-            return Err(NotificationError::ServiceError(
-                "Empty title".to_string(),
-            ));
+            return Err(NotificationError::ServiceError("Empty title".to_string()));
         }
 
         Ok(uuid::Uuid::new_v4().to_string())

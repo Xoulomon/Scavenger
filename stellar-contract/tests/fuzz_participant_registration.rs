@@ -11,12 +11,12 @@ proptest! {
         let env = Env::default();
         let contract_id = env.register_contract(None, stellar_scavngr_contract::Contract);
         let client = stellar_scavngr_contract::Client::new(&env, &contract_id);
-        
+
         let admin = Address::generate(&env);
         let participant = Address::generate(&env);
-        
+
         client.initialize_admin(&admin);
-        
+
         // Should not panic with valid inputs
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             client.register_participant(
@@ -27,7 +27,7 @@ proptest! {
                 &(lon as i32),
             )
         }));
-        
+
         prop_assert!(result.is_ok());
     }
 
@@ -39,12 +39,12 @@ proptest! {
         let env = Env::default();
         let contract_id = env.register_contract(None, stellar_scavngr_contract::Contract);
         let client = stellar_scavngr_contract::Client::new(&env, &contract_id);
-        
+
         let admin = Address::generate(&env);
         let participant = Address::generate(&env);
-        
+
         client.initialize_admin(&admin);
-        
+
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             client.register_participant(
                 &participant,
@@ -54,7 +54,7 @@ proptest! {
                 &lon,
             )
         }));
-        
+
         prop_assert!(result.is_ok());
     }
 
@@ -63,12 +63,12 @@ proptest! {
         let env = Env::default();
         let contract_id = env.register_contract(None, stellar_scavngr_contract::Contract);
         let client = stellar_scavngr_contract::Client::new(&env, &contract_id);
-        
+
         let admin = Address::generate(&env);
         let participant = Address::generate(&env);
-        
+
         client.initialize_admin(&admin);
-        
+
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             client.register_participant(
                 &participant,
@@ -78,7 +78,7 @@ proptest! {
                 &-74i32,
             )
         }));
-        
+
         prop_assert!(result.is_ok());
     }
 }

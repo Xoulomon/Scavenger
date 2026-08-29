@@ -20,23 +20,13 @@ fn setup_admin_and_charity(env: &Env) -> (ScavengerContractClient<'_>, Address, 
     (client, admin, charity)
 }
 
-fn register_and_fund_donor(
-    client: &ScavengerContractClient<'_>,
-    env: &Env,
-    admin: &Address,
-) -> Address {
+fn register_and_fund_donor(client: &ScavengerContractClient<'_>, env: &Env, admin: &Address) -> Address {
     let token_address = Address::generate(env);
     let rewarder = Address::generate(env);
     let donor = Address::generate(env);
 
     client.set_token_address(admin, &token_address);
-    client.register_participant(
-        &donor,
-        &ParticipantRole::Recycler,
-        &symbol_short!("donor"),
-        &100,
-        &200,
-    );
+    client.register_participant(&donor, &ParticipantRole::Recycler, &symbol_short!("donor"), &100, &200);
     client.reward_tokens(&rewarder, &donor, &1_000, &1);
 
     donor
@@ -124,8 +114,7 @@ fn test_donation_event_emission() {
     let events = env.events().all();
     let event = events.last().unwrap();
 
-    let expected_topics: Vec<soroban_sdk::Val> =
-        (symbol_short!("donated"), donor.clone()).into_val(&env);
+    let expected_topics: Vec<soroban_sdk::Val> = (symbol_short!("donated"), donor.clone()).into_val(&env);
     assert_eq!(event.1, expected_topics);
 
     let event_data: (i128, Address) = event.2.try_into_val(&env).unwrap();

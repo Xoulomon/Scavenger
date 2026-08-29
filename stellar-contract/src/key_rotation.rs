@@ -22,7 +22,7 @@
 //!
 //! ## Rotation procedure (admin-only)
 //!
-//! 1. Call `rotate_key(env, admin, purpose, new_key_hash)`.
+//! 1. Call `rotate_key(env, admin, current_admins, purpose, new_key_hash)`.
 //! 2. The current active key is archived (status → `Archived`).
 //! 3. The new key is stored with `version = old_version + 1`.
 //! 4. A `"key_rot"` event is emitted.
@@ -32,8 +32,43 @@
 //! Archived keys remain readable via `get_key_version` for audit purposes
 //! but are no longer returned by `get_active_key`.  Call `purge_key_version`
 //! to delete an archived entry and reclaim storage rent.
+//!
+//! ## Security review (issue #1099)
+//!
+//! This module has **no call sites in `lib.rs`** — it is not wired into any
+//! `ScavengerContract` entry point today, so there is no live on-chain
+//! exposure yet. It was however written to be wired in eventually, so it is
+//! reviewed and hardened as if it were:
+//!
+//! - **Authorization was previously only a doc comment.** Every mutating
+//!   function here used to accept an `admin: &Address` and simply *trust*
+//!   that the caller had already validated that address against the real
+//!   admin list before calling in ("Caller must ensure `admin.require_auth()`
+//!   was already called"). That is not enforcement — `require_auth()` only
+//!   proves the caller controls that specific address, not that the address
+//!   is an actual contract admin. A future call site that forgot the
+//!   membership check (or got it wrong) would let *any* address rotate,
+//!   revoke, or purge keys for itself. Every mutating function now takes the
+//!   authoritative `current_admins: &Vec<Address>` list and enforces both
+//!   `require_auth()` and admin membership internally via [`authorize`], so
+//!   the module can no longer be bypassed by a careless caller.
+//! - **Atomicity of rotation.** `rotate_key` performs its zero-hash check and
+//!   both storage reads *before* writing anything, and if any of those
+//!   fail (or the caller is unauthorized) the function returns `Err` before
+//!   any storage mutation occurs — so a rejected rotation can never leave the
+//!   old key archived without the new key active. Because Soroban only
+//!   commits a contract invocation's storage writes when the invocation
+//!   returns successfully, a rejected/panicking call is rolled back in full
+//!   by the host as well; this module additionally guarantees no partial
+//!   writes happen even *within* a single successful call. See the
+//!   `rotate_key_failure_leaves_old_key_untouched` test.
+//! - **Replay.** Once a key is rotated, `get_active_key` only ever returns
+//!   the newest version; archived/revoked versions are never promoted back
+//!   to active, so a stale key hash cannot be replayed as if it were still
+//!   current. See the `old_key_is_never_returned_as_active_after_rotation`
+//!   test.
 
-use soroban_sdk::{contracttype, symbol_short, Address, BytesN, Env};
+use soroban_sdk::{contracttype, symbol_short, Address, BytesN, Env, Vec};
 
 // ─── Key purpose ──────────────────────────────────────────────────────────────
 
@@ -144,25 +179,43 @@ pub enum KeyRotationError {
     CannotPurgeActive = 4,
     /// The supplied key hash is all-zeros (likely an accident).
     ZeroKeyHash = 5,
+    /// A key already exists for this purpose — use `rotate_key` instead.
+    AlreadyExists = 6,
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
+/// Verifies `caller` has signed the invocation **and** is a member of
+/// `current_admins`. Every mutating function in this module calls this before
+/// touching storage — authorization is enforced here, not left to callers.
+fn authorize(caller: &Address, current_admins: &Vec<Address>) -> Result<(), KeyRotationError> {
+    caller.require_auth();
+    if !current_admins.contains(caller) {
+        return Err(KeyRotationError::Unauthorized);
+    }
+    Ok(())
+}
+
 /// Installs the first key for a given `purpose`.
 ///
-/// Panics if a key for this purpose already exists — use `rotate_key` instead.
-/// Caller must ensure `admin.require_auth()` was already called.
+/// Returns `Err(KeyRotationError::AlreadyExists)` if a key for this purpose
+/// already exists — use `rotate_key` instead.
+///
+/// `current_admins` must be the caller's authoritative, up-to-date admin list
+/// (e.g. `ScavengerContract::get_admins`); `admin` is checked against it.
 pub fn install_key(
     env: &Env,
     admin: &Address,
+    current_admins: &Vec<Address>,
     purpose: KeyPurpose,
     key_hash: BytesN<32>,
 ) -> Result<u32, KeyRotationError> {
+    authorize(admin, current_admins)?;
     reject_zero_hash(&key_hash)?;
 
     let active_key_slot = KeyStorage::Active(purpose);
     if env.storage().instance().has::<KeyStorage>(&active_key_slot) {
-        panic!("key_rotation: use rotate_key to update an existing key");
+        return Err(KeyRotationError::AlreadyExists);
     }
 
     let version = 1u32;
@@ -192,13 +245,18 @@ pub fn install_key(
 /// The current active version is archived, and `new_key_hash` is stored as
 /// `version = old + 1`.  Returns the new version number.
 ///
-/// Caller must ensure `admin.require_auth()` was already called.
+/// `current_admins` must be the caller's authoritative, up-to-date admin list;
+/// `admin` is checked against it. All validation (authorization, zero-hash,
+/// existing-key lookups) happens before any storage write, so a rejected call
+/// never leaves the old key partially archived.
 pub fn rotate_key(
     env: &Env,
     admin: &Address,
+    current_admins: &Vec<Address>,
     purpose: KeyPurpose,
     new_key_hash: BytesN<32>,
 ) -> Result<u32, KeyRotationError> {
+    authorize(admin, current_admins)?;
     reject_zero_hash(&new_key_hash)?;
 
     // Fetch current active version
@@ -247,13 +305,16 @@ pub fn rotate_key(
 /// Revokes a specific version (marks it `Revoked`).
 ///
 /// Revoked keys are not returned by `get_active_key` and signal that the key
-/// material was compromised.  Caller must ensure `admin.require_auth()`.
+/// material was compromised. `current_admins` must be the caller's
+/// authoritative, up-to-date admin list; `admin` is checked against it.
 pub fn revoke_key_version(
     env: &Env,
     admin: &Address,
+    current_admins: &Vec<Address>,
     purpose: KeyPurpose,
     version: u32,
 ) -> Result<(), KeyRotationError> {
+    authorize(admin, current_admins)?;
     let slot = KeyStorage::Key(purpose, version);
     let mut record = env
         .storage()
@@ -306,14 +367,17 @@ pub fn active_version(env: &Env, purpose: KeyPurpose) -> Option<u32> {
 
 /// Purges an archived key version from storage, recovering the storage rent.
 ///
-/// Cannot purge the currently active version.
-/// Caller must ensure `admin.require_auth()`.
+/// Cannot purge the currently active version. `current_admins` must be the
+/// caller's authoritative, up-to-date admin list; `admin` is checked against
+/// it.
 pub fn purge_key_version(
     env: &Env,
     admin: &Address,
+    current_admins: &Vec<Address>,
     purpose: KeyPurpose,
     version: u32,
 ) -> Result<(), KeyRotationError> {
+    authorize(admin, current_admins)?;
     // Prevent purging the active version
     if let Some(active) = active_version(env, purpose) {
         if active == version {
@@ -370,14 +434,24 @@ mod tests {
         BytesN::from_array(env, &[0u8; 32])
     }
 
+    /// Test env with mocked auths, one admin address, and its singleton
+    /// admin list — mirrors how `lib.rs` would fetch `current_admins`.
+    fn setup(env: &Env) -> (Address, Vec<Address>) {
+        env.mock_all_auths();
+        let admin = Address::generate(env);
+        let admins = Vec::from_array(env, [admin.clone()]);
+        (admin, admins)
+    }
+
     // ── install_key ───────────────────────────────────────────────────────────
 
     #[test]
     fn install_key_creates_version_1() {
         let env = Env::default();
-        let admin = soroban_sdk::Address::generate(&env);
+        let (admin, admins) = setup(&env);
         let hash = make_hash(&env, 0xAA);
-        let version = install_key(&env, &admin, KeyPurpose::WebhookSigning, hash.clone()).unwrap();
+        let version =
+            install_key(&env, &admin, &admins, KeyPurpose::WebhookSigning, hash.clone()).unwrap();
         assert_eq!(version, 1);
         let record = get_active_key(&env, KeyPurpose::WebhookSigning).unwrap();
         assert_eq!(record.key_hash, hash);
@@ -388,11 +462,35 @@ mod tests {
     #[test]
     fn install_key_rejects_zero_hash() {
         let env = Env::default();
-        let admin = soroban_sdk::Address::generate(&env);
+        let (admin, admins) = setup(&env);
         assert_eq!(
-            install_key(&env, &admin, KeyPurpose::WebhookSigning, zero_hash(&env)),
+            install_key(&env, &admin, &admins, KeyPurpose::WebhookSigning, zero_hash(&env)),
             Err(KeyRotationError::ZeroKeyHash)
         );
+    }
+
+    #[test]
+    fn install_key_twice_fails_instead_of_panicking() {
+        let env = Env::default();
+        let (admin, admins) = setup(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::WebhookSigning, make_hash(&env, 1)).unwrap();
+        assert_eq!(
+            install_key(&env, &admin, &admins, KeyPurpose::WebhookSigning, make_hash(&env, 2)),
+            Err(KeyRotationError::AlreadyExists)
+        );
+    }
+
+    #[test]
+    fn install_key_rejects_non_admin_caller() {
+        let env = Env::default();
+        let (_admin, admins) = setup(&env);
+        let attacker = Address::generate(&env);
+        assert_eq!(
+            install_key(&env, &attacker, &admins, KeyPurpose::WebhookSigning, make_hash(&env, 1)),
+            Err(KeyRotationError::Unauthorized)
+        );
+        // Confirm the rejected call left no state behind.
+        assert_eq!(active_version(&env, KeyPurpose::WebhookSigning), None);
     }
 
     // ── rotate_key ────────────────────────────────────────────────────────────
@@ -400,9 +498,10 @@ mod tests {
     #[test]
     fn rotate_key_increments_version() {
         let env = Env::default();
-        let admin = soroban_sdk::Address::generate(&env);
-        install_key(&env, &admin, KeyPurpose::ApiKeyHash, make_hash(&env, 0x01)).unwrap();
-        let v2 = rotate_key(&env, &admin, KeyPurpose::ApiKeyHash, make_hash(&env, 0x02)).unwrap();
+        let (admin, admins) = setup(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 0x01)).unwrap();
+        let v2 = rotate_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 0x02))
+            .unwrap();
         assert_eq!(v2, 2);
         let active = get_active_key(&env, KeyPurpose::ApiKeyHash).unwrap();
         assert_eq!(active.version, 2);
@@ -412,9 +511,9 @@ mod tests {
     #[test]
     fn rotate_key_archives_previous_version() {
         let env = Env::default();
-        let admin = soroban_sdk::Address::generate(&env);
-        install_key(&env, &admin, KeyPurpose::ApiKeyHash, make_hash(&env, 0x01)).unwrap();
-        rotate_key(&env, &admin, KeyPurpose::ApiKeyHash, make_hash(&env, 0x02)).unwrap();
+        let (admin, admins) = setup(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 0x01)).unwrap();
+        rotate_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 0x02)).unwrap();
         let old = get_key_version(&env, KeyPurpose::ApiKeyHash, 1).unwrap();
         assert_eq!(old.status, KeyStatus::Archived);
         assert_ne!(old.archived_at, 0);
@@ -423,9 +522,9 @@ mod tests {
     #[test]
     fn rotate_without_existing_key_fails() {
         let env = Env::default();
-        let admin = soroban_sdk::Address::generate(&env);
+        let (admin, admins) = setup(&env);
         assert_eq!(
-            rotate_key(&env, &admin, KeyPurpose::PiiEncryption, make_hash(&env, 0x10)),
+            rotate_key(&env, &admin, &admins, KeyPurpose::PiiEncryption, make_hash(&env, 0x10)),
             Err(KeyRotationError::NoActiveKey)
         );
     }
@@ -433,10 +532,10 @@ mod tests {
     #[test]
     fn multiple_rotations_track_history() {
         let env = Env::default();
-        let admin = soroban_sdk::Address::generate(&env);
-        install_key(&env, &admin, KeyPurpose::ZkpVerification, make_hash(&env, 1)).unwrap();
-        rotate_key(&env, &admin, KeyPurpose::ZkpVerification, make_hash(&env, 2)).unwrap();
-        rotate_key(&env, &admin, KeyPurpose::ZkpVerification, make_hash(&env, 3)).unwrap();
+        let (admin, admins) = setup(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::ZkpVerification, make_hash(&env, 1)).unwrap();
+        rotate_key(&env, &admin, &admins, KeyPurpose::ZkpVerification, make_hash(&env, 2)).unwrap();
+        rotate_key(&env, &admin, &admins, KeyPurpose::ZkpVerification, make_hash(&env, 3)).unwrap();
 
         assert_eq!(active_version(&env, KeyPurpose::ZkpVerification), Some(3));
 
@@ -449,15 +548,73 @@ mod tests {
         assert_eq!(v3.status, KeyStatus::Active);
     }
 
+    #[test]
+    fn rotate_key_rejects_non_admin_caller() {
+        let env = Env::default();
+        let (admin, admins) = setup(&env);
+        let attacker = Address::generate(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 1)).unwrap();
+
+        assert_eq!(
+            rotate_key(&env, &attacker, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 2)),
+            Err(KeyRotationError::Unauthorized)
+        );
+        // Unauthorized attempt must not have touched the active key.
+        let active = get_active_key(&env, KeyPurpose::ApiKeyHash).unwrap();
+        assert_eq!(active.version, 1);
+        assert_eq!(active.key_hash, make_hash(&env, 1));
+    }
+
+    /// Partial-failure / atomicity: a rotation rejected for a *content* reason
+    /// (zero hash) must not have archived the old key first. Regression test
+    /// for the class of bug where validation and mutation are interleaved.
+    #[test]
+    fn rotate_key_failure_leaves_old_key_untouched() {
+        let env = Env::default();
+        let (admin, admins) = setup(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 1)).unwrap();
+
+        assert_eq!(
+            rotate_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, zero_hash(&env)),
+            Err(KeyRotationError::ZeroKeyHash)
+        );
+
+        let still_active = get_active_key(&env, KeyPurpose::ApiKeyHash).unwrap();
+        assert_eq!(still_active.version, 1);
+        assert_eq!(still_active.status, KeyStatus::Active);
+        assert_eq!(still_active.key_hash, make_hash(&env, 1));
+        // Only one version should exist — no half-installed "version 2".
+        assert_eq!(
+            get_key_version(&env, KeyPurpose::ApiKeyHash, 2),
+            Err(KeyRotationError::VersionNotFound)
+        );
+    }
+
+    /// Replay: an old key hash must never be returned as active again once a
+    /// newer version has been installed.
+    #[test]
+    fn old_key_is_never_returned_as_active_after_rotation() {
+        let env = Env::default();
+        let (admin, admins) = setup(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 1)).unwrap();
+        rotate_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 2)).unwrap();
+        rotate_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 3)).unwrap();
+
+        let active = get_active_key(&env, KeyPurpose::ApiKeyHash).unwrap();
+        assert_ne!(active.key_hash, make_hash(&env, 1));
+        assert_ne!(active.key_hash, make_hash(&env, 2));
+        assert_eq!(active.key_hash, make_hash(&env, 3));
+    }
+
     // ── revoke_key_version ────────────────────────────────────────────────────
 
     #[test]
     fn revoke_marks_version_revoked() {
         let env = Env::default();
-        let admin = soroban_sdk::Address::generate(&env);
-        install_key(&env, &admin, KeyPurpose::WebhookSigning, make_hash(&env, 0xA0)).unwrap();
-        rotate_key(&env, &admin, KeyPurpose::WebhookSigning, make_hash(&env, 0xB0)).unwrap();
-        revoke_key_version(&env, &admin, KeyPurpose::WebhookSigning, 1).unwrap();
+        let (admin, admins) = setup(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::WebhookSigning, make_hash(&env, 0xA0)).unwrap();
+        rotate_key(&env, &admin, &admins, KeyPurpose::WebhookSigning, make_hash(&env, 0xB0)).unwrap();
+        revoke_key_version(&env, &admin, &admins, KeyPurpose::WebhookSigning, 1).unwrap();
         let v1 = get_key_version(&env, KeyPurpose::WebhookSigning, 1).unwrap();
         assert_eq!(v1.status, KeyStatus::Revoked);
     }
@@ -465,11 +622,26 @@ mod tests {
     #[test]
     fn revoke_nonexistent_version_fails() {
         let env = Env::default();
-        let admin = soroban_sdk::Address::generate(&env);
+        let (admin, admins) = setup(&env);
         assert_eq!(
-            revoke_key_version(&env, &admin, KeyPurpose::WebhookSigning, 99),
+            revoke_key_version(&env, &admin, &admins, KeyPurpose::WebhookSigning, 99),
             Err(KeyRotationError::VersionNotFound)
         );
+    }
+
+    #[test]
+    fn revoke_key_version_rejects_non_admin_caller() {
+        let env = Env::default();
+        let (admin, admins) = setup(&env);
+        let attacker = Address::generate(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::WebhookSigning, make_hash(&env, 1)).unwrap();
+
+        assert_eq!(
+            revoke_key_version(&env, &attacker, &admins, KeyPurpose::WebhookSigning, 1),
+            Err(KeyRotationError::Unauthorized)
+        );
+        let v1 = get_key_version(&env, KeyPurpose::WebhookSigning, 1).unwrap();
+        assert_eq!(v1.status, KeyStatus::Active);
     }
 
     // ── purge_key_version ─────────────────────────────────────────────────────
@@ -477,10 +649,10 @@ mod tests {
     #[test]
     fn purge_archived_version_removes_storage() {
         let env = Env::default();
-        let admin = soroban_sdk::Address::generate(&env);
-        install_key(&env, &admin, KeyPurpose::ApiKeyHash, make_hash(&env, 1)).unwrap();
-        rotate_key(&env, &admin, KeyPurpose::ApiKeyHash, make_hash(&env, 2)).unwrap();
-        purge_key_version(&env, &admin, KeyPurpose::ApiKeyHash, 1).unwrap();
+        let (admin, admins) = setup(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 1)).unwrap();
+        rotate_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 2)).unwrap();
+        purge_key_version(&env, &admin, &admins, KeyPurpose::ApiKeyHash, 1).unwrap();
         assert_eq!(
             get_key_version(&env, KeyPurpose::ApiKeyHash, 1),
             Err(KeyRotationError::VersionNotFound)
@@ -490,12 +662,28 @@ mod tests {
     #[test]
     fn purge_active_version_is_forbidden() {
         let env = Env::default();
-        let admin = soroban_sdk::Address::generate(&env);
-        install_key(&env, &admin, KeyPurpose::ApiKeyHash, make_hash(&env, 1)).unwrap();
+        let (admin, admins) = setup(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 1)).unwrap();
         assert_eq!(
-            purge_key_version(&env, &admin, KeyPurpose::ApiKeyHash, 1),
+            purge_key_version(&env, &admin, &admins, KeyPurpose::ApiKeyHash, 1),
             Err(KeyRotationError::CannotPurgeActive)
         );
+    }
+
+    #[test]
+    fn purge_key_version_rejects_non_admin_caller() {
+        let env = Env::default();
+        let (admin, admins) = setup(&env);
+        let attacker = Address::generate(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 1)).unwrap();
+        rotate_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 2)).unwrap();
+
+        assert_eq!(
+            purge_key_version(&env, &attacker, &admins, KeyPurpose::ApiKeyHash, 1),
+            Err(KeyRotationError::Unauthorized)
+        );
+        // Attacker must not have been able to purge the archived version.
+        assert!(get_key_version(&env, KeyPurpose::ApiKeyHash, 1).is_ok());
     }
 
     // ── get_active_key ────────────────────────────────────────────────────────

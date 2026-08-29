@@ -1,11 +1,17 @@
+use chrono::{DateTime, Utc};
 /// #802 - Notification Delivery Service
 /// Multi-channel (email, SMS, push) with retry logic, delivery tracking, and templates.
+///
+/// #1087: this module owns *how* a notification reaches a channel — the wire
+/// protocol / provider API call, retry policy, and delivery-status tracking
+/// for each `ChannelSender`. Deciding *what* to send and *when* (device
+/// registration, user preferences, scheduling) lives in `notifications.rs`,
+/// which delegates the actual send to a `ChannelSender` from this module.
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use thiserror::Error;
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
 
 // ── Errors ────────────────────────────────────────────────────────────────────
 
@@ -113,12 +119,7 @@ pub struct NotificationResult {
 #[async_trait::async_trait]
 pub trait ChannelSender: Send + Sync {
     fn channel(&self) -> Channel;
-    async fn send(
-        &self,
-        recipient: &str,
-        subject: &str,
-        body: &str,
-    ) -> Result<(), DeliveryError>;
+    async fn send(&self, recipient: &str, subject: &str, body: &str) -> Result<(), DeliveryError>;
 }
 
 // ── Concrete senders ──────────────────────────────────────────────────────────
@@ -180,9 +181,42 @@ impl ChannelSender for PushSender {
         if recipient.len() < 10 {
             return Err(DeliveryError::InvalidRecipient(recipient.to_string()));
         }
-        // In production: call FCM v1 API.
-        let _ = (&self.firebase_project_id, subject, body);
-        Ok(())
+
+        // #1087: moved from notifications.rs::FirebaseNotificationService,
+        // which now delegates here instead of calling FCM itself — this is
+        // the single place push notifications actually go out over the wire.
+        let client = reqwest::Client::new();
+        let payload = serde_json::json!({
+            "message": {
+                "token": recipient,
+                "notification": {
+                    "title": subject,
+                    "body": body
+                }
+            }
+        });
+
+        let response = client
+            .post(format!(
+                "https://fcm.googleapis.com/v1/projects/{}/messages:send",
+                self.firebase_project_id
+            ))
+            .json(&payload)
+            .send()
+            .await
+            .map_err(|e| DeliveryError::ChannelError {
+                channel: "push".to_string(),
+                msg: e.to_string(),
+            })?;
+
+        if response.status().is_success() {
+            Ok(())
+        } else {
+            Err(DeliveryError::ChannelError {
+                channel: "push".to_string(),
+                msg: format!("FCM request failed with status {}", response.status()),
+            })
+        }
     }
 }
 
@@ -213,10 +247,7 @@ impl NotificationDeliveryService {
     // ── Template management ────────────────────────────────────────────────
 
     pub fn add_template(&self, template: NotificationTemplate) {
-        self.templates
-            .lock()
-            .unwrap()
-            .insert(template.id.clone(), template);
+        self.templates.lock().unwrap().insert(template.id.clone(), template);
     }
 
     pub fn get_template(&self, id: &str) -> Option<NotificationTemplate> {
@@ -226,12 +257,7 @@ impl NotificationDeliveryService {
     // ── Delivery tracking ──────────────────────────────────────────────────
 
     pub fn get_record(&self, record_id: &str) -> Option<DeliveryRecord> {
-        self.records
-            .lock()
-            .unwrap()
-            .iter()
-            .find(|r| r.id == record_id)
-            .cloned()
+        self.records.lock().unwrap().iter().find(|r| r.id == record_id).cloned()
     }
 
     pub fn get_records_by_notification(&self, notification_id: &str) -> Vec<DeliveryRecord> {
@@ -279,11 +305,7 @@ impl NotificationDeliveryService {
         let mut results = Vec::new();
 
         for channel in &req.channels {
-            let recipient = req
-                .recipients
-                .get(channel)
-                .cloned()
-                .unwrap_or_default();
+            let recipient = req.recipients.get(channel).cloned().unwrap_or_default();
 
             let record_id = Uuid::new_v4().to_string();
             let mut record = DeliveryRecord {
@@ -305,8 +327,7 @@ impl NotificationDeliveryService {
                 Some(s) => s.clone(),
                 None => {
                     record.status = DeliveryStatus::Failed;
-                    record.last_error =
-                        Some(format!("No sender registered for {:?}", channel));
+                    record.last_error = Some(format!("No sender registered for {:?}", channel));
                     record.updated_at = Utc::now();
                     self.upsert_record(record.clone());
                     results.push(record);
@@ -456,22 +477,23 @@ mod tests {
             subject: None,
             body: None,
         };
-        assert!(matches!(
-            svc.send(req).await,
-            Err(DeliveryError::TemplateNotFound(_))
-        ));
+        assert!(matches!(svc.send(req).await, Err(DeliveryError::TemplateNotFound(_))));
     }
 
     #[tokio::test]
     async fn test_multichannel_send() {
+        // #1087: Push is intentionally excluded here — PushSender now makes a
+        // real FCM call (moved from notifications.rs, see the module doc
+        // comment above), so it needs network access/credentials and isn't
+        // exercised by this offline unit test. Email/Sms remain simulated
+        // sends and stay deterministic.
         let svc = make_service();
         let mut recipients = HashMap::new();
         recipients.insert(Channel::Email, "u@example.com".to_string());
         recipients.insert(Channel::Sms, "+12025550100".to_string());
-        recipients.insert(Channel::Push, "device_token_abcdefghij".to_string());
 
         let req = NotificationRequest {
-            channels: vec![Channel::Email, Channel::Sms, Channel::Push],
+            channels: vec![Channel::Email, Channel::Sms],
             recipients,
             template_id: None,
             template_vars: HashMap::new(),
@@ -479,7 +501,7 @@ mod tests {
             body: Some("Body".to_string()),
         };
         let result = svc.send(req).await.unwrap();
-        assert_eq!(result.records.len(), 3);
+        assert_eq!(result.records.len(), 2);
         assert!(result.records.iter().all(|r| r.status == DeliveryStatus::Sent));
     }
 

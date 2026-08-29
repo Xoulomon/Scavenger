@@ -2,8 +2,8 @@ import { useState, useMemo } from 'react'
 import { Vote, FileText, Shield, BarChart2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Badge } from '@/components/ui/Badge'
 import { useAppTitle } from '@/hooks/useAppTitle'
+import { StatusBadge } from '@/design-system'
 import {
   createProposal,
   getProposals,
@@ -15,16 +15,6 @@ import {
   type ProposalCategory,
   type VoteChoice,
 } from '@/lib/governance'
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  active: 'default',
-  passed: 'secondary',
-  rejected: 'destructive',
-  vetoed: 'destructive',
-  draft: 'outline',
-}
 
 const MOCK_VOTER = 'GVOTER…001'
 
@@ -45,9 +35,9 @@ function ProposalCard({
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="text-base">{proposal.title}</CardTitle>
-          <Badge variant={STATUS_VARIANT[proposal.status] ?? 'outline'} className="shrink-0 capitalize">
-            {proposal.status}
-          </Badge>
+          <div className="shrink-0">
+            <StatusBadge status={proposal.status} />
+          </div>
         </div>
         <p className="text-xs text-muted-foreground capitalize">{proposal.category}</p>
       </CardHeader>

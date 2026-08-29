@@ -5,9 +5,7 @@
 /// - v2: waste_id u128, lat/lon i128, returns WasteTransfer, history under ("transfer_history", id)
 /// - Both now: require registered participants, reject deactivated waste, enforce role routes
 use soroban_sdk::{symbol_short, testutils::Address as _, Address, Env, String};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 fn setup(env: &Env) -> (ScavengerContractClient<'_>, Address, Address, Address) {
     let contract_id = env.register_contract(None, ScavengerContract);
@@ -16,20 +14,8 @@ fn setup(env: &Env) -> (ScavengerContractClient<'_>, Address, Address, Address) 
     let collector = Address::generate(env);
     let manufacturer = Address::generate(env);
     env.mock_all_auths();
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("Rec"),
-        &0,
-        &0,
-    );
-    client.register_participant(
-        &collector,
-        &ParticipantRole::Collector,
-        &symbol_short!("Col"),
-        &0,
-        &0,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &0, &0);
+    client.register_participant(&collector, &ParticipantRole::Collector, &symbol_short!("Col"), &0, &0);
     client.register_participant(
         &manufacturer,
         &ParticipantRole::Manufacturer,
@@ -146,8 +132,7 @@ fn test_v2_records_coordinates() {
     let (client, recycler, collector, _) = setup(&env);
 
     let waste_id = client.recycle_waste(&WasteType::Metal, &2000, &recycler, &0, &0);
-    let transfer =
-        client.transfer_waste_v2(&waste_id, &recycler, &collector, &40_000_000, &-74_000_000);
+    let transfer = client.transfer_waste_v2(&waste_id, &recycler, &collector, &40_000_000, &-74_000_000);
 
     assert_eq!(transfer.latitude, 40_000_000);
     assert_eq!(transfer.longitude, -74_000_000);

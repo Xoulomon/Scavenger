@@ -1,9 +1,7 @@
 #![cfg(test)]
 
-use soroban_sdk::{testutils::Address as _, Address, Env, String, symbol_short};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType, ReportPeriod,
-};
+use soroban_sdk::{symbol_short, testutils::Address as _, Address, Env, String};
+use stellar_scavngr_contract::{ParticipantRole, ReportPeriod, ScavengerContract, ScavengerContractClient, WasteType};
 
 fn setup(env: &Env) -> (ScavengerContractClient<'_>, Address, Address, Address) {
     env.mock_all_auths();

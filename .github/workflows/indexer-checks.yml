@@ -49,6 +49,21 @@ jobs:
         env:
           CI: true
 
+  security-audit:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: indexer/package-lock.json
+      - run: npm ci
+        working-directory: indexer
+      - name: Run npm audit (fail on high/critical)
+        run: npm audit --prefix indexer --audit-level=high
+
   contract-tests:
     name: API Contract Tests
     runs-on: ubuntu-latest

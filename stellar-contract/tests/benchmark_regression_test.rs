@@ -2,10 +2,8 @@
 ///
 /// Comprehensive tests for performance tracking and regression detection,
 /// including baseline establishment, comparison scripts, and threshold documentation.
-
 use stellar_scavngr_contract::benchmark_regression::{
-    BenchmarkResult, BenchmarkSuite, MetricType, PerformanceBaseline, PerformanceThresholds,
-    RegressionDetector,
+    BenchmarkResult, BenchmarkSuite, MetricType, PerformanceBaseline, PerformanceThresholds, RegressionDetector,
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -95,10 +93,7 @@ fn test_threshold_consistency() {
     let t1 = PerformanceThresholds::default();
     let t2 = PerformanceThresholds::default();
 
-    assert_eq!(
-        t1.register_participant_threshold,
-        t2.register_participant_threshold
-    );
+    assert_eq!(t1.register_participant_threshold, t2.register_participant_threshold);
     assert_eq!(t1.query_threshold, t2.query_threshold);
 }
 

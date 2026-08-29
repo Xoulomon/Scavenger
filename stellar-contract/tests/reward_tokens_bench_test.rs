@@ -9,9 +9,7 @@
 #![cfg(test)]
 
 use soroban_sdk::{symbol_short, testutils::Address as _, Address, Env, String};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -44,12 +42,7 @@ fn measure_verify(env: &Env, client: &ScavengerContractClient, depth: usize) -> 
     let recycler = new_participant(env, client, ParticipantRole::Recycler);
     let submitter = new_participant(env, client, ParticipantRole::Recycler);
 
-    let material = client.submit_material(
-        &WasteType::Metal,
-        &2000,
-        &submitter,
-        &String::from_str(env, "bench"),
-    );
+    let material = client.submit_material(&WasteType::Metal, &2000, &submitter, &String::from_str(env, "bench"));
 
     // Build a valid collector chain: Recycler -> Collector -> Manufacturer
     // For depth > 2, we cap at 2 valid hops (Recycler->Collector->Manufacturer)
@@ -62,12 +55,7 @@ fn measure_verify(env: &Env, client: &ScavengerContractClient, depth: usize) -> 
             ParticipantRole::Collector
         };
         let next = new_participant(env, client, role);
-        client.transfer_waste(
-            &material.id,
-            &current_owner,
-            &next,
-            &String::from_str(env, "hop"),
-        );
+        client.transfer_waste(&material.id, &current_owner, &next, &String::from_str(env, "hop"));
         current_owner = next;
     }
 
@@ -128,12 +116,7 @@ fn regression_no_double_credit_to_submitter() {
     let submitter = new_participant(&env, &client, ParticipantRole::Recycler);
 
     // 2 kg Metal → 100 tokens total; no collectors → submitter gets all 100
-    let material = client.submit_material(
-        &WasteType::Metal,
-        &2000,
-        &submitter,
-        &String::from_str(&env, "test"),
-    );
+    let material = client.submit_material(&WasteType::Metal, &2000, &submitter, &String::from_str(&env, "test"));
     client.verify_material(&material.id, &recycler);
 
     let p = client.get_participant(&submitter).unwrap();
@@ -154,18 +137,8 @@ fn regression_collector_still_rewarded() {
     let submitter = new_participant(&env, &client, ParticipantRole::Recycler);
     let collector = new_participant(&env, &client, ParticipantRole::Collector);
 
-    let material = client.submit_material(
-        &WasteType::Metal,
-        &2000,
-        &submitter,
-        &String::from_str(&env, "test"),
-    );
-    client.transfer_waste(
-        &material.id,
-        &submitter,
-        &collector,
-        &String::from_str(&env, "hop"),
-    );
+    let material = client.submit_material(&WasteType::Metal, &2000, &submitter, &String::from_str(&env, "test"));
+    client.transfer_waste(&material.id, &submitter, &collector, &String::from_str(&env, "hop"));
     client.verify_material(&material.id, &recycler);
 
     // collector_pct=10 → 10 tokens; collector is also final owner so gets 40+50=90 more
@@ -194,10 +167,7 @@ fn bench_reward_config_single_read() {
     let own = client.get_owner_percentage().unwrap();
     let after = env.budget().cpu_instruction_cost();
 
-    println!(
-        "[bench] reward_config reads cpu_instructions={}",
-        after - before
-    );
+    println!("[bench] reward_config reads cpu_instructions={}", after - before);
     assert_eq!(col, 15);
     assert_eq!(own, 35);
 }

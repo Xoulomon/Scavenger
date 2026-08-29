@@ -39,10 +39,7 @@ pub struct SignedUrlRequest {
 pub trait StorageService: Send + Sync {
     async fn upload_file(&self, request: UploadRequest) -> Result<FileMetadata, StorageError>;
     async fn delete_file(&self, file_id: &str) -> Result<(), StorageError>;
-    async fn get_signed_url(
-        &self,
-        request: SignedUrlRequest,
-    ) -> Result<String, StorageError>;
+    async fn get_signed_url(&self, request: SignedUrlRequest) -> Result<String, StorageError>;
     async fn get_file_metadata(&self, file_id: &str) -> Result<FileMetadata, StorageError>;
 }
 
@@ -81,10 +78,7 @@ impl StorageService for S3StorageService {
             content_type: request.content_type,
             size,
             created_at: chrono::Utc::now().to_rfc3339(),
-            url: format!(
-                "https://{}.s3.{}.amazonaws.com/{}",
-                self.bucket, self.region, file_id
-            ),
+            url: format!("https://{}.s3.{}.amazonaws.com/{}", self.bucket, self.region, file_id),
         })
     }
 
@@ -95,17 +89,12 @@ impl StorageService for S3StorageService {
         Ok(())
     }
 
-    async fn get_signed_url(
-        &self,
-        request: SignedUrlRequest,
-    ) -> Result<String, StorageError> {
+    async fn get_signed_url(&self, request: SignedUrlRequest) -> Result<String, StorageError> {
         if request.file_id.is_empty() {
             return Err(StorageError::InvalidFile("Empty file_id".to_string()));
         }
         if request.expiration_seconds == 0 {
-            return Err(StorageError::InvalidFile(
-                "Invalid expiration".to_string(),
-            ));
+            return Err(StorageError::InvalidFile("Invalid expiration".to_string()));
         }
 
         Ok(format!(
@@ -125,10 +114,7 @@ impl StorageService for S3StorageService {
             content_type: "application/pdf".to_string(),
             size: 1024,
             created_at: chrono::Utc::now().to_rfc3339(),
-            url: format!(
-                "https://{}.s3.{}.amazonaws.com/{}",
-                self.bucket, self.region, file_id
-            ),
+            url: format!("https://{}.s3.{}.amazonaws.com/{}", self.bucket, self.region, file_id),
         })
     }
 }

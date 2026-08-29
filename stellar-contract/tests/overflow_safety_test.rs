@@ -58,7 +58,13 @@ fn test_calculate_incentive_reward_overflows_at_extreme_reward_points() {
     let env = Env::default();
     let (client, _admin) = setup(&env);
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Mfr"), &0, &0);
+    client.register_participant(
+        &manufacturer,
+        &ParticipantRole::Manufacturer,
+        &symbol_short!("Mfr"),
+        &0,
+        &0,
+    );
 
     let incentive = client.create_incentive(&manufacturer, &WasteType::Metal, &u64::MAX, &u64::MAX);
     // 5000g -> 5kg; 5 * u64::MAX overflows u64.
@@ -70,7 +76,13 @@ fn test_calculate_incentive_reward_at_realistic_scale_succeeds() {
     let env = Env::default();
     let (client, _admin) = setup(&env);
     let manufacturer = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Mfr"), &0, &0);
+    client.register_participant(
+        &manufacturer,
+        &ParticipantRole::Manufacturer,
+        &symbol_short!("Mfr"),
+        &0,
+        &0,
+    );
 
     let incentive = client.create_incentive(&manufacturer, &WasteType::Metal, &1_000, &u64::MAX);
     assert_eq!(client.calculate_incentive_reward(&incentive.id, &5_000), 5_000);
@@ -88,7 +100,13 @@ fn test_distribute_rewards_rejects_reward_exceeding_u64_budget_without_wrapping(
 
     let manufacturer = Address::generate(&env);
     let recycler = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Mfr"), &0, &0);
+    client.register_participant(
+        &manufacturer,
+        &ParticipantRole::Manufacturer,
+        &symbol_short!("Mfr"),
+        &0,
+        &0,
+    );
     client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &0, &0);
 
     // reward_points * weight_kg (5,000 kg) comfortably exceeds u64::MAX while staying inside
@@ -113,7 +131,13 @@ fn test_update_incentive_budget_reduction_below_used_deactivates() {
 
     let manufacturer = Address::generate(&env);
     let recycler = Address::generate(&env);
-    client.register_participant(&manufacturer, &ParticipantRole::Manufacturer, &symbol_short!("Mfr"), &0, &0);
+    client.register_participant(
+        &manufacturer,
+        &ParticipantRole::Manufacturer,
+        &symbol_short!("Mfr"),
+        &0,
+        &0,
+    );
     client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &0, &0);
     soroban_sdk::token::StellarAssetClient::new(&env, &token).mint(&manufacturer, &1_000_000);
 

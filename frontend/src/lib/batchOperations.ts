@@ -84,7 +84,7 @@ export class BatchOperationManager {
   async executeOperation(
     operation: string,
     selectedIds: string[],
-    params?: Record<string, any>
+    _params?: Record<string, unknown>
   ): Promise<BatchActionResult> {
     if (selectedIds.length === 0) {
       return {

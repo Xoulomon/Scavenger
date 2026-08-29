@@ -204,12 +204,7 @@ fn test_schedule_starts_after_ends() {
     let now = env.ledger().timestamp();
     let id = create_incentive(&client, &manufacturer);
 
-    let result = client.try_schedule_incentive(
-        &id,
-        &manufacturer,
-        &Some(now + 1000),
-        &Some(now + 500),
-    );
+    let result = client.try_schedule_incentive(&id, &manufacturer, &Some(now + 1000), &Some(now + 500));
     assert_eq!(result, Err(Ok(Error::InvalidSchedule)));
 }
 
@@ -221,5 +216,7 @@ fn test_schedule_incentive_not_found() {
     let (client, _admin, manufacturer) = setup(&env);
 
     let now = env.ledger().timestamp();
-    client.schedule_incentive(&9999u64, &manufacturer, &None, &Some(now + 500)).unwrap();
+    client
+        .schedule_incentive(&9999u64, &manufacturer, &None, &Some(now + 500))
+        .unwrap();
 }

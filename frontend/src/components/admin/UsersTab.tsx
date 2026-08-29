@@ -5,11 +5,24 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { addAuditEntry } from './auditLog'
-import { MOCK_USERS, type MockUser } from './mockData'
 
-export function UsersTab() {
-  const [users, setUsers] = useState<MockUser[]>(MOCK_USERS)
+export interface AdminUser {
+  address: string
+  role: string
+  name: string
+  status: 'active' | 'suspended'
+  joined: number
+}
+export type MockUser = AdminUser
+
+interface UsersTabProps {
+  initialUsers?: AdminUser[]
+}
+
+export function UsersTab({ initialUsers = [] }: UsersTabProps = {}) {
+  const [users, setUsers] = useState<AdminUser[]>(initialUsers)
   const [search, setSearch] = useState('')
+
 
   const filtered = users.filter(
     (u) =>

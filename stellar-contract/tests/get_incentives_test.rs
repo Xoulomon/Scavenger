@@ -1,9 +1,7 @@
 #![cfg(test)]
 
 use soroban_sdk::{testutils::Address as _, Address, Env};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 // ========== Basic Functionality Tests ==========
 
@@ -534,14 +532,8 @@ fn test_get_incentives_no_side_effects() {
     assert_eq!(incentives2.len(), incentives3.len());
 
     for i in 0..incentives1.len() {
-        assert_eq!(
-            incentives1.get(i).unwrap().id,
-            incentives2.get(i).unwrap().id
-        );
-        assert_eq!(
-            incentives2.get(i).unwrap().id,
-            incentives3.get(i).unwrap().id
-        );
+        assert_eq!(incentives1.get(i).unwrap().id, incentives2.get(i).unwrap().id);
+        assert_eq!(incentives2.get(i).unwrap().id, incentives3.get(i).unwrap().id);
     }
 }
 

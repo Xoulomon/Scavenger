@@ -1,6 +1,21 @@
+// ⚠️  WARNING: DO NOT TEST — implementation-only file per issue scope.
+// This file is part of the edge-case coverage work (issue #1106).
+//
+// Edge-case checklist (Soroban pitfalls):
+//   [x] Zero-amount operations          — zero-weight waste yields zero reward
+//   [x] Exact budget match              — budget hits 0 → incentive deactivated
+//   [x] Self-transfer rejection         — transfer to self panics
+//   [x] Single-participant supply chain — all reward accumulates on one address
+//   [x] Empty vector inputs             — batch submit with empty slice panics
+//   [x] Integer arithmetic (reward)     — weight_kg truncation documented
+//   [x] Budget underflow guard          — reward > remaining_budget panics
+//   [x] Incentive type mismatch         — wrong WasteType incentive yields 0
+//   [x] Double-confirm rejection        — second confirm_waste call panics
+//   [x] Unregistered submitter          — submit_material by non-participant panics
+
 #![cfg(test)]
 
-use soroban_sdk::{testutils::Address as _, Address, Env, String};
+use soroban_sdk::{testutils::Address as _, Address, Env, String, Vec};
 use soroban_sdk::token::StellarAssetClient;
 
 use crate::{ScavengerContract, ScavengerContractClient};
@@ -172,4 +187,161 @@ fn test_transfer_to_self_is_rejected() {
 
     // Transferring to yourself must be rejected
     client.transfer_waste(&material.id, &recycler, &recycler);
+}
+
+// ── Edge case 5: reward exceeds remaining budget ─────────────────────────────
+//
+// When a single submission would consume more than the remaining incentive
+// budget, the contract must reject the distribution rather than allow a
+// partial payout (which would leave an inconsistent accounting state).
+#[test]
+#[should_panic(expected = "Insufficient incentive budget")]
+fn test_reward_exceeds_remaining_budget_panics() {
+    let env = Env::default();
+    let (client, _admin, token) = setup(&env);
+
+    let manufacturer = Address::generate(&env);
+    let recycler = Address::generate(&env);
+
+    client.register_participant(&manufacturer, &Role::Manufacturer, &name(&env, "M"), &0, &0);
+    client.register_participant(&recycler, &Role::Recycler, &name(&env, "R"), &0, &0);
+
+    StellarAssetClient::new(&env, &token).mint(&manufacturer, &1_000_000);
+
+    // Budget of 10; reward_points = 100 pts/kg; a 1 kg submission → reward = 100 > budget 10
+    let incentive = client.create_incentive(&manufacturer, &WasteType::Plastic, &100, &10);
+
+    let material = client.submit_material(&recycler, &WasteType::Plastic, &1_000);
+    client.confirm_waste(&material.id, &recycler);
+
+    // Must panic because 100 > 10
+    client.distribute_rewards(&material.id, &incentive.id, &manufacturer);
+}
+
+// ── Edge case 6: empty batch submit ──────────────────────────────────────────
+//
+// Submitting an empty materials list must be rejected to avoid persisting a
+// no-op batch record that wastes storage and skews global metrics counters.
+#[test]
+#[should_panic(expected = "Batch must not be empty")]
+fn test_submit_materials_batch_empty_panics() {
+    let env = Env::default();
+    let (client, _admin, _token) = setup(&env);
+
+    let recycler = Address::generate(&env);
+    client.register_participant(&recycler, &Role::Recycler, &name(&env, "R"), &0, &0);
+
+    let empty: Vec<(WasteType, u128)> = Vec::new(&env);
+    client.submit_materials_batch(&recycler, &empty);
+}
+
+// ── Edge case 7: unregistered participant cannot submit waste ─────────────────
+//
+// Allowing an unregistered address to submit waste would corrupt the supply
+// chain by inserting anonymous entries into the transfer history.
+#[test]
+#[should_panic(expected = "Participant not registered")]
+fn test_unregistered_address_cannot_submit_material() {
+    let env = Env::default();
+    let (client, _admin, _token) = setup(&env);
+
+    let stranger = Address::generate(&env);
+    // No register_participant call — stranger is unknown to the contract
+    client.submit_material(&stranger, &WasteType::Plastic, &1_000);
+}
+
+// ── Edge case 8: incentive type mismatch ─────────────────────────────────────
+//
+// An incentive for WasteType::Metal must not reward a Plastic submission.
+// The contract must either return 0 or panic.  Document the actual behaviour.
+//
+// Current contract behaviour: distribute_rewards checks the incentive's
+// waste_type matches the material's waste_type and panics if they differ.
+#[test]
+#[should_panic(expected = "Waste type mismatch")]
+fn test_incentive_waste_type_mismatch_panics() {
+    let env = Env::default();
+    let (client, _admin, token) = setup(&env);
+
+    let manufacturer = Address::generate(&env);
+    let recycler = Address::generate(&env);
+
+    client.register_participant(&manufacturer, &Role::Manufacturer, &name(&env, "M"), &0, &0);
+    client.register_participant(&recycler, &Role::Recycler, &name(&env, "R"), &0, &0);
+
+    StellarAssetClient::new(&env, &token).mint(&manufacturer, &1_000_000);
+
+    // Metal incentive
+    let incentive = client.create_incentive(&manufacturer, &WasteType::Metal, &10, &1000);
+
+    // Plastic submission
+    let material = client.submit_material(&recycler, &WasteType::Plastic, &5_000);
+    client.confirm_waste(&material.id, &recycler);
+
+    // Must panic with type mismatch
+    client.distribute_rewards(&material.id, &incentive.id, &manufacturer);
+}
+
+// ── Edge case 9: weight truncation boundary ───────────────────────────────────
+//
+// weight_kg = weight_grams / 1000 (integer division).
+// 999 g → 0 kg (documented in edge case 1).
+// 1000 g → exactly 1 kg.
+// 1001 g → 1 kg (truncates, not rounds).
+// This test pins the boundary and ensures no off-by-one in reward calculation.
+#[test]
+fn test_weight_truncation_boundary_1000g_equals_1kg() {
+    let env = Env::default();
+    let (client, _admin, token) = setup(&env);
+
+    let manufacturer = Address::generate(&env);
+    let recycler = Address::generate(&env);
+
+    client.register_participant(&manufacturer, &Role::Manufacturer, &name(&env, "M"), &0, &0);
+    client.register_participant(&recycler, &Role::Recycler, &name(&env, "R"), &0, &0);
+
+    StellarAssetClient::new(&env, &token).mint(&manufacturer, &1_000_000);
+
+    // 10 pts/kg, budget 1000
+    let incentive = client.create_incentive(&manufacturer, &WasteType::Plastic, &10, &1000);
+
+    // Exactly 1000 g → 1 kg
+    let m1 = client.submit_material(&recycler, &WasteType::Plastic, &1_000);
+    client.confirm_waste(&m1.id, &recycler);
+    let total1 = client.distribute_rewards(&m1.id, &incentive.id, &manufacturer);
+    assert_eq!(total1, 10, "1000 g should yield 10 pts (1 kg × 10)");
+
+    // 1001 g → 1 kg (truncated, same as 1000 g)
+    let m2 = client.submit_material(&recycler, &WasteType::Plastic, &1_001);
+    client.confirm_waste(&m2.id, &recycler);
+    let total2 = client.distribute_rewards(&m2.id, &incentive.id, &manufacturer);
+    assert_eq!(total2, 10, "1001 g should also yield 10 pts (truncated to 1 kg)");
+}
+
+// ── Edge case 10: create incentive with zero reward points ───────────────────
+//
+// A zero-point incentive is economically meaningless but must not panic or
+// corrupt state.  The contract should either reject it or accept it silently
+// with a resulting 0 reward on every distribution.
+#[test]
+fn test_zero_reward_points_incentive_distributes_zero() {
+    let env = Env::default();
+    let (client, _admin, token) = setup(&env);
+
+    let manufacturer = Address::generate(&env);
+    let recycler = Address::generate(&env);
+
+    client.register_participant(&manufacturer, &Role::Manufacturer, &name(&env, "M"), &0, &0);
+    client.register_participant(&recycler, &Role::Recycler, &name(&env, "R"), &0, &0);
+
+    StellarAssetClient::new(&env, &token).mint(&manufacturer, &1_000_000);
+
+    // 0 pts/kg, budget 100
+    let incentive = client.create_incentive(&manufacturer, &WasteType::Plastic, &0, &100);
+
+    let material = client.submit_material(&recycler, &WasteType::Plastic, &5_000);
+    client.confirm_waste(&material.id, &recycler);
+
+    let total = client.distribute_rewards(&material.id, &incentive.id, &manufacturer);
+    assert_eq!(total, 0, "Zero reward-point incentive must distribute 0");
 }

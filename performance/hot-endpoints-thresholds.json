@@ -1,0 +1,176 @@
+{
+  "version": "1.0.0",
+  "created": "2026-07-29",
+  "description": "Performance thresholds and baselines for hot endpoints identified in issue #950",
+  "hot_endpoints": [
+    {
+      "name": "list_wastes",
+      "endpoint": "GET /api/v1/contracts/wastes",
+      "description": "List all wastes with pagination",
+      "category": "read",
+      "priority": "critical",
+      "thresholds": {
+        "p95_ms": { "baseline": 300, "warning": 400, "critical": 500 },
+        "p99_ms": { "baseline": 600, "warning": 700, "critical": 800 },
+        "avg_ms": { "baseline": 200, "warning": 300, "critical": 400 },
+        "error_rate_pct": { "baseline": 1, "warning": 3, "critical": 5 }
+      },
+      "test_scenarios": [
+        { "name": "steady_state_100", "users": 100, "duration_minutes": 5 },
+        { "name": "spike_1000", "users": 1000, "duration_minutes": 2 },
+        { "name": "stress_10000", "users": 10000, "duration_minutes": 5 }
+      ]
+    },
+    {
+      "name": "list_participants",
+      "endpoint": "GET /api/v1/contracts/participants",
+      "description": "List all participants with pagination",
+      "category": "read",
+      "priority": "critical",
+      "thresholds": {
+        "p95_ms": { "baseline": 300, "warning": 400, "critical": 500 },
+        "p99_ms": { "baseline": 600, "warning": 700, "critical": 800 },
+        "avg_ms": { "baseline": 200, "warning": 300, "critical": 400 },
+        "error_rate_pct": { "baseline": 1, "warning": 3, "critical": 5 }
+      },
+      "test_scenarios": [
+        { "name": "steady_state_100", "users": 100, "duration_minutes": 5 },
+        { "name": "spike_1000", "users": 1000, "duration_minutes": 2 },
+        { "name": "stress_10000", "users": 10000, "duration_minutes": 5 }
+      ]
+    },
+    {
+      "name": "get_contract_stats",
+      "endpoint": "GET /api/v1/contracts/stats",
+      "description": "Get aggregated contract statistics and metrics",
+      "category": "read",
+      "priority": "high",
+      "thresholds": {
+        "p95_ms": { "baseline": 400, "warning": 500, "critical": 600 },
+        "p99_ms": { "baseline": 800, "warning": 1000, "critical": 1200 },
+        "avg_ms": { "baseline": 250, "warning": 350, "critical": 500 },
+        "error_rate_pct": { "baseline": 1, "warning": 3, "critical": 5 }
+      },
+      "test_scenarios": [
+        { "name": "steady_state_100", "users": 100, "duration_minutes": 5 },
+        { "name": "spike_1000", "users": 1000, "duration_minutes": 2 },
+        { "name": "stress_10000", "users": 10000, "duration_minutes": 5 }
+      ]
+    },
+    {
+      "name": "search",
+      "endpoint": "GET /api/v1/search",
+      "description": "Full-text search across wastes and participants",
+      "category": "read",
+      "priority": "high",
+      "thresholds": {
+        "p95_ms": { "baseline": 500, "warning": 600, "critical": 800 },
+        "p99_ms": { "baseline": 1000, "warning": 1200, "critical": 1500 },
+        "avg_ms": { "baseline": 300, "warning": 400, "critical": 600 },
+        "error_rate_pct": { "baseline": 2, "warning": 5, "critical": 10 }
+      },
+      "test_scenarios": [
+        { "name": "steady_state_100", "users": 100, "duration_minutes": 5 },
+        { "name": "spike_1000", "users": 1000, "duration_minutes": 2 },
+        { "name": "stress_10000", "users": 10000, "duration_minutes": 5 }
+      ]
+    },
+    {
+      "name": "audit_logs",
+      "endpoint": "GET /api/v1/audit/logs",
+      "description": "List audit logs with pagination (compliance-heavy)",
+      "category": "read",
+      "priority": "high",
+      "thresholds": {
+        "p95_ms": { "baseline": 400, "warning": 500, "critical": 700 },
+        "p99_ms": { "baseline": 800, "warning": 1000, "critical": 1200 },
+        "avg_ms": { "baseline": 250, "warning": 350, "critical": 500 },
+        "error_rate_pct": { "baseline": 1, "warning": 3, "critical": 5 }
+      },
+      "test_scenarios": [
+        { "name": "steady_state_100", "users": 100, "duration_minutes": 5 },
+        { "name": "spike_1000", "users": 1000, "duration_minutes": 2 },
+        { "name": "stress_10000", "users": 10000, "duration_minutes": 5 }
+      ]
+    },
+    {
+      "name": "sign_transaction",
+      "endpoint": "POST /api/v1/signing/sign",
+      "description": "Sign a transaction (write operation, moderate load)",
+      "category": "write",
+      "priority": "high",
+      "thresholds": {
+        "p95_ms": { "baseline": 600, "warning": 700, "critical": 900 },
+        "p99_ms": { "baseline": 1200, "warning": 1400, "critical": 1800 },
+        "avg_ms": { "baseline": 400, "warning": 500, "critical": 700 },
+        "error_rate_pct": { "baseline": 2, "warning": 5, "critical": 10 }
+      },
+      "test_scenarios": [
+        { "name": "steady_state_100", "users": 100, "duration_minutes": 5 },
+        { "name": "spike_1000", "users": 1000, "duration_minutes": 2 },
+        { "name": "stress_10000", "users": 10000, "duration_minutes": 5 }
+      ]
+    },
+    {
+      "name": "cache_metrics",
+      "endpoint": "GET /api/v1/cache/metrics",
+      "description": "Get cache performance metrics (monitoring)",
+      "category": "read",
+      "priority": "medium",
+      "thresholds": {
+        "p95_ms": { "baseline": 100, "warning": 150, "critical": 200 },
+        "p99_ms": { "baseline": 200, "warning": 300, "critical": 400 },
+        "avg_ms": { "baseline": 50, "warning": 100, "critical": 150 },
+        "error_rate_pct": { "baseline": 0.5, "warning": 1, "critical": 2 }
+      },
+      "test_scenarios": [
+        { "name": "steady_state_100", "users": 100, "duration_minutes": 5 },
+        { "name": "spike_1000", "users": 1000, "duration_minutes": 2 }
+      ]
+    }
+  ],
+  "load_scenarios": {
+    "steady_state_100": {
+      "description": "Normal operational load: 100 concurrent users",
+      "users": 100,
+      "ramp_up_minutes": 2,
+      "sustain_minutes": 5,
+      "ramp_down_minutes": 2,
+      "total_duration_minutes": 9,
+      "expected_rps": 150,
+      "acceptable_error_rate_pct": 5,
+      "acceptable_p95_ms": 500
+    },
+    "spike_1000": {
+      "description": "Traffic spike: sudden increase to 1000 concurrent users",
+      "users": 1000,
+      "ramp_up_minutes": 0.5,
+      "sustain_minutes": 2,
+      "ramp_down_minutes": 0.5,
+      "total_duration_minutes": 5,
+      "expected_rps": 1500,
+      "acceptable_error_rate_pct": 10,
+      "acceptable_p95_ms": 1000
+    },
+    "stress_10000": {
+      "description": "Stress test: gradual increase to 10000 concurrent users",
+      "users": 10000,
+      "ramp_up_minutes": 6,
+      "sustain_minutes": 5,
+      "ramp_down_minutes": 2,
+      "total_duration_minutes": 13,
+      "expected_rps": 15000,
+      "acceptable_error_rate_pct": 20,
+      "acceptable_p95_ms": 2000
+    }
+  },
+  "notes": [
+    "All thresholds are in milliseconds unless otherwise specified",
+    "Baseline values represent expected performance under normal conditions",
+    "Warning thresholds indicate degraded performance but acceptable operation",
+    "Critical thresholds indicate performance that requires investigation",
+    "Hot endpoints are identified based on expected production traffic patterns",
+    "Read-heavy endpoints prioritized for load testing due to higher concurrent usage",
+    "Write operations tested at moderate load due to lower concurrency and idempotency requirements"
+  ]
+}

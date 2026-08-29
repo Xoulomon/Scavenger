@@ -4,7 +4,7 @@ import { LocateFixed } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { LocationStepProps } from '../types'
 
-export function LocationStep({ register, errors, formData }: LocationStepProps) {
+export function LocationStep({ register, errors, formData: _formData }: LocationStepProps) {
   const [locating, setLocating] = useState(false);
   const [locError, setLocError] = useState<string | null>(null);
 

@@ -147,7 +147,10 @@ pub struct AuditService {
 impl AuditService {
     pub fn new() -> Self {
         let policy = RetentionPolicy::default();
-        info!("AuditService initialized with retention policy: max_age={}d, max_entries={}", policy.max_age_days, policy.max_entries);
+        info!(
+            "AuditService initialized with retention policy: max_age={}d, max_entries={}",
+            policy.max_age_days, policy.max_entries
+        );
         Self {
             entries: std::sync::Arc::new(Mutex::new(Vec::new())),
             alert_rules: std::sync::Arc::new(Mutex::new(Vec::new())),

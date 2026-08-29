@@ -341,14 +341,10 @@ impl StellarRpcClient {
                     });
                 }
                 let page = res.json::<HorizonPage<LatestLedger>>().await?;
-                page.embedded
-                    .records
-                    .into_iter()
-                    .next()
-                    .ok_or_else(|| RpcError::Http {
-                        status: 404,
-                        message: "No ledger records returned".to_string(),
-                    })
+                page.embedded.records.into_iter().next().ok_or_else(|| RpcError::Http {
+                    status: 404,
+                    message: "No ledger records returned".to_string(),
+                })
             }
         })
         .await
@@ -385,11 +381,7 @@ impl StellarRpcClient {
     // ── Soroban RPC endpoints ─────────────────────────────────────────────────
 
     /// Call a Soroban JSON-RPC method.
-    async fn soroban_call<P, R>(
-        &self,
-        method: &str,
-        params: P,
-    ) -> Result<R, RpcError>
+    async fn soroban_call<P, R>(&self, method: &str, params: P) -> Result<R, RpcError>
     where
         P: Serialize + Clone + Send + 'static,
         R: for<'de> Deserialize<'de> + 'static,
@@ -433,10 +425,7 @@ impl StellarRpcClient {
     }
 
     /// Fetch contract data entries by key XDR strings.
-    pub async fn get_ledger_entries(
-        &self,
-        keys: Vec<String>,
-    ) -> Result<Vec<ContractDataEntry>, RpcError> {
+    pub async fn get_ledger_entries(&self, keys: Vec<String>) -> Result<Vec<ContractDataEntry>, RpcError> {
         #[derive(Serialize, Clone)]
         struct Params {
             keys: Vec<String>,
@@ -447,17 +436,12 @@ impl StellarRpcClient {
             entries: Option<Vec<ContractDataEntry>>,
         }
 
-        let result: Result_ = self
-            .soroban_call("getLedgerEntries", Params { keys })
-            .await?;
+        let result: Result_ = self.soroban_call("getLedgerEntries", Params { keys }).await?;
         Ok(result.entries.unwrap_or_default())
     }
 
     /// Simulate a contract call (read-only, no fee).
-    pub async fn simulate_transaction(
-        &self,
-        xdr: &str,
-    ) -> Result<serde_json::Value, RpcError> {
+    pub async fn simulate_transaction(&self, xdr: &str) -> Result<serde_json::Value, RpcError> {
         #[derive(Serialize, Clone)]
         struct Params {
             transaction: String,
@@ -465,7 +449,9 @@ impl StellarRpcClient {
 
         self.soroban_call::<_, serde_json::Value>(
             "simulateTransaction",
-            Params { transaction: xdr.to_string() },
+            Params {
+                transaction: xdr.to_string(),
+            },
         )
         .await
     }

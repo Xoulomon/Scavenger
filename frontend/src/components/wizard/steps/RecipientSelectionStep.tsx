@@ -7,7 +7,7 @@ const mockRecipients = [
   { address: 'GHIJ...XYZ3', name: 'Collection Point C', type: 'Collector' },
 ];
 
-export function RecipientSelectionStep({ register, errors, formData }: RecipientSelectionStepProps) {
+export function RecipientSelectionStep({ register, errors, formData: _formData }: RecipientSelectionStepProps) {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Select Recipient</h2>

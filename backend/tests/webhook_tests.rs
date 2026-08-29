@@ -13,9 +13,7 @@ use std::time::Duration;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpListener;
 
-use crate::services::webhook::{
-    CreateWebhookRequest, DeadLetter, RetryConfig, WebhookEvent, WebhookManager,
-};
+use crate::services::webhook::{CreateWebhookRequest, DeadLetter, RetryConfig, WebhookEvent, WebhookManager};
 
 // ── Test HTTP server helpers ──────────────────────────────────────────────────
 
@@ -28,14 +26,12 @@ async fn bind_server() -> (String, TcpListener) {
 
 /// Serve `succeed_after` failures then always succeed.
 /// Counts total calls via `hit_count`.
-async fn serve(
-    listener: TcpListener,
-    succeed_after: usize,
-    hit_count: Arc<AtomicUsize>,
-) {
+async fn serve(listener: TcpListener, succeed_after: usize, hit_count: Arc<AtomicUsize>) {
     let mut call = 0usize;
     loop {
-        let Ok((mut stream, _)) = listener.accept().await else { break };
+        let Ok((mut stream, _)) = listener.accept().await else {
+            break;
+        };
         call += 1;
         hit_count.fetch_add(1, Ordering::SeqCst);
 
@@ -62,7 +58,9 @@ async fn webhook_delivered_on_first_attempt() {
     let hit_count = Arc::new(AtomicUsize::new(0));
 
     let hits = hit_count.clone();
-    tokio::spawn(async move { serve(listener, 0 /* always succeed */, hits).await });
+    tokio::spawn(async move {
+        serve(listener, 0 /* always succeed */, hits).await
+    });
 
     // Zero-delay retries for fast tests.
     let manager = WebhookManager::with_retry_config(RetryConfig {
@@ -93,7 +91,9 @@ async fn webhook_succeeds_after_retries() {
     let hit_count = Arc::new(AtomicUsize::new(0));
 
     let hits = hit_count.clone();
-    tokio::spawn(async move { serve(listener, 2 /* fail first 2 */, hits).await });
+    tokio::spawn(async move {
+        serve(listener, 2 /* fail first 2 */, hits).await
+    });
 
     let manager = WebhookManager::with_retry_config(RetryConfig {
         delays: vec![
@@ -134,10 +134,7 @@ async fn webhook_moved_to_dlq_after_all_retries_exhausted() {
 
     // 2 delays → 3 total attempts (initial + 2 retries)
     let manager = WebhookManager::with_retry_config(RetryConfig {
-        delays: vec![
-            Duration::from_millis(10),
-            Duration::from_millis(10),
-        ],
+        delays: vec![Duration::from_millis(10), Duration::from_millis(10)],
     });
 
     manager.create(CreateWebhookRequest {

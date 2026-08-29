@@ -4,11 +4,24 @@ import { formatDate } from '@/lib/helpers'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { addAuditEntry } from './auditLog'
-import { MOCK_DISPUTES, type Dispute } from './mockData'
 
-export function DisputesTab() {
-  const [disputes, setDisputes] = useState<Dispute[]>(MOCK_DISPUTES)
+export interface Dispute {
+  id: number
+  wastId: number
+  reporter: string
+  description: string
+  status: 'open' | 'resolved' | 'dismissed'
+  createdAt: number
+}
+
+interface DisputesTabProps {
+  initialDisputes?: Dispute[]
+}
+
+export function DisputesTab({ initialDisputes = [] }: DisputesTabProps = {}) {
+  const [disputes, setDisputes] = useState<Dispute[]>(initialDisputes)
   const [filter, setFilter] = useState<'all' | 'open' | 'resolved'>('all')
+
 
   const displayed = filter === 'all' ? disputes : disputes.filter((d) => d.status === filter)
 

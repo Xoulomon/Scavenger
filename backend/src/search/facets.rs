@@ -39,7 +39,7 @@ impl FacetedSearch {
     /// Build aggregation query from facet configuration
     pub fn build_aggregations(facets: &[Facet]) -> HashMap<String, Value> {
         let mut aggs = HashMap::new();
-        
+
         for facet in facets {
             let agg_value = match &facet.facet_type {
                 FacetType::Terms => {
@@ -51,18 +51,21 @@ impl FacetedSearch {
                     })
                 }
                 FacetType::Range { ranges } => {
-                    let range_specs: Vec<Value> = ranges.iter().map(|r| {
-                        let mut spec = serde_json::Map::new();
-                        if let Some(ref from) = r.from {
-                            spec.insert("from".to_string(), from.clone());
-                        }
-                        if let Some(ref to) = r.to {
-                            spec.insert("to".to_string(), to.clone());
-                        }
-                        spec.insert("key".to_string(), json!(r.label));
-                        Value::Object(spec)
-                    }).collect();
-                    
+                    let range_specs: Vec<Value> = ranges
+                        .iter()
+                        .map(|r| {
+                            let mut spec = serde_json::Map::new();
+                            if let Some(ref from) = r.from {
+                                spec.insert("from".to_string(), from.clone());
+                            }
+                            if let Some(ref to) = r.to {
+                                spec.insert("to".to_string(), to.clone());
+                            }
+                            spec.insert("key".to_string(), json!(r.label));
+                            Value::Object(spec)
+                        })
+                        .collect();
+
                     json!({
                         "range": {
                             "field": facet.field,
@@ -79,10 +82,10 @@ impl FacetedSearch {
                     })
                 }
             };
-            
+
             aggs.insert(facet.field.clone(), agg_value);
         }
-        
+
         aggs
     }
 }

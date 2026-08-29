@@ -9,14 +9,10 @@ use std::sync::Arc;
 
 use crate::{
     container::fakes::{
-        FakeEmailService, FakeNotificationService, FakeReportService,
-        FakeStorageService, FakeVerificationService,
+        FakeEmailService, FakeNotificationService, FakeReportService, FakeStorageService, FakeVerificationService,
     },
     services::{
-        email::TransactionalEmail,
-        notifications::PushNotification,
-        reporting::ReportRequest,
-        storage::UploadRequest,
+        email::TransactionalEmail, notifications::PushNotification, reporting::ReportRequest, storage::UploadRequest,
         EmailService, NotificationService, ReportService, StorageService, VerificationService,
     },
 };
@@ -53,10 +49,7 @@ async fn fake_notification_records_sent_messages() {
         body: "World".to_string(),
         data: HashMap::new(),
     };
-    let msg_id = svc
-        .send_notification("device-token-abc", notif)
-        .await
-        .unwrap();
+    let msg_id = svc.send_notification("device-token-abc", notif).await.unwrap();
     assert_eq!(msg_id, "fake-message-id");
     let sent = svc.sent.lock().unwrap();
     assert_eq!(sent.len(), 1);
@@ -143,10 +136,7 @@ async fn fake_verification_reject_records_participant() {
 #[tokio::test]
 async fn fake_verification_start_returns_pending() {
     let svc = FakeVerificationService::new();
-    let v = svc
-        .start_verification("participant-789".to_string())
-        .await
-        .unwrap();
+    let v = svc.start_verification("participant-789".to_string()).await.unwrap();
     assert_eq!(v.participant_id, "participant-789");
     assert!(matches!(
         v.status,

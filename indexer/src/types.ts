@@ -1,25 +1,32 @@
-export type WasteType = 'Paper' | 'PetPlastic' | 'Plastic' | 'Metal' | 'Glass' | 'Organic' | 'Electronic';
-export type ParticipantRole = 'Recycler' | 'Collector' | 'Manufacturer';
-export type CertificationLevel = 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
+// Re-export shared types for backward compatibility
+export * from '@scavngr/types'
 
-export const WASTE_TYPE_MAP: Record<number, WasteType> = {
-  0: 'Paper', 1: 'PetPlastic', 2: 'Plastic', 3: 'Metal', 4: 'Glass', 5: 'Organic', 6: 'Electronic',
-};
+// Indexer-specific types and extensions
+export interface IndexerConfig {
+  contractId: string
+  rpcUrl: string
+  databaseUrl: string
+  redisUrl?: string
+  pollIntervalMs: number
+  batchSize: number
+  startLedger?: number
+}
 
-export const ROLE_MAP: Record<number, ParticipantRole> = {
-  0: 'Recycler', 1: 'Collector', 2: 'Manufacturer',
-};
+export interface IndexerState {
+  lastProcessedLedger: number
+  isRunning: boolean
+  errorCount: number
+  processedEvents: number
+  startTime: number
+}
 
-export const CERT_MAP: Record<number, CertificationLevel> = {
-  0: 'Beginner', 1: 'Intermediate', 2: 'Advanced', 3: 'Expert',
-};
+export interface DatabaseConnection {
+  query<T = unknown>(text: string, params?: unknown[]): Promise<{ rows: T[] }>
+  transaction<T>(callback: (client: DatabaseConnection) => Promise<T>): Promise<T>
+}
 
-export interface RawContractEvent {
-  ledgerSequence: number;
-  ledgerCloseTime: Date;
-  transactionHash: string;
-  contractId: string;
-  eventType: string;
-  topic: string[];
-  value: unknown;
+export interface CacheConnection {
+  get(key: string): Promise<string | null>
+  set(key: string, value: string, ttlSeconds?: number): Promise<void>
+  del(key: string): Promise<void>
 }

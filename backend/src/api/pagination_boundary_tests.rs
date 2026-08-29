@@ -15,7 +15,8 @@
 #[cfg(test)]
 mod tests {
     use crate::{
-        services::api::{ApiBuilder, PaginatedResponse},
+        api::pagination::{paginate, paginate_from_cursor},
+        services::api::ApiBuilder,
         validation::validate_pagination,
     };
 
@@ -24,20 +25,6 @@ mod tests {
     /// Build a Vec of `n` simple string items used as pagination fixtures.
     fn fixture_items(n: usize) -> Vec<String> {
         (1..=n).map(|i| format!("item-{:03}", i)).collect()
-    }
-
-    /// Simulate the slice logic used by list_wastes / list_participants:
-    /// given all items, a 1-based page, and a limit, return the page.
-    fn paginate<T: Clone>(all: &[T], page: u32, limit: u32) -> PaginatedResponse<T> {
-        let total = all.len() as u32;
-        let start = ((page - 1) * limit) as usize;
-        let end = (start + limit as usize).min(all.len());
-        let items = if start < all.len() {
-            all[start..end].to_vec()
-        } else {
-            vec![]
-        };
-        ApiBuilder::paginated_response(items, total, page, limit)
     }
 
     // ── Empty collection ──────────────────────────────────────────────────────
@@ -71,6 +58,8 @@ mod tests {
         assert_eq!(page.total_pages, 1);
         assert_eq!(page.items[0], "item-001");
         assert_eq!(page.items[9], "item-010");
+        assert!(!page.has_more);
+        assert!(page.next_cursor.is_none());
     }
 
     // ── First and second page from 25-item fixture ────────────────────────────
@@ -84,6 +73,8 @@ mod tests {
         assert_eq!(page.total_pages, 3);
         assert_eq!(page.items[0], "item-001");
         assert_eq!(page.items[9], "item-010");
+        assert!(page.has_more);
+        assert_eq!(page.next_cursor.as_deref(), Some("10"));
     }
 
     #[test]
@@ -243,5 +234,15 @@ mod tests {
         assert_eq!(page.limit, 10);
         assert_eq!(page.total, 50);
         assert_eq!(page.total_pages, 5);
+    }
+
+    #[test]
+    fn test_cursor_pagination_preserves_total_and_advances_cursor() {
+        let items = fixture_items(25);
+        let page = paginate_from_cursor(&items, Some(10), 10);
+        assert_eq!(page.items[0], "item-011");
+        assert_eq!(page.total, 25);
+        assert!(page.has_more);
+        assert_eq!(page.next_cursor.as_deref(), Some("20"));
     }
 }

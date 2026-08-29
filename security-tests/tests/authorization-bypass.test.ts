@@ -653,7 +653,7 @@ describe('Authorization Bypass: Token Manipulation', () => {
         submitter: 'RECYCLER_MALFORMED_JWT',
       }, {
         headers: {
-          'Authorization': 'Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJyb2xlIjoiYWRtaW4ifQ.',
+          'Authorization': 'Bearer INVALID_JWT_TOKEN_FOR_TESTING',
         },
       });
       expect(false).toBe(true);

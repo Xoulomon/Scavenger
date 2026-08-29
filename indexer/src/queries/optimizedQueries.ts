@@ -73,7 +73,7 @@ export async function getWastesWithTransfers(
     [recyclerAddress],
   );
 
-  if (wastes.length === 0) return [];
+  if (wastes.length === 0) {return [];}
 
   const wasteIds = wastes.map(w => w.id);
   const transfers = await timedQuery<TransferRow>(
@@ -104,7 +104,7 @@ export async function getWastesWithTransfers(
 export async function getParticipantsBatch(
   addresses: string[],
 ): Promise<Map<string, ParticipantRow>> {
-  if (addresses.length === 0) return new Map();
+  if (addresses.length === 0) {return new Map();}
 
   const rows = await timedQuery<ParticipantRow>(
     `SELECT address, role, name, latitude, longitude, registered_at, is_active
@@ -114,7 +114,7 @@ export async function getParticipantsBatch(
   );
 
   const map = new Map<string, ParticipantRow>();
-  for (const row of rows) map.set(row.address, row);
+  for (const row of rows) {map.set(row.address, row);}
   return map;
 }
 
@@ -163,7 +163,7 @@ export async function getRecentEvents(
 ): Promise<EventSummary[]> {
   const params: unknown[] = [Math.min(limit, 500), offset];
   const typeClause = eventType ? ` AND event_type = $3` : '';
-  if (eventType) params.push(eventType);
+  if (eventType) {params.push(eventType);}
 
   return timedQuery<EventSummary>(
     `SELECT id, ledger_sequence, event_type, contract_id, created_at

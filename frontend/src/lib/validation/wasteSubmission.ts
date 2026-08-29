@@ -13,7 +13,7 @@ export const wasteTypeFieldSchema = z
 export function weightFieldSchema(unit: WeightUnit = 'grams') {
   return z.string().superRefine((value, ctx) => {
     const num = parseFloat(value)
-    if (value.trim() === '' ) {
+    if (value.trim() === '') {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Weight is required' })
       return
     }
@@ -59,3 +59,15 @@ export function wasteSubmissionSchema(weightUnit: WeightUnit = 'grams') {
 }
 
 export type WasteSubmissionFormValues = z.infer<ReturnType<typeof wasteSubmissionSchema>>
+
+export function convertWeight(weightValue: string, weightUnit: WeightUnit): string | null {
+  const num = parseFloat(weightValue)
+  if (isNaN(num) || num <= 0) return null
+  if (weightUnit === 'grams') return `${(num / 1000).toFixed(3)} kg`
+  return `${(num * 1000).toFixed(0)} g`
+}
+
+export function toWeightInGrams(weight: string | number, weightUnit: WeightUnit): number {
+  const num = typeof weight === 'string' ? parseFloat(weight) : weight
+  return weightUnit === 'grams' ? num : num * 1000
+}

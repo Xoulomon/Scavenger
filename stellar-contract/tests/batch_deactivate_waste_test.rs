@@ -62,7 +62,7 @@ fn test_batch_deactivate_skips_nonexistent_and_already_deactivated() {
 
     let mut ids = Vec::new(&env);
     ids.push_back(id1);
-    ids.push_back(id2);   // already deactivated — should be skipped
+    ids.push_back(id2); // already deactivated — should be skipped
     ids.push_back(9999u128); // non-existent — should be skipped
 
     let count = client.batch_deactivate_waste(&ids, &admin);
@@ -115,10 +115,10 @@ fn test_batch_deactivate_partial_success() {
     client.deactivate_waste(&id1, &admin);
 
     let mut ids = Vec::new(&env);
-    ids.push_back(id1);     // already deactivated
-    ids.push_back(id2);     // active → should deactivate
+    ids.push_back(id1); // already deactivated
+    ids.push_back(id2); // active → should deactivate
     ids.push_back(8888u128); // non-existent
-    ids.push_back(id3);     // active → should deactivate
+    ids.push_back(id3); // active → should deactivate
 
     let count = client.batch_deactivate_waste(&ids, &admin);
     assert_eq!(count, 2);

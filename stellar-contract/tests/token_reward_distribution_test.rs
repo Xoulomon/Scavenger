@@ -3,9 +3,7 @@ use soroban_sdk::{
     testutils::{Address as _, Events},
     Address, Env, TryIntoVal,
 };
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 #[test]
 fn test_reward_calculation_paper() {
@@ -17,13 +15,7 @@ fn test_reward_calculation_paper() {
     let submitter = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("Rec"),
-        &100,
-        &200,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &100, &200);
     client.register_participant(
         &submitter,
         &ParticipantRole::Recycler,
@@ -56,13 +48,7 @@ fn test_reward_calculation_metal() {
     let submitter = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("Rec"),
-        &100,
-        &200,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &100, &200);
     client.register_participant(
         &submitter,
         &ParticipantRole::Recycler,
@@ -95,13 +81,7 @@ fn test_reward_calculation_plastic() {
     let submitter = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("Rec"),
-        &100,
-        &200,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &100, &200);
     client.register_participant(
         &submitter,
         &ParticipantRole::Recycler,
@@ -134,13 +114,7 @@ fn test_distribution_to_owner_with_default_percentages() {
     let submitter = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("Rec"),
-        &100,
-        &200,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &100, &200);
     client.register_participant(
         &submitter,
         &ParticipantRole::Recycler,
@@ -178,13 +152,7 @@ fn test_distribution_with_collector() {
     client.initialize_admin(&admin);
     client.set_percentages(&admin, &10, &40);
 
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("Rec"),
-        &100,
-        &200,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &100, &200);
     client.register_participant(
         &submitter,
         &ParticipantRole::Recycler,
@@ -276,13 +244,7 @@ fn test_recycler_gets_remainder() {
     client.initialize_admin(&admin);
     client.set_percentages(&admin, &5, &30);
 
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("Rec"),
-        &100,
-        &200,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &100, &200);
     client.register_participant(
         &submitter,
         &ParticipantRole::Recycler,
@@ -326,13 +288,7 @@ fn test_chain_with_multiple_collectors() {
     client.initialize_admin(&admin);
     client.set_percentages(&admin, &10, &30);
 
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("Rec"),
-        &100,
-        &200,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &100, &200);
     client.register_participant(
         &submitter,
         &ParticipantRole::Recycler,
@@ -405,13 +361,7 @@ fn test_short_chain_recycler_to_collector() {
     client.initialize_admin(&admin);
     client.set_percentages(&admin, &20, &50);
 
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("Rec"),
-        &100,
-        &200,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &100, &200);
     client.register_participant(
         &submitter,
         &ParticipantRole::Recycler,
@@ -469,13 +419,7 @@ fn test_long_chain_distribution() {
     client.initialize_admin(&admin);
     client.set_percentages(&admin, &8, &40);
 
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("Rec"),
-        &100,
-        &200,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &100, &200);
     client.register_participant(
         &submitter,
         &ParticipantRole::Recycler,
@@ -543,13 +487,7 @@ fn test_statistics_update_after_verification() {
     let submitter = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("Rec"),
-        &100,
-        &200,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &100, &200);
     client.register_participant(
         &submitter,
         &ParticipantRole::Recycler,
@@ -587,13 +525,7 @@ fn test_multiple_verifications_accumulate_tokens() {
     let submitter = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("Rec"),
-        &100,
-        &200,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &100, &200);
     client.register_participant(
         &submitter,
         &ParticipantRole::Recycler,
@@ -635,13 +567,7 @@ fn test_token_reward_event_emission() {
     let submitter = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("Rec"),
-        &100,
-        &200,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &100, &200);
     client.register_participant(
         &submitter,
         &ParticipantRole::Recycler,
@@ -666,10 +592,7 @@ fn test_token_reward_event_emission() {
         let topics = &e.1;
         if !topics.is_empty() {
             if let Ok(symbol) =
-                <soroban_sdk::Val as TryIntoVal<Env, soroban_sdk::Symbol>>::try_into_val(
-                    &topics.get(0).unwrap(),
-                    &env,
-                )
+                <soroban_sdk::Val as TryIntoVal<Env, soroban_sdk::Symbol>>::try_into_val(&topics.get(0).unwrap(), &env)
             {
                 return symbol == symbol_short!("rewarded");
             }
@@ -690,13 +613,7 @@ fn test_participant_stats_update() {
     let submitter = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("Rec"),
-        &100,
-        &200,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &100, &200);
     client.register_participant(
         &submitter,
         &ParticipantRole::Recycler,
@@ -731,13 +648,7 @@ fn test_zero_weight_zero_reward() {
     let submitter = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("Rec"),
-        &100,
-        &200,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &100, &200);
     client.register_participant(
         &submitter,
         &ParticipantRole::Recycler,
@@ -771,13 +682,7 @@ fn test_global_token_statistics() {
     let submitter2 = Address::generate(&env);
     env.mock_all_auths();
 
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("Rec"),
-        &100,
-        &200,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &100, &200);
     client.register_participant(
         &submitter1,
         &ParticipantRole::Recycler,
@@ -829,13 +734,7 @@ fn test_distribution_with_custom_percentages() {
     client.initialize_admin(&admin);
     client.set_percentages(&admin, &25, &25);
 
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &symbol_short!("Rec"),
-        &100,
-        &200,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &symbol_short!("Rec"), &100, &200);
     client.register_participant(
         &submitter,
         &ParticipantRole::Recycler,

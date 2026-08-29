@@ -1,218 +1,234 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
+import { http, HttpResponse } from 'msw'
 import { ApiClient, ApiError, createApiClient } from '../apiClient'
-
-/* ────────────────────────────────────────────────────────────────
-   Helpers
-   ──────────────────────────────────────────────────────────────── */
-
-function mockFetch(
-  response: Partial<Response> & { body?: unknown } = {}
-): ReturnType<typeof vi.fn> {
-  const { status = 200, statusText = 'OK', body = {}, headers: rawHeaders = {} } = response
-  const headersObj = new Headers(rawHeaders as Record<string, string>)
-  if (!headersObj.has('content-type')) headersObj.set('content-type', 'application/json')
-
-  const fetchMock = vi.fn().mockResolvedValue({
-    ok: status >= 200 && status < 300,
-    status,
-    statusText,
-    headers: headersObj,
-    json: vi.fn().mockResolvedValue(body),
-    text: vi.fn().mockResolvedValue(JSON.stringify(body)),
-  } satisfies Partial<Response>)
-
-  vi.stubGlobal('fetch', fetchMock)
-  return fetchMock
-}
-
-/* ────────────────────────────────────────────────────────────────
-   Tests
-   ──────────────────────────────────────────────────────────────── */
+import { server } from '@/test/msw/server'
 
 describe('ApiClient', () => {
-  afterEach(() => {
-    vi.unstubAllGlobals()
-    vi.restoreAllMocks()
-  })
-
   describe('get()', () => {
-    it('calls fetch with the correct URL and method', async () => {
-      const fetchMock = mockFetch({ body: { items: [] } })
+    it('calls the correct endpoint and returns typed data', async () => {
       const client = createApiClient({ baseUrl: 'https://api.example.com' })
+      const result = await client.get('/api/wastes')
 
-      await client.get('/wastes')
-
-      expect(fetchMock).toHaveBeenCalledOnce()
-      const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
-      expect(url).toBe('https://api.example.com/wastes')
-      expect(init.method).toBe('GET')
-    })
-
-    it('appends query params to the URL', async () => {
-      const fetchMock = mockFetch()
-      const client = createApiClient({ baseUrl: 'https://api.example.com' })
-
-      await client.get('/wastes', { params: { page: 2, limit: 10 } })
-
-      const [url] = fetchMock.mock.calls[0] as [string]
-      expect(url).toContain('page=2')
-      expect(url).toContain('limit=10')
-    })
-
-    it('returns typed data with status and durationMs', async () => {
-      mockFetch({ body: { id: 1, type: 'Plastic' } })
-      const client = createApiClient({ baseUrl: 'https://api.example.com' })
-
-      const result = await client.get<{ id: number; type: string }>('/waste/1')
-
-      expect(result.data).toEqual({ id: 1, type: 'Plastic' })
+      expect(result.data).toHaveProperty('wastes')
       expect(result.status).toBe(200)
       expect(typeof result.durationMs).toBe('number')
     })
 
+    it('appends query params to the URL', async () => {
+      let capturedUrl = ''
+      server.use(
+        http.get('*/api/wastes', ({ request }) => {
+          capturedUrl = new URL(request.url).toString()
+          return HttpResponse.json({ wastes: [], total: 0, limit: 100, offset: 0 })
+        })
+      )
+
+      const client = createApiClient({ baseUrl: 'https://api.example.com' })
+      await client.get('/api/wastes', { params: { page: 2, limit: 10 } })
+
+      expect(capturedUrl).toContain('page=2')
+      expect(capturedUrl).toContain('limit=10')
+    })
+
     it('sets Authorization header when bearerToken is configured', async () => {
-      const fetchMock = mockFetch()
+      let capturedHeaders: Record<string, string> = {}
+      server.use(
+        http.get('*/api/wastes', ({ request }) => {
+          capturedHeaders = Object.fromEntries(request.headers.entries())
+          return HttpResponse.json({ wastes: [] })
+        })
+      )
+
       const client = createApiClient({
         baseUrl: 'https://api.example.com',
-        bearerToken: 'my-token',
+        bearerToken: 'my-token'
       })
+      await client.get('/api/wastes')
 
-      await client.get('/wastes')
-
-      const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
-      expect((init.headers as Record<string, string>)['Authorization']).toBe('Bearer my-token')
+      expect(capturedHeaders['authorization']).toBe('Bearer my-token')
     })
 
     it('merges per-request headers', async () => {
-      const fetchMock = mockFetch()
+      let capturedHeaders: Record<string, string> = {}
+      server.use(
+        http.get('*/api/wastes', ({ request }) => {
+          capturedHeaders = Object.fromEntries(request.headers.entries())
+          return HttpResponse.json({ wastes: [] })
+        })
+      )
+
       const client = createApiClient({ baseUrl: 'https://api.example.com' })
+      await client.get('/api/wastes', { headers: { 'X-Custom': 'yes' } })
 
-      await client.get('/wastes', { headers: { 'X-Custom': 'yes' } })
-
-      const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
-      expect((init.headers as Record<string, string>)['X-Custom']).toBe('yes')
+      expect(capturedHeaders['x-custom']).toBe('yes')
     })
   })
 
   describe('post()', () => {
-    it('calls fetch with POST and serialised JSON body', async () => {
-      const fetchMock = mockFetch({ status: 201, body: { id: 42 } })
+    it('sends POST with serialised JSON body', async () => {
+      let capturedMethod = ''
+      let capturedBody: unknown = null
+      server.use(
+        http.post('*/api/wastes', async ({ request }) => {
+          capturedMethod = request.method
+          capturedBody = await request.json()
+          return HttpResponse.json({ id: 42 }, { status: 201 })
+        })
+      )
+
       const client = createApiClient({ baseUrl: 'https://api.example.com' })
+      await client.post('/api/wastes', { type: 'Plastic', weight: 1.5 })
 
-      await client.post('/wastes', { type: 'Plastic', weight: 1.5 })
-
-      const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
-      expect(init.method).toBe('POST')
-      expect(init.body).toBe(JSON.stringify({ type: 'Plastic', weight: 1.5 }))
+      expect(capturedMethod).toBe('POST')
+      expect(capturedBody).toEqual({ type: 'Plastic', weight: 1.5 })
     })
   })
 
   describe('put()', () => {
-    it('calls fetch with PUT method', async () => {
-      const fetchMock = mockFetch()
+    it('sends PUT method', async () => {
+      let capturedMethod = ''
+      server.use(
+        http.put('*/api/wastes/:id', ({ request }) => {
+          capturedMethod = request.method
+          return HttpResponse.json({ ok: true })
+        })
+      )
+
       const client = createApiClient({ baseUrl: 'https://api.example.com' })
+      await client.put('/api/wastes/1', { status: 'verified' })
 
-      await client.put('/waste/1', { status: 'verified' })
-
-      const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
-      expect(init.method).toBe('PUT')
+      expect(capturedMethod).toBe('PUT')
     })
   })
 
   describe('patch()', () => {
-    it('calls fetch with PATCH method', async () => {
-      const fetchMock = mockFetch()
+    it('sends PATCH method', async () => {
+      let capturedMethod = ''
+      server.use(
+        http.patch('*/api/wastes/:id', ({ request }) => {
+          capturedMethod = request.method
+          return HttpResponse.json({ ok: true })
+        })
+      )
+
       const client = createApiClient({ baseUrl: 'https://api.example.com' })
+      await client.patch('/api/wastes/1', { weight: 2.0 })
 
-      await client.patch('/waste/1', { weight: 2.0 })
-
-      const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
-      expect(init.method).toBe('PATCH')
+      expect(capturedMethod).toBe('PATCH')
     })
   })
 
   describe('delete()', () => {
-    it('calls fetch with DELETE method and no body', async () => {
-      const fetchMock = mockFetch({ status: 204 })
+    it('sends DELETE with no body', async () => {
+      let capturedMethod = ''
+      let capturedBody: unknown = undefined
+      server.use(
+        http.delete('*/api/wastes/:id', ({ request }) => {
+          capturedMethod = request.method
+          capturedBody = request.body
+          return new HttpResponse(null, { status: 204 })
+        })
+      )
+
       const client = createApiClient({ baseUrl: 'https://api.example.com' })
+      await client.delete('/api/wastes/1')
 
-      await client.delete('/waste/1')
-
-      const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
-      expect(init.method).toBe('DELETE')
-      expect(init.body).toBeUndefined()
+      expect(capturedMethod).toBe('DELETE')
+      expect(capturedBody == null).toBe(true)
     })
   })
 
   describe('error handling', () => {
     it('throws ApiError with status and body for 4xx responses', async () => {
-      mockFetch({ status: 404, statusText: 'Not Found', body: { error: 'waste not found' } })
+      server.use(
+        http.get('*/api/wastes/:id', () =>
+          HttpResponse.json({ error: 'waste not found' }, { status: 404 })
+        )
+      )
+
       const client = createApiClient({ baseUrl: 'https://api.example.com' })
 
-      await expect(client.get('/waste/999')).rejects.toThrow(ApiError)
+      await expect(client.get('/api/wastes/999')).rejects.toThrow(ApiError)
 
       try {
-        await client.get('/waste/999')
+        await client.get('/api/wastes/999')
       } catch (err) {
         expect(err).toBeInstanceOf(ApiError)
         const apiErr = err as ApiError
         expect(apiErr.status).toBe(404)
-        expect(apiErr.statusText).toBe('Not Found')
+        expect(apiErr.body).toEqual({ error: 'waste not found' })
       }
     })
 
     it('throws ApiError for 5xx responses', async () => {
-      mockFetch({ status: 500, statusText: 'Internal Server Error', body: {} })
-      const client = createApiClient({ baseUrl: 'https://api.example.com' })
+      server.use(
+        http.get('*/api/wastes', () =>
+          HttpResponse.json({ error: 'Internal error' }, { status: 500 })
+        )
+      )
 
-      await expect(client.get('/wastes')).rejects.toBeInstanceOf(ApiError)
+      const client = createApiClient({ baseUrl: 'https://api.example.com' })
+      await expect(client.get('/api/wastes')).rejects.toBeInstanceOf(ApiError)
     })
 
     it('throws ApiError with status 0 on network failure', async () => {
-      vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Failed to fetch')))
+      vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Failed to fetch.')))
       const client = createApiClient({ baseUrl: 'https://api.example.com' })
 
-      await expect(client.get('/wastes')).rejects.toThrow(ApiError)
+      const client = createApiClient({ baseUrl: 'https://api.example.com' })
+      await expect(client.get('/api/wastes')).rejects.toThrow(ApiError)
     })
 
     it('throws ApiError with timeout message when AbortError is raised', async () => {
-      const abortError = new Error('Aborted')
+      const abortError = new Error('Aborted.')
       abortError.name = 'AbortError'
       vi.stubGlobal('fetch', vi.fn().mockRejectedValue(abortError))
 
       const client = createApiClient({
         baseUrl: 'https://api.example.com',
-        timeoutMs: 100,
+        timeoutMs: 100
       })
 
-      await expect(client.get('/wastes')).rejects.toThrow(/timed out/)
+      await expect(client.get('/api/wastes')).rejects.toThrow(/timed out/)
+
+      vi.unstubAllGlobals()
     })
   })
 
   describe('setToken()', () => {
-    it('updates the bearer token used for subsequent requests', async () => {
-      const fetchMock = mockFetch()
+    it('updates the bearer token for subsequent requests', async () => {
+      let capturedAuth = ''
+      server.use(
+        http.get('*/api/wastes', ({ request }) => {
+          capturedAuth = request.headers.get('Authorization') ?? ''
+          return HttpResponse.json({ wastes: [] })
+        })
+      )
+
       const client = new ApiClient({ baseUrl: 'https://api.example.com' })
-
       client.setToken('new-token')
-      await client.get('/wastes')
+      await client.get('/api/wastes')
 
-      const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
-      expect((init.headers as Record<string, string>)['Authorization']).toBe('Bearer new-token')
+      expect(capturedAuth).toBe('Bearer new-token')
     })
 
     it('removes Authorization header when token is set to undefined', async () => {
-      const fetchMock = mockFetch()
+      let capturedAuth: string | null = null
+      server.use(
+        http.get('*/api/wastes', ({ request }) => {
+          capturedAuth = request.headers.get('Authorization')
+          return HttpResponse.json({ wastes: [] })
+        })
+      )
+
       const client = new ApiClient({
         baseUrl: 'https://api.example.com',
-        bearerToken: 'old-token',
+        bearerToken: 'old-token'
       })
-
       client.setToken(undefined)
-      await client.get('/wastes')
+      await client.get('/api/wastes')
 
-      const [, init] = fetchMock.mock.calls[0] as [string, RequestInit]
-      expect((init.headers as Record<string, string>)['Authorization']).toBeUndefined()
+      expect(capturedAuth).toBeNull()
     })
   })
 })

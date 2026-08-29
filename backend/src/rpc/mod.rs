@@ -8,6 +8,6 @@ pub mod client;
 mod error_injection_tests;
 
 pub use client::{
-    ContractDataEntry, LatestLedger, RetryConfig, RpcError, StellarAccount, StellarRpcClient,
-    StellarRpcConfig, TransactionResult, Balance,
+    Balance, ContractDataEntry, LatestLedger, RetryConfig, RpcError, StellarAccount, StellarRpcClient,
+    StellarRpcConfig, TransactionResult,
 };

@@ -55,7 +55,10 @@ fn test_new_waste_history_has_one_entry() {
     let waste = client.get_waste_v2(&waste_id).unwrap();
 
     assert_eq!(waste.processing_history.len(), 1);
-    assert_eq!(waste.processing_history.get(0).unwrap().status, ProcessingStatus::Collected);
+    assert_eq!(
+        waste.processing_history.get(0).unwrap().status,
+        ProcessingStatus::Collected
+    );
 }
 
 // ── 3. Owner can advance status forward ───────────────────────────────────
@@ -85,7 +88,10 @@ fn test_history_grows_on_update() {
     let waste = client.get_waste_v2(&waste_id).unwrap();
 
     assert_eq!(waste.processing_history.len(), 2);
-    assert_eq!(waste.processing_history.get(1).unwrap().status, ProcessingStatus::Sorted);
+    assert_eq!(
+        waste.processing_history.get(1).unwrap().status,
+        ProcessingStatus::Sorted
+    );
 }
 
 // ── 5. Full forward progression works ─────────────────────────────────────

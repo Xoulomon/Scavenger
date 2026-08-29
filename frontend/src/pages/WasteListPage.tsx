@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/Button'
 import { Checkbox } from '@/components/ui/Checkbox'
 import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
-import { WasteCardSkeleton } from '@/components/ui/Skeletons'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { AddressDisplay } from '@/components/ui/AddressDisplay'
 import { TransactionConfirmDialog } from '@/components/ui/TransactionConfirmDialog'
@@ -33,7 +32,9 @@ const WASTE_LABELS: Record<WasteType, string> = {
   [WasteType.PetPlastic]: 'PET Plastic',
   [WasteType.Plastic]: 'Plastic',
   [WasteType.Metal]: 'Metal',
-  [WasteType.Glass]: 'Glass'
+  [WasteType.Glass]: 'Glass',
+  [WasteType.Organic]: 'Organic',
+  [WasteType.Electronic]: 'Electronic',
 }
 
 type StatusFilter = 'all' | 'active' | 'confirmed' | 'inactive'

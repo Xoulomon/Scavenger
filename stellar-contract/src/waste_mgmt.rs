@@ -1,6 +1,14 @@
-//! Waste management domain module (issue #925).
+//! Waste management domain module — Issue #925, updated #1101
 //!
 //! Re-exports waste-related types for domain-scoped imports.
+//!
+//! # Module boundary (consistent with participant split)
+//!
+//! | Layer            | Module            | Responsibility                              |
+//! |------------------|-------------------|---------------------------------------------|
+//! | Domain logic     | `waste`           | State guards, route validation, weight checks |
+//! | Storage          | `waste_storage`   | Raw CRUD: read/write/delete Waste records   |
+//! | Domain re-export | `waste_mgmt` (this) | Re-exports types for domain-scoped imports |
 //!
 //! State-changing operations on `ScavengerContract` in `lib.rs`:
 //! - `submit_material`, `recycle_waste` (v1/v2 registration)

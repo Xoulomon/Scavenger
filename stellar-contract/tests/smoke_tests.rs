@@ -1,9 +1,7 @@
 #![cfg(test)]
 
 use soroban_sdk::{testutils::Address as _, Address, Env};
-use stellar_scavngr_contract::{
-    ScavngrContractClient, ParticipantRole, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavngrContractClient, WasteType};
 
 #[test]
 fn smoke_test_participant_registration() {
@@ -15,7 +13,7 @@ fn smoke_test_participant_registration() {
     let participant = Address::generate(&env);
 
     client.initialize_admin(&admin);
-    
+
     client.register_participant(
         &participant,
         &ParticipantRole::Recycler,
@@ -38,21 +36,9 @@ fn smoke_test_waste_submission_flow() {
     let recycler = Address::generate(&env);
 
     client.initialize_admin(&admin);
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &"Recycler".into(),
-        &0i32,
-        &0i32,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &"Recycler".into(), &0i32, &0i32);
 
-    let waste_id = client.submit_material(
-        &recycler,
-        &WasteType::Plastic,
-        &100u128,
-        &0i32,
-        &0i32,
-    );
+    let waste_id = client.submit_material(&recycler, &WasteType::Plastic, &100u128, &0i32, &0i32);
 
     assert!(waste_id > 0);
 }
@@ -68,13 +54,7 @@ fn smoke_test_waste_transfer_flow() {
     let collector = Address::generate(&env);
 
     client.initialize_admin(&admin);
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &"Recycler".into(),
-        &0i32,
-        &0i32,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &"Recycler".into(), &0i32, &0i32);
     client.register_participant(
         &collector,
         &ParticipantRole::Collector,
@@ -83,13 +63,7 @@ fn smoke_test_waste_transfer_flow() {
         &0i32,
     );
 
-    let waste_id = client.submit_material(
-        &recycler,
-        &WasteType::Plastic,
-        &100u128,
-        &0i32,
-        &0i32,
-    );
+    let waste_id = client.submit_material(&recycler, &WasteType::Plastic, &100u128, &0i32, &0i32);
 
     client.transfer_waste(
         &waste_id,
@@ -122,12 +96,7 @@ fn smoke_test_incentive_creation_and_distribution() {
         &0i32,
     );
 
-    let incentive_id = client.create_incentive(
-        &manufacturer,
-        &WasteType::Plastic,
-        &50u128,
-        &1000u128,
-    );
+    let incentive_id = client.create_incentive(&manufacturer, &WasteType::Plastic, &50u128, &1000u128);
 
     assert!(incentive_id > 0);
 

@@ -1,7 +1,6 @@
 use scavenger_backend::search::{
-    SearchClient, SearchClientConfig, SearchIndex, IndexConfig, IndexMapping,
-    SearchQueryBuilder, SearchFilter, FacetedSearch, Facet, FacetType,
-    IndexingPipeline, field_builders,
+    field_builders, Facet, FacetType, FacetedSearch, IndexConfig, IndexMapping, IndexingPipeline, SearchClient,
+    SearchClientConfig, SearchFilter, SearchIndex, SearchQueryBuilder,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -30,7 +29,7 @@ fn test_index_mapping_builder() {
         .add_field("created_at".to_string(), field_builders::date_field())
         .add_field("count".to_string(), field_builders::integer_field())
         .add_field("active".to_string(), field_builders::boolean_field());
-    
+
     assert_eq!(mapping.properties.len(), 5);
     assert!(mapping.properties.contains_key("title"));
     assert!(mapping.properties.contains_key("status"));
@@ -44,7 +43,7 @@ fn test_search_query_builder() {
         .size(20)
         .sort("created_at", "desc")
         .build();
-    
+
     assert_eq!(query.from, 0);
     assert_eq!(query.size, 20);
     assert!(query.sort.is_some());
@@ -53,12 +52,9 @@ fn test_search_query_builder() {
 #[test]
 fn test_multi_match_query() {
     let query = SearchQueryBuilder::new()
-        .multi_match(
-            vec!["title".to_string(), "description".to_string()],
-            "search term"
-        )
+        .multi_match(vec!["title".to_string(), "description".to_string()], "search term")
         .build();
-    
+
     // Verify the query was built correctly
     assert_eq!(query.from, 0);
     assert_eq!(query.size, 20);
@@ -67,25 +63,21 @@ fn test_multi_match_query() {
 #[test]
 fn test_bool_query_builder() {
     use scavenger_backend::search::query_builder::QueryType;
-    
-    let must_queries = vec![
-        QueryType::Term {
-            field: "status".to_string(),
-            value: json!("active"),
-        },
-    ];
-    
-    let should_queries = vec![
-        QueryType::Match {
-            field: "title".to_string(),
-            query: "important".to_string(),
-        },
-    ];
-    
+
+    let must_queries = vec![QueryType::Term {
+        field: "status".to_string(),
+        value: json!("active"),
+    }];
+
+    let should_queries = vec![QueryType::Match {
+        field: "title".to_string(),
+        query: "important".to_string(),
+    }];
+
     let query = SearchQueryBuilder::new()
         .bool_query(must_queries, should_queries, vec![])
         .build();
-    
+
     // Verify the boolean query structure
     match query.query {
         QueryType::Bool { must, should, must_not } => {
@@ -100,13 +92,22 @@ fn test_bool_query_builder() {
 #[test]
 fn test_search_filters() {
     let filter = SearchFilter::term("status", json!("active"));
-    assert!(matches!(filter.filter, scavenger_backend::search::FilterType::Term { .. }));
-    
+    assert!(matches!(
+        filter.filter,
+        scavenger_backend::search::FilterType::Term { .. }
+    ));
+
     let range_filter = SearchFilter::range("price", Some(json!(10)), Some(json!(100)));
-    assert!(matches!(range_filter.filter, scavenger_backend::search::FilterType::Range { .. }));
-    
+    assert!(matches!(
+        range_filter.filter,
+        scavenger_backend::search::FilterType::Range { .. }
+    ));
+
     let exists_filter = SearchFilter::exists("email");
-    assert!(matches!(exists_filter.filter, scavenger_backend::search::FilterType::Exists { .. }));
+    assert!(matches!(
+        exists_filter.filter,
+        scavenger_backend::search::FilterType::Exists { .. }
+    ));
 }
 
 #[test]
@@ -125,7 +126,7 @@ fn test_faceted_search() {
             },
         },
     ];
-    
+
     let aggregations = FacetedSearch::build_aggregations(&facets);
     assert_eq!(aggregations.len(), 2);
     assert!(aggregations.contains_key("status"));
@@ -140,9 +141,9 @@ fn test_query_to_elasticsearch_json() {
         .size(50)
         .sort("_score", "desc")
         .highlight(vec!["title".to_string()]);
-    
+
     let json = builder.to_elasticsearch_json();
-    
+
     assert_eq!(json["from"], 10);
     assert_eq!(json["size"], 50);
     assert!(json["query"].is_object());
@@ -152,11 +153,8 @@ fn test_query_to_elasticsearch_json() {
 
 #[test]
 fn test_pagination() {
-    let query = SearchQueryBuilder::new()
-        .from(100)
-        .size(25)
-        .build();
-    
+    let query = SearchQueryBuilder::new().from(100).size(25).build();
+
     assert_eq!(query.from, 100);
     assert_eq!(query.size, 25);
 }
@@ -164,14 +162,17 @@ fn test_pagination() {
 #[test]
 fn test_aggregation_builder() {
     let query = SearchQueryBuilder::new()
-        .aggregation("status_count", json!({
-            "terms": {
-                "field": "status.keyword",
-                "size": 10
-            }
-        }))
+        .aggregation(
+            "status_count",
+            json!({
+                "terms": {
+                    "field": "status.keyword",
+                    "size": 10
+                }
+            }),
+        )
         .build();
-    
+
     assert!(query.aggregations.is_some());
     let aggs = query.aggregations.unwrap();
     assert!(aggs.contains_key("status_count"));
@@ -182,7 +183,7 @@ fn test_source_filtering() {
     let query = SearchQueryBuilder::new()
         .source(vec!["title".to_string(), "description".to_string()])
         .build();
-    
+
     assert!(query.source.is_some());
     let source = query.source.unwrap();
     assert_eq!(source.len(), 2);

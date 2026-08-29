@@ -1,9 +1,7 @@
 #![cfg(test)]
 
 use soroban_sdk::{symbol_short, testutils::Address as _, Address, Env, String};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient, WasteGrade, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteGrade, WasteType};
 
 fn setup(env: &Env) -> (ScavengerContractClient, Address, Address, Address) {
     env.mock_all_auths();
@@ -93,12 +91,7 @@ fn test_report_contamination_stores_report() {
     let (client, _, recycler, collector) = setup(&env);
 
     let waste_id = client.recycle_waste(&WasteType::Plastic, &1000, &recycler, &0, &0);
-    let report = client.report_contamination(
-        &waste_id,
-        &collector,
-        &30,
-        &reason(&env, "slight contamination"),
-    );
+    let report = client.report_contamination(&waste_id, &collector, &30, &reason(&env, "slight contamination"));
 
     assert_eq!(report.waste_id, waste_id);
     assert_eq!(report.reporter, collector);

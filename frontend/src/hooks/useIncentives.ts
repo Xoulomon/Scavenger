@@ -39,7 +39,7 @@ export function useIncentives(wasteType?: WasteType) {
 
   const createIncentive = useMutation({
     mutationFn: ({ wt, rewardPoints, budget }: { wt: WasteType; rewardPoints: bigint; budget: bigint }) => {
-      if (!address) throw new Error('Wallet not connected')
+      if (!address) throw new Error('Wallet not connected.')
       return getClient().createIncentive(address, wt, rewardPoints, budget, address)
     },
     onSuccess: (incentive) => {
@@ -51,7 +51,7 @@ export function useIncentives(wasteType?: WasteType) {
 
   const updateIncentive = useMutation({
     mutationFn: ({ id, rewardPoints, budget }: { id: bigint; rewardPoints: bigint; budget: bigint }) => {
-      if (!address) throw new Error('Wallet not connected')
+      if (!address) throw new Error('Wallet not connected.')
       return getClient().updateIncentive(id, address, rewardPoints, budget, address)
     },
     onSuccess: (incentive) => {
@@ -63,7 +63,7 @@ export function useIncentives(wasteType?: WasteType) {
 
   const deactivateIncentive = useMutation({
     mutationFn: ({ id }: { id: bigint }) => {
-      if (!address) throw new Error('Wallet not connected')
+      if (!address) throw new Error('Wallet not connected.')
       return getClient().deactivateIncentive(id, address, address)
     },
     onSuccess: () => {

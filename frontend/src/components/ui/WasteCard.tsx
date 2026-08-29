@@ -25,6 +25,8 @@ const WASTE_ICONS: Record<WasteType, React.ReactNode> = {
   [WasteType.Plastic]:    <Package    className="h-5 w-5" />,
   [WasteType.Metal]:      <Wrench     className="h-5 w-5" />,
   [WasteType.Glass]:      <GlassWater className="h-5 w-5" />,
+  [WasteType.Organic]:    <Recycle    className="h-5 w-5" />,
+  [WasteType.Electronic]: <Wrench     className="h-5 w-5" />,
 }
 
 const WASTE_ICON_COLORS: Record<WasteType, string> = {
@@ -33,6 +35,8 @@ const WASTE_ICON_COLORS: Record<WasteType, string> = {
   [WasteType.Plastic]:    'text-purple-600 bg-purple-100 dark:text-purple-400 dark:bg-purple-900/30',
   [WasteType.Metal]:      'text-slate-600  bg-slate-100  dark:text-slate-400  dark:bg-slate-800/50',
   [WasteType.Glass]:      'text-cyan-600   bg-cyan-100   dark:text-cyan-400   dark:bg-cyan-900/30',
+  [WasteType.Organic]:    'text-green-600  bg-green-100  dark:text-green-400  dark:bg-green-900/30',
+  [WasteType.Electronic]: 'text-red-600    bg-red-100    dark:text-red-400    dark:bg-red-900/30',
 }
 
 // ── Status helpers ───────────────────────────────────────────────────────────
