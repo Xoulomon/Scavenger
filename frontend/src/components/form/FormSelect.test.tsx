@@ -1,7 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { axe, toHaveNoViolations } from 'jest-axe'
 import { FormSelect } from './FormSelect'
+
+expect.extend(toHaveNoViolations)
 
 describe('FormSelect', () => {
   const options = [
@@ -237,5 +240,85 @@ describe('FormSelect', () => {
     )
 
     expect(screen.getByText('Select')).toBeInTheDocument()
+  })
+
+  describe('Accessibility', () => {
+    it('has no axe violations with options', async () => {
+      const { container } = render(
+        <FormSelect
+          id="accessible-select"
+          label="Accessible Select"
+          options={options}
+        />
+      )
+      const results = await axe(container)
+      expect(results).toHaveNoViolations()
+    })
+
+    it('has no axe violations with error state', async () => {
+      const { container } = render(
+        <FormSelect
+          id="error-select"
+          label="Error Select"
+          options={options}
+          error="Please select an option"
+        />
+      )
+      const results = await axe(container)
+      expect(results).toHaveNoViolations()
+    })
+
+    it('properly associates label with select', () => {
+      render(
+        <FormSelect
+          id="labeled-select"
+          label="Labeled Select"
+          options={options}
+        />
+      )
+      const label = screen.getByText('Labeled Select')
+      expect(label).toHaveAttribute('for', 'labeled-select')
+    })
+
+    it('supports keyboard navigation', async () => {
+      const user = userEvent.setup()
+      const { container } = render(
+        <FormSelect
+          id="keyboard-select"
+          label="Keyboard Select"
+          options={options}
+        />
+      )
+
+      const select = container.querySelector('#keyboard-select')
+      await user.tab()
+      expect(select).toHaveFocus()
+    })
+
+    it('has proper ARIA attributes for required selects', () => {
+      const { container } = render(
+        <FormSelect
+          id="required-select"
+          label="Required Select"
+          options={options}
+          required
+        />
+      )
+      const select = container.querySelector('#required-select')
+      expect(select).toHaveAttribute('required')
+    })
+
+    it('has proper ARIA attributes for disabled selects', () => {
+      const { container } = render(
+        <FormSelect
+          id="disabled-select"
+          label="Disabled Select"
+          options={options}
+          disabled
+        />
+      )
+      const select = container.querySelector('#disabled-select')
+      expect(select).toHaveAttribute('disabled')
+    })
   })
 })

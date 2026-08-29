@@ -1,7 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { axe, toHaveNoViolations } from 'jest-axe'
 import { FormField } from './FormField'
+
+expect.extend(toHaveNoViolations)
 
 describe('FormField', () => {
   it('renders input with correct type', () => {
@@ -202,5 +205,89 @@ describe('FormField', () => {
 
     const label = screen.getByText(/Email/)
     expect(label).toBeInTheDocument()
+  })
+
+  describe('Accessibility', () => {
+    it('has no axe violations with required field', async () => {
+      const { container } = render(
+        <FormField
+          id="email-input"
+          label="Email Address"
+          type="email"
+          required
+        />
+      )
+      const results = await axe(container)
+      expect(results).toHaveNoViolations()
+    })
+
+    it('has no axe violations with error state', async () => {
+      const { container } = render(
+        <FormField
+          id="password-input"
+          label="Password"
+          type="password"
+          error="Password is required"
+        />
+      )
+      const results = await axe(container)
+      expect(results).toHaveNoViolations()
+    })
+
+    it('properly associates label with input', () => {
+      render(
+        <FormField
+          id="test-id"
+          label="Test Label"
+          type="text"
+        />
+      )
+      const label = screen.getByText('Test Label')
+      const input = screen.getByRole('textbox')
+
+      expect(label).toHaveAttribute('for', 'test-id')
+      expect(input).toHaveAttribute('id', 'test-id')
+    })
+
+    it('supports keyboard navigation', async () => {
+      const user = userEvent.setup()
+      render(
+        <FormField
+          id="keyboard-test"
+          label="Keyboard Test"
+          type="text"
+        />
+      )
+      const input = screen.getByRole('textbox')
+
+      await user.tab()
+      expect(input).toHaveFocus()
+    })
+
+    it('has proper ARIA attributes for required fields', () => {
+      render(
+        <FormField
+          id="required-field"
+          label="Required Field"
+          type="text"
+          required
+        />
+      )
+      const input = screen.getByRole('textbox')
+      expect(input).toHaveAttribute('required')
+    })
+
+    it('has proper ARIA attributes for disabled fields', () => {
+      render(
+        <FormField
+          id="disabled-field"
+          label="Disabled Field"
+          type="text"
+          disabled
+        />
+      )
+      const input = screen.getByRole('textbox')
+      expect(input).toHaveAttribute('disabled')
+    })
   })
 })

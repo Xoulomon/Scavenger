@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { axe, toHaveNoViolations } from 'jest-axe'
 import { FormError } from './FormError'
+
+expect.extend(toHaveNoViolations)
 
 describe('FormError', () => {
   it('does not render when no message provided', () => {
@@ -102,5 +105,25 @@ describe('FormError', () => {
     rerender(<FormError message="Second" />)
     expect(screen.queryByText('First')).not.toBeInTheDocument()
     expect(screen.getByText('Second')).toBeInTheDocument()
+  })
+
+  describe('Accessibility', () => {
+    it('has no axe violations with error message', async () => {
+      const { container } = render(<FormError message="This is an error" />)
+      const results = await axe(container)
+      expect(results).toHaveNoViolations()
+    })
+
+    it('has no axe violations when empty', async () => {
+      const { container } = render(<FormError />)
+      const results = await axe(container)
+      expect(results).toHaveNoViolations()
+    })
+
+    it('properly announces error to screen readers with alert role', () => {
+      render(<FormError message="Required field" />)
+      const alert = screen.getByRole('alert')
+      expect(alert).toHaveAttribute('role', 'alert')
+    })
   })
 })
