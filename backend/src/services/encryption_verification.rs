@@ -1,90 +1,123 @@
-use serde::{Deserialize, Serialize};
+//! Encryption verification service using shared cryptographic primitives
+//! 
+//! This service provides verification operations using the same cryptographic
+//! primitives as the encryption service, ensuring consistency.
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct EncryptionVerification {
-    pub id: String,
-    pub key_id: String,
-    pub verified: bool,
-    pub verified_at: chrono::DateTime<chrono::Utc>,
-    pub error: Option<String>,
-    pub data_hash: String,
+use crate::crypto::{
+    verify as crypto_verify,
+    create_hmac, verify_hmac,
+    hash_password, verify_password,
+    derive_key, generate_salt,
+    EncryptedData, KeyMaterial, CryptoError,
+};
+
+/// Service for verifying encrypted data
+pub struct VerificationService {
+    // Configuration for verification
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct EncryptionMonitoring {
-    pub total_encryptions: u64,
-    pub total_decryptions: u64,
-    pub verification_successes: u64,
-    pub verification_failures: u64,
-    pub key_rotations: u64,
-    pub last_activity: chrono::DateTime<chrono::Utc>,
-}
-
-impl Default for EncryptionMonitoring {
-    fn default() -> Self {
-        Self {
-            total_encryptions: 0,
-            total_decryptions: 0,
-            verification_successes: 0,
-            verification_failures: 0,
-            key_rotations: 0,
-            last_activity: chrono::Utc::now(),
-        }
-    }
-}
-
-pub struct EncryptionMonitoringService {
-    metrics: std::sync::Arc<std::sync::Mutex<EncryptionMonitoring>>,
-    history: std::sync::Arc<std::sync::Mutex<Vec<EncryptionVerification>>>,
-}
-
-impl EncryptionMonitoringService {
-    pub fn new() -> Self {
-        Self {
-            metrics: std::sync::Arc::new(std::sync::Mutex::new(EncryptionMonitoring::default())),
-            history: std::sync::Arc::new(std::sync::Mutex::new(Vec::new())),
-        }
-    }
-
-    pub fn record_encryption(&self) {
-        self.metrics.lock().unwrap().total_encryptions += 1;
-        self.metrics.lock().unwrap().last_activity = chrono::Utc::now();
-    }
-
-    pub fn record_decryption(&self) {
-        self.metrics.lock().unwrap().total_decryptions += 1;
-        self.metrics.lock().unwrap().last_activity = chrono::Utc::now();
-    }
-
-    pub fn record_verification(&self, success: bool) {
-        if success {
-            self.metrics.lock().unwrap().verification_successes += 1;
-        } else {
-            self.metrics.lock().unwrap().verification_failures += 1;
-        }
-        self.metrics.lock().unwrap().last_activity = chrono::Utc::now();
-    }
-
-    pub fn record_key_rotation(&self) {
-        self.metrics.lock().unwrap().key_rotations += 1;
-    }
-
-    pub fn add_verification(&self, verification: EncryptionVerification) {
-        self.history.lock().unwrap().push(verification);
-    }
-
-    pub fn get_metrics(&self) -> EncryptionMonitoring {
-        self.metrics.lock().unwrap().clone()
-    }
-
-    pub fn get_history(&self, limit: usize) -> Vec<EncryptionVerification> {
-        let history = self.history.lock().unwrap();
-        history.iter().rev().take(limit).cloned().collect()
-    }
-}
-
-impl Default for EncryptionMonitoringService {
+impl Default for VerificationService {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl VerificationService {
+    /// Create a new verification service
+    pub fn new() -> Self {
+        Self {}
+    }
+
+    /// Verify encrypted data integrity
+    pub fn verify_data(&self, data: &[u8], hmac: &[u8], key: &KeyMaterial) -> Result<bool, CryptoError> {
+        let key_array = key.key.as_slice().try_into()
+            .map_err(|_| CryptoError::InvalidKeySize)?;
+        crypto_verify(data, hmac, &key_array)
+    }
+
+    /// Verify HMAC for data
+    pub fn verify_hmac(&self, data: &[u8], hmac: &[u8], key: &KeyMaterial) -> Result<(), CryptoError> {
+        let key_array = key.key.as_slice().try_into()
+            .map_err(|_| CryptoError::InvalidKeySize)?;
+        verify_hmac(data, hmac, &key_array)
+    }
+
+    /// Create HMAC for data (for verification purposes)
+    pub fn create_hmac(&self, data: &[u8], key: &KeyMaterial) -> Result<Vec<u8>, CryptoError> {
+        create_hmac(data, &key.key)
+    }
+
+    /// Hash a password
+    pub fn hash_password(&self, password: &str) -> Result<String, CryptoError> {
+        hash_password(password)
+    }
+
+    /// Verify a password against its hash
+    pub fn verify_password(&self, password: &str, hash: &str) -> Result<bool, CryptoError> {
+        verify_password(password, hash)
+    }
+
+    /// Derive a key from a password
+    pub fn derive_key(&self, password: &str, salt: &[u8], output_len: usize) -> Result<Vec<u8>, CryptoError> {
+        let salt_array = salt.try_into()
+            .map_err(|_| CryptoError::InvalidKeySize)?;
+        derive_key(password, &salt_array, output_len)
+    }
+
+    /// Generate a salt
+    pub fn generate_salt() -> [u8; 16] {
+        crate::crypto::primitives::generate_salt()
+    }
+
+    /// Tamper detection test
+    pub fn detect_tamper(data: &[u8], hmac: &[u8], key: &KeyMaterial) -> Result<bool, CryptoError> {
+        match Self::new().verify_hmac(data, hmac, key) {
+            Ok(_) => Ok(false), // No tamper detected
+            Err(CryptoError::IntegrityCheckFailed) => Ok(true), // Tamper detected
+            Err(e) => Err(e),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::crypto::primitives::encrypt;
+
+    #[test]
+    fn test_verification_service_verify() {
+        let service = VerificationService::new();
+        let key = crate::crypto::primitives::generate_key();
+        let key_material = KeyMaterial::new(key);
+        let data = b"test data";
+        
+        let hmac = service.create_hmac(data, &key_material).unwrap();
+        let result = service.verify_hmac(data, &hmac, &key_material);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_tamper_detection() {
+        let service = VerificationService::new();
+        let key = crate::crypto::primitives::generate_key();
+        let key_material = KeyMaterial::new(key);
+        let data = b"test data";
+        
+        let hmac = service.create_hmac(data, &key_material).unwrap();
+        
+        // Tamper with data
+        let tampered_data = b"tampered data";
+        let is_tampered = VerificationService::detect_tamper(tampered_data, &hmac, &key_material).unwrap();
+        assert!(is_tampered);
+    }
+
+    #[test]
+    fn test_password_hashing_verification() {
+        let service = VerificationService::new();
+        let password = "secure_password";
+        
+        let hash = service.hash_password(password).unwrap();
+        let verified = service.verify_password(password, &hash).unwrap();
+        assert!(verified);
     }
 }
