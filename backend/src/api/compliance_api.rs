@@ -1,13 +1,13 @@
 use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ChecklistRequest {
     pub name: String,
     pub description: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct AlertRuleRequest {
     pub name: String,
     pub description: String,
@@ -18,7 +18,7 @@ pub struct AlertRuleRequest {
     pub window_seconds: i64,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ComplianceCheckRequest {
     pub requirement_id: String,
     pub status: String,
