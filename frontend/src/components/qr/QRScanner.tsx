@@ -3,6 +3,7 @@ import { Html5Qrcode } from 'html5-qrcode';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
+import { decodeQR, handleQRScanError, sanitizeQRData } from '@/lib/qr';
 
 interface QRScannerProps {
   onScan: (wasteId: string) => void;
@@ -23,28 +24,42 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
     };
   }, [scanner]);
 
+  const handleQRData = (decodedText: string) => {
+    const decoded = decodeQR(decodedText);
+
+    if (!decoded.isValid) {
+      setError('Invalid QR code format. Please try again.');
+      return;
+    }
+
+    const sanitized = sanitizeQRData(decoded.data);
+    onScan(sanitized);
+
+    if (scanner) {
+      scanner.stop();
+      setScanning(false);
+    }
+  };
+
   const startScanning = async () => {
     try {
       const html5QrCode = new Html5Qrcode('qr-reader');
       setScanner(html5QrCode);
-      
+
       await html5QrCode.start(
         { facingMode: 'environment' },
         { fps: 10, qrbox: { width: 250, height: 250 } },
-        (decodedText) => {
-          onScan(decodedText);
-          html5QrCode.stop();
-          setScanning(false);
-        },
+        handleQRData,
         () => {
-          // Ignore scan errors
+          // Ignore scan errors during continuous scanning
         }
       );
-      
+
       setScanning(true);
       setError(null);
     } catch (err) {
-      setError('Failed to access camera. Please check permissions.');
+      const errorMessage = handleQRScanError(err);
+      setError(errorMessage);
       console.error(err);
     }
   };
@@ -58,16 +73,26 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
   };
 
   const handleManualSubmit = () => {
-    if (manualCode.trim()) {
-      onScan(manualCode.trim());
+    if (!manualCode.trim()) {
+      setError('Please enter a waste ID');
+      return;
     }
+
+    const decoded = decodeQR(manualCode);
+    if (!decoded.isValid) {
+      setError('Invalid waste ID format');
+      return;
+    }
+
+    const sanitized = sanitizeQRData(decoded.data);
+    onScan(sanitized);
   };
 
   return (
     <Card className="p-6">
       <div className="space-y-4">
         <h2 className="text-2xl font-bold">Scan QR Code</h2>
-        
+
         {error && (
           <div className="p-3 bg-red-100 text-red-700 rounded">{error}</div>
         )}
