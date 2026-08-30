@@ -1,11 +1,12 @@
-pub mod alerts;
-pub mod audit;
-pub mod checklist;
-pub mod monitor;
-pub mod reporting;
+//! Compliance domain logic module
+//!
+//! This module contains all business logic related to compliance checking,
+//! separated from the HTTP layer.
 
-pub use alerts::*;
-pub use audit::*;
-pub use checklist::*;
-pub use monitor::*;
-pub use reporting::*;
+pub mod service;
+pub mod validator;
+pub mod models;
+
+pub use service::ComplianceService;
+pub use validator::ComplianceValidator;
+pub use models::*;
