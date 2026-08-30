@@ -425,20 +425,89 @@ mod tests {
     use super::*;
     use std::sync::Arc;
 
-    fn make_service() -> ClassificationService {
-        let svc = ClassificationService::new();
-        let v = ModelVersion {
-            version_id: "v1".to_string(),
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    fn make_version(id: &str, is_active: bool) -> ModelVersion {
+        ModelVersion {
+            version_id: id.to_string(),
             model_name: "waste-classifier".to_string(),
-            version: "1.0.0".to_string(),
-            description: "Initial model".to_string(),
-            is_active: true,
+            version: id.to_string(),
+            description: "Test version".to_string(),
+            is_active,
             created_at: Utc::now(),
             accuracy: 0.85,
-        };
-        svc.register_version(v, Arc::new(MockInferenceEngine)).unwrap();
+        }
+    }
+
+    fn make_service() -> ClassificationService {
+        let svc = ClassificationService::new();
+        svc.register_version(make_version("v1", true), Arc::new(MockInferenceEngine))
+            .unwrap();
         svc
     }
+
+    // ── Low-confidence inference engine (confidence always below threshold) ──
+
+    struct LowConfidenceEngine;
+
+    #[async_trait::async_trait]
+    impl InferenceEngine for LowConfidenceEngine {
+        async fn predict(&self, _image_data: &[u8]) -> Result<Vec<ClassificationPrediction>, ClassificationError> {
+            Ok(vec![
+                ClassificationPrediction {
+                    category: WasteCategory::Other,
+                    confidence: 0.35,
+                },
+                ClassificationPrediction {
+                    category: WasteCategory::Plastic,
+                    confidence: 0.25,
+                },
+            ])
+        }
+    }
+
+    // ── Engine that returns a single prediction ────────────────────────────
+
+    struct SinglePredictionEngine {
+        category: WasteCategory,
+        confidence: f64,
+    }
+
+    #[async_trait::async_trait]
+    impl InferenceEngine for SinglePredictionEngine {
+        async fn predict(&self, _image_data: &[u8]) -> Result<Vec<ClassificationPrediction>, ClassificationError> {
+            Ok(vec![ClassificationPrediction {
+                category: self.category.clone(),
+                confidence: self.confidence,
+            }])
+        }
+    }
+
+    // ── Engine that always errors ──────────────────────────────────────────
+
+    struct ErrorEngine;
+
+    #[async_trait::async_trait]
+    impl InferenceEngine for ErrorEngine {
+        async fn predict(&self, _image_data: &[u8]) -> Result<Vec<ClassificationPrediction>, ClassificationError> {
+            Err(ClassificationError::InferenceError("mock engine failure".to_string()))
+        }
+    }
+
+    // ── Engine that returns no predictions ────────────────────────────────
+
+    struct EmptyPredictionsEngine;
+
+    #[async_trait::async_trait]
+    impl InferenceEngine for EmptyPredictionsEngine {
+        async fn predict(&self, _image_data: &[u8]) -> Result<Vec<ClassificationPrediction>, ClassificationError> {
+            Ok(vec![])
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Original tests (preserved)
+    // ─────────────────────────────────────────────────────────────────────────
 
     #[tokio::test]
     async fn test_classify_with_active_version() {
@@ -495,16 +564,8 @@ mod tests {
     fn test_version_promotion() {
         let svc = ClassificationService::new();
         for (id, active) in [("v1", true), ("v2", false)] {
-            let v = ModelVersion {
-                version_id: id.to_string(),
-                model_name: "m".to_string(),
-                version: id.to_string(),
-                description: "".to_string(),
-                is_active: active,
-                created_at: Utc::now(),
-                accuracy: 0.8,
-            };
-            svc.register_version(v, Arc::new(MockInferenceEngine)).unwrap();
+            svc.register_version(make_version(id, active), Arc::new(MockInferenceEngine))
+                .unwrap();
         }
         svc.promote_version("v2").unwrap();
         assert_eq!(svc.active_version().unwrap().version_id, "v2");
@@ -560,5 +621,517 @@ mod tests {
         let summary = svc.monitoring_summary();
         assert_eq!(summary.total_requests, 3);
         assert!(summary.avg_confidence > 0.0);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Issue #1127 — New tests
+    // ─────────────────────────────────────────────────────────────────────────
+
+    // ── Known input/output pairs (fixtures) ──────────────────────────────────
+
+    #[tokio::test]
+    async fn test_classify_returns_expected_category_and_confidence() {
+        // MockInferenceEngine always returns Plastic with 0.82 confidence.
+        let svc = make_service();
+        let result = svc
+            .classify(ClassificationRequest {
+                image: "plastic-bottle-image".to_string(),
+                model_version_id: None,
+            })
+            .await
+            .unwrap();
+
+        assert_eq!(result.top_prediction.category, WasteCategory::Plastic);
+        // Confidence should be within the expected fixture range
+        assert!((result.top_prediction.confidence - 0.82).abs() < 1e-9);
+    }
+
+    #[tokio::test]
+    async fn test_classify_all_predictions_sorted_by_confidence_descending() {
+        let svc = make_service();
+        let result = svc
+            .classify(ClassificationRequest {
+                image: "image_data".to_string(),
+                model_version_id: None,
+            })
+            .await
+            .unwrap();
+
+        let confs: Vec<f64> = result.all_predictions.iter().map(|p| p.confidence).collect();
+        for window in confs.windows(2) {
+            assert!(
+                window[0] >= window[1],
+                "predictions not sorted: {} >= {} is false",
+                window[0],
+                window[1]
+            );
+        }
+    }
+
+    #[tokio::test]
+    async fn test_classify_result_contains_request_id() {
+        let svc = make_service();
+        let result = svc
+            .classify(ClassificationRequest {
+                image: "data".to_string(),
+                model_version_id: None,
+            })
+            .await
+            .unwrap();
+        // Request ID must be a non-empty UUID-like string
+        assert!(!result.request_id.is_empty());
+        // Must be a valid UUID format (36 chars, dashes at pos 8, 13, 18, 23)
+        assert_eq!(result.request_id.len(), 36);
+    }
+
+    #[tokio::test]
+    async fn test_classify_latency_recorded() {
+        let svc = make_service();
+        let result = svc
+            .classify(ClassificationRequest {
+                image: "data".to_string(),
+                model_version_id: None,
+            })
+            .await
+            .unwrap();
+        // Latency must be non-negative (u64 so already ≥ 0)
+        assert!(result.latency_ms < 60_000, "latency suspiciously high");
+    }
+
+    // ── Low-confidence fallback path ─────────────────────────────────────────
+
+    /// Coordinate system assumption: a top prediction with confidence < 0.6 is
+    /// considered "low confidence" and must be surfaced via the monitoring
+    /// summary's `low_confidence_count` field so that operators can flag items
+    /// for manual review.
+    #[tokio::test]
+    async fn test_low_confidence_predictions_counted_in_monitoring() {
+        let svc = ClassificationService::new();
+        svc.register_version(make_version("low-conf", true), Arc::new(LowConfidenceEngine))
+            .unwrap();
+
+        // Run several low-confidence classifications
+        for _ in 0..5 {
+            svc.classify(ClassificationRequest {
+                image: "unclear_image".to_string(),
+                model_version_id: None,
+            })
+            .await
+            .unwrap();
+        }
+
+        let summary = svc.monitoring_summary();
+        assert_eq!(summary.total_requests, 5);
+        // All predictions are below the 0.6 threshold → all must be counted
+        assert_eq!(summary.low_confidence_count, 5);
+    }
+
+    #[tokio::test]
+    async fn test_high_confidence_not_counted_as_low_confidence() {
+        let svc = make_service(); // uses MockInferenceEngine → 0.82 confidence
+        svc.classify(ClassificationRequest {
+            image: "data".to_string(),
+            model_version_id: None,
+        })
+        .await
+        .unwrap();
+
+        let summary = svc.monitoring_summary();
+        assert_eq!(summary.low_confidence_count, 0);
+    }
+
+    #[tokio::test]
+    async fn test_mixed_confidence_count() {
+        let svc = ClassificationService::new();
+        // Register two versions: one high-conf, one low-conf
+        svc.register_version(make_version("high", true), Arc::new(MockInferenceEngine))
+            .unwrap();
+        svc.register_version(make_version("low", false), Arc::new(LowConfidenceEngine))
+            .unwrap();
+
+        // 2 high-confidence + 3 low-confidence
+        for _ in 0..2 {
+            svc.classify(ClassificationRequest {
+                image: "data".to_string(),
+                model_version_id: Some("high".to_string()),
+            })
+            .await
+            .unwrap();
+        }
+        for _ in 0..3 {
+            svc.classify(ClassificationRequest {
+                image: "data".to_string(),
+                model_version_id: Some("low".to_string()),
+            })
+            .await
+            .unwrap();
+        }
+
+        let summary = svc.monitoring_summary();
+        assert_eq!(summary.total_requests, 5);
+        assert_eq!(summary.low_confidence_count, 3);
+    }
+
+    // ── Malformed / empty input handling ────────────────────────────────────
+
+    #[tokio::test]
+    async fn test_classify_whitespace_only_image_is_not_empty_but_valid() {
+        // A whitespace-only string is non-empty; the engine receives it as bytes.
+        // Validates that the service does NOT reject whitespace-only strings as
+        // "empty" — only truly empty strings fail the guard.
+        let svc = make_service();
+        let result = svc
+            .classify(ClassificationRequest {
+                image: "   ".to_string(),
+                model_version_id: None,
+            })
+            .await;
+        // Should succeed (engine gets " " bytes), not be an InvalidInput error
+        assert!(result.is_ok(), "whitespace-only image should not be rejected");
+    }
+
+    #[tokio::test]
+    async fn test_classify_empty_image_returns_invalid_input_error() {
+        let svc = make_service();
+        let err = svc
+            .classify(ClassificationRequest {
+                image: String::new(),
+                model_version_id: None,
+            })
+            .await
+            .unwrap_err();
+        match err {
+            ClassificationError::InvalidInput(msg) => {
+                assert!(msg.contains("Empty"), "error message should mention empty input");
+            }
+            other => panic!("expected InvalidInput, got {:?}", other),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_classify_nonexistent_model_version_returns_model_not_found() {
+        let svc = make_service();
+        let err = svc
+            .classify(ClassificationRequest {
+                image: "data".to_string(),
+                model_version_id: Some("does-not-exist-v99".to_string()),
+            })
+            .await
+            .unwrap_err();
+        assert!(
+            matches!(err, ClassificationError::ModelNotFound(_)),
+            "got {:?}",
+            err
+        );
+    }
+
+    #[tokio::test]
+    async fn test_classify_without_active_version_and_no_version_id_returns_error() {
+        // Service with no versions at all
+        let svc = ClassificationService::new();
+        let err = svc
+            .classify(ClassificationRequest {
+                image: "data".to_string(),
+                model_version_id: None,
+            })
+            .await
+            .unwrap_err();
+        assert!(
+            matches!(err, ClassificationError::ModelNotFound(_)),
+            "got {:?}",
+            err
+        );
+    }
+
+    #[tokio::test]
+    async fn test_classify_engine_inference_error_propagates() {
+        let svc = ClassificationService::new();
+        svc.register_version(make_version("broken", true), Arc::new(ErrorEngine))
+            .unwrap();
+
+        let err = svc
+            .classify(ClassificationRequest {
+                image: "data".to_string(),
+                model_version_id: None,
+            })
+            .await
+            .unwrap_err();
+        assert!(
+            matches!(err, ClassificationError::InferenceError(_)),
+            "got {:?}",
+            err
+        );
+    }
+
+    #[tokio::test]
+    async fn test_classify_engine_returns_no_predictions_is_inference_error() {
+        let svc = ClassificationService::new();
+        svc.register_version(make_version("empty-preds", true), Arc::new(EmptyPredictionsEngine))
+            .unwrap();
+
+        let err = svc
+            .classify(ClassificationRequest {
+                image: "data".to_string(),
+                model_version_id: None,
+            })
+            .await
+            .unwrap_err();
+        assert!(
+            matches!(err, ClassificationError::InferenceError(_)),
+            "got {:?}",
+            err
+        );
+    }
+
+    // ── Model version management edge cases ──────────────────────────────────
+
+    #[test]
+    fn test_promote_nonexistent_version_returns_model_not_found() {
+        let svc = make_service();
+        let err = svc.promote_version("ghost-version").unwrap_err();
+        assert!(matches!(err, ClassificationError::ModelNotFound(_)));
+    }
+
+    #[test]
+    fn test_promote_version_deactivates_all_others() {
+        let svc = ClassificationService::new();
+        for id in ["v1", "v2", "v3"] {
+            svc.register_version(make_version(id, id == "v1"), Arc::new(MockInferenceEngine))
+                .unwrap();
+        }
+        svc.promote_version("v3").unwrap();
+
+        let versions = svc.list_versions();
+        let active: Vec<_> = versions.iter().filter(|v| v.is_active).collect();
+        assert_eq!(active.len(), 1);
+        assert_eq!(active[0].version_id, "v3");
+    }
+
+    #[test]
+    fn test_active_version_none_when_no_active_set() {
+        let svc = ClassificationService::new();
+        svc.register_version(make_version("v1", false), Arc::new(MockInferenceEngine))
+            .unwrap();
+        assert!(svc.active_version().is_none());
+    }
+
+    #[test]
+    fn test_list_versions_returns_all_registered() {
+        let svc = ClassificationService::new();
+        for id in ["a", "b", "c"] {
+            svc.register_version(make_version(id, false), Arc::new(MockInferenceEngine))
+                .unwrap();
+        }
+        assert_eq!(svc.list_versions().len(), 3);
+    }
+
+    #[test]
+    fn test_default_service_has_no_versions() {
+        let svc = ClassificationService::default();
+        assert!(svc.list_versions().is_empty());
+        assert!(svc.active_version().is_none());
+    }
+
+    // ── Monitoring / evaluation edge cases ───────────────────────────────────
+
+    #[test]
+    fn test_monitoring_summary_empty_when_no_requests() {
+        let svc = make_service();
+        let summary = svc.monitoring_summary();
+        assert_eq!(summary.total_requests, 0);
+        assert_eq!(summary.avg_latency_ms, 0.0);
+        assert_eq!(summary.avg_confidence, 0.0);
+        assert_eq!(summary.low_confidence_count, 0);
+        assert!(summary.predictions_by_category.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_monitoring_summary_tracks_category_distribution() {
+        let svc = make_service(); // MockInferenceEngine → always Plastic
+        for _ in 0..4 {
+            svc.classify(ClassificationRequest {
+                image: "data".to_string(),
+                model_version_id: None,
+            })
+            .await
+            .unwrap();
+        }
+        let summary = svc.monitoring_summary();
+        assert_eq!(
+            *summary.predictions_by_category.get("plastic").unwrap_or(&0),
+            4
+        );
+    }
+
+    #[tokio::test]
+    async fn test_inference_logs_recorded_per_request() {
+        let svc = make_service();
+        svc.classify(ClassificationRequest {
+            image: "data".to_string(),
+            model_version_id: None,
+        })
+        .await
+        .unwrap();
+        svc.classify(ClassificationRequest {
+            image: "more_data".to_string(),
+            model_version_id: None,
+        })
+        .await
+        .unwrap();
+
+        let logs = svc.get_inference_logs();
+        assert_eq!(logs.len(), 2);
+        // Each log has a unique request_id
+        assert_ne!(logs[0].request_id, logs[1].request_id);
+    }
+
+    #[tokio::test]
+    async fn test_inference_log_records_input_size() {
+        let svc = make_service();
+        let image = "12345678"; // 8 bytes
+        svc.classify(ClassificationRequest {
+            image: image.to_string(),
+            model_version_id: None,
+        })
+        .await
+        .unwrap();
+
+        let logs = svc.get_inference_logs();
+        assert_eq!(logs[0].input_size_bytes, 8);
+    }
+
+    #[tokio::test]
+    async fn test_evaluate_empty_samples_returns_invalid_input() {
+        let svc = make_service();
+        let err = svc.evaluate("v1", vec![]).await.unwrap_err();
+        assert!(matches!(err, ClassificationError::InvalidInput(_)));
+    }
+
+    #[tokio::test]
+    async fn test_evaluate_nonexistent_version_returns_model_not_found() {
+        let svc = make_service();
+        let samples = vec![EvaluationSample {
+            image: "img".to_string(),
+            ground_truth: WasteCategory::Metal,
+        }];
+        let err = svc.evaluate("ghost", samples).await.unwrap_err();
+        assert!(matches!(err, ClassificationError::ModelNotFound(_)));
+    }
+
+    #[tokio::test]
+    async fn test_evaluate_perfect_accuracy_when_predictions_match() {
+        // Use a Plastic-only engine and provide all-Plastic ground truth
+        let svc = ClassificationService::new();
+        let engine = SinglePredictionEngine {
+            category: WasteCategory::Plastic,
+            confidence: 0.99,
+        };
+        svc.register_version(make_version("perfect", true), Arc::new(engine))
+            .unwrap();
+
+        let samples: Vec<EvaluationSample> = (0..5)
+            .map(|i| EvaluationSample {
+                image: format!("img{i}"),
+                ground_truth: WasteCategory::Plastic,
+            })
+            .collect();
+
+        let report = svc.evaluate("perfect", samples).await.unwrap();
+        assert_eq!(report.correct, 5);
+        assert!((report.accuracy - 1.0).abs() < 1e-9);
+    }
+
+    #[tokio::test]
+    async fn test_evaluate_zero_accuracy_when_all_wrong() {
+        // Engine predicts Plastic, ground truth is Paper — zero correct
+        let svc = ClassificationService::new();
+        let engine = SinglePredictionEngine {
+            category: WasteCategory::Plastic,
+            confidence: 0.99,
+        };
+        svc.register_version(make_version("wrong", true), Arc::new(engine))
+            .unwrap();
+
+        let samples: Vec<EvaluationSample> = (0..4)
+            .map(|i| EvaluationSample {
+                image: format!("img{i}"),
+                ground_truth: WasteCategory::Paper,
+            })
+            .collect();
+
+        let report = svc.evaluate("wrong", samples).await.unwrap();
+        assert_eq!(report.correct, 0);
+        assert!((report.accuracy - 0.0).abs() < 1e-9);
+    }
+
+    #[tokio::test]
+    async fn test_evaluate_per_class_metrics_precision_recall() {
+        // All predictions are correct → precision=recall=f1=1.0 for "plastic"
+        let svc = ClassificationService::new();
+        let engine = SinglePredictionEngine {
+            category: WasteCategory::Plastic,
+            confidence: 0.9,
+        };
+        svc.register_version(make_version("v", true), Arc::new(engine))
+            .unwrap();
+
+        let samples = vec![
+            EvaluationSample {
+                image: "a".to_string(),
+                ground_truth: WasteCategory::Plastic,
+            },
+            EvaluationSample {
+                image: "b".to_string(),
+                ground_truth: WasteCategory::Plastic,
+            },
+        ];
+        let report = svc.evaluate("v", samples).await.unwrap();
+
+        let plastic_metrics = report.per_class.get("plastic").expect("plastic metrics");
+        assert!((plastic_metrics.precision - 1.0).abs() < 1e-9);
+        assert!((plastic_metrics.recall - 1.0).abs() < 1e-9);
+        assert!((plastic_metrics.f1 - 1.0).abs() < 1e-9);
+    }
+
+    // ── WasteCategory helpers ────────────────────────────────────────────────
+
+    #[test]
+    fn test_waste_category_as_str_all_variants() {
+        let cases = [
+            (WasteCategory::Plastic, "plastic"),
+            (WasteCategory::Paper, "paper"),
+            (WasteCategory::Metal, "metal"),
+            (WasteCategory::Glass, "glass"),
+            (WasteCategory::Organic, "organic"),
+            (WasteCategory::Electronic, "electronic"),
+            (WasteCategory::Hazardous, "hazardous"),
+            (WasteCategory::Other, "other"),
+        ];
+        for (cat, expected) in cases {
+            assert_eq!(cat.as_str(), expected);
+        }
+    }
+
+    #[test]
+    fn test_waste_category_equality() {
+        assert_eq!(WasteCategory::Plastic, WasteCategory::Plastic);
+        assert_ne!(WasteCategory::Plastic, WasteCategory::Paper);
+    }
+
+    // ── Error message content ────────────────────────────────────────────────
+
+    #[test]
+    fn test_classification_error_display_messages() {
+        let e1 = ClassificationError::ModelNotFound("v99".to_string());
+        assert!(e1.to_string().contains("v99"));
+
+        let e2 = ClassificationError::InferenceError("boom".to_string());
+        assert!(e2.to_string().contains("boom"));
+
+        let e3 = ClassificationError::InvalidInput("bad".to_string());
+        assert!(e3.to_string().contains("bad"));
+
+        let e4 = ClassificationError::VersionConflict("v1".to_string());
+        assert!(e4.to_string().contains("v1"));
     }
 }
