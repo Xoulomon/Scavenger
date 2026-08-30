@@ -14,8 +14,8 @@ soroban-sdk = { workspace = true }
 
 [dev-dependencies]
 soroban-sdk = { workspace = true, features = ["testutils"] }
-proptest = "1"
-criterion = { version = "0.5", features = ["html_reports"] }
+proptest = "=1.11.0"
+criterion = { version = "=0.5.1", features = ["html_reports"] }
 
 [[bench]]
 name = "contract_benchmarks"

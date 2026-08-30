@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    // React Native 0.72 targets a JS engine that supports ES2020 at minimum.
+    // Babel handles down-compilation; tsc is used for type-checking only (noEmit).
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2020"],
+    "jsx": "react-native",
+
+    // ── Strict mode baseline (matches tsconfig.base.json) ──────────────
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    // ── Module / interop ────────────────────────────────────────────────
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // ── Output (type-check only; Babel handles actual compilation) ──────
+    "noEmit": true,
+    "skipLibCheck": true,
+
+    // ── Paths ───────────────────────────────────────────────────────────
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@screens/*": ["src/screens/*"],
+      "@api/*": ["src/api/*"],
+      "@store/*": ["src/store/*"]
+    }
+  },
+  "include": ["src/**/*", "*.ts", "*.tsx"],
+  "exclude": ["node_modules", "android", "ios", "**/__tests__/**"]
+}
