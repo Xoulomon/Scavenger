@@ -17,6 +17,14 @@
     "query_p95_ms": { "baseline": 400, "threshold": 600 },
     "query_p99_ms": { "baseline": 800, "threshold": 1200 }
   },
+  "waste_submission_regression": {
+    "p50_ms": { "baseline": 200, "threshold": 400, "regression_pct": 20 },
+    "p95_ms": { "baseline": 400, "threshold": 800, "regression_pct": 20 },
+    "p99_ms": { "baseline": 700, "threshold": 1500, "regression_pct": 20 },
+    "error_rate_pct": { "baseline": 1, "threshold": 10 },
+    "throughput_rps": { "baseline": 50, "threshold_min": 20 },
+    "note": "Baselines require a staging environment run. Values above are initial estimates pending actual measurement."
+  },
   "hot_endpoints": {
     "list_wastes": {
       "p95_ms": { "baseline": 300, "threshold": 500 },
