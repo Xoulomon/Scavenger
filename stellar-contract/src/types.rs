@@ -65,28 +65,17 @@ impl TransferItemType {
 
     /// Converts a u32 to a TransferItemType
     pub fn from_u32(value: u32) -> Option<Self> {
-        match value {
-            0 => Some(TransferItemType::Material),
-            1 => Some(TransferItemType::Token),
-            2 => Some(TransferItemType::Incentive),
-            3 => Some(TransferItemType::Ownership),
-            _ => None,
-        }
+        crate::type_utils::transfer_item_type_from_u32(value)
     }
 
     /// Converts the TransferItemType to u32
     pub fn to_u32(&self) -> u32 {
-        *self as u32
+        crate::type_utils::transfer_item_type_to_u32(*self)
     }
 
     /// Returns the string representation
     pub fn as_str(&self) -> &'static str {
-        match self {
-            TransferItemType::Material => "MATERIAL",
-            TransferItemType::Token => "TOKEN",
-            TransferItemType::Incentive => "INCENTIVE",
-            TransferItemType::Ownership => "OWNERSHIP",
-        }
+        crate::type_utils::transfer_item_type_as_str(*self)
     }
 }
 
@@ -98,30 +87,17 @@ impl TransferStatus {
 
     /// Converts a u32 to a TransferStatus
     pub fn from_u32(value: u32) -> Option<Self> {
-        match value {
-            0 => Some(TransferStatus::Pending),
-            1 => Some(TransferStatus::InProgress),
-            2 => Some(TransferStatus::Completed),
-            3 => Some(TransferStatus::Failed),
-            4 => Some(TransferStatus::Cancelled),
-            _ => None,
-        }
+        crate::type_utils::transfer_status_from_u32(value)
     }
 
     /// Converts the TransferStatus to u32
     pub fn to_u32(&self) -> u32 {
-        *self as u32
+        crate::type_utils::transfer_status_to_u32(*self)
     }
 
     /// Returns the string representation
     pub fn as_str(&self) -> &'static str {
-        match self {
-            TransferStatus::Pending => "PENDING",
-            TransferStatus::InProgress => "IN_PROGRESS",
-            TransferStatus::Completed => "COMPLETED",
-            TransferStatus::Failed => "FAILED",
-            TransferStatus::Cancelled => "CANCELLED",
-        }
+        crate::type_utils::transfer_status_as_str(*self)
     }
 
     /// Checks if the status is final (cannot be changed)
@@ -355,26 +331,17 @@ impl ParticipantRole {
     /// Converts a u32 to a ParticipantRole
     /// Returns None if the value is invalid
     pub fn from_u32(value: u32) -> Option<Self> {
-        match value {
-            0 => Some(ParticipantRole::Recycler),
-            1 => Some(ParticipantRole::Collector),
-            2 => Some(ParticipantRole::Manufacturer),
-            _ => None,
-        }
+        crate::type_utils::participant_role_from_u32(value)
     }
 
     /// Converts the ParticipantRole to u32
     pub fn to_u32(&self) -> u32 {
-        *self as u32
+        crate::type_utils::participant_role_to_u32(*self)
     }
 
     /// Returns the string representation of the role
     pub fn as_str(&self) -> &'static str {
-        match self {
-            ParticipantRole::Recycler => "RECYCLER",
-            ParticipantRole::Collector => "COLLECTOR",
-            ParticipantRole::Manufacturer => "MANUFACTURER",
-        }
+        crate::type_utils::participant_role_as_str(*self)
     }
 
     /// Validates if a participant can perform a specific action based on their role
@@ -415,28 +382,17 @@ impl CertificationLevel {
 
     /// Converts a u32 to a CertificationLevel
     pub fn from_u32(value: u32) -> Option<Self> {
-        match value {
-            0 => Some(CertificationLevel::Beginner),
-            1 => Some(CertificationLevel::Intermediate),
-            2 => Some(CertificationLevel::Advanced),
-            3 => Some(CertificationLevel::Expert),
-            _ => None,
-        }
+        crate::type_utils::certification_level_from_u32(value)
     }
 
     /// Converts the CertificationLevel to u32
     pub fn to_u32(&self) -> u32 {
-        *self as u32
+        crate::type_utils::certification_level_to_u32(*self)
     }
 
     /// Returns the string representation
     pub fn as_str(&self) -> &'static str {
-        match self {
-            CertificationLevel::Beginner => "BEGINNER",
-            CertificationLevel::Intermediate => "INTERMEDIATE",
-            CertificationLevel::Advanced => "ADVANCED",
-            CertificationLevel::Expert => "EXPERT",
-        }
+        crate::type_utils::certification_level_as_str(*self)
     }
 
     /// Determines certification level based on waste count
@@ -499,34 +455,17 @@ impl WasteType {
     /// Converts a u32 to a WasteType
     /// Returns None if the value is invalid
     pub fn from_u32(value: u32) -> Option<Self> {
-        match value {
-            0 => Some(WasteType::Paper),
-            1 => Some(WasteType::PetPlastic),
-            2 => Some(WasteType::Plastic),
-            3 => Some(WasteType::Metal),
-            4 => Some(WasteType::Glass),
-            5 => Some(WasteType::Organic),
-            6 => Some(WasteType::Electronic),
-            _ => None,
-        }
+        crate::type_utils::waste_type_from_u32(value)
     }
 
     /// Converts the WasteType to u32
     pub fn to_u32(&self) -> u32 {
-        *self as u32
+        crate::type_utils::waste_type_to_u32(*self)
     }
 
     /// Returns the string representation of the waste type
     pub fn as_str(&self) -> &'static str {
-        match self {
-            WasteType::Paper => "PAPER",
-            WasteType::PetPlastic => "PETPLASTIC",
-            WasteType::Plastic => "PLASTIC",
-            WasteType::Metal => "METAL",
-            WasteType::Glass => "GLASS",
-            WasteType::Organic => "ORGANIC",
-            WasteType::Electronic => "ELECTRONIC",
-        }
+        crate::type_utils::waste_type_as_str(*self)
     }
 
     /// Returns the carbon credit rate in milligrams of CO2 equivalent per gram of waste.
