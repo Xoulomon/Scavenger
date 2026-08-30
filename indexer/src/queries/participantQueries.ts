@@ -1,5 +1,6 @@
 import { getPool } from '../db/client';
 import { recordQueryMetric } from '../db/queryOptimizer';
+import { QUERY_LIMITS } from '../constants';
 
 export type ParticipantRole = 'Recycler' | 'Collector' | 'Manufacturer';
 
@@ -56,7 +57,7 @@ export async function queryParticipants(
   filter: ParticipantFilter
 ): Promise<ParticipantQueryResult> {
   const pool = getPool();
-  const limit = Math.min(filter.limit ?? 100, 1000);
+  const limit = Math.min(filter.limit ?? QUERY_LIMITS.MAX, QUERY_LIMITS.MAX);
   const offset = filter.offset ?? 0;
 
   let sql = 'SELECT * FROM participants WHERE 1=1';

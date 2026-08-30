@@ -1,13 +1,14 @@
 import { getPool } from '../db/client';
+import { ANALYTICS, FULL_TEXT_SEARCH_CONFIG, QUERY_LIMITS } from '../constants';
 
 // --- Full-text search ---
 
-export async function searchParticipants(query: string, limit = 20) {
+export async function searchParticipants(query: string, limit = QUERY_LIMITS.DEFAULT) {
   const { rows } = await getPool().query(
     `SELECT address, role, name, latitude, longitude, registered_at,
-            ts_rank(search_vector, plainto_tsquery('english', $1)) AS rank
+            ts_rank(search_vector, plainto_tsquery('${FULL_TEXT_SEARCH_CONFIG}', $1)) AS rank
      FROM participants
-     WHERE search_vector @@ plainto_tsquery('english', $1)
+     WHERE search_vector @@ plainto_tsquery('${FULL_TEXT_SEARCH_CONFIG}', $1)
      ORDER BY rank DESC
      LIMIT $2`,
     [query, limit]
@@ -15,13 +16,13 @@ export async function searchParticipants(query: string, limit = 20) {
   return rows;
 }
 
-export async function searchWastes(query: string, limit = 20) {
+export async function searchWastes(query: string, limit = QUERY_LIMITS.DEFAULT) {
   const { rows } = await getPool().query(
     `SELECT w.id, w.recycler_address, w.waste_type, w.weight, w.is_confirmed, w.is_active,
             w.registered_at,
-            ts_rank(w.search_vector, plainto_tsquery('english', $1)) AS rank
+            ts_rank(w.search_vector, plainto_tsquery('${FULL_TEXT_SEARCH_CONFIG}', $1)) AS rank
      FROM wastes w
-     WHERE w.search_vector @@ plainto_tsquery('english', $1)
+     WHERE w.search_vector @@ plainto_tsquery('${FULL_TEXT_SEARCH_CONFIG}', $1)
      ORDER BY rank DESC
      LIMIT $2`,
     [query, limit]
@@ -45,7 +46,7 @@ export async function getWasteStatsByType() {
   return rows;
 }
 
-export async function getTopRecyclers(limit = 10) {
+export async function getTopRecyclers(limit = ANALYTICS.DEFAULT_TOP_RESULTS_LIMIT) {
   const { rows } = await getPool().query(
     `SELECT p.address, p.name, p.role,
             COUNT(w.id) AS waste_count,
@@ -74,7 +75,7 @@ export async function getRewardSummary() {
   return rows;
 }
 
-export async function getTransferActivity(days = 30) {
+export async function getTransferActivity(days = ANALYTICS.DEFAULT_TRANSFER_ACTIVITY_DAYS) {
   const { rows } = await getPool().query(
     `SELECT DATE_TRUNC('day', transferred_at) AS day,
             COUNT(*) AS transfer_count
@@ -87,7 +88,7 @@ export async function getTransferActivity(days = 30) {
   return rows;
 }
 
-export async function getCarbonCreditsByParticipant(limit = 10) {
+export async function getCarbonCreditsByParticipant(limit = ANALYTICS.DEFAULT_TOP_RESULTS_LIMIT) {
   const { rows } = await getPool().query(
     `SELECT participant_address,
             SUM(credits) AS total_credits,
