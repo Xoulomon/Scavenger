@@ -204,12 +204,69 @@ export interface ApiResponse<T> {
   timestamp?: number
 }
 
-/** API error structure */
+// ===========================
+// Canonical Error Taxonomy
+// ===========================
+
+/**
+ * Canonical dot-notation error codes shared across the entire Scavngr stack.
+ *
+ * The backend (Rust/actix-web) emits these as the `code` field of every
+ * error response. The indexer (TypeScript) uses these same values so that
+ * API consumers can `switch` on a single set of codes regardless of which
+ * service originated the error.
+ *
+ * Full reference: docs/ERROR_CONTRACT.md
+ */
+export type ErrorCode =
+  // Authentication
+  | 'auth.unauthorized'
+  | 'auth.forbidden'
+  | 'auth.token_expired'
+  | 'auth.invalid_token'
+  | 'auth.csrf_mismatch'
+  // Validation
+  | 'validation.field_error'
+  | 'validation.multiple_errors'
+  | 'validation.format_error'
+  // Resource lookup
+  | `not_found.${string}`
+  // Database / persistence (indexer-side)
+  | 'database.query_failed'
+  // Network / upstream
+  | 'network.connection_failed'
+  // Contract (Stellar/Soroban)
+  | 'contract.call_failed'
+  | 'contract.not_found'
+  | 'contract.invalid_state'
+  | 'contract.insufficient_balance'
+  | 'contract.unauthorized'
+  // Export
+  | 'export.csv_error'
+  | 'export.json_error'
+  | 'export.pdf_error'
+  | 'export.serialization_error'
+  | 'export.invalid_format'
+  // Rate limiting
+  | 'rate_limit.exceeded'
+  // Catch-all
+  | 'bad_request'
+  | 'internal'
+  // Allow service-specific extensions without breaking the type
+  | (string & Record<never, never>)
+
+/** API error structure returned by every error response. */
 export interface ApiError {
-  code: string
+  /** Dot-notation canonical code — see `ErrorCode` for known values. */
+  code: ErrorCode
+  /** Human-readable description of the error. */
   message: string
+  /** HTTP status code mirrored from the response status line. */
+  status?: number
+  /** Per-field validation details (present only for validation errors). */
+  fields?: Array<{ field: string; message: string }>
+  /** Arbitrary extra context attached by the originating service. */
   details?: Record<string, unknown>
-  stack?: string
 }
 
 /** Query result wrapper for React Query and similar libraries */
