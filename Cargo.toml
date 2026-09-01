@@ -10,7 +10,7 @@ repository = "https://github.com/drips-network/scavenger"
 
 
 [workspace.dependencies]
-soroban-sdk = "21.7.0"
+soroban-sdk = "=21.7.7"
 
 [profile.release]
 opt-level = "z"

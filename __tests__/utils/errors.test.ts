@@ -9,7 +9,7 @@ import {
   createDatabaseError,
   createRateLimitError,
   AppError,
-} from '../../src/utils/errors';
+} from '../../packages/shared/src/errors';
 
 describe('Error Message Utilities', () => {
   describe('formatErrorMessage', () => {
