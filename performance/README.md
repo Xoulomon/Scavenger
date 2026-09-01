@@ -20,6 +20,7 @@ We use [k6](https://k6.io/) for load, stress, and endurance testing.
 2. **Stress Test** (`stress.js`): Tests the system's limits by gradually increasing load until it breaks or reaches a high threshold.
 3. **Endurance Test** (`endurance.js`): Tests system stability over an extended period.
 4. **Hot Endpoints Load Test** (`k6-hot-endpoints-load-test.js`): Comprehensive load testing for high-traffic endpoints (issue #950).
+5. **Waste Submission Regression** (`scenarios/waste-submission-regression.js`): Regression test for the core waste-submission flow with p50/p95/p99 latency thresholds and 20% regression policy (issue #1134).
 
 ## Running Tests
 
@@ -48,7 +49,31 @@ GENERATE_BASELINE=true ./performance/run-hot-endpoints-tests.sh
 ```bash
 k6 run performance/scenarios/load.js
 k6 run performance/k6-hot-endpoints-load-test.js
+k6 run performance/scenarios/waste-submission-regression.js
 ```
+
+### Waste Submission Regression Test
+
+The regression test (`scenarios/waste-submission-regression.js`) exercises the core waste-submission flow:
+participant registration -> waste submission -> waste verification -> incentive query.
+
+```bash
+# Run against default (localhost:3000/api)
+k6 run performance/scenarios/waste-submission-regression.js
+
+# Run against a specific environment
+k6 run -e BASE_URL=https://staging-api.example.com/api performance/scenarios/waste-submission-regression.js
+```
+
+**Regression Thresholds:**
+| Metric | Threshold | Regression Policy |
+|--------|-----------|-------------------|
+| p50 latency | < 400ms | Must not regress >20% from baseline |
+| p95 latency | < 800ms | Must not regress >20% from baseline |
+| p99 latency | < 1500ms | Must not regress >20% from baseline |
+| Error rate | < 10% | Must not exceed threshold |
+
+Baselines are stored in `baselines.json` under `waste_submission_regression`. To update baselines intentionally, run the test in a representative staging environment and update the values with reviewer approval. See [PERFORMANCE_BASELINE.md](../docs/PERFORMANCE_BASELINE.md) for details.
 
 ## Hot Endpoints Load Testing (Issue #950)
 
@@ -79,6 +104,8 @@ The suite includes a baseline comparison tool.
 - To generate a new baseline: `GENERATE_BASELINE=true ./performance/run-perf-tests.sh`
 - The `analyze-results.js` script automatically compares current results with the baseline and reports regressions.
 - Hot endpoints baselines are defined in `baselines.json` under the `hot_endpoints` section.
+- Waste submission regression baselines are defined in `baselines.json` under `waste_submission_regression`.
+- **Regression policy**: p95 latency must not regress by more than 20% from baseline. Updates to baselines require reviewer attention and must be backed by actual staging measurements.
 
 ## Metrics Tracked
 - `http_req_duration`: End-to-end request time (p95, avg).

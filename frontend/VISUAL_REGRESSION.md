@@ -2,6 +2,8 @@
 
 Playwright's built-in screenshot comparison is used — no external service required. Baselines are committed to the repo under `e2e/__snapshots__/`.
 
+See also: [Snapshot Review Process](e2e/__snapshots__/SNAPSHOT_REVIEW.md) for contributor/reviewer guidelines.
+
 ## Test coverage (32 tests)
 
 | Group | Tests |
@@ -57,6 +59,32 @@ git commit -m "chore: add visual regression baselines"
 1. Go to **Actions → Visual Regression** in GitHub.
 2. Click **Run workflow**, set `update_baselines` to `true`.
 3. The workflow regenerates snapshots and commits them back to the branch automatically.
+
+## Snapshot Review Checklist
+
+When reviewing visual regression changes in a PR:
+
+- [ ] The underlying UI change is intentional
+- [ ] The changed snapshot corresponds to an active test
+- [ ] The visual difference is expected
+- [ ] No unrelated snapshot changed
+- [ ] Removed flows do not leave orphaned snapshots
+- [ ] Browser/environment differences were considered
+- [ ] The PR description explains meaningful visual changes
+- [ ] All three browser projects (chromium, firefox, mobile) were considered
+- [ ] No screenshots show sensitive data (tokens, addresses, real user data)
+
+### When to Update Snapshots
+- Intentional UI styling, layout, or color changes
+- New or modified UI components in visual test coverage
+- Page structure changes affecting visual appearance
+
+### When to Reject Snapshot Changes
+- Snapshots changed for code you didn't modify
+- Visual regressions in unrelated components
+- New snapshots for deleted/renamed flows
+- Inconsistent changes across browser projects
+- Snapshots showing sensitive data
 
 ## CI integration
 
