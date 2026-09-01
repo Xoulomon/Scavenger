@@ -1,3 +1,13 @@
+/// Email service (issue #1074 — structured logging).
+///
+/// ## Logging convention
+/// Required fields on every log call:
+///   - `service`    — always `"email"`
+///   - `outcome`    — `"ok"` | `"error"` | `"warn"`
+///   - `op`         — the method name
+///   - `recipient`  — redacted email where safe; full address only in `debug`
+///
+/// `println!` / ad-hoc debug logging have been removed throughout.
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use thiserror::Error;
@@ -66,6 +76,12 @@ impl SendGridEmailService {
             Err(EmailError::InvalidEmail(email.to_string()))
         }
     }
+
+    /// Returns a domain-level hint for log correlation without logging the
+    /// full address (PII reduction).
+    fn email_domain(email: &str) -> &str {
+        email.split('@').nth(1).unwrap_or("unknown")
+    }
 }
 
 #[async_trait::async_trait]
@@ -74,7 +90,7 @@ impl EmailService for SendGridEmailService {
         self.validate_email(&email.recipient)?;
 
         let client = reqwest::Client::new();
-        let mut body = serde_json::json!({
+        let body = serde_json::json!({
             "personalizations": [{
                 "to": [{"email": email.recipient}],
                 "subject": email.template
@@ -92,17 +108,55 @@ impl EmailService for SendGridEmailService {
             .json(&body)
             .send()
             .await
-            .map_err(|e| EmailError::ServiceError(e.to_string()))?;
+            .map_err(|e| {
+                log::error!(
+                    service = "email",
+                    op = "send_transactional",
+                    outcome = "error",
+                    template = %email.template,
+                    error = %e;
+                    "SendGrid HTTP request failed"
+                );
+                EmailError::ServiceError(e.to_string())
+            })?;
 
         if response.status().is_success() {
-            Ok(uuid::Uuid::new_v4().to_string())
+            let message_id = uuid::Uuid::new_v4().to_string();
+            log::info!(
+                service = "email",
+                op = "send_transactional",
+                outcome = "ok",
+                template = %email.template,
+                recipient_domain = %Self::email_domain(&email.recipient),
+                message_id = %message_id;
+                "transactional email sent"
+            );
+            Ok(message_id)
         } else {
+            log::error!(
+                service = "email",
+                op = "send_transactional",
+                outcome = "error",
+                template = %email.template,
+                status = %response.status();
+                "SendGrid returned non-success status"
+            );
             Err(EmailError::ServiceError("Failed to send email".to_string()))
         }
     }
 
     async fn send_digest(&self, email: DigestEmail) -> Result<String, EmailError> {
-        self.validate_email(&email.recipient)?;
+        self.validate_email(&email.recipient).map_err(|e| {
+            log::warn!(
+                service = "email",
+                op = "send_digest",
+                outcome = "error",
+                digest_type = %email.digest_type,
+                error = %e;
+                "send_digest validation failed"
+            );
+            e
+        })?;
 
         let client = reqwest::Client::new();
         let body = serde_json::json!({
@@ -123,22 +177,77 @@ impl EmailService for SendGridEmailService {
             .json(&body)
             .send()
             .await
-            .map_err(|e| EmailError::ServiceError(e.to_string()))?;
+            .map_err(|e| {
+                log::error!(
+                    service = "email",
+                    op = "send_digest",
+                    outcome = "error",
+                    digest_type = %email.digest_type,
+                    error = %e;
+                    "SendGrid digest HTTP request failed"
+                );
+                EmailError::ServiceError(e.to_string())
+            })?;
 
         if response.status().is_success() {
-            Ok(uuid::Uuid::new_v4().to_string())
+            let message_id = uuid::Uuid::new_v4().to_string();
+            log::info!(
+                service = "email",
+                op = "send_digest",
+                outcome = "ok",
+                digest_type = %email.digest_type,
+                period = %email.period,
+                recipient_domain = %Self::email_domain(&email.recipient),
+                message_id = %message_id;
+                "digest email sent"
+            );
+            Ok(message_id)
         } else {
             Err(EmailError::ServiceError("Failed to send digest".to_string()))
         }
     }
 
     async fn add_to_unsubscribe_list(&self, email: &str) -> Result<(), EmailError> {
-        self.validate_email(email)?;
+        self.validate_email(email).map_err(|e| {
+            log::warn!(
+                service = "email",
+                op = "add_to_unsubscribe_list",
+                outcome = "error",
+                error = %e;
+                "add_to_unsubscribe_list validation failed"
+            );
+            e
+        })?;
+
+        log::info!(
+            service = "email",
+            op = "add_to_unsubscribe_list",
+            outcome = "ok",
+            recipient_domain = %Self::email_domain(email);
+            "address added to unsubscribe list"
+        );
         Ok(())
     }
 
     async fn is_unsubscribed(&self, email: &str) -> Result<bool, EmailError> {
-        self.validate_email(email)?;
+        self.validate_email(email).map_err(|e| {
+            log::warn!(
+                service = "email",
+                op = "is_unsubscribed",
+                outcome = "error",
+                error = %e;
+                "is_unsubscribed validation failed"
+            );
+            e
+        })?;
+
+        log::info!(
+            service = "email",
+            op = "is_unsubscribed",
+            outcome = "ok",
+            recipient_domain = %Self::email_domain(email);
+            "unsubscribe status checked"
+        );
         Ok(false)
     }
 }
@@ -152,6 +261,12 @@ mod tests {
         let service = SendGridEmailService::new("key".to_string(), "from@test.com".to_string());
         assert!(service.validate_email("test@example.com").is_ok());
         assert!(service.validate_email("invalid").is_err());
+    }
+
+    #[test]
+    fn test_email_domain_helper() {
+        assert_eq!(SendGridEmailService::email_domain("user@example.com"), "example.com");
+        assert_eq!(SendGridEmailService::email_domain("invalid"), "unknown");
     }
 
     #[tokio::test]

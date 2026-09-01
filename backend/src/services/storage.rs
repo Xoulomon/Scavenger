@@ -1,3 +1,12 @@
+/// File storage service (issue #1074 — structured logging).
+///
+/// ## Logging convention
+/// Required fields on every log call:
+///   - `service`    — always `"storage"`
+///   - `outcome`    — `"ok"` | `"error"` | `"warn"`
+///   - `op`         — the method name
+///
+/// `println!` / ad-hoc debug logging have been removed throughout.
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use thiserror::Error;
@@ -67,13 +76,38 @@ impl S3StorageService {
 #[async_trait::async_trait]
 impl StorageService for S3StorageService {
     async fn upload_file(&self, request: UploadRequest) -> Result<FileMetadata, StorageError> {
-        self.validate_file(&request)?;
+        self.validate_file(&request).map_err(|e| {
+            log::warn!(
+                service = "storage",
+                op = "upload_file",
+                outcome = "error",
+                filename = %request.filename,
+                error = %e;
+                "upload_file validation failed"
+            );
+            e
+        })?;
 
         let file_id = uuid::Uuid::new_v4().to_string();
         let size = request.data.len() as u64;
+        let url = format!(
+            "https://{}.s3.{}.amazonaws.com/{}",
+            self.bucket, self.region, file_id
+        );
+
+        log::info!(
+            service = "storage",
+            op = "upload_file",
+            outcome = "ok",
+            file_id = %file_id,
+            filename = %request.filename,
+            content_type = %request.content_type,
+            bytes = size;
+            "file uploaded to S3"
+        );
 
         Ok(FileMetadata {
-            file_id: file_id.clone(),
+            file_id,
             filename: request.filename,
             content_type: request.content_type,
             size,
@@ -84,30 +118,72 @@ impl StorageService for S3StorageService {
 
     async fn delete_file(&self, file_id: &str) -> Result<(), StorageError> {
         if file_id.is_empty() {
+            log::warn!(
+                service = "storage",
+                op = "delete_file",
+                outcome = "error";
+                "delete_file rejected: empty file_id"
+            );
             return Err(StorageError::InvalidFile("Empty file_id".to_string()));
         }
+
+        log::info!(
+            service = "storage",
+            op = "delete_file",
+            outcome = "ok",
+            file_id = %file_id;
+            "file deleted from S3"
+        );
         Ok(())
     }
 
     async fn get_signed_url(&self, request: SignedUrlRequest) -> Result<String, StorageError> {
         if request.file_id.is_empty() {
+            log::warn!(
+                service = "storage",
+                op = "get_signed_url",
+                outcome = "error";
+                "get_signed_url rejected: empty file_id"
+            );
             return Err(StorageError::InvalidFile("Empty file_id".to_string()));
         }
         if request.expiration_seconds == 0 {
             return Err(StorageError::InvalidFile("Invalid expiration".to_string()));
         }
 
-        Ok(format!(
+        let url = format!(
             "https://{}.s3.{}.amazonaws.com/{}?expires={}",
             self.bucket, self.region, request.file_id, request.expiration_seconds
-        ))
+        );
+        log::info!(
+            service = "storage",
+            op = "get_signed_url",
+            outcome = "ok",
+            file_id = %request.file_id,
+            expiration_seconds = request.expiration_seconds;
+            "signed URL generated"
+        );
+        Ok(url)
     }
 
     async fn get_file_metadata(&self, file_id: &str) -> Result<FileMetadata, StorageError> {
         if file_id.is_empty() {
+            log::warn!(
+                service = "storage",
+                op = "get_file_metadata",
+                outcome = "error";
+                "get_file_metadata rejected: empty file_id"
+            );
             return Err(StorageError::NotFound("File not found".to_string()));
         }
 
+        log::info!(
+            service = "storage",
+            op = "get_file_metadata",
+            outcome = "ok",
+            file_id = %file_id;
+            "file metadata retrieved"
+        );
         Ok(FileMetadata {
             file_id: file_id.to_string(),
             filename: "document.pdf".to_string(),

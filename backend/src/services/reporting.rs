@@ -1,3 +1,13 @@
+/// Reporting service (issue #1074 — structured logging).
+///
+/// ## Logging convention
+/// Every operation emits a structured log line.
+/// Required fields:
+///   - `service`    — always `"reporting"`
+///   - `outcome`    — `"ok"` | `"error"` | `"warn"`
+///   - `op`         — the method name
+///
+/// `println!` / ad-hoc debug logging have been removed throughout.
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use thiserror::Error;
@@ -76,9 +86,35 @@ impl ReportingService {
 #[async_trait::async_trait]
 impl ReportService for ReportingService {
     async fn generate_report(&self, request: ReportRequest) -> Result<Report, ReportError> {
-        self.validate_request(&request)?;
+        self.validate_request(&request).map_err(|e| {
+            log::warn!(
+                service = "reporting",
+                op = "generate_report",
+                outcome = "error",
+                report_type = %request.report_type,
+                format = %request.format,
+                error = %e;
+                "generate_report validation failed"
+            );
+            e
+        })?;
 
         let report_id = uuid::Uuid::new_v4().to_string();
+        let file_url = format!(
+            "https://storage.example.com/{}.{}",
+            uuid::Uuid::new_v4(),
+            request.format
+        );
+
+        log::info!(
+            service = "reporting",
+            op = "generate_report",
+            outcome = "ok",
+            report_id = %report_id,
+            report_type = %request.report_type,
+            format = %request.format;
+            "report generated"
+        );
 
         Ok(Report {
             id: report_id,
@@ -96,9 +132,22 @@ impl ReportService for ReportingService {
 
     async fn get_report(&self, report_id: &str) -> Result<Report, ReportError> {
         if report_id.is_empty() {
+            log::warn!(
+                service = "reporting",
+                op = "get_report",
+                outcome = "error";
+                "get_report rejected: empty report_id"
+            );
             return Err(ReportError::NotFound("Report not found".to_string()));
         }
 
+        log::info!(
+            service = "reporting",
+            op = "get_report",
+            outcome = "ok",
+            report_id = %report_id;
+            "report retrieved"
+        );
         Ok(Report {
             id: report_id.to_string(),
             report_type: "waste".to_string(),
@@ -117,10 +166,27 @@ impl ReportService for ReportingService {
             return Err(ReportError::InvalidReport("No email recipients".to_string()));
         }
 
-        Ok(uuid::Uuid::new_v4().to_string())
+        let schedule_id = uuid::Uuid::new_v4().to_string();
+        log::info!(
+            service = "reporting",
+            op = "schedule_report",
+            outcome = "ok",
+            schedule_id = %schedule_id,
+            report_type = %scheduled.report_type,
+            schedule = %scheduled.schedule,
+            recipient_count = scheduled.email_recipients.len();
+            "report scheduled"
+        );
+        Ok(schedule_id)
     }
 
     async fn get_templates(&self) -> Result<Vec<ReportTemplate>, ReportError> {
+        log::info!(
+            service = "reporting",
+            op = "get_templates",
+            outcome = "ok";
+            "templates retrieved"
+        );
         Ok(vec![
             ReportTemplate {
                 name: "waste_report".to_string(),
@@ -150,11 +216,33 @@ impl ReportService for ReportingService {
 
     async fn cache_report(&self, report_id: &str, data: Vec<u8>) -> Result<(), ReportError> {
         if report_id.is_empty() {
+            log::warn!(
+                service = "reporting",
+                op = "cache_report",
+                outcome = "error";
+                "cache_report rejected: empty report_id"
+            );
             return Err(ReportError::InvalidReport("Empty report_id".to_string()));
         }
         if data.is_empty() {
+            log::warn!(
+                service = "reporting",
+                op = "cache_report",
+                outcome = "error",
+                report_id = %report_id;
+                "cache_report rejected: empty data"
+            );
             return Err(ReportError::InvalidReport("Empty data".to_string()));
         }
+
+        log::info!(
+            service = "reporting",
+            op = "cache_report",
+            outcome = "ok",
+            report_id = %report_id,
+            bytes = data.len();
+            "report cached"
+        );
         Ok(())
     }
 }
