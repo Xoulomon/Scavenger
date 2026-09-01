@@ -1,7 +1,7 @@
 # Tutorial 03 — Advanced Patterns
 
-**Level:** Advanced  
-**Time:** ~60 minutes  
+**Level:** Advanced
+**Time:** ~60 minutes
 **Goal:** Implement cross-contract calls, gas-aware storage design, re-entrancy guards, and property-based testing.
 
 **Prerequisite:** Complete [Tutorial 02](./02-intermediate-contracts.md).

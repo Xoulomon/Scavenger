@@ -1,7 +1,7 @@
 # Transparency Report Template — Q[N] [YEAR]
 
-**Period**: [Start Date] – [End Date]  
-**Published**: [Publication Date]  
+**Period**: [Start Date] – [End Date]
+**Published**: [Publication Date]
 **Authors**: [Maintainer names]
 
 ---

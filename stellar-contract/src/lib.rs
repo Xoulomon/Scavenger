@@ -5154,7 +5154,7 @@ impl ScavengerContract {
         // Check if already approved by this address
         if !approval.approvers.contains(&approver) {
             approval.approvers.push_back(approver.clone());
-            
+
             if approval.approvers.len() >= approval.required_approvals {
                 approval.status = TransferApprovalStatus::Approved;
             }
@@ -5359,7 +5359,7 @@ impl ScavengerContract {
             .persistent()
             .get(&PERF_SNAPSHOTS)
             .unwrap_or(Vec::new(&env));
-        
+
         snapshots.push_back(snapshot);
 
         // Keep only last 100 snapshots

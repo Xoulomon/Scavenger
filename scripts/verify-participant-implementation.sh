@@ -23,7 +23,7 @@ check_pattern() {
     local file=$1
     local pattern=$2
     local description=$3
-    
+
     if grep -q "$pattern" "$file" 2>/dev/null; then
         echo -e "${GREEN}✓${NC} $description"
         ((CHECKS_PASSED++))

@@ -44,7 +44,7 @@ export function useConnectionQuality() {
   useEffect(() => {
     // @ts-ignore - NetworkInformation API is experimental
     const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    
+
     if (connection) {
       const updateConnectionInfo = () => {
         setConnectionInfo({

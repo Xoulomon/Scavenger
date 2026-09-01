@@ -517,9 +517,9 @@ Always test restoration before relying on archives:
 async fn test_archive_integrity() {
     let original_data = generate_test_data();
     let archive_id = service.archive_data(..., original_data.clone()).await?;
-    
+
     let restored_data = service.restore_data(&archive_id).await?;
-    
+
     assert_eq!(original_data, restored_data);
 }
 ```
@@ -608,7 +608,7 @@ Error: Checksum validation failed
 Error: Failed to store archive: disk full
 ```
 
-**Solution**: 
+**Solution**:
 - Increase storage capacity
 - Delete old archives past retention period
 - Migrate to higher capacity tier

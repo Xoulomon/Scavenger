@@ -17,9 +17,9 @@ generate_notes() {
   local version=$1
   local output_file="${OUTPUT_DIR}/RELEASE_NOTES_${version}.md"
   local previous_tag
-  
+
   previous_tag=$(git tag --sort=-version:refname | grep -A1 "$version" | tail -1 || echo "")
-  
+
   cat > "$output_file" << NOTESEOF
 # Release Notes - $version
 

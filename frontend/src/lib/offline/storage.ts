@@ -114,7 +114,7 @@ export interface QueuedMutation {
 export async function queueMutation(mutation: Omit<QueuedMutation, 'id' | 'timestamp' | 'retries' | 'status'>): Promise<string> {
   const db = await initDB();
   const id = `mutation-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  
+
   await db.put('mutations', {
     id,
     ...mutation,
@@ -122,7 +122,7 @@ export async function queueMutation(mutation: Omit<QueuedMutation, 'id' | 'times
     retries: 0,
     status: 'pending',
   });
-  
+
   return id;
 }
 
@@ -174,15 +174,15 @@ export async function setCache(key: string, data: unknown, ttl?: number): Promis
 export async function getCache(key: string): Promise<unknown | undefined> {
   const db = await initDB();
   const item = await db.get('cache', key);
-  
+
   if (!item) return undefined;
-  
+
   // Check if expired
   if (item.expiresAt && item.expiresAt < Date.now()) {
     await db.delete('cache', key);
     return undefined;
   }
-  
+
   return item.data;
 }
 

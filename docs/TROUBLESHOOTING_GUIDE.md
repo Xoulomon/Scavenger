@@ -1,8 +1,8 @@
 # Scavngr — Troubleshooting Guide
 
-> **Issue:** #536  
-> **Category:** Operations / Developer Support  
-> **Audience:** Developers, operators, and end users  
+> **Issue:** #536
+> **Category:** Operations / Developer Support
+> **Audience:** Developers, operators, and end users
 > **Last Updated:** 2026-05-26
 
 ---
@@ -853,22 +853,22 @@ nc -zv soroban-testnet.stellar.org 443
 
 ## FAQ
 
-**Q: Can I recover a private key?**  
+**Q: Can I recover a private key?**
 A: No. If you have a seed phrase, import it into Freighter. Otherwise, the key is unrecoverable.
 
-**Q: Can I cancel a submitted transaction?**  
+**Q: Can I cancel a submitted transaction?**
 A: No. Transactions are final once included in a ledger. Reverse effects with a new transaction if needed.
 
-**Q: Why is my waste not showing in the UI?**  
+**Q: Why is my waste not showing in the UI?**
 A: The indexer syncs on a ~5 s interval. Wait 10–15 seconds and refresh. If still missing, check indexer logs.
 
-**Q: Can a participant have multiple roles?**  
+**Q: Can a participant have multiple roles?**
 A: No. Each address has exactly one role. Use separate accounts for different roles, or call `update_role` to change.
 
-**Q: Why did my reward distribution fail?**  
+**Q: Why did my reward distribution fail?**
 A: Common causes: incentive budget exhausted, token address not set, waste doesn't exist. Check each with the get functions and contract error message.
 
-**Q: The contract is paused — what can I do?**  
+**Q: The contract is paused — what can I do?**
 A: Read-only queries still work. Contact the admin team. State-changing calls are blocked until `unpause_contract` is called.
 
 ---
@@ -915,6 +915,6 @@ When filing a GitHub issue, include:
 
 ### Contact
 
-- **Email:** support@scavenger.app  
-- **GitHub:** [Issues](https://github.com/Xoulomon/Scavenger/issues)  
+- **Email:** support@scavenger.app
+- **GitHub:** [Issues](https://github.com/Xoulomon/Scavenger/issues)
 - **Discord:** [Stellar Community](https://discord.gg/stellar)

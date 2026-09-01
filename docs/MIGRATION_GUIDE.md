@@ -704,31 +704,31 @@ All tests must pass with `0 failures`.
 
 ## FAQ
 
-**Q: How long does migration take?**  
+**Q: How long does migration take?**
 A: Depends on data volume. 100 participants + 1,000 waste items typically takes 15–30 min.
 Major releases with full data transformation may take 1–2 hours.
 
-**Q: Will users experience downtime?**  
+**Q: Will users experience downtime?**
 A: Minor versions (no data migration): zero downtime. Major versions: plan for a 1-hour
 maintenance window during which waste submission and transfers are paused.
 
-**Q: Can I migrate without losing data?**  
+**Q: Can I migrate without losing data?**
 A: Yes, all migration scripts preserve data. Always take a full snapshot before migrating.
 
-**Q: What if migration fails partway through?**  
+**Q: What if migration fails partway through?**
 A: Stop immediately and switch traffic back to the old contract (Immediate Rollback). The old
 contract is unaffected. Investigate logs and re-run the failed migration step in isolation.
 
-**Q: How do I verify migration success?**  
+**Q: How do I verify migration success?**
 A: Run the full Verification Checklist and compare metrics between old and new contracts using
 the provided verification commands.
 
-**Q: Can I migrate in production?**  
+**Q: Can I migrate in production?**
 A: Yes, but always schedule during low-traffic periods and have the rollback plan ready and
 tested. Prefer blue/green deployment: keep the old contract live until the new one is fully
 verified. See: [Blue/Green Deployment](./BLUE_GREEN_DEPLOYMENT.md).
 
-**Q: Do I need to migrate for a v2.1.x upgrade?**  
+**Q: Do I need to migrate for a v2.1.x upgrade?**
 A: No. v2.1.x adds the expiration and grading systems additively. Existing waste items default
 to `expires_at = 0` (no expiry) and `grade = C`. No state transformation is needed.
 

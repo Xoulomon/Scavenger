@@ -1,7 +1,7 @@
 # Tutorial 02 — Intermediate Contracts
 
-**Level:** Intermediate  
-**Time:** ~45 minutes  
+**Level:** Intermediate
+**Time:** ~45 minutes
 **Goal:** Add role-based access control, contract upgrade support, and multi-field storage to the waste registry from Tutorial 01.
 
 **Prerequisite:** Complete [Tutorial 01](./01-getting-started.md).
@@ -47,7 +47,7 @@ impl WasteRegistry {
 }
 ```
 
-**Why `instance` storage?**  
+**Why `instance` storage?**
 Instance data persists for the lifetime of the contract and is cheaper to read than `persistent` data for frequently-accessed values like the admin address.
 
 ---

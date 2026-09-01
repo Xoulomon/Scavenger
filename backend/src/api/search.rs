@@ -41,10 +41,10 @@ pub async fn search(
         .size(params.size)
         .highlight(vec!["title".to_string(), "description".to_string()])
         .build();
-    
+
     // Execute search
     let start = std::time::Instant::now();
-    
+
     // In a real implementation, you'd execute the query against Elasticsearch
     // For now, return a mock response
     let response = SearchResponse {
@@ -53,7 +53,7 @@ pub async fn search(
         took_ms: start.elapsed().as_millis() as u64,
         facets: None,
     };
-    
+
     Ok(HttpResponse::Ok().json(response))
 }
 
@@ -67,7 +67,7 @@ pub async fn suggest(
         "waste type B",
         "participant name",
     ];
-    
+
     Ok(HttpResponse::Ok().json(json!({
         "suggestions": suggestions
     })))

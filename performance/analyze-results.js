@@ -8,14 +8,14 @@ const SUMMARY_REPORT = path.join(__dirname, 'reports', 'performance-summary.md')
 
 function analyze() {
   console.log('Starting Performance Analysis...');
-  
+
   let baseline = {};
   if (fs.existsSync(BASELINE_FILE)) {
     baseline = JSON.parse(fs.readFileSync(BASELINE_FILE, 'utf8'));
   }
 
   const results = fs.readdirSync(REPORTS_DIR).filter(f => f.endsWith('-results.json'));
-  
+
   let report = '# 🚀 Scavenger Performance Test Report\n\n';
   report += `**Date:** ${new Date().toLocaleString()}\n`;
   report += `**Environment:** ${process.env.BASE_URL || 'Localhost'}\n\n`;
@@ -29,10 +29,10 @@ function analyze() {
   results.forEach(file => {
     const data = JSON.parse(fs.readFileSync(path.join(REPORTS_DIR, file), 'utf8'));
     const testName = file.replace('-results.json', '');
-    
+
     const p95 = data.metrics.http_req_duration.values['p(95)'];
     const errorRate = data.metrics.errors ? data.metrics.errors.values.rate : 0;
-    
+
     let status = '🟢 PASS';
     let issues = [];
 
@@ -60,7 +60,7 @@ function analyze() {
     }
 
     if (status !== '🟢 PASS') totalAlerts++;
-    
+
     report += `| ${testName} | ${p95.toFixed(2)}ms | ${(errorRate * 100).toFixed(2)}% | ${status} |\n`;
   });
 
@@ -74,7 +74,7 @@ function analyze() {
         const testName = file.replace('-results.json', '');
         const p95 = data.metrics.http_req_duration.values['p(95)'];
         const errorRate = data.metrics.errors ? data.metrics.errors.values.rate : 0;
-        
+
         if (p95 > 1000 || errorRate > 0.05) {
             report += `- **${testName}**: p95=${p95.toFixed(2)}ms, errors=${(errorRate * 100).toFixed(2)}%\n`;
         }
@@ -83,7 +83,7 @@ function analyze() {
 
   fs.writeFileSync(SUMMARY_REPORT, report);
   console.log(`Report generated: ${SUMMARY_REPORT}`);
-  
+
   if (totalAlerts > 0) {
     console.warn(`\n!!! PERFORMANCE ALERTS: ${totalAlerts} issues found !!!\n`);
     process.exit(1);

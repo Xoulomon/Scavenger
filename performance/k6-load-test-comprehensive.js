@@ -80,7 +80,7 @@ export const options = {
 
 export default function () {
   const userId = `user_${__VU}_${__ITER}`;
-  
+
   group('Participant Operations', () => {
     // Register participant
     let registerRes = http.post(`${BASE_URL}/participants/register`, {
@@ -90,38 +90,38 @@ export default function () {
       lat: 0,
       lon: 0
     });
-    
+
     check(registerRes, {
       'register status is 200': (r) => r.status === 200 || r.status === 409,
       'register response time < 500ms': (r) => r.timings.duration < 500
     });
-    
+
     apiDuration.add(registerRes.timings.duration);
     if (registerRes.status !== 200 && registerRes.status !== 409) {
       errorRate.add(1);
     } else {
       successCount.add(1);
     }
-    
+
     sleep(0.5);
-    
+
     // Get participant
     let getRes = http.get(`${BASE_URL}/participants/${userId}`);
     check(getRes, {
       'get participant status is 200': (r) => r.status === 200,
       'get response time < 300ms': (r) => r.timings.duration < 300
     });
-    
+
     apiDuration.add(getRes.timings.duration);
     if (getRes.status !== 200) {
       errorRate.add(1);
     } else {
       successCount.add(1);
     }
-    
+
     sleep(0.5);
   });
-  
+
   group('Waste Operations', () => {
     // Submit waste
     let submitRes = http.post(`${BASE_URL}/waste/submit`, {
@@ -131,38 +131,38 @@ export default function () {
       lat: 0,
       lon: 0
     });
-    
+
     check(submitRes, {
       'submit waste status is 200': (r) => r.status === 200,
       'submit response time < 500ms': (r) => r.timings.duration < 500
     });
-    
+
     apiDuration.add(submitRes.timings.duration);
     if (submitRes.status !== 200) {
       errorRate.add(1);
     } else {
       successCount.add(1);
     }
-    
+
     sleep(0.5);
-    
+
     // Get participant wastes
     let wastesRes = http.get(`${BASE_URL}/participants/${userId}/wastes`);
     check(wastesRes, {
       'get wastes status is 200': (r) => r.status === 200,
       'get wastes response time < 500ms': (r) => r.timings.duration < 500
     });
-    
+
     apiDuration.add(wastesRes.timings.duration);
     if (wastesRes.status !== 200) {
       errorRate.add(1);
     } else {
       successCount.add(1);
     }
-    
+
     sleep(0.5);
   });
-  
+
   group('Incentive Operations', () => {
     // Get active incentives
     let incentivesRes = http.get(`${BASE_URL}/incentives/active`);
@@ -170,17 +170,17 @@ export default function () {
       'get incentives status is 200': (r) => r.status === 200,
       'get incentives response time < 500ms': (r) => r.timings.duration < 500
     });
-    
+
     apiDuration.add(incentivesRes.timings.duration);
     if (incentivesRes.status !== 200) {
       errorRate.add(1);
     } else {
       successCount.add(1);
     }
-    
+
     sleep(0.5);
   });
-  
+
   group('Query Operations', () => {
     // Get metrics
     let metricsRes = http.get(`${BASE_URL}/metrics`);
@@ -188,17 +188,17 @@ export default function () {
       'get metrics status is 200': (r) => r.status === 200,
       'get metrics response time < 500ms': (r) => r.timings.duration < 500
     });
-    
+
     apiDuration.add(metricsRes.timings.duration);
     if (metricsRes.status !== 200) {
       errorRate.add(1);
     } else {
       successCount.add(1);
     }
-    
+
     sleep(0.5);
   });
-  
+
   activeConnections.add(__VU);
   sleep(1);
 }
@@ -212,7 +212,7 @@ export function handleSummary(data) {
 
 function textSummary(data, options) {
   let summary = '\n=== Load Test Summary ===\n';
-  
+
   if (data.metrics) {
     summary += '\nMetrics:\n';
     for (const [name, metric] of Object.entries(data.metrics)) {
@@ -221,6 +221,6 @@ function textSummary(data, options) {
       }
     }
   }
-  
+
   return summary;
 }

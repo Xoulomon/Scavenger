@@ -95,7 +95,7 @@ import { useTheme } from './hooks/useTheme';
 
 function MyComponent() {
   const { currentTheme, allThemes, setTheme } = useTheme();
-  
+
   return (
     <select onChange={(e) => setTheme(e.target.value)}>
       {allThemes.map(theme => (

@@ -1,9 +1,9 @@
 # Scavngr Smart Contract Security Audit Report
 
-**Date**: April 27, 2026  
-**Auditor**: Security Team  
-**Contract**: Scavngr Soroban Smart Contract  
-**Network**: Stellar Testnet / Mainnet  
+**Date**: April 27, 2026
+**Auditor**: Security Team
+**Contract**: Scavngr Soroban Smart Contract
+**Network**: Stellar Testnet / Mainnet
 **Status**: ✅ PASSED (with recommendations)
 
 ---
@@ -68,8 +68,8 @@ No high severity vulnerabilities found.
 
 #### 1. Potential Integer Overflow in Reward Calculation
 
-**Location**: `distribute_rewards()` function  
-**Severity**: MEDIUM  
+**Location**: `distribute_rewards()` function
+**Severity**: MEDIUM
 **Status**: MITIGATED
 
 **Description**:
@@ -92,8 +92,8 @@ let reward = waste.weight * incentive.reward_points;
 
 #### 2. Percentage Calculation Precision
 
-**Location**: `distribute_rewards()` function  
-**Severity**: MEDIUM  
+**Location**: `distribute_rewards()` function
+**Severity**: MEDIUM
 **Status**: MITIGATED
 
 **Description**:
@@ -118,8 +118,8 @@ let owner_reward = reward - collector_reward;
 
 #### 1. Missing Event for Admin Transfer
 
-**Location**: `transfer_admin()` function  
-**Severity**: LOW  
+**Location**: `transfer_admin()` function
+**Severity**: LOW
 **Status**: RECOMMENDED
 
 **Description**:
@@ -139,8 +139,8 @@ env.events().publish(
 
 #### 2. No Expiration for Incentives
 
-**Location**: Incentive management  
-**Severity**: LOW  
+**Location**: Incentive management
+**Severity**: LOW
 **Status**: RECOMMENDED
 
 **Description**:
@@ -155,8 +155,8 @@ Add optional `expires_at` field to Incentive struct.
 
 #### 3. Batch Operation Size Limit
 
-**Location**: `submit_materials_batch()` function  
-**Severity**: LOW  
+**Location**: `submit_materials_batch()` function
+**Severity**: LOW
 **Status**: RECOMMENDED
 
 **Description**:
@@ -638,8 +638,8 @@ exclude-critical: false
 
 ## Sign-off
 
-**Auditor**: Security Team  
-**Date**: April 27, 2026  
+**Auditor**: Security Team
+**Date**: April 27, 2026
 **Status**: ✅ APPROVED
 
 **Recommendations**: Implement Priority 1 items before mainnet deployment.

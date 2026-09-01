@@ -38,7 +38,7 @@ export function ReviewStep({ formData }: ReviewStepProps) {
           <div className="border-t pt-3">
             <p className="text-sm font-medium text-muted-foreground">Location</p>
             <p className="font-medium">
-              {formData.latitude && formData.longitude 
+              {formData.latitude && formData.longitude
                 ? `${formData.latitude}, ${formData.longitude}`
                 : 'Not provided'
               }

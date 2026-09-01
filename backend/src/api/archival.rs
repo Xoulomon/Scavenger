@@ -14,7 +14,7 @@ pub async fn create_policy(
 ) -> Result<HttpResponse> {
     let policy_id = service.create_policy(policy.into_inner())
         .map_err(actix_web::error::ErrorInternalServerError)?;
-    
+
     Ok(HttpResponse::Created().json(serde_json::json!({
         "policy_id": policy_id,
         "message": "Retention policy created successfully"
@@ -28,7 +28,7 @@ pub async fn get_policy(
 ) -> Result<HttpResponse> {
     let policy = service.get_policy(&policy_id)
         .map_err(actix_web::error::ErrorNotFound)?;
-    
+
     Ok(HttpResponse::Ok().json(policy))
 }
 
@@ -38,7 +38,7 @@ pub async fn list_policies(
 ) -> Result<HttpResponse> {
     let policies = service.list_policies()
         .map_err(actix_web::error::ErrorInternalServerError)?;
-    
+
     Ok(HttpResponse::Ok().json(policies))
 }
 
@@ -50,7 +50,7 @@ pub async fn update_policy(
 ) -> Result<HttpResponse> {
     service.update_policy(&policy_id, policy.into_inner())
         .map_err(actix_web::error::ErrorInternalServerError)?;
-    
+
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "message": "Policy updated successfully"
     })))
@@ -63,7 +63,7 @@ pub async fn delete_policy(
 ) -> Result<HttpResponse> {
     service.delete_policy(&policy_id)
         .map_err(actix_web::error::ErrorNotFound)?;
-    
+
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "message": "Policy deleted successfully"
     })))
@@ -92,7 +92,7 @@ pub async fn query_archives(
     params: web::Query<QueryParams>,
 ) -> Result<HttpResponse> {
     use chrono::DateTime;
-    
+
     let query = ArchiveQuery {
         data_type: params.data_type.clone(),
         status: params.status.as_ref().and_then(|s| {
@@ -123,10 +123,10 @@ pub async fn query_archives(
         limit: params.limit,
         offset: params.offset,
     };
-    
+
     let archives = service.query_archives(query)
         .map_err(actix_web::error::ErrorInternalServerError)?;
-    
+
     Ok(HttpResponse::Ok().json(archives))
 }
 
@@ -136,7 +136,7 @@ pub async fn get_statistics(
 ) -> Result<HttpResponse> {
     let stats = service.get_statistics()
         .map_err(actix_web::error::ErrorInternalServerError)?;
-    
+
     Ok(HttpResponse::Ok().json(stats))
 }
 
@@ -153,14 +153,14 @@ pub struct ArchiveRequest {
 mod base64_serde {
     use serde::{Deserialize, Deserializer, Serializer};
     use base64::{Engine as _, engine::general_purpose};
-    
+
     pub fn serialize<S>(bytes: &Vec<u8>, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
         serializer.serialize_str(&general_purpose::STANDARD.encode(bytes))
     }
-    
+
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<u8>, D::Error>
     where
         D: Deserializer<'de>,
@@ -176,7 +176,7 @@ pub async fn archive_data(
     request: web::Json<ArchiveRequest>,
 ) -> Result<HttpResponse> {
     let req = request.into_inner();
-    
+
     let archive_id = service.archive_data(
         req.data_type,
         req.data_id,
@@ -184,7 +184,7 @@ pub async fn archive_data(
         req.policy_id,
     ).await
         .map_err(actix_web::error::ErrorInternalServerError)?;
-    
+
     Ok(HttpResponse::Created().json(serde_json::json!({
         "archive_id": archive_id,
         "message": "Data archived successfully"
@@ -198,10 +198,10 @@ pub async fn restore_data(
 ) -> Result<HttpResponse> {
     let data = service.restore_data(&archive_id).await
         .map_err(actix_web::error::ErrorNotFound)?;
-    
+
     use base64::{Engine as _, engine::general_purpose};
     let encoded = general_purpose::STANDARD.encode(&data);
-    
+
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "archive_id": archive_id.as_str(),
         "data": encoded,
@@ -216,7 +216,7 @@ pub async fn delete_archive(
 ) -> Result<HttpResponse> {
     service.delete_archive(&archive_id).await
         .map_err(actix_web::error::ErrorInternalServerError)?;
-    
+
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "message": "Archive deleted successfully"
     })))
@@ -236,10 +236,10 @@ pub async fn list_jobs(
             _ => None,
         }
     });
-    
+
     let jobs = service.list_jobs(filter_status)
         .map_err(actix_web::error::ErrorInternalServerError)?;
-    
+
     Ok(HttpResponse::Ok().json(jobs))
 }
 
@@ -250,6 +250,6 @@ pub async fn get_job(
 ) -> Result<HttpResponse> {
     let job = service.get_job(&job_id)
         .map_err(actix_web::error::ErrorNotFound)?;
-    
+
     Ok(HttpResponse::Ok().json(job))
 }

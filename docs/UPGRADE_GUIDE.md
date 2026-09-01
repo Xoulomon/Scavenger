@@ -148,7 +148,7 @@ After upgrade, monitor:
 
 ### Issue: State Not Preserved
 
-**Solution**: 
+**Solution**:
 - Verify backup was created
 - Check storage migration logic
 - Restore from backup if needed

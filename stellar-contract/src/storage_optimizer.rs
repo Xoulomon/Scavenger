@@ -15,7 +15,7 @@ impl StorageCache {
     }
 
     /// Check if a key exists in the cache
-    pub fn contains<K>(&self, env: &Env, key: &K) -> bool 
+    pub fn contains<K>(&self, env: &Env, key: &K) -> bool
     where
         K: soroban_sdk::IntoVal<Env, soroban_sdk::Val> + Clone,
     {
@@ -105,7 +105,7 @@ impl<'a> StorageBatch<'a> {
 /// Prefetch frequently accessed storage slots
 pub fn prefetch_participant_data(env: &Env, address: &Address) {
     let cache = StorageCache::new(100);
-    
+
     // Prefetch participant record
     let participant_key = (address.clone(),);
     if !cache.contains(env, &participant_key) {
@@ -128,7 +128,7 @@ pub fn optimize_waste_storage(env: &Env, waste_id: u128) {
     // Implement hot/cold data separation
     // Hot data: frequently accessed (status, owner)
     // Cold data: rarely accessed (full history, documents)
-    
+
     let waste_key = ("waste_v2", waste_id);
     if let Some(waste) = env.storage().instance().get::<_, crate::Waste>(&waste_key) {
         // Cache hot data
@@ -148,10 +148,10 @@ mod tests {
     fn test_storage_cache() {
         let env = Env::default();
         let cache = StorageCache::new(10);
-        
+
         let key = "test_key";
         let value = 42u32;
-        
+
         assert!(!cache.contains(&env, &key));
         cache.set(&env, &key, &value, 100);
         assert!(cache.contains(&env, &key));
@@ -163,10 +163,10 @@ mod tests {
         let env = Env::default();
         let index = StorageIndex::new(soroban_sdk::symbol_short!("waste"));
         let addr = Address::generate(&env);
-        
+
         index.add(&env, 1, addr.clone());
         assert_eq!(index.get(&env, 1), Some(addr.clone()));
-        
+
         index.remove(&env, 1);
         assert_eq!(index.get(&env, 1), None);
     }

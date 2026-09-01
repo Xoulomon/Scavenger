@@ -39,7 +39,7 @@ show_pending() {
   echo "Pending changes for next release:"
   local latest_tag
   latest_tag=$(git tag --sort=-version:refname | head -1 || echo "")
-  
+
   if [ -n "$latest_tag" ]; then
     local count
     count=$(git rev-list --count "${latest_tag}..HEAD" 2>/dev/null || echo "0")

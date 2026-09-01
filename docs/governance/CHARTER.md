@@ -6,8 +6,8 @@ sidebar_position: 1
 
 # Scavngr Project Charter
 
-**Version**: 1.0  
-**Effective Date**: 2026-06-27  
+**Version**: 1.0
+**Effective Date**: 2026-06-27
 **Status**: Active
 
 ---

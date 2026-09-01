@@ -63,7 +63,7 @@ export function WasteSubmissionWizard({ onComplete, onCancel }: { onComplete: (d
     if (currentStep === 1) fieldsToValidate = ['wasteType'];
     else if (currentStep === 2) fieldsToValidate = ['weight'];
     else if (currentStep === 3) fieldsToValidate = ['latitude', 'longitude'];
-    
+
     const isValid = await trigger(fieldsToValidate);
     return isValid;
   };
@@ -105,7 +105,7 @@ export function WasteSubmissionWizard({ onComplete, onCancel }: { onComplete: (d
   return (
     <Card className="p-6 max-w-2xl mx-auto">
       <ProgressIndicator steps={STEPS} currentStep={currentStep} />
-      
+
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
         {renderStep()}
 

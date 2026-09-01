@@ -47,7 +47,7 @@ let participant: Participant = env.storage().instance().get(&key)?;
 Export participant data for backup or migration:
 
 ```rust
-pub fn export_participant(env: Env, address: Address) 
+pub fn export_participant(env: Env, address: Address)
     -> Option<(Address, ParticipantRole, u64)>
 ```
 

@@ -88,9 +88,9 @@ export class RedisCache {
     });
   }
 
-  async warmCache(key: string, loader: () => Promise<any>, type?: string): Promise<any> {
-    const cached = await this.get(key);
-    if (cached) return cached;
+  async warmCache<T>(key: string, loader: () => Promise<T>, type?: string): Promise<T> {
+    const cached = await this.get<T>(key);
+    if (cached !== null) return cached;
 
     const data = await loader();
     await this.set(key, data, type);

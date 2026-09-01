@@ -82,8 +82,8 @@ If a reviewer cannot meet the SLA, they should say so in a comment so another re
 > This loop calls `get_waste()` inside each iteration. Since we're on-chain, each call costs. Can we batch-fetch before the loop?
 
 **Avoid**
-> This is wrong. ❌  
-> Why did you do it this way? ❌  
+> This is wrong. ❌
+> Why did you do it this way? ❌
 > Nit: style. ❌ (use GitHub's "nit:" prefix for optional style suggestions so authors can deprioritise them)
 
 ## Common Issues Reviewers Catch

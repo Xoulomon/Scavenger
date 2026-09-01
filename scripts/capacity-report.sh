@@ -19,14 +19,14 @@ generate_section() {
   local dimension_name=$4
   local dimension_value=$5
   local stat=$6
-  
+
   echo "--- $title ---"
-  
+
   local end_time
   end_time=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
   local start_time
   start_time=$(date -u -d "-7 days" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date -u -v"-7d" +"%Y-%m-%dT%H:%M:%SZ")
-  
+
   local result
   result=$(aws cloudwatch get-metric-statistics \
     --namespace "$namespace" \
@@ -38,11 +38,11 @@ generate_section() {
     --statistics "$stat" \
     --query "Datapoints[*].[Timestamp,$stat]" \
     --output json 2>/dev/null || echo "[]")
-  
+
   local count
   count=$(echo "$result" | jq 'length' 2>/dev/null || echo "0")
   echo "Datapoints: $count"
-  
+
   if [ "$count" -gt 0 ]; then
     local avg
     avg=$(echo "$result" | jq '[.[] | .[1]] | add/length' 2>/dev/null || echo "0")
@@ -52,7 +52,7 @@ generate_section() {
     min_val=$(echo "$result" | jq '[.[] | .[1]] | min' 2>/dev/null || echo "0")
     local p95
     p95=$(echo "$result" | jq '[.[] | .[1]] | sort | .[length * 95 / 100]' 2>/dev/null || echo "0")
-    
+
     echo "Average: $avg"
     echo "Max: $max_val"
     echo "Min: $min_val"

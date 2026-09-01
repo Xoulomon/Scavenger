@@ -25,7 +25,7 @@ test.describe('Complete Recycling Workflow', () => {
     // 2. Connect wallet
     await page.click('button:has-text("Connect Wallet")');
     await page.waitForSelector('[data-testid="wallet-modal"]', { state: 'visible' });
-    
+
     // Select Freighter wallet
     await page.click('[data-testid="freighter-wallet"]');
     await page.waitForTimeout(1000); // Wait for wallet connection
@@ -72,7 +72,7 @@ test.describe('Complete Recycling Workflow', () => {
     // 8. Navigate to waste list and prepare transfer
     await page.click('[href="/waste-list"]');
     await expect(page).toHaveURL(/waste-list/);
-    
+
     await page.click('[data-testid="transfer-button"]:first');
     await page.waitForSelector('[data-testid="transfer-modal"]');
 
@@ -87,7 +87,7 @@ test.describe('Complete Recycling Workflow', () => {
     // 10. Verify transfer appears in history
     await page.click('[data-testid="view-history"]');
     await expect(page.locator('[data-testid="transfer-history"]')).toBeVisible();
-    
+
     const transfers = await page.locator('[data-testid^="transfer-record-"]').count();
     expect(transfers).toBeGreaterThan(0);
 
@@ -177,7 +177,7 @@ test.describe('Complete Recycling Workflow', () => {
     await page.click('[data-testid="export-button"]');
     await page.waitForSelector('[data-testid="export-menu"]');
     await page.click('[data-testid="export-csv"]');
-    
+
     // Verify download initiated (check for download event)
     const download = page.waitForEvent('download');
     await expect(download).toBeDefined();
@@ -197,7 +197,7 @@ test.describe('Complete Recycling Workflow', () => {
 
     // Verify supply chain stages
     await expect(page.locator('[data-testid="stage-submitted"]')).toBeVisible();
-    
+
     // Check map is displayed
     await expect(page.locator('[data-testid="supply-chain-map"]')).toBeVisible();
 
@@ -324,7 +324,7 @@ test.describe('Performance Tests', () => {
 
   test('Waste list rendering performance', async ({ page }) => {
     await page.goto('/waste-list');
-    
+
     const startTime = Date.now();
     await page.waitForSelector('[data-testid="waste-list"]');
     const renderTime = Date.now() - startTime;

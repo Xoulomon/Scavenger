@@ -4,26 +4,26 @@ set -euo pipefail
 check_region() {
   local region=$1
   local endpoint=$2
-  
+
   echo "=== Region Health Check: $region ==="
-  
+
   local http_status
   http_status=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 "https://$endpoint/health" 2>/dev/null || echo "000")
-  
+
   if [ "$http_status" != "200" ]; then
     echo "STATUS: UNHEALTHY (HTTP $http_status)"
     return 1
   fi
-  
+
   local response_time
   response_time=$(curl -s -o /dev/null -w "%{time_total}" --connect-timeout 10 "https://$endpoint/health" 2>/dev/null || echo "999")
-  
+
   local db_status
   db_status=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 "https://$endpoint/health/db" 2>/dev/null || echo "000")
-  
+
   local redis_status
   redis_status=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 "https://$endpoint/health/redis" 2>/dev/null || echo "000")
-  
+
   echo "STATUS: HEALTHY"
   echo "HTTP: $http_status | Response: ${response_time}s | DB: $db_status | Redis: $redis_status"
   return 0

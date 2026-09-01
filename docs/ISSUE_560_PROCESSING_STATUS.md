@@ -18,7 +18,7 @@ The recycling system needs to:
 Collected → Sorted → Processed → Recycled → Manufactured
    ↓         ↓          ↓           ↓           ↓
   (1)       (2)        (3)         (4)         (5)
-  
+
 Forward-only progression (no backwards movement)
 ```
 

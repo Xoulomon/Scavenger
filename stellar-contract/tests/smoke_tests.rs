@@ -15,7 +15,7 @@ fn smoke_test_participant_registration() {
     let participant = Address::generate(&env);
 
     client.initialize_admin(&admin);
-    
+
     client.register_participant(
         &participant,
         &ParticipantRole::Recycler,

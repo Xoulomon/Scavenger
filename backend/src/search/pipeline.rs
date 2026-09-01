@@ -10,10 +10,10 @@ use thiserror::Error;
 pub enum IndexingError {
     #[error("Elasticsearch error: {0}")]
     ElasticsearchError(String),
-    
+
     #[error("Serialization error: {0}")]
     SerializationError(#[from] serde_json::Error),
-    
+
     #[error("Batch processing error: {0}")]
     BatchError(String),
 }
@@ -40,7 +40,7 @@ impl IndexingPipeline {
             max_concurrent_batches,
         }
     }
-    
+
     /// Index a single document
     pub async fn index_document<T: Serialize>(
         &self,
@@ -53,39 +53,39 @@ impl IndexingPipeline {
             .send()
             .await
             .map_err(|e| IndexingError::ElasticsearchError(e.to_string()))?;
-        
+
         if !response.status_code().is_success() {
             let error = response.text().await
                 .unwrap_or_else(|_| "Unknown error".to_string());
             return Err(IndexingError::ElasticsearchError(error));
         }
-        
+
         Ok(())
     }
-    
+
     /// Bulk index multiple documents
     pub async fn bulk_index<T: Serialize>(
         &self,
         documents: Vec<(String, T)>,
     ) -> Result<BulkIndexResult, IndexingError> {
         let mut result = BulkIndexResult::default();
-        
+
         // Process in batches
         for chunk in documents.chunks(self.batch_size) {
             let batch_result = self.process_batch(chunk).await?;
             result.merge(batch_result);
         }
-        
+
         Ok(result)
     }
-    
+
     /// Process a single batch
     async fn process_batch<T: Serialize>(
         &self,
         batch: &[(String, T)],
     ) -> Result<BulkIndexResult, IndexingError> {
         let mut body: Vec<Value> = Vec::new();
-        
+
         for (id, doc) in batch {
             // Add index action
             body.push(json!({
@@ -94,23 +94,23 @@ impl IndexingPipeline {
                     "_id": id
                 }
             }));
-            
+
             // Add document
             body.push(serde_json::to_value(doc)?);
         }
-        
+
         let response = self.client
             .bulk(BulkParts::Index(&self.index_name))
             .body(body)
             .send()
             .await
             .map_err(|e| IndexingError::ElasticsearchError(e.to_string()))?;
-        
+
         let response_body: BulkResponse = response.json().await
             .map_err(|e| IndexingError::SerializationError(e))?;
-        
+
         let mut result = BulkIndexResult::default();
-        
+
         for item in response_body.items {
             if let Some(index) = item.index {
                 if index.status >= 200 && index.status < 300 {
@@ -126,10 +126,10 @@ impl IndexingPipeline {
                 }
             }
         }
-        
+
         Ok(result)
     }
-    
+
     /// Delete a document by ID
     pub async fn delete_document(&self, id: &str) -> Result<(), IndexingError> {
         let response = self.client
@@ -137,13 +137,13 @@ impl IndexingPipeline {
             .send()
             .await
             .map_err(|e| IndexingError::ElasticsearchError(e.to_string()))?;
-        
+
         if !response.status_code().is_success() && response.status_code().as_u16() != 404 {
             let error = response.text().await
                 .unwrap_or_else(|_| "Unknown error".to_string());
             return Err(IndexingError::ElasticsearchError(error));
         }
-        
+
         Ok(())
     }
 }

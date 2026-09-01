@@ -413,9 +413,9 @@ let mut waste: Waste = env.storage().instance().get(&("waste", id)).unwrap();
 if waste.is_processable() {
     waste.update_status(WasteStatus::Processing);
     env.storage().instance().set(&("waste", id), &waste);
-    
+
     // Process the waste...
-    
+
     waste.update_status(WasteStatus::Processed);
     env.storage().instance().set(&("waste", id), &waste);
 }

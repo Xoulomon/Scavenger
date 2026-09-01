@@ -131,7 +131,7 @@ fn test_complete_waste_lifecycle() {
     // 7. Verify final state
     let waste = fixture.contract.get_waste_v2(&waste_id).unwrap();
     assert_eq!(waste.current_owner, fixture.manufacturer);
-    
+
     // 8. Check transfer history
     let history = fixture.contract.get_waste_transfer_history_v2(&waste_id);
     assert_eq!(history.len(), 2); // Two transfers
@@ -313,7 +313,7 @@ fn test_participant_stats_tracking() {
     // Get participant info
     let info = fixture.contract.get_participant_info(&fixture.recycler).unwrap();
     assert!(info.participant.total_waste_processed > 0);
-    
+
     // Get stats
     let stats = fixture.contract.get_stats(&fixture.recycler).unwrap();
     assert_eq!(stats.total_submissions, 5);

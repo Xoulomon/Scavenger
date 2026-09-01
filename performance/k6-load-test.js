@@ -99,7 +99,7 @@ export function handleSummary(data) {
 function textSummary(data, options) {
   const indent = options.indent || '';
   let summary = '\n=== Performance Test Summary ===\n';
-  
+
   if (data.metrics) {
     summary += `${indent}API Duration (p95): ${data.metrics.api_duration?.values?.['p(95)']?.toFixed(2)}ms\n`;
     summary += `${indent}Contract Call Duration (p95): ${data.metrics.contract_call_duration?.values?.['p(95)']?.toFixed(2)}ms\n`;
@@ -107,6 +107,6 @@ function textSummary(data, options) {
     summary += `${indent}Success Count: ${data.metrics.success_count?.value}\n`;
     summary += `${indent}Failure Count: ${data.metrics.failure_count?.value}\n`;
   }
-  
+
   return summary;
 }

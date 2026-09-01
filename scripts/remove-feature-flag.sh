@@ -43,10 +43,10 @@ echo -e "${YELLOW}📦 Creating backup in ${BACKUP_DIR}${NC}"
 # Remove flag from files (simple approach - remove lines containing flag)
 for file in $(grep -r --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" --include="*.rs" \
   -l "$FLAG" . 2>/dev/null | grep -v "node_modules" | grep -v "dist" | grep -v "build"); do
-  
+
   echo "  Processing: $file"
   cp "$file" "$BACKUP_DIR/$(basename $file).bak"
-  
+
   # Remove lines containing the flag (simple approach)
   sed -i "/$FLAG/d" "$file"
 done

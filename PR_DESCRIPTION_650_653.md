@@ -5,7 +5,7 @@ This PR implements four advanced features for the Scavenger Stellar recycling pl
 
 ## Issues Closed
 - Closes #650: Advanced Analytics and Reporting
-- Closes #651: Blockchain Explorer Integration  
+- Closes #651: Blockchain Explorer Integration
 - Closes #652: Smart Contract Upgrades
 - Closes #653: Waste Verification Workflow
 

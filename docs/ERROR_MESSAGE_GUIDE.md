@@ -104,7 +104,7 @@ const validateMessages = (file: string) => {
     /failed/i,
     /unexpected/i,
   ];
-  
+
   // Validate message format
   const formatPattern = /^[A-Z][a-zA-Z0-9\s,'".?!-]*\.$/;
 };

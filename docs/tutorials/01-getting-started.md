@@ -1,7 +1,7 @@
 # Tutorial 01 — Getting Started with Scavenger Contracts
 
-**Level:** Beginner  
-**Time:** ~30 minutes  
+**Level:** Beginner
+**Time:** ~30 minutes
 **Goal:** Set up a local environment, write your first Soroban contract function, and deploy it to testnet.
 
 ---

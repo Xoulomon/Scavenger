@@ -39,15 +39,15 @@ export class AppError extends Error {
 
 export function formatErrorMessage(message: string): string {
   let formatted = message.trim();
-  
+
   if (formatted.length > 0) {
     formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
   }
-  
+
   if (formatted.length > 0 && !formatted.endsWith('.')) {
     formatted += '.';
   }
-  
+
   return formatted;
 }
 
@@ -61,7 +61,7 @@ export function createValidationError(field: string, reason: string): AppError {
 }
 
 export function createNotFoundError(resource: string, id?: string): AppError {
-  const message = id 
+  const message = id
     ? `${resource} not found: ${id}`
     : `${resource} not found`;
   return new AppError(message, 'NOTF-001', 404, { resource, id });
@@ -131,33 +131,33 @@ export function validateErrorMessage(message: string): {
   issues: string[];
 } {
   const issues: string[] = [];
-  
+
   if (message.length === 0) {
     issues.push('Message cannot be empty');
   }
-  
+
   if (message.length > 0 && message[0] !== message[0].toUpperCase()) {
     issues.push('Message must start with a capital letter');
   }
-  
+
   if (message.length > 0 && !message.endsWith('.')) {
     issues.push('Message must end with a period');
   }
-  
+
   const vaguePatterns = [
     /\berror\b/i,
     /\bsomething went wrong\b/i,
     /\bunexpected\b/i,
     /\bfailed\b/i,
   ];
-  
+
   for (const pattern of vaguePatterns) {
     if (pattern.test(message) && message.length < 30) {
       issues.push('Message may be too vague');
       break;
     }
   }
-  
+
   return {
     valid: issues.length === 0,
     issues,

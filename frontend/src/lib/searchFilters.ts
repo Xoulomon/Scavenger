@@ -28,9 +28,9 @@ export interface SavedFilter {
 export function fuzzyMatch(text: string, query: string, threshold = 0.6): boolean {
   const t = text.toLowerCase();
   const q = query.toLowerCase();
-  
+
   if (t.includes(q)) return true;
-  
+
   const distance = levenshteinDistance(t, q);
   const similarity = 1 - distance / Math.max(t.length, q.length);
   return similarity >= threshold;
@@ -70,7 +70,7 @@ export function searchData<T extends Record<string, unknown>>(
   fuzzy = false,
 ): T[] {
   if (!query.trim()) return data;
-  
+
   return data.filter((item) =>
     fields.some((field) => {
       const value = String(item[field] ?? '');
@@ -120,7 +120,7 @@ function evaluateFilterGroup<T extends Record<string, unknown>>(item: T, group: 
     const operator = filter as FilterOperator;
     return applyOperator(item[operator.field], operator.operator, operator.value);
   });
-  
+
   return group.logic === 'AND' ? results.every(Boolean) : results.some(Boolean);
 }
 
@@ -133,11 +133,11 @@ export function saveFilter(filter: Omit<SavedFilter, 'id' | 'createdAt'>): Saved
     id: crypto.randomUUID(),
     createdAt: new Date(),
   };
-  
+
   const saved = getSavedFilters();
   saved.push(savedFilter);
   localStorage.setItem('savedFilters', JSON.stringify(saved));
-  
+
   return savedFilter;
 }
 
@@ -147,7 +147,7 @@ export function saveFilter(filter: Omit<SavedFilter, 'id' | 'createdAt'>): Saved
 export function getSavedFilters(): SavedFilter[] {
   const saved = localStorage.getItem('savedFilters');
   if (!saved) return [];
-  
+
   return JSON.parse(saved, (key, value) => {
     if (key === 'createdAt') return new Date(value);
     return value;

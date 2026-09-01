@@ -66,7 +66,7 @@ if let Some(incentive) = client.get_active_incentive_for_manufacturer(
 ) {
     let weight_kg = weight_grams / 1000;
     let potential_reward = incentive.reward_points * weight_kg;
-    
+
     if potential_reward <= incentive.remaining_budget {
         println!("Can claim {} points", potential_reward);
         // Proceed with claim

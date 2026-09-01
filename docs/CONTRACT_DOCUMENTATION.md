@@ -1,7 +1,7 @@
 # Scavngr Smart Contract Documentation
 
-> **Issue:** #753  
-> **Contract:** `stellar-contract` (Soroban / Rust)  
+> **Issue:** #753
+> **Contract:** `stellar-contract` (Soroban / Rust)
 > **Network:** Stellar (Testnet / Mainnet)
 
 ---
@@ -46,7 +46,7 @@ Recycler ──► Collector ──► Manufacturer
 - Carbon credit tracking
 - Full event log for indexing
 
-**Contract ID** (Testnet): see `soroban.toml`  
+**Contract ID** (Testnet): see `soroban.toml`
 **Source:** `stellar-contract/src/lib.rs`
 
 ---
@@ -129,7 +129,7 @@ pub enum WasteGrade { A = 0, B = 1, C = 2, D = 3 }
 
 Initialise the contract admin. **Can only be called once.**
 
-**Auth:** None (first-call only)  
+**Auth:** None (first-call only)
 **Errors:** `AlreadyInitialized (1)`
 
 ```bash
@@ -144,7 +144,7 @@ soroban contract invoke \
 
 Transfer admin rights to a new address.
 
-**Auth:** `current_admin` must sign  
+**Auth:** `current_admin` must sign
 **Errors:** `Unauthorized (2)`
 
 ---
@@ -153,7 +153,7 @@ Transfer admin rights to a new address.
 
 Configure the charity contract for donation routing.
 
-**Auth:** `admin`  
+**Auth:** `admin`
 **Errors:** `Unauthorized (2)`, `SameAddress (28)`
 
 ---
@@ -162,7 +162,7 @@ Configure the charity contract for donation routing.
 
 Set the SEP-41 reward token contract.
 
-**Auth:** `admin`  
+**Auth:** `admin`
 **Errors:** `Unauthorized (2)`
 
 ---
@@ -171,7 +171,7 @@ Set the SEP-41 reward token contract.
 
 Set reward split percentages. The sum of `collector_pct + owner_pct` must not exceed 100; the remainder goes to the recycler.
 
-**Auth:** `admin`  
+**Auth:** `admin`
 **Errors:** `Unauthorized (2)`, `InvalidPercentage (14)`
 
 ---
@@ -190,8 +190,8 @@ Register a new participant on-chain.
 | `lat` | `i128` | `[-90_000_000, +90_000_000]` |
 | `lon` | `i128` | `[-180_000_000, +180_000_000]` |
 
-**Auth:** `address` must sign  
-**Errors:** `AlreadyRegistered (4)`, `InvalidCoordinates (13)`  
+**Auth:** `address` must sign
+**Errors:** `AlreadyRegistered (4)`, `InvalidCoordinates (13)`
 **Events:** `reg` (PARTICIPANT_REGISTERED)
 
 ```bash
@@ -220,7 +220,7 @@ Returns participant data combined with accumulated recycling statistics.
 
 Update a participant's role (admin-only).
 
-**Auth:** Contract admin  
+**Auth:** Contract admin
 **Errors:** `Unauthorized (2)`, `ParticipantNotFound (10)`
 
 ---
@@ -229,7 +229,7 @@ Update a participant's role (admin-only).
 
 Remove a participant from the registry.
 
-**Auth:** `address` must sign (or admin)  
+**Auth:** `address` must sign (or admin)
 **Errors:** `ParticipantNotFound (10)`
 
 ---
@@ -246,8 +246,8 @@ Returns `true` if the address is a registered, active participant.
 
 Register a new waste item. Returns the assigned `waste_id`.
 
-**Auth:** `submitter` (must be registered)  
-**Errors:** `NotRegistered (3)`, `InvalidWeight (12)`, `InvalidCoordinates (13)`  
+**Auth:** `submitter` (must be registered)
+**Errors:** `NotRegistered (3)`, `InvalidWeight (12)`, `InvalidCoordinates (13)`
 **Events:** `recycled` (WASTE_REGISTERED)
 
 ---
@@ -278,8 +278,8 @@ Transfer waste ownership. Valid routes:
 | Recycler | Manufacturer |
 | Collector | Manufacturer |
 
-**Auth:** `from` must sign and be the current owner  
-**Errors:** `WasteNotFound (7)`, `NotWasteOwner (6)`, `InvalidTransferRoute (27)`, `WasteDeactivated (18)`, `WasteExpired (44)`, `WasteReservedByOther (42)`  
+**Auth:** `from` must sign and be the current owner
+**Errors:** `WasteNotFound (7)`, `NotWasteOwner (6)`, `InvalidTransferRoute (27)`, `WasteDeactivated (18)`, `WasteExpired (44)`, `WasteReservedByOther (42)`
 **Events:** `transfer` (WASTE_TRANSFERRED)
 
 ---
@@ -288,8 +288,8 @@ Transfer waste ownership. Valid routes:
 
 Confirm waste details (must be a third party, not the owner).
 
-**Auth:** `confirmer`  
-**Errors:** `SelfConfirmation (22)`, `WasteAlreadyConfirmed (20)`, `WasteDeactivated (18)`  
+**Auth:** `confirmer`
+**Errors:** `SelfConfirmation (22)`, `WasteAlreadyConfirmed (20)`, `WasteDeactivated (18)`
 **Events:** `confirmed` (WASTE_CONFIRMED)
 
 ---
@@ -298,7 +298,7 @@ Confirm waste details (must be a third party, not the owner).
 
 Reset the confirmation status (owner only).
 
-**Auth:** `owner`  
+**Auth:** `owner`
 **Errors:** `WasteNotConfirmed (21)`, `NotWasteOwner (6)`
 
 ---
@@ -307,7 +307,7 @@ Reset the confirmation status (owner only).
 
 Permanently deactivate a waste item (admin only).
 
-**Auth:** contract admin  
+**Auth:** contract admin
 **Errors:** `WasteAlreadyDeactivated (19)`
 
 ---
@@ -336,7 +336,7 @@ Full transfer history for a waste item, ordered chronologically.
 
 Create a new incentive program. Returns `incentive_id`.
 
-**Auth:** `rewarder` (must be Manufacturer)  
+**Auth:** `rewarder` (must be Manufacturer)
 **Errors:** `NotManufacturer (5)`, `NotRegistered (3)`, `InvalidAmount (11)`
 
 ---
@@ -345,7 +345,7 @@ Create a new incentive program. Returns `incentive_id`.
 
 Update an existing active incentive.
 
-**Auth:** `rewarder` (must be the original creator)  
+**Auth:** `rewarder` (must be the original creator)
 **Errors:** `IncentiveNotFound (9)`, `IncentiveInactive (23)`, `NotCreator (30)`
 
 ---
@@ -354,7 +354,7 @@ Update an existing active incentive.
 
 Deactivate an incentive program.
 
-**Auth:** `rewarder` (creator only)  
+**Auth:** `rewarder` (creator only)
 **Errors:** `IncentiveNotFound (9)`, `NotCreator (30)`
 
 ---
@@ -396,8 +396,8 @@ owner_reward     = budget_used * owner_pct / 100
 recycler_reward  = budget_used - collector_reward - owner_reward
 ```
 
-**Auth:** `manufacturer`  
-**Errors:** `WasteNotFound (7)`, `IncentiveNotFound (9)`, `WasteTypeMismatch (25)`, `NoRewardAvailable (26)`, `InsufficientBudget (31)`  
+**Auth:** `manufacturer`
+**Errors:** `WasteNotFound (7)`, `IncentiveNotFound (9)`, `WasteTypeMismatch (25)`, `NoRewardAvailable (26)`, `InsufficientBudget (31)`
 **Events:** `rewarded` (TOKENS_REWARDED)
 
 ---

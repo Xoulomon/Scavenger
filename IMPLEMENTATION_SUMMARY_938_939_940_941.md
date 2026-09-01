@@ -30,13 +30,13 @@ Added comprehensive test coverage for input bounds validation across multiple me
 - **Not Found**: Tests graceful handling of non-existent tracking codes
 
 ### Error Scenarios Covered
-✓ Tag exceeds 20 character limit  
-✓ Tag count exceeds 10 tags  
-✓ Contamination reason exceeds 200 characters  
-✓ Invalid IPFS hash prefix  
-✓ IPFS hash too short (<4 chars)  
-✓ IPFS hash too long (>128 chars)  
-✓ Document hash count exceeds 5  
+✓ Tag exceeds 20 character limit
+✓ Tag count exceeds 10 tags
+✓ Contamination reason exceeds 200 characters
+✓ Invalid IPFS hash prefix
+✓ IPFS hash too short (<4 chars)
+✓ IPFS hash too long (>128 chars)
+✓ Document hash count exceeds 5
 
 ## Issue #939: Admin/Role Management Tests
 
@@ -113,11 +113,11 @@ coverage: {
 - `test:coverage:watch`: Run tests in watch mode with coverage
 
 #### Coverage Thresholds Enforced
-✓ Lines: ≥85%  
-✓ Functions: ≥85%  
-✓ Branches: ≥85%  
-✓ Statements: ≥85%  
-✓ Per-file enforcement: Enabled  
+✓ Lines: ≥85%
+✓ Functions: ≥85%
+✓ Branches: ≥85%
+✓ Statements: ≥85%
+✓ Per-file enforcement: Enabled
 
 ## Issue #941: Unit Tests for Wallet Service
 

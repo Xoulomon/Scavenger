@@ -271,7 +271,7 @@ mod tests {
         let service = DefaultVerificationService::new();
         let result = service.start_verification("test-participant".to_string()).await;
         assert!(result.is_ok());
-        
+
         let verification = result.unwrap();
         assert!(matches!(verification.status, VerificationStatus::Pending));
         assert_eq!(verification.participant_id, "test-participant");
@@ -281,14 +281,14 @@ mod tests {
     async fn test_submit_and_verify_document() {
         let service = DefaultVerificationService::new();
         service.start_verification("test-participant".to_string()).await.unwrap();
-        
+
         let doc = service
             .submit_document("test-participant".to_string(), "passport".to_string(), "http://example.com/doc".to_string())
             .await
             .unwrap();
-        
+
         assert!(!doc.verified);
-        
+
         let verified_doc = service.verify_document(doc.id.clone()).await.unwrap();
         assert!(verified_doc.verified);
     }

@@ -26,4 +26,3 @@ export function OfflineIndicator({ className }: OfflineIndicatorProps) {
     </div>
   )
 }
-

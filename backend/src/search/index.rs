@@ -78,7 +78,7 @@ impl IndexMapping {
             properties: HashMap::new(),
         }
     }
-    
+
     pub fn add_field(mut self, name: String, mapping: FieldMapping) -> Self {
         self.properties.insert(name, mapping);
         self
@@ -95,7 +95,7 @@ impl<'a> SearchIndex<'a> {
     pub fn new(client: &'a Elasticsearch, config: IndexConfig) -> Self {
         Self { client, config }
     }
-    
+
     /// Check if index exists
     pub async fn exists(&self) -> Result<bool> {
         let response = self.client
@@ -104,10 +104,10 @@ impl<'a> SearchIndex<'a> {
             .send()
             .await
             .context("Failed to check index existence")?;
-        
+
         Ok(response.status_code().is_success())
     }
-    
+
     /// Create index with settings and optional mapping
     pub async fn create(&self, mapping: Option<IndexMapping>) -> Result<()> {
         let mut body = json!({
@@ -137,11 +137,11 @@ impl<'a> SearchIndex<'a> {
                 }
             }
         });
-        
+
         if let Some(m) = mapping {
             body["mappings"] = json!(m);
         }
-        
+
         let response = self.client
             .indices()
             .create(IndicesCreateParts::Index(&self.config.name))
@@ -149,16 +149,16 @@ impl<'a> SearchIndex<'a> {
             .send()
             .await
             .context("Failed to create index")?;
-        
+
         if !response.status_code().is_success() {
             let error_body = response.text().await
                 .unwrap_or_else(|_| "Unknown error".to_string());
             return Err(anyhow!("Failed to create index: {}", error_body));
         }
-        
+
         Ok(())
     }
-    
+
     /// Update index mapping
     pub async fn update_mapping(&self, mapping: IndexMapping) -> Result<()> {
         let response = self.client
@@ -168,16 +168,16 @@ impl<'a> SearchIndex<'a> {
             .send()
             .await
             .context("Failed to update mapping")?;
-        
+
         if !response.status_code().is_success() {
             let error_body = response.text().await
                 .unwrap_or_else(|_| "Unknown error".to_string());
             return Err(anyhow!("Failed to update mapping: {}", error_body));
         }
-        
+
         Ok(())
     }
-    
+
     /// Delete the index
     pub async fn delete(&self) -> Result<()> {
         let response = self.client
@@ -186,16 +186,16 @@ impl<'a> SearchIndex<'a> {
             .send()
             .await
             .context("Failed to delete index")?;
-        
+
         if !response.status_code().is_success() {
             let error_body = response.text().await
                 .unwrap_or_else(|_| "Unknown error".to_string());
             return Err(anyhow!("Failed to delete index: {}", error_body));
         }
-        
+
         Ok(())
     }
-    
+
     /// Get index statistics
     pub async fn stats(&self) -> Result<Value> {
         let response = self.client
@@ -204,10 +204,10 @@ impl<'a> SearchIndex<'a> {
             .send()
             .await
             .context("Failed to get index stats")?;
-        
+
         let body = response.json::<Value>().await
             .context("Failed to parse index stats")?;
-        
+
         Ok(body)
     }
 }
@@ -215,7 +215,7 @@ impl<'a> SearchIndex<'a> {
 /// Helper to create common field mappings
 pub mod field_builders {
     use super::*;
-    
+
     pub fn text_field() -> FieldMapping {
         FieldMapping {
             field_type: FieldType::Text,
@@ -225,7 +225,7 @@ pub mod field_builders {
             fields: None,
         }
     }
-    
+
     pub fn keyword_field() -> FieldMapping {
         FieldMapping {
             field_type: FieldType::Keyword,
@@ -235,11 +235,11 @@ pub mod field_builders {
             fields: None,
         }
     }
-    
+
     pub fn text_with_keyword() -> FieldMapping {
         let mut fields = HashMap::new();
         fields.insert("keyword".to_string(), keyword_field());
-        
+
         FieldMapping {
             field_type: FieldType::Text,
             analyzer: Some("standard".to_string()),
@@ -248,7 +248,7 @@ pub mod field_builders {
             fields: Some(fields),
         }
     }
-    
+
     pub fn date_field() -> FieldMapping {
         FieldMapping {
             field_type: FieldType::Date,
@@ -258,7 +258,7 @@ pub mod field_builders {
             fields: None,
         }
     }
-    
+
     pub fn integer_field() -> FieldMapping {
         FieldMapping {
             field_type: FieldType::Integer,
@@ -268,7 +268,7 @@ pub mod field_builders {
             fields: None,
         }
     }
-    
+
     pub fn boolean_field() -> FieldMapping {
         FieldMapping {
             field_type: FieldType::Boolean,
@@ -283,7 +283,7 @@ pub mod field_builders {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_default_config() {
         let config = IndexConfig::default();
@@ -291,14 +291,14 @@ mod tests {
         assert_eq!(config.number_of_shards, 1);
         assert_eq!(config.number_of_replicas, 1);
     }
-    
+
     #[test]
     fn test_mapping_builder() {
         let mapping = IndexMapping::new()
             .add_field("title".to_string(), field_builders::text_field())
             .add_field("status".to_string(), field_builders::keyword_field())
             .add_field("created_at".to_string(), field_builders::date_field());
-        
+
         assert_eq!(mapping.properties.len(), 3);
         assert!(mapping.properties.contains_key("title"));
     }

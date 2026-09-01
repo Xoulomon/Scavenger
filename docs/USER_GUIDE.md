@@ -228,7 +228,7 @@ Incentives encourage waste collection for specific materials.
 4. Click "Create"
 5. Approve transaction
 
-**Example**: 
+**Example**:
 - Waste Type: Plastic
 - Reward: 100 points/kg
 - Budget: 10,000 points (100 kg capacity)
@@ -388,7 +388,7 @@ A: Yes, but each must be registered separately.
 ### Connection Issues
 
 **Problem**: "Wallet not connected"
-- **Solution**: 
+- **Solution**:
   1. Refresh page
   2. Check wallet extension is installed
   3. Ensure wallet is unlocked

@@ -83,7 +83,7 @@ curl "https://friendbot.stellar.org?addr=$(soroban keys address carol)"
 5. Review the estimated coverage (5 kg)
 6. Click "Create Incentive"
 7. Approve transaction
-8. **Expected Output**: 
+8. **Expected Output**:
    - Success notification
    - New incentive card appears
    - Shows: PET Plastic, 10 pts/g, 50000 pts budget, Active status
@@ -196,7 +196,7 @@ curl "https://friendbot.stellar.org?addr=$(soroban keys address carol)"
 #### Step 7.2: Deactivate Incentive
 1. Click "Deactivate" on the incentive
 2. Confirm action
-3. **Expected Output**: 
+3. **Expected Output**:
    - Incentive status: Inactive
    - No longer appears in active incentives list
 

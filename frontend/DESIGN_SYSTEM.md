@@ -102,7 +102,7 @@ import { Button } from '@/components/ui/Button'
 <Button variant="destructive">Delete</Button>
 ```
 
-**Variants:** `primary` | `secondary` | `outline` | `ghost` | `destructive` | `link`  
+**Variants:** `primary` | `secondary` | `outline` | `ghost` | `destructive` | `link`
 **Sizes:** `default` (h-11) | `sm` (h-11 px-3) | `lg` (h-12 px-8) | `icon` (h-10 w-10)
 
 ### Badge

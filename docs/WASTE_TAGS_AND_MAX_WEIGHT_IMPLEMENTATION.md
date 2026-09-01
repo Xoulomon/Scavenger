@@ -33,7 +33,7 @@ pub struct Waste {
 ##### 1. `add_waste_tag(env, waste_id, tag, caller) -> Waste`
 Adds a tag to a waste item with the following behavior:
 - **Normalization**: Tags are converted to lowercase for case-insensitive comparison
-- **Validation**: 
+- **Validation**:
   - Tag cannot be empty
   - Tag length must not exceed 20 characters
   - Maximum 10 tags per waste item

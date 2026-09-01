@@ -40,7 +40,7 @@ import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 
 function MyComponent() {
   const isOnline = useOnlineStatus();
-  
+
   return <div>Status: {isOnline ? 'Online' : 'Offline'}</div>;
 }
 ```
@@ -96,7 +96,7 @@ import { useConnectionQuality } from '@/hooks/useOnlineStatus';
 
 function MyComponent() {
   const { effectiveType, downlink, rtt } = useConnectionQuality();
-  
+
   return (
     <div>
       Connection: {effectiveType} ({downlink}Mbps, {rtt}ms)
@@ -188,10 +188,10 @@ const isSyncing = syncManager.syncing;
 ### Service Worker API
 
 ```typescript
-import { 
+import {
   registerServiceWorker,
   unregisterServiceWorker,
-  checkServiceWorkerSupport 
+  checkServiceWorkerSupport
 } from '@/lib/offline/serviceWorker';
 
 // Register

@@ -37,7 +37,7 @@ impl SearchFilter {
             operator: FilterOperator::And,
         }
     }
-    
+
     pub fn range(field: impl Into<String>, min: Option<Value>, max: Option<Value>) -> Self {
         Self {
             filter: FilterType::Range {
@@ -48,7 +48,7 @@ impl SearchFilter {
             operator: FilterOperator::And,
         }
     }
-    
+
     pub fn exists(field: impl Into<String>) -> Self {
         Self {
             filter: FilterType::Exists {

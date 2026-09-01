@@ -32,17 +32,17 @@ TARGET_GROUPS=$(aws elbv2 describe-target-groups \
 for TG_ARN in $TARGET_GROUPS; do
   echo ""
   echo "Target Group: $TG_ARN"
-  
+
   # Get target health
   TARGETS=$(aws elbv2 describe-target-health \
     --target-group-arn "$TG_ARN" \
     --region "$REGION" \
     --query 'TargetHealthDescriptions[*].[Target.Id,TargetHealth.State,TargetHealth.Reason]' \
     --output text)
-  
+
   HEALTHY=0
   UNHEALTHY=0
-  
+
   while IFS=$'\t' read -r target_id state reason; do
     if [ "$state" = "healthy" ]; then
       echo "  ✓ $target_id: $state"
@@ -52,9 +52,9 @@ for TG_ARN in $TARGET_GROUPS; do
       ((UNHEALTHY++))
     fi
   done <<< "$TARGETS"
-  
+
   echo "  Summary: $HEALTHY healthy, $UNHEALTHY unhealthy"
-  
+
   if [ $UNHEALTHY -gt 0 ]; then
     echo "  ⚠ Warning: Unhealthy targets detected"
   fi

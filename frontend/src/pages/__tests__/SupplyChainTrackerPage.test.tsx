@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { SupplyChainTrackerPage } from '../SupplyChainTrackerPage'
 
 vi.mock('@tanstack/react-query', () => ({
-  useQuery: vi.fn(() => ({ data: { 
+  useQuery: vi.fn(() => ({ data: {
     waste_id: BigInt(1),
     waste_type: 0,
     weight: 500,

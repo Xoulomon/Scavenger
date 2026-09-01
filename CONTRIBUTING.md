@@ -178,6 +178,12 @@ npx eslint .
 npx eslint . --fix  # Auto-fix
 ```
 
+#### Type Safety Notes
+
+- Prefer `unknown` for untrusted external data or JSON payloads that must be validated before use.
+- Use `any` only at explicit integration boundaries where the runtime contract is intentionally dynamic and the value is immediately narrowed.
+- Avoid `unknown` without narrowing; add a guard, schema parse, or typed helper before reading fields.
+
 #### Naming Conventions
 
 - React components: `PascalCase` — `ParticipantForm`, `WasteCard`
@@ -500,7 +506,7 @@ roles and validate their information.
 
 ### Pre-commit Hooks
 
-Install pre-commit hooks to catch issues early:
+This repo uses the `pre-commit` framework as the shared gate for formatting checks before a commit. The hook runs `cargo fmt --check` and a repo-wide `prettier --check` pass across the JavaScript/TypeScript packages that use Prettier.
 
 ```bash
 # Install pre-commit framework
@@ -512,6 +518,14 @@ pre-commit install
 # Run manually
 pre-commit run --all-files
 ```
+
+If a formatting exception is genuinely required, bypass the hook explicitly and include a short explanation in the commit message or PR description:
+
+```bash
+SKIP=cargo-fmt-check,prettier-check git commit -m "chore: allow formatting exception for generated artifact"
+```
+
+This bypass should be rare and justified; the default workflow is to fix the formatting drift rather than skip the gate.
 
 ### CI/CD Pipeline
 

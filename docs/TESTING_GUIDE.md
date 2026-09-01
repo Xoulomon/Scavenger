@@ -65,7 +65,7 @@ mod tests {
         // Arrange
         let env = Env::default();
         let address = Address::random(&env);
-        
+
         // Act
         let result = register_participant(
             &env,
@@ -75,7 +75,7 @@ mod tests {
             0,
             0,
         );
-        
+
         // Assert
         assert!(result.is_ok());
     }
@@ -122,7 +122,7 @@ cargo test -- --test-threads=1
 fn test_submit_material_success() {
     let env = Env::default();
     let submitter = Address::random(&env);
-    
+
     let result = submit_material(
         &env,
         submitter,
@@ -131,7 +131,7 @@ fn test_submit_material_success() {
         0,
         0,
     );
-    
+
     assert!(result.is_ok());
     let waste_id = result.unwrap();
     assert_eq!(waste_id, 1);
@@ -144,7 +144,7 @@ fn test_submit_material_success() {
 fn test_submit_material_unregistered_user() {
     let env = Env::default();
     let unregistered = Address::random(&env);
-    
+
     let result = submit_material(
         &env,
         unregistered,
@@ -153,7 +153,7 @@ fn test_submit_material_unregistered_user() {
         0,
         0,
     );
-    
+
     assert!(result.is_err());
     assert_eq!(result.unwrap_err(), Error::UnregisteredParticipant);
 }
@@ -165,13 +165,13 @@ fn test_submit_material_unregistered_user() {
 fn test_participant_stats_update() {
     let env = Env::default();
     let participant = Address::random(&env);
-    
+
     // Register participant
     register_participant(&env, participant.clone(), ParticipantRole::Recycler, "Test", 0, 0).unwrap();
-    
+
     // Submit material
     submit_material(&env, participant.clone(), WasteType::Plastic, 100, 0, 0).unwrap();
-    
+
     // Verify stats updated
     let stats = get_stats(&env, participant);
     assert_eq!(stats.total_waste_submitted, 100);
@@ -197,7 +197,7 @@ describe('ParticipantForm', () => {
 
   it('should render form fields', () => {
     render(<ParticipantForm onSubmit={mockOnSubmit} />);
-    
+
     expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/role/i)).toBeInTheDocument();
   });
@@ -205,10 +205,10 @@ describe('ParticipantForm', () => {
   it('should call onSubmit with form data', async () => {
     const user = userEvent.setup();
     render(<ParticipantForm onSubmit={mockOnSubmit} />);
-    
+
     await user.type(screen.getByLabelText(/name/i), 'John Doe');
     await user.click(screen.getByRole('button', { name: /submit/i }));
-    
+
     expect(mockOnSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ name: 'John Doe' })
     );
@@ -217,9 +217,9 @@ describe('ParticipantForm', () => {
   it('should display validation errors', async () => {
     const user = userEvent.setup();
     render(<ParticipantForm onSubmit={mockOnSubmit} />);
-    
+
     await user.click(screen.getByRole('button', { name: /submit/i }));
-    
+
     expect(screen.getByText(/name is required/i)).toBeInTheDocument();
   });
 });
@@ -286,20 +286,20 @@ fn test_complete_waste_flow() {
     let env = Env::default();
     let recycler = Address::random(&env);
     let collector = Address::random(&env);
-    
+
     // Register participants
     register_participant(&env, recycler.clone(), ParticipantRole::Recycler, "Recycler", 0, 0).unwrap();
     register_participant(&env, collector.clone(), ParticipantRole::Collector, "Collector", 0, 0).unwrap();
-    
+
     // Submit material
     let waste_id = submit_material(&env, recycler.clone(), WasteType::Plastic, 100, 0, 0).unwrap();
-    
+
     // Verify material
     verify_material(&env, waste_id, collector.clone()).unwrap();
-    
+
     // Transfer waste
     transfer_waste(&env, waste_id, recycler.clone(), collector.clone(), 0, 0, "Transfer".to_string()).unwrap();
-    
+
     // Verify final state
     let waste = get_waste(&env, waste_id).unwrap();
     assert_eq!(waste.owner, collector);
@@ -315,18 +315,18 @@ describe('Participant Registration Flow', () => {
   it('should complete full registration flow', async () => {
     const user = userEvent.setup();
     const mockSubmit = vi.fn().mockResolvedValue({ id: 1 });
-    
+
     render(
       <RegistrationFlow onSuccess={mockSubmit} />
     );
-    
+
     // Fill form
     await user.type(screen.getByLabelText(/name/i), 'John Doe');
     await user.selectOption(screen.getByLabelText(/role/i), 'Recycler');
-    
+
     // Submit
     await user.click(screen.getByRole('button', { name: /register/i }));
-    
+
     // Verify success
     await waitFor(() => {
       expect(screen.getByText(/registration successful/i)).toBeInTheDocument();
@@ -350,19 +350,19 @@ test.describe('Participant Registration E2E', () => {
   test('should register new participant', async ({ page }) => {
     // Navigate to app
     await page.goto('http://localhost:5173');
-    
+
     // Click register button
     await page.click('text=Register');
-    
+
     // Fill form
     await page.fill('input[name="name"]', 'John Doe');
     await page.selectOption('select[name="role"]', 'Recycler');
     await page.fill('input[name="latitude"]', '0');
     await page.fill('input[name="longitude"]', '0');
-    
+
     // Submit
     await page.click('button:has-text("Register")');
-    
+
     // Verify success
     await expect(page).toHaveURL(/.*dashboard/);
     await expect(page.locator('text=Welcome, John')).toBeVisible();
@@ -374,17 +374,17 @@ test.describe('Participant Registration E2E', () => {
     await page.fill('input[name="email"]', 'test@example.com');
     await page.fill('input[name="password"]', 'password');
     await page.click('button:has-text("Login")');
-    
+
     // Navigate to submit
     await page.click('text=Submit Material');
-    
+
     // Fill form
     await page.selectOption('select[name="wasteType"]', 'Plastic');
     await page.fill('input[name="weight"]', '100');
-    
+
     // Submit
     await page.click('button:has-text("Submit")');
-    
+
     // Verify success
     await expect(page.locator('text=Material submitted')).toBeVisible();
   });
@@ -494,7 +494,7 @@ fn test_with_fixtures() {
     let env = fixtures::create_test_env();
     let participant = fixtures::create_test_participant(&env);
     let (waste_type, weight, lat, lon) = fixtures::create_test_waste_data();
-    
+
     // Test implementation
 }
 ```
@@ -532,11 +532,11 @@ export const createMockParticipant = (overrides = {}) => ({
 #[test]
 fn test_with_mock_storage() {
     let env = Env::default();
-    
+
     // Mock storage operations
     let storage = env.storage().persistent();
     storage.set(&DataKey::Participant(address.clone()), &participant);
-    
+
     // Test implementation
 }
 ```
@@ -701,7 +701,7 @@ use test::Bencher;
 fn bench_register_participant(b: &mut Bencher) {
     let env = Env::default();
     let address = Address::random(&env);
-    
+
     b.iter(|| {
         register_participant(
             &env,

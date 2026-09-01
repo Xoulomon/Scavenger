@@ -40,16 +40,16 @@ echo ""
 
 for flag in "${FLAGS[@]}"; do
   echo -e "${BLUE}Checking flag: ${flag}${NC}"
-  
+
   # Count occurrences in code (excluding docs and test files)
   COUNT=$(grep -r --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" --include="*.rs" \
     -l "$flag" . 2>/dev/null | grep -v "node_modules" | grep -v "dist" | grep -v "build" | wc -l)
-  
+
   DOCS_COUNT=$(grep -r --include="*.md" -l "$flag" ./docs 2>/dev/null | wc -l)
   TEST_COUNT=$(grep -r --include="*.test.ts" --include="*.spec.ts" -l "$flag" . 2>/dev/null | wc -l)
-  
+
   TOTAL_COUNT=$((COUNT + DOCS_COUNT + TEST_COUNT))
-  
+
   if [ $TOTAL_COUNT -eq 0 ]; then
     echo -e "  ${RED}❌ Flag found: ${flag} (completely unused)${NC}"
   elif [ $COUNT -eq 0 ] && [ $DOCS_COUNT -gt 0 ]; then

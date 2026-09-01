@@ -1,8 +1,8 @@
 # Scavngr — API Reference Guide
 
-> **Issue:** #534  
-> **Category:** Documentation  
-> **Audience:** Developers integrating with the Scavngr Soroban smart contract  
+> **Issue:** #534
+> **Category:** Documentation
+> **Audience:** Developers integrating with the Scavngr Soroban smart contract
 > **Last Updated:** 2026-05-26
 
 ---
@@ -368,7 +368,7 @@ set_percentages(admin: Address, collector_percentage: u32, owner_percentage: u32
 | `collector_percentage` | `u32` | Share (0–100) for each collector in the transfer chain |
 | `owner_percentage` | `u32` | Share (0–100) for the current waste owner |
 
-**Defaults:** collector = 5%, owner = 50%  
+**Defaults:** collector = 5%, owner = 50%
 **Errors:** `"Total percentages cannot exceed 100"`
 
 ---
@@ -612,7 +612,7 @@ transfer_waste_v2(
 ) → void
 ```
 
-**Valid routes:** Recycler → Collector, Recycler → Manufacturer, Collector → Manufacturer  
+**Valid routes:** Recycler → Collector, Recycler → Manufacturer, Collector → Manufacturer
 **Errors:** `"Invalid transfer: role combination not allowed"`, `"Self-transfer is not allowed"`
 
 ---

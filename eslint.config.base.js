@@ -43,13 +43,13 @@ module.exports = {
       },
     ],
     '@typescript-eslint/no-non-null-assertion': 'warn',
-    
+
     // React
     'react/prop-types': 'off',
     'react/react-in-jsx-scope': 'off',
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
-    
+
     // Import
     'import/no-unresolved': 'error',
     'import/named': 'error',
@@ -58,14 +58,14 @@ module.exports = {
     'import/export': 'error',
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
-    
+
     // General
     'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
     'no-debugger': 'warn',
     'prefer-const': 'error',
     'eqeqeq': ['error', 'always'],
     'curly': ['error', 'all'],
-    
+
     // JSDoc
     'require-jsdoc': 'off',
     'valid-jsdoc': 'off',

@@ -194,7 +194,7 @@ pub fn estimate_query_cost(query_type: &QueryType, result_size: u32) -> u32 {
         QueryType::GetLeaderboard => 100,
         // ...
     };
-    
+
     base_cost + (result_size / 10)
 }
 ```
@@ -317,19 +317,19 @@ impl ScavengerContract {
 pub fn get_participant(env: Env, address: Address) -> Option<Participant> {
     let mut optimizer = Self::init_optimizer(&env);
     let plan = optimizer.optimize(QueryType::GetParticipant, &env);
-    
+
     if plan.use_cache {
         if let Some(p) = CACHE.get(&env, &address) {
             return Some(p);
         }
     }
-    
+
     let participant = env.storage().instance().get(&(address.clone(),))?;
-    
+
     if plan.use_cache {
         CACHE.set(&env, &address, &participant, 1000);
     }
-    
+
     Some(participant)
 }
 ```

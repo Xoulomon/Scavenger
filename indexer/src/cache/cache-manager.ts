@@ -7,11 +7,11 @@ export class CacheManager {
     this.cache = cache;
   }
 
-  async getParticipant(address: string) {
-    return this.cache.get(`participant:${address}`);
+  async getParticipant<T>(address: string): Promise<T | null> {
+    return this.cache.get<T>(`participant:${address}`);
   }
 
-  async setParticipant(address: string, data: any) {
+  async setParticipant<T>(address: string, data: T): Promise<void> {
     return this.cache.set(`participant:${address}`, data, 'participant');
   }
 
@@ -19,11 +19,11 @@ export class CacheManager {
     return this.cache.del(`participant:${address}`);
   }
 
-  async getWaste(wasteId: string) {
-    return this.cache.get(`waste:${wasteId}`);
+  async getWaste<T>(wasteId: string): Promise<T | null> {
+    return this.cache.get<T>(`waste:${wasteId}`);
   }
 
-  async setWaste(wasteId: string, data: any) {
+  async setWaste<T>(wasteId: string, data: T): Promise<void> {
     return this.cache.set(`waste:${wasteId}`, data, 'waste');
   }
 
@@ -31,11 +31,11 @@ export class CacheManager {
     return this.cache.del(`waste:${wasteId}`);
   }
 
-  async getIncentive(incentiveId: string) {
-    return this.cache.get(`incentive:${incentiveId}`);
+  async getIncentive<T>(incentiveId: string): Promise<T | null> {
+    return this.cache.get<T>(`incentive:${incentiveId}`);
   }
 
-  async setIncentive(incentiveId: string, data: any) {
+  async setIncentive<T>(incentiveId: string, data: T): Promise<void> {
     return this.cache.set(`incentive:${incentiveId}`, data, 'incentive');
   }
 
@@ -43,11 +43,11 @@ export class CacheManager {
     return this.cache.del(`incentive:${incentiveId}`);
   }
 
-  async getMetrics() {
-    return this.cache.get('metrics:global');
+  async getMetrics<T>(): Promise<T | null> {
+    return this.cache.get<T>('metrics:global');
   }
 
-  async setMetrics(data: any) {
+  async setMetrics<T>(data: T): Promise<void> {
     return this.cache.set('metrics:global', data, 'metrics');
   }
 

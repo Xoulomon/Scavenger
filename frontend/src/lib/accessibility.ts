@@ -9,13 +9,13 @@ export function trapFocus(element: HTMLElement): () => void {
   const focusableElements = element.querySelectorAll<HTMLElement>(
     'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
   );
-  
+
   const firstElement = focusableElements[0];
   const lastElement = focusableElements[focusableElements.length - 1];
-  
+
   const handleTab = (e: KeyboardEvent) => {
     if (e.key !== 'Tab') return;
-    
+
     if (e.shiftKey) {
       if (document.activeElement === firstElement) {
         e.preventDefault();
@@ -28,10 +28,10 @@ export function trapFocus(element: HTMLElement): () => void {
       }
     }
   };
-  
+
   element.addEventListener('keydown', handleTab);
   firstElement?.focus();
-  
+
   return () => element.removeEventListener('keydown', handleTab);
 }
 
@@ -45,7 +45,7 @@ export function announce(message: string, priority: 'polite' | 'assertive' = 'po
   announcement.setAttribute('aria-atomic', 'true');
   announcement.className = 'sr-only';
   announcement.textContent = message;
-  
+
   document.body.appendChild(announcement);
   setTimeout(() => document.body.removeChild(announcement), 1000);
 }
@@ -71,9 +71,9 @@ export function createListKeyboardHandler<T extends HTMLElement>(
   return (e: KeyboardEvent) => {
     const { loop = true, onSelect } = options || {};
     const currentIndex = items.findIndex((item) => item === document.activeElement);
-    
+
     let nextIndex = currentIndex;
-    
+
     switch (e.key) {
       case 'ArrowDown':
       case 'Down':
@@ -83,7 +83,7 @@ export function createListKeyboardHandler<T extends HTMLElement>(
           nextIndex = loop ? 0 : items.length - 1;
         }
         break;
-        
+
       case 'ArrowUp':
       case 'Up':
         e.preventDefault();
@@ -92,17 +92,17 @@ export function createListKeyboardHandler<T extends HTMLElement>(
           nextIndex = loop ? items.length - 1 : 0;
         }
         break;
-        
+
       case 'Home':
         e.preventDefault();
         nextIndex = 0;
         break;
-        
+
       case 'End':
         e.preventDefault();
         nextIndex = items.length - 1;
         break;
-        
+
       case 'Enter':
       case ' ':
         e.preventDefault();
@@ -110,11 +110,11 @@ export function createListKeyboardHandler<T extends HTMLElement>(
           onSelect(items[currentIndex], currentIndex);
         }
         return;
-        
+
       default:
         return;
     }
-    
+
     items[nextIndex]?.focus();
   };
 }

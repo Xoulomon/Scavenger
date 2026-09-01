@@ -1,7 +1,7 @@
 # Common Operational Procedures
 
-Version: 1.0  
-Last updated: 2026-06-28  
+Version: 1.0
+Last updated: 2026-06-28
 Owner: @on-call-team
 
 ---

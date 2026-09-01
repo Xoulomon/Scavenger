@@ -161,7 +161,7 @@ for i in 0..3 {
     // Confirm
     client.confirm_waste_details(&waste_id, &collector);
     assert!(client.get_waste_v2(&waste_id).unwrap().is_confirmed);
-    
+
     // Reset
     client.reset_waste_confirmation(&waste_id, &recycler);
     assert!(!client.get_waste_v2(&waste_id).unwrap().is_confirmed);

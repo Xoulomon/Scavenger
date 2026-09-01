@@ -27,7 +27,7 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
     try {
       const html5QrCode = new Html5Qrcode('qr-reader');
       setScanner(html5QrCode);
-      
+
       await html5QrCode.start(
         { facingMode: 'environment' },
         { fps: 10, qrbox: { width: 250, height: 250 } },
@@ -40,7 +40,7 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
           // Ignore scan errors
         }
       );
-      
+
       setScanning(true);
       setError(null);
     } catch (err) {
@@ -67,7 +67,7 @@ export function QRScanner({ onScan, onClose }: QRScannerProps) {
     <Card className="p-6">
       <div className="space-y-4">
         <h2 className="text-2xl font-bold">Scan QR Code</h2>
-        
+
         {error && (
           <div className="p-3 bg-red-100 text-red-700 rounded">{error}</div>
         )}

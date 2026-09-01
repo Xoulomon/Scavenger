@@ -105,7 +105,7 @@ pub fn submit_material(
 
     // Store waste
     Self::set_waste(&env, waste_id, &material);
-    
+
     material
 }
 ```
@@ -126,10 +126,10 @@ pub fn submit_materials_batch(
 
     for item in materials.iter() {
         let (waste_type, weight, description) = item;
-        
+
         // Each material gets a unique sequential ID
         let waste_id = Self::next_waste_id(&env);
-        
+
         let material = Material::new(
             waste_id,
             waste_type,

@@ -2,7 +2,7 @@
 
 ## Environments
 - dev: Development
-- staging: Staging/QA  
+- staging: Staging/QA
 - prod: Production
 
 ## Environment-Specific Variables

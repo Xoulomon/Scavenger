@@ -123,7 +123,7 @@ pub fn get_transfer_history(env: Env, waste_id: u64) -> Vec<WasteTransfer>
 
 Retrieves the complete transfer history for a waste item.
 
-**Returns:** 
+**Returns:**
 - Vector of WasteTransfer records in chronological order
 - Empty vector if no transfers have occurred
 
@@ -258,7 +258,7 @@ for (i, transfer) in history.iter().enumerate() {
         transfer.to,
         transfer.transferred_at
     );
-    
+
     // Verify each participant in chain
     assert!(client.is_participant_registered(&transfer.from));
     assert!(client.is_participant_registered(&transfer.to));

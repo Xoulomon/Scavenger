@@ -341,7 +341,7 @@ Incentive { is_active: true, budget: N }
 ```rust
 pub fn calculate_incentive_reward(incentive_id: u64, waste_amount: u64) -> u64 {
     let incentive = get_incentive(incentive_id);
-    
+
     // Find highest applicable tier
     let rate = incentive.tiers
         .iter()
@@ -349,7 +349,7 @@ pub fn calculate_incentive_reward(incentive_id: u64, waste_amount: u64) -> u64 {
         .map(|t| t.reward_points)
         .max()
         .unwrap_or(incentive.reward_points); // Fall back to base rate
-    
+
     rate * waste_amount
 }
 ```
@@ -412,28 +412,28 @@ distribute_rewards(waste_id, incentive_id, manufacturer)
 fn _reward_tokens(env: &Env, waste_id: u64, total_reward: u128) {
     let cfg = get_reward_config(env);
     let waste = get_waste(env, waste_id);
-    
+
     // Owner share
     let owner_amount = total_reward * cfg.owner_pct as u128 / 100;
-    
+
     // Collector share (last address in transfer history with Collector role)
     let collector_amount = total_reward * cfg.collector_pct as u128 / 100;
     let collector = get_last_collector_from_history(env, waste_id);
-    
+
     // Execute token transfers via Soroban token interface
     let token = token::Client::new(env, &get_token_address(env));
     token.transfer(&env.current_contract_address(), &waste.owner, &(owner_amount as i128));
     if let Some(collector_addr) = collector {
         token.transfer(&env.current_contract_address(), &collector_addr, &(collector_amount as i128));
     }
-    
+
     // Update participant earnings records
     update_participant_earnings(env, &waste.owner, owner_amount as i128);
-    
+
     // Update global metrics
     let total: u128 = env.storage().instance().get(&TOTAL_TOKENS).unwrap_or(0);
     env.storage().instance().set(&TOTAL_TOKENS, &(total + total_reward));
-    
+
     // Emit event
     events::emit_tokens_rewarded(env, &waste.owner, total_reward, waste_id);
 }

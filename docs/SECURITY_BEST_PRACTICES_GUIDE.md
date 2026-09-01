@@ -103,7 +103,7 @@ fn hash_password(password: &str) -> Result<String, Error> {
     hasher.update(&salt);
     hasher.update(password.as_bytes());
     let hash = hasher.finalize();
-    
+
     Ok(format!("{}${}", hex::encode(salt), hex::encode(hash)))
 }
 
@@ -113,13 +113,13 @@ fn verify_password(password: &str, hash: &str) -> Result<bool, Error> {
     if parts.len() != 2 {
         return Err(Error::InvalidHash);
     }
-    
+
     let salt = hex::decode(parts[0])?;
     let mut hasher = Sha256::new();
     hasher.update(&salt);
     hasher.update(password.as_bytes());
     let computed_hash = hex::encode(hasher.finalize());
-    
+
     Ok(computed_hash == parts[1])
 }
 ```
@@ -165,7 +165,7 @@ import StellarSdk from 'stellar-sdk';
 
 async function authenticateWithWallet() {
   const server = new StellarSdk.Server('https://horizon-testnet.stellar.org');
-  
+
   // Generate challenge
   const challenge = StellarSdk.Utils.buildChallenge({
     serverPublicKey: SERVER_PUBLIC_KEY,
@@ -174,17 +174,17 @@ async function authenticateWithWallet() {
     web_auth_domain: 'scavenger.app',
     timeout: 300,
   });
-  
+
   // User signs challenge with their wallet
   const signedChallenge = await wallet.signTransaction(challenge);
-  
+
   // Verify signature server-side
   const keypair = StellarSdk.Keypair.fromPublicKey(userPublicKey);
   const valid = keypair.verify(
     challenge.hash(),
     signedChallenge.signature
   );
-  
+
   if (valid) {
     // Issue JWT token
     const token = jwt.sign(
@@ -229,9 +229,9 @@ async function setupTOTP(userId: string) {
     issuer: 'Scavenger',
     length: 32,
   });
-  
+
   const qrCode = await QRCode.toDataURL(secret.otpauth_url);
-  
+
   return {
     secret: secret.base32,
     qrCode,
@@ -260,11 +260,11 @@ fn encrypt_sensitive_data(data: &str, key: &[u8; 32]) -> Result<Vec<u8>, Error> 
     let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(key));
     let nonce_bytes = rand::thread_rng().gen::<[u8; 12]>();
     let nonce = Nonce::from_slice(&nonce_bytes);
-    
+
     let ciphertext = cipher
         .encrypt(nonce, data.as_bytes())
         .map_err(|_| Error::EncryptionFailed)?;
-    
+
     // Prepend nonce to ciphertext
     let mut result = nonce_bytes.to_vec();
     result.extend(ciphertext);
@@ -275,15 +275,15 @@ fn decrypt_sensitive_data(encrypted: &[u8], key: &[u8; 32]) -> Result<String, Er
     if encrypted.len() < 12 {
         return Err(Error::InvalidEncrypted);
     }
-    
+
     let (nonce_bytes, ciphertext) = encrypted.split_at(12);
     let cipher = Aes256Gcm::new(Key::<Aes256Gcm>::from_slice(key));
     let nonce = Nonce::from_slice(nonce_bytes);
-    
+
     let plaintext = cipher
         .decrypt(nonce, ciphertext)
         .map_err(|_| Error::DecryptionFailed)?;
-    
+
     Ok(String::from_utf8(plaintext)?)
 }
 ```
@@ -307,7 +307,7 @@ async fn main() -> std::io::Result<()> {
         .with_safe_defaults()
         .with_no_client_auth()
         .with_single_cert(certs, key)?;
-    
+
     HttpServer::new(|| App::new().service(routes))
         .bind_rustls("0.0.0.0:443", config)?
         .run()
@@ -336,7 +336,7 @@ pub async fn delete_old_data(days: i64) -> Result<(), Error> {
     .bind(days)
     .execute(&pool)
     .await?;
-    
+
     Ok(())
 }
 ```
@@ -400,7 +400,7 @@ async function getPrivateKey() {
   const secret = await secretsManager.getSecretValue({
     SecretId: 'stellar/private-key',
   }).promise();
-  
+
   return secret.SecretString;
 }
 ```
@@ -415,14 +415,14 @@ async function signTransaction(transaction: Transaction) {
   console.log(`- Destination: ${transaction.destination}`);
   console.log(`- Amount: ${transaction.amount} XLM`);
   console.log(`- Fee: ${transaction.fee} stroops`);
-  
+
   // Get user confirmation
   const confirmed = await getUserConfirmation();
-  
+
   if (!confirmed) {
     throw new Error('Transaction cancelled by user');
   }
-  
+
   // Sign with wallet
   return wallet.signTransaction(transaction);
 }
@@ -512,7 +512,7 @@ pub fn submit_material(env: Env, submitter: Address, ...) -> Result<u64, Error> 
     // 3. Authorize by role
     let participant = Self::get_participant(env.clone(), submitter.clone())
         .ok_or(Error::NotRegistered)?;
-    
+
     if participant.role != ParticipantRole::Recycler {
         return Err(Error::UnauthorizedRole);
     }
@@ -531,7 +531,7 @@ fn require_admin(env: &Env, caller: &Address) {
         .instance()
         .get(&ADMINS)
         .unwrap_or_default();
-    
+
     if !admins.contains(caller) {
         panic!("Caller is not an admin");
     }
@@ -593,10 +593,10 @@ Incentive updates and deactivations must be performed only by the original creat
 ```rust
 pub fn update_incentive(env: Env, incentive_id: u64, rewarder: Address, ...) {
     rewarder.require_auth();
-    
+
     let incentive = Self::get_incentive(&env, incentive_id)
         .ok_or(Error::IncentiveNotFound)?;
-    
+
     // Only the original rewarder may modify their incentive
     if incentive.rewarder != rewarder {
         return Err(Error::NotIncentiveOwner);
@@ -617,11 +617,11 @@ pub async fn require_role(
 ) -> Result<ServiceResponse, Error> {
     let token = extract_bearer_token(&req)?;
     let claims = verify_jwt(token)?;
-    
+
     if claims.role != role {
         return Err(error::ErrorForbidden("Insufficient role"));
     }
-    
+
     srv.call(req).await
 }
 

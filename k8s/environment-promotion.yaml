@@ -9,74 +9,74 @@ data:
     set -e
     ENVIRONMENT=staging
     echo "Promoting to staging environment..."
-    
+
     # Get current deployed version from prod
     PROD_VERSION=$(kubectl get deployment scavenger-backend -n prod \
       -o jsonpath='{.spec.template.spec.containers[0].image}' | cut -d':' -f2)
-    
+
     echo "Current prod version: $PROD_VERSION"
-    
+
     # Build and push new image
     docker build -t scavenger-backend:$PROD_VERSION .
     docker tag scavenger-backend:$PROD_VERSION \
       $REGISTRY/scavenger-backend:$PROD_VERSION
     docker push $REGISTRY/scavenger-backend:$PROD_VERSION
-    
+
     # Deploy to staging
     kubectl set image deployment/scavenger-backend \
       scavenger-backend=$REGISTRY/scavenger-backend:$PROD_VERSION \
       -n staging
-    
+
     # Wait for rollout
     kubectl rollout status deployment/scavenger-backend -n staging --timeout=5m
-    
+
     echo "✅ Successfully promoted to staging"
-  
+
   promote-to-prod.sh: |
     #!/bin/bash
     set -e
     echo "Promoting to production environment..."
-    
+
     # Get staging version
     STAGING_VERSION=$(kubectl get deployment scavenger-backend -n staging \
       -o jsonpath='{.spec.template.spec.containers[0].image}' | cut -d':' -f2)
-    
+
     echo "Current staging version: $STAGING_VERSION"
-    
+
     # Create backup of current production
     kubectl get all -n prod -o yaml > /tmp/prod-backup-$(date +%s).yaml
-    
+
     # Blue-green deployment
     kubectl set image deployment/scavenger-backend-green \
       scavenger-backend=$REGISTRY/scavenger-backend:$STAGING_VERSION \
       -n prod
-    
+
     # Wait for green to be ready
     kubectl rollout status deployment/scavenger-backend-green -n prod --timeout=5m
-    
+
     # Run smoke tests
     TEST_RESULT=$(curl -s http://scavenger-backend-green:8080/health | jq '.status')
     if [ "$TEST_RESULT" != '"healthy"' ]; then
       echo "❌ Health check failed"
       exit 1
     fi
-    
+
     # Switch traffic to green
     kubectl patch service scavenger-backend -n prod -p '{"spec":{"selector":{"version":"green"}}}'
-    
+
     echo "✅ Successfully promoted to production (green)"
-  
+
   rollback-prod.sh: |
     #!/bin/bash
     set -e
     echo "Rolling back production..."
-    
+
     # Switch traffic back to blue
     kubectl patch service scavenger-backend -n prod -p '{"spec":{"selector":{"version":"blue"}}}'
-    
+
     # Wait for stability
     sleep 30
-    
+
     # Verify
     HEALTH=$(curl -s http://scavenger-backend:8080/health | jq '.status')
     if [ "$HEALTH" == '"healthy"' ]; then

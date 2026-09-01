@@ -59,7 +59,7 @@ persistQueryClient({
     persistClient: async (client) => {
       const db = await getDB()
       const queries = client.getQueryCache().getAll()
-      
+
       for (const query of queries) {
         if (query.state.status === 'success' && query.state.data) {
           await setQueryData(
@@ -74,13 +74,13 @@ persistQueryClient({
       const db = await getDB()
       const tx = db.transaction('queries', 'readonly')
       const store = tx.objectStore('queries')
-      
+
       const queries: Record<string, any> = {}
-      
+
       for await (const cursor of store) {
         queries[cursor.key] = cursor.value
       }
-      
+
       await tx.done
       return queries
     },

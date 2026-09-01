@@ -1,7 +1,7 @@
 # Troubleshooting Guide
 
-Version: 1.0  
-Last updated: 2026-06-28  
+Version: 1.0
+Last updated: 2026-06-28
 Owner: @on-call-team
 
 Use this guide to diagnose symptoms. For active incidents follow [incident-response.md](./incident-response.md) in parallel.

@@ -1,7 +1,7 @@
 # Scavngr API Reference
 
-> **Issue:** #752  
-> **Version:** v1.0.1  
+> **Issue:** #752
+> **Version:** v1.0.1
 > **Last Updated:** 2026-07-24
 
 ---

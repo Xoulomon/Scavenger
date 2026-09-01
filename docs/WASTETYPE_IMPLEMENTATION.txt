@@ -22,7 +22,7 @@ WASTETYPE ENUM IMPLEMENTATION - COMPLETE
    - from_u32(u32) -> Option<Self>: Safe conversion from u32
    - to_u32(&self) -> u32: Convert to u32
    - as_str(&self) -> &'static str: Get string representation
-   
+
 5. Domain-Specific Methods
    - is_plastic() -> bool: Checks if waste is plastic type
    - is_biodegradable() -> bool: Checks if waste is biodegradable

@@ -134,13 +134,13 @@ export const bottleneckTest = {
 export function testParticipantEndpoint() {
   group('Participant Endpoint', () => {
     const userId = `user_${__VU}_${__ITER}`;
-    
+
     let res = http.get(`${BASE_URL}/participants/${userId}`);
     check(res, {
       'status is 200': (r) => r.status === 200 || r.status === 404,
       'response time < 500ms': (r) => r.timings.duration < 500
     });
-    
+
     apiDuration.add(res.timings.duration);
     if (res.status >= 400) {
       errorRate.add(1);
@@ -157,7 +157,7 @@ export function testWasteEndpoint() {
       'status is 200': (r) => r.status === 200,
       'response time < 500ms': (r) => r.timings.duration < 500
     });
-    
+
     apiDuration.add(res.timings.duration);
     if (res.status >= 400) {
       errorRate.add(1);
@@ -174,7 +174,7 @@ export function testIncentiveEndpoint() {
       'status is 200': (r) => r.status === 200,
       'response time < 500ms': (r) => r.timings.duration < 500
     });
-    
+
     apiDuration.add(res.timings.duration);
     if (res.status >= 400) {
       errorRate.add(1);
@@ -191,7 +191,7 @@ export function testMetricsEndpoint() {
       'status is 200': (r) => r.status === 200,
       'response time < 500ms': (r) => r.timings.duration < 500
     });
-    
+
     apiDuration.add(res.timings.duration);
     if (res.status >= 400) {
       errorRate.add(1);

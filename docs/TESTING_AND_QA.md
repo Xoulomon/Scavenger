@@ -106,10 +106,10 @@ fn test_participant_registration() {
     let env = Env::default();
     let contract_id = env.register_contract(None, ScavngrContract);
     let client = ScavngrContractClient::new(&env, &contract_id);
-    
+
     let participant_address = Address::random(&env);
     let role = ParticipantRole::Recycler;
-    
+
     client.register_participant(
         &participant_address,
         &role,
@@ -117,7 +117,7 @@ fn test_participant_registration() {
         &40.7128,
         &-74.006,
     );
-    
+
     let participant = client.get_participant(&participant_address);
     assert_eq!(participant.role, role);
     assert_eq!(participant.name, "Test Recycler");

@@ -28,8 +28,8 @@ Successfully implemented four frontend features for the Scavenger platform acros
 ```tsx
 import VerificationBadge from '@/components/ui/VerificationBadge';
 
-<VerificationBadge 
-  isVerified={true} 
+<VerificationBadge
+  isVerified={true}
   verificationLevel="premium"
   animated={true}
 />
@@ -61,7 +61,7 @@ import { WasteFilterManager } from '@/lib/wasteFilterManager';
 import WasteFilterUI from '@/components/ui/WasteFilterUI';
 
 const filterManager = WasteFilterManager({ onFilterChange });
-<WasteFilterUI 
+<WasteFilterUI
   filters={filterManager.filters}
   onFilterChange={filterManager.updateFilter}
   presets={filterManager.presets}
@@ -92,7 +92,7 @@ const filterManager = WasteFilterManager({ onFilterChange });
 ```tsx
 import PDFExportUI from '@/components/ui/PDFExportUI';
 
-<PDFExportUI 
+<PDFExportUI
   wastes={wasteData}
   analytics={analyticsData}
 />
@@ -124,7 +124,7 @@ import PDFExportUI from '@/components/ui/PDFExportUI';
 ```tsx
 import BatchOperationsUI from '@/components/ui/BatchOperationsUI';
 
-<BatchOperationsUI 
+<BatchOperationsUI
   selectedCount={selectedCount}
   totalCount={totalCount}
   onSelectAll={handleSelectAll}

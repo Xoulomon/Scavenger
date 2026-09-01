@@ -194,7 +194,7 @@ node dist/index.js --start-block <checkpoint>
 ### Alert Thresholds
 ```yaml
 alerts:
-  database_down: 
+  database_down:
     threshold: immediate
     action: page on-call
   backup_failure:

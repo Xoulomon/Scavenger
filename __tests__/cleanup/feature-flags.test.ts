@@ -17,18 +17,18 @@ describe('Feature Flag Cleanup', () => {
 
     function scanDir(dir: string) {
       if (!fs.existsSync(dir)) return;
-      
+
       const files = fs.readdirSync(dir);
-      
+
       for (const file of files) {
         const fullPath = path.join(dir, file);
         const stat = fs.statSync(fullPath);
-        
+
         if (stat.isDirectory()) {
           scanDir(fullPath);
         } else if (stat.isFile() && /\.(ts|tsx|js|jsx|rs)$/.test(file)) {
           const content = fs.readFileSync(fullPath, 'utf-8');
-          
+
           for (const flag of removedFlags) {
             if (content.includes(flag)) {
               foundCount++;
@@ -50,18 +50,18 @@ describe('Feature Flag Cleanup', () => {
 
     function scanDir(dir: string) {
       if (!fs.existsSync(dir)) return;
-      
+
       const files = fs.readdirSync(dir);
-      
+
       for (const file of files) {
         const fullPath = path.join(dir, file);
         const stat = fs.statSync(fullPath);
-        
+
         if (stat.isDirectory()) {
           scanDir(fullPath);
         } else if (stat.isFile() && /\.(ts|tsx|js|jsx|rs)$/.test(file)) {
           const content = fs.readFileSync(fullPath, 'utf-8');
-          
+
           for (const flag of activeFlags) {
             if (content.includes(flag)) {
               foundActive++;

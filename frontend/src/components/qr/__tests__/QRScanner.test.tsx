@@ -20,10 +20,10 @@ describe('QRScanner', () => {
     render(<QRScanner onScan={mockOnScan} onClose={mockOnClose} />);
     const input = screen.getByPlaceholderText('Enter waste ID');
     const submitBtn = screen.getByText('Submit');
-    
+
     fireEvent.change(input, { target: { value: 'WASTE123' } });
     fireEvent.click(submitBtn);
-    
+
     expect(mockOnScan).toHaveBeenCalledWith('WASTE123');
   });
 
@@ -41,9 +41,9 @@ describe('QRScanner', () => {
   it('should not submit empty manual code', () => {
     render(<QRScanner onScan={mockOnScan} onClose={mockOnClose} />);
     const submitBtn = screen.getByText('Submit');
-    
+
     fireEvent.click(submitBtn);
-    
+
     expect(mockOnScan).not.toHaveBeenCalled();
   });
 });

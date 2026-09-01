@@ -20,7 +20,7 @@
    ```bash
    # Review version updates
    git diff
-   
+
    # Review release notes
    cat RELEASE_NOTES_v*.md
    ```

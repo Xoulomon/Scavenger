@@ -75,7 +75,7 @@ export function TransferWizard({ onComplete, onCancel }: { onComplete: (data: Tr
   return (
     <Card className="p-6 max-w-4xl mx-auto">
       <ProgressIndicator steps={STEPS} currentStep={currentStep} />
-      
+
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
         <CurrentStepComponent
           register={register}

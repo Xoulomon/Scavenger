@@ -11,12 +11,12 @@ PROFILE="${AWS_PROFILE:-default}"
 
 failover_to_secondary() {
   echo "Initiating failover from $PRIMARY_REGION to $SECONDARY_REGION..."
-  
+
   echo "Checking secondary region health..."
   aws route53 health-check-status \
     --health-check-id "$(aws route53 list-health-checks --query "HealthChecks[?HealthCheckConfig.FullyQualifiedDomainName=='$SECONDARY_REGION-scavenger.$DOMAIN'].Id" --output text --profile "$PROFILE")" \
     --profile "$PROFILE"
-  
+
   echo "Updating Route53 failover records..."
   aws route53 change-resource-record-sets \
     --hosted-zone-id "$(aws route53 list-hosted-zones-by-name --dns-name "$DOMAIN" --query "HostedZones[0].Id" --output text --profile "$PROFILE")" \
@@ -59,7 +59,7 @@ failover_to_secondary() {
       ]
     }' \
     --profile "$PROFILE"
-  
+
   echo "Failover to $SECONDARY_REGION complete"
 }
 
@@ -86,7 +86,7 @@ failover_to_primary() {
       ]
     }' \
     --profile "$PROFILE"
-  
+
   echo "Failback to $PRIMARY_REGION complete"
 }
 
@@ -95,10 +95,10 @@ status() {
   echo "Primary region: $PRIMARY_REGION"
   echo "Secondary region: $SECONDARY_REGION"
   echo ""
-  
+
   echo "Route53 health checks:"
   aws route53 list-health-checks --query "HealthChecks[?contains(HealthCheckConfig.FullyQualifiedDomainName, 'scavenger')].[Id,HealthCheckConfig.FullyQualifiedDomainName,HealthCheckConfig.Type]" --output table --profile "$PROFILE"
-  
+
   echo ""
   echo "VPC Peering connections:"
   aws ec2 describe-vpc-peering-connections --filters "Name=tag:Project,Values=scavenger" --query "VpcPeeringConnections[*].[VpcPeeringConnectionId,Status.Code]" --output table --profile "$PROFILE" --region "$PRIMARY_REGION"

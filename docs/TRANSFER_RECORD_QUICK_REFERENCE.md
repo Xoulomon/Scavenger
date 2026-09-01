@@ -209,12 +209,12 @@ fn test_transfer_workflow() {
     let from = Address::generate(&env);
     let to = Address::generate(&env);
     let note = String::from_str(&env, "Test");
-    
+
     let mut record = TransferRecord::new(
         1, from, to, TransferItemType::Material,
         10, 1000, 0, note
     );
-    
+
     assert!(record.validate().is_ok());
     assert!(record.update_status(TransferStatus::Completed));
     assert!(record.is_complete());

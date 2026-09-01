@@ -15,7 +15,7 @@ export function LocationStep({ register, errors, formData }: LocationStepProps) 
     }
     setLocating(true);
     setLocError(null);
-    
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const lat = pos.coords.latitude.toFixed(6);

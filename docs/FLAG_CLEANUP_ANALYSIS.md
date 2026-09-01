@@ -73,7 +73,7 @@ import { useFeatureFlag } from '../hooks/useFeatureFlag';
 
 function MyComponent() {
   const isEnabled = useFeatureFlag('new_feature');
-  
+
   return (
     <div>
       {isEnabled && <NewFeature />}

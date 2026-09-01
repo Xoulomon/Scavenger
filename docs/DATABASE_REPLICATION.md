@@ -125,7 +125,7 @@ reserve_pool_timeout = 3
 
 #### Check Replication Status
 ```sql
-SELECT 
+SELECT
   client_addr,
   state,
   sync_state,
@@ -137,13 +137,13 @@ FROM pg_stat_replication;
 
 #### Monitor Replication Lag
 ```sql
-SELECT 
+SELECT
   EXTRACT(EPOCH FROM (NOW() - pg_last_xact_replay_timestamp())) as replication_lag_seconds;
 ```
 
 #### Check WAL Position
 ```sql
-SELECT 
+SELECT
   pg_current_wal_lsn() as current_wal,
   pg_last_wal_receive_lsn() as receive_lsn,
   pg_last_wal_replay_lsn() as replay_lsn;

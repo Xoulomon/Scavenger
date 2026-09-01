@@ -1,8 +1,8 @@
 # Scavngr — Deployment Runbook
 
-> **Issue:** #535  
-> **Category:** Operations  
-> **Audience:** DevOps engineers and release managers  
+> **Issue:** #535
+> **Category:** Operations
+> **Audience:** DevOps engineers and release managers
 > **Last Updated:** 2026-05-26
 
 ---

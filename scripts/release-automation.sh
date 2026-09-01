@@ -50,9 +50,9 @@ fetch_latest() {
 calculate_new_version() {
   local current_version
   current_version=$(grep -oP 'version:\s*\K[0-9]+\.[0-9]+\.[0-9]+' k8s/Chart.yaml 2>/dev/null || echo "1.0.0")
-  
+
   IFS='.' read -r major minor patch <<< "$current_version"
-  
+
   case "$RELEASE_TYPE" in
     major)
       major=$((major + 1))
@@ -67,7 +67,7 @@ calculate_new_version() {
       patch=$((patch + 1))
       ;;
   esac
-  
+
   NEW_VERSION="${major}.${minor}.${patch}"
   echo "$NEW_VERSION"
 }
@@ -76,17 +76,17 @@ update_version_files() {
   local version=$1
   local date
   date=$(date +%Y-%m-%d)
-  
+
   echo ""
   echo "Updating version to $version..."
-  
+
   # Update Helm chart
   if [ -f k8s/Chart.yaml ]; then
     sed -i "s/^version:.*/version: $version/" k8s/Chart.yaml
     sed -i "s/^appVersion:.*/appVersion: \"$version\"/" k8s/Chart.yaml
     echo "✓ Updated k8s/Chart.yaml"
   fi
-  
+
   # Update package.json files
   find . -name "package.json" -not -path "*/node_modules/*" -exec sh -c '
     if grep -q "\"version\":" "$1"; then
@@ -94,7 +94,7 @@ update_version_files() {
       echo "✓ Updated $1"
     fi
   ' _ {} \;
-  
+
   # Create git tag
   git tag -a "v$version" -m "Release v$version - $date"
   echo "✓ Created git tag: v$version"
@@ -103,19 +103,19 @@ update_version_files() {
 build_artifacts() {
   echo ""
   echo "Building release artifacts..."
-  
+
   # Build backend
   if [ -d backend ]; then
     echo "Building backend..."
     (cd backend && cargo build --release 2>/dev/null) && echo "✓ Backend built" || echo "⚠ Backend build skipped"
   fi
-  
+
   # Build frontend
   if [ -d frontend ]; then
     echo "Building frontend..."
     (cd frontend && npm ci && npm run build 2>/dev/null) && echo "✓ Frontend built" || echo "⚠ Frontend build skipped"
   fi
-  
+
   # Build contract
   if [ -d stellar-contract ]; then
     echo "Building contract..."
@@ -126,13 +126,13 @@ build_artifacts() {
 generate_release_notes() {
   local version=$1
   local output_file="RELEASE_NOTES_v${version}.md"
-  
+
   echo ""
   echo "Generating release notes..."
-  
+
   local previous_tag
   previous_tag=$(git tag --sort=-version:refname | head -2 | tail -1 || echo "")
-  
+
   cat > "$output_file" << NOTESEOF
 # Release v$version
 

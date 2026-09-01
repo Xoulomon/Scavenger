@@ -421,26 +421,26 @@ fn test_complete_waste_lifecycle() {
     let env = Env::default();
     env.mock_all_auths();
     let client = setup(&env);
-    
+
     // 1. Submit waste
     let waste_id = client.recycle_waste(&WasteType::Plastic, &1000, &recycler, &lat, &lon);
-    
+
     // 2. Add hashes
     client.set_waste_image(&waste_id, &image_hash, &recycler);
     client.add_waste_document(&waste_id, &doc_hash, &recycler);
-    
+
     // 3. Confirm
     client.confirm_waste_details(&waste_id, &collector);
-    
+
     // 4. Transfer
     let pending = client.initiate_transfer(&waste_id, &recycler, &collector, &lat, &lon);
     client.approve_transfer(&pending.id, &collector);
-    
+
     // 5. Process
     client.update_processing_status(&waste_id, &collector, &ProcessingStatus::Sorted);
     client.update_processing_status(&waste_id, &collector, &ProcessingStatus::Processed);
     client.update_processing_status(&waste_id, &collector, &ProcessingStatus::Recycled);
-    
+
     // 6. Verify final state
     let waste = client.get_waste_v2(&waste_id).unwrap();
     assert!(waste.is_confirmed);

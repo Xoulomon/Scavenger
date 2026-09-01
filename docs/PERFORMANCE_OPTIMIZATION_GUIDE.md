@@ -183,18 +183,18 @@ pub async fn get_participant_cached(
     participant_id: &str,
 ) -> Result<Participant> {
     let cache_key = format!("participant:{}", participant_id);
-    
+
     // Try cache first
     if let Ok(cached) = redis.get::<_, String>(&cache_key) {
         return Ok(serde_json::from_str(&cached)?);
     }
-    
+
     // Fetch from DB
     let participant = fetch_from_db(participant_id).await?;
-    
+
     // Cache for 1 hour
     redis.set_ex(&cache_key, serde_json::to_string(&participant)?, 3600)?;
-    
+
     Ok(participant)
 }
 ```
@@ -209,10 +209,10 @@ pub async fn update_participant(
 ) -> Result<()> {
     // Update database
     update_in_db(participant_id, &data).await?;
-    
+
     // Invalidate cache
     redis.del(format!("participant:{}", participant_id))?;
-    
+
     Ok(())
 }
 ```
@@ -245,12 +245,12 @@ pub async fn rate_limit_middleware(
     srv: &mut dyn Service<ServiceRequest, Response = ServiceResponse, Error = Error>,
 ) -> Result<ServiceResponse, Error> {
     let key = req.connection_info().peer_addr().unwrap_or("unknown");
-    
+
     // Check rate limit (e.g., 100 requests per minute)
     if !check_rate_limit(key, 100, 60) {
         return Err(error::ErrorTooManyRequests("Rate limit exceeded"));
     }
-    
+
     srv.call(req).await
 }
 ```
@@ -267,11 +267,11 @@ pub fn submit_waste(env: &Env, waste: Waste) -> Result<u64, Error> {
     let mut counter = get_waste_counter(&env)?;
     counter += 1;
     set_waste_counter(&env, counter)?;  // Write 1
-    
+
     let mut wastes = get_all_wastes(&env)?;
     wastes.push(waste);
     set_all_wastes(&env, wastes)?;  // Write 2
-    
+
     Ok(counter)
 }
 
@@ -279,11 +279,11 @@ pub fn submit_waste(env: &Env, waste: Waste) -> Result<u64, Error> {
 pub fn submit_waste(env: &Env, waste: Waste) -> Result<u64, Error> {
     let counter = get_waste_counter(&env)?;
     let new_counter = counter + 1;
-    
+
     // Single storage write with both updates
     env.storage().persistent().set(&DataKey::WasteCounter, &new_counter);
     env.storage().persistent().set(&DataKey::Waste(new_counter), &waste);
-    
+
     Ok(new_counter)
 }
 ```
@@ -315,14 +315,14 @@ pub fn submit_materials_batch(
 ) -> Result<Vec<u64>, Error> {
     let mut ids = Vec::new();
     let mut counter = get_waste_counter(&env)?;
-    
+
     for material in materials {
         counter += 1;
         let waste = Waste::from(material);
         env.storage().persistent().set(&DataKey::Waste(counter), &waste);
         ids.push(counter);
     }
-    
+
     env.storage().persistent().set(&DataKey::WasteCounter, &counter);
     Ok(ids)
 }

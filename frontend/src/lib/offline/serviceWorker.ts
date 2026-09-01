@@ -35,7 +35,7 @@ export async function registerServiceWorker(config?: ServiceWorkerConfig): Promi
 async function registerValidSW(swUrl: string, config?: ServiceWorkerConfig): Promise<void> {
   try {
     const registration = await navigator.serviceWorker.register(swUrl);
-    
+
     registration.onupdatefound = () => {
       const installingWorker = registration.installing;
       if (installingWorker == null) {

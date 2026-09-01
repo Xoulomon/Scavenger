@@ -1,15 +1,18 @@
 repos:
-  - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.83.0
+  - repo: local
     hooks:
-      - id: terraform_fmt
-      - id: terraform_validate
-      - id: terraform_tfsec
-      - id: terraform_docs
-        args:
-          - --hook-config=--path-to-file=README.md
-          - --hook-config=--add-to-existing-file=true
-          - --hook-config=--create-file-if-not-exist=true
+      - id: cargo-fmt-check
+        name: cargo fmt --check
+        entry: cargo +1.94.1 fmt --all --check
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+      - id: prettier-check
+        name: prettier --check
+        entry: bash -lc 'for dir in frontend indexer mobile packages/scavenger-sdk; do if [ -f "$dir/package.json" ]; then (cd "$dir" && npx prettier --check . || exit 1); fi; done'
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0

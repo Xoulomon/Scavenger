@@ -23,10 +23,10 @@ NOTE: This is a contract-only cheat sheet. The canonical setup guide covering
 5. DEPLOY TO TESTNET
    a. Generate keypair:
       soroban keys generate testnet-deployer
-   
+
    b. Fund account:
       curl "https://friendbot.stellar.org?addr=$(soroban keys address testnet-deployer)"
-   
+
    c. Deploy:
       soroban contract deploy \
         --wasm target/wasm32-unknown-unknown/release/stellar_scavngr_contract.optimized.wasm \

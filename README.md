@@ -6,7 +6,7 @@ A decentralized recycling platform built on Stellar blockchain using Soroban sma
 
 ![Scavngr System Architecture](docs/architecture-diagram.svg)
 
-> Full-size diagram: [`docs/architecture-diagram.svg`](docs/architecture-diagram.svg)  
+> Full-size diagram: [`docs/architecture-diagram.svg`](docs/architecture-diagram.svg)
 > Shows all components (Frontend, Backend, Contract, Indexer, Stellar Network), participant roles, and data-flow for key operations (recycle, transfer, reward distribution).
 
 ## Documentation

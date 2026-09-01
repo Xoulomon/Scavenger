@@ -686,7 +686,7 @@ Use case: Find incentives for waste type
    ```rust
    // Fast: O(1)
    let participant = get_participant(&env, address);
-   
+
    // Slow: O(n)
    let all_participants = list_all_participants(&env);
    ```
@@ -748,7 +748,7 @@ pub fn get_incentives(env: &Env, waste_type: WasteType) -> Result<Vec<Incentive>
         .persistent()
         .get(&DataKey::ActiveIncentivesByType(waste_type))
         .unwrap_or_default();
-    
+
     let mut incentives = Vec::new();
     for id in incentive_ids {
         if let Ok(incentive) = get_incentive(env, id) {
@@ -888,7 +888,7 @@ pub fn get_participant_dashboard(
     let participant = get_participant(env, address.clone())?;
     let stats = get_stats(env, address.clone())?;
     let wastes = get_participant_wastes(env, address)?;
-    
+
     Ok(ParticipantDashboard {
         participant,
         stats,

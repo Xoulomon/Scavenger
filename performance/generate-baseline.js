@@ -6,7 +6,7 @@ const BASELINE_FILE = path.join(__dirname, 'baselines.json');
 
 function generateBaseline() {
   const files = fs.readdirSync(RESULTS_DIR).filter(f => f.endsWith('-results.json'));
-  
+
   if (files.length === 0) {
     console.error('No results found in reports directory.');
     return;
@@ -20,7 +20,7 @@ function generateBaseline() {
   files.forEach(file => {
     const data = JSON.parse(fs.readFileSync(path.join(RESULTS_DIR, file), 'utf8'));
     const testName = file.replace('-results.json', '');
-    
+
     baseline.metrics[testName] = {
       http_req_duration_p95: data.metrics.http_req_duration.values['p(95)'],
       http_req_duration_avg: data.metrics.http_req_duration.values['avg'],

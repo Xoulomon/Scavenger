@@ -13,7 +13,7 @@ echo ""
 # Check replication status
 echo "Replication Status:"
 psql -h "$PRIMARY_HOST" -U "$PRIMARY_USER" -d "$PRIMARY_DB" -c "
-SELECT 
+SELECT
   client_addr,
   state,
   sync_state,
@@ -27,14 +27,14 @@ ORDER BY client_addr;
 echo ""
 echo "Replication Lag:"
 psql -h "$PRIMARY_HOST" -U "$PRIMARY_USER" -d "$PRIMARY_DB" -c "
-SELECT 
+SELECT
   EXTRACT(EPOCH FROM (NOW() - pg_last_xact_replay_timestamp())) as replication_lag_seconds;
 " || echo "✗ Failed to query replication lag"
 
 echo ""
 echo "WAL Position:"
 psql -h "$PRIMARY_HOST" -U "$PRIMARY_USER" -d "$PRIMARY_DB" -c "
-SELECT 
+SELECT
   pg_current_wal_lsn() as current_wal,
   pg_last_wal_receive_lsn() as receive_lsn,
   pg_last_wal_replay_lsn() as replay_lsn;
@@ -43,7 +43,7 @@ SELECT
 echo ""
 echo "Database Size:"
 psql -h "$PRIMARY_HOST" -U "$PRIMARY_USER" -d "$PRIMARY_DB" -c "
-SELECT 
+SELECT
   datname,
   pg_size_pretty(pg_database_size(datname)) as size
 FROM pg_database

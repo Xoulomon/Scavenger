@@ -774,7 +774,7 @@ const keypair = Keypair.fromSecret('SBXXXXXXX...');
 
 async function registerParticipant() {
   const account = await server.getAccount(keypair.publicKey());
-  
+
   const tx = new TransactionBuilder(account, {
     fee: '100',
     networkPassphrase: Networks.TESTNET_NETWORK_PASSPHRASE,
@@ -814,7 +814,7 @@ server = Server('https://soroban-testnet.stellar.org')
 
 def register_participant():
     account = server.load_account(keypair.public_key)
-    
+
     tx = (
         TransactionBuilder(
             account,
@@ -825,7 +825,7 @@ def register_participant():
         .set_timeout(30)
         .build()
     )
-    
+
     signed = keypair.sign_transaction(tx)
     result = server.submit_transaction(signed)
     return result

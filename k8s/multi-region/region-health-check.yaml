@@ -7,17 +7,17 @@ data:
   check-region.sh: |
     #!/bin/bash
     set -euo pipefail
-    
+
     REGION="${1:-}"
     ENDPOINT="${2:-}"
-    
+
     if [ -z "$REGION" ] || [ -z "$ENDPOINT" ]; then
       echo "Usage: $0 <region> <endpoint>"
       exit 1
     fi
-    
+
     echo "Checking region: $REGION"
-    
+
     # HTTP health check
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 "https://$ENDPOINT/health" 2>/dev/null || echo "000")
     if [ "$HTTP_STATUS" != "200" ]; then
@@ -25,7 +25,7 @@ data:
       exit 1
     fi
     echo "PASS: HTTP health check (200 OK)"
-    
+
     # Response time check
     RESPONSE_TIME=$(curl -s -o /dev/null -w "%{time_total}" --connect-timeout 5 "https://$ENDPOINT/health" 2>/dev/null || echo "999")
     if [ "$(echo "$RESPONSE_TIME > 5" | bc -l)" -eq 1 ]; then
@@ -33,7 +33,7 @@ data:
       exit 1
     fi
     echo "PASS: Response time (${RESPONSE_TIME}s)"
-    
+
     # Database connectivity check
     DB_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 "https://$ENDPOINT/health/db" 2>/dev/null || echo "000")
     if [ "$DB_STATUS" != "200" ]; then
@@ -41,7 +41,7 @@ data:
       exit 1
     fi
     echo "PASS: Database connectivity"
-    
+
     # Redis connectivity check
     REDIS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 "https://$ENDPOINT/health/redis" 2>/dev/null || echo "000")
     if [ "$REDIS_STATUS" != "200" ]; then
@@ -49,7 +49,7 @@ data:
     else
       echo "PASS: Redis connectivity"
     fi
-    
+
     echo "Region $REGION: HEALTHY"
     exit 0
 

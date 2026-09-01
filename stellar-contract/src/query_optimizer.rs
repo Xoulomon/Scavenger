@@ -76,7 +76,7 @@ impl QueryOptimizer {
 
         // Build optimization plan based on query type
         let mut plan = QueryPlan::new(query_type.clone());
-        
+
         match query_type {
             QueryType::GetParticipant => {
                 plan.estimated_cost = 10;
@@ -226,7 +226,7 @@ mod tests {
     fn test_query_optimizer() {
         let env = Env::default();
         let mut optimizer = QueryOptimizer::new(&env);
-        
+
         let plan = optimizer.optimize(QueryType::GetParticipant, &env);
         assert!(plan.use_cache);
         assert!(plan.estimated_cost() < 10);
@@ -238,7 +238,7 @@ mod tests {
         metrics.record_cache_hit();
         metrics.record_cache_hit();
         metrics.record_cache_miss();
-        
+
         assert_eq!(metrics.cache_hits, 2);
         assert_eq!(metrics.cache_misses, 1);
         assert_eq!(metrics.cache_hit_rate(), 2.0 / 3.0);

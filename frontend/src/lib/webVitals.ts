@@ -1,6 +1,6 @@
 /**
  * Core Web Vitals and Performance Monitoring
- * 
+ *
  * Tracks and reports:
  * - Largest Contentful Paint (LCP)
  * - First Input Delay (FID) / Interaction to Next Paint (INP)
