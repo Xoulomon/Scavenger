@@ -68,12 +68,16 @@ pub struct DistributedCache {
 }
 
 impl DistributedCache {
-    pub fn new(default_ttl_secs: u64) -> Self {
+    /// Create a new `DistributedCache` with an optional Redis URL.
+    ///
+    /// Pass `redis_url` from [`crate::config::AppConfig::redis_url`] rather
+    /// than reading `REDIS_URL` directly here (#1159).
+    pub fn new(default_ttl_secs: u64, redis_url: Option<String>) -> Self {
         Self {
             store: Arc::new(Mutex::new(HashMap::new())),
             default_ttl: Duration::from_secs(default_ttl_secs),
             metrics: Arc::new(Mutex::new(CacheMetrics::default())),
-            redis_url: std::env::var("REDIS_URL").ok(),
+            redis_url,
         }
     }
 

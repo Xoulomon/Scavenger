@@ -1,0 +1,15 @@
+{
+  "name": "scavenger-contributing-tests",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.4.0",
+    "vite": "^5.2.0",
+    "vitest": "^2.0.0"
+  }
+}

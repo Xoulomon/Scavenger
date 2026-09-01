@@ -2,6 +2,7 @@ mod api;
 mod errors;
 mod cache;
 mod compliance;
+mod config;
 mod container;
 mod errors;
 mod middleware;
@@ -25,6 +26,7 @@ use api::{
     verification, ws,
 };
 use cache::{Cache, CacheInvalidationManager};
+use config::AppConfig;
 use middleware::{
     CsrfMiddleware, IdempotencyMiddleware, RateLimitConfig, RateLimitMiddleware, RequestIdMiddleware,
     ValidationMiddleware,
@@ -39,9 +41,13 @@ use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let use_json = std::env::var("LOG_FORMAT")
-        .map(|v| v.to_lowercase() == "json")
-        .unwrap_or(false);
+    // #1159: Load all application config from the central config module.
+    let app_config = AppConfig::from_env();
+    app_config
+        .validate()
+        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+
+    let use_json = app_config.log_format.to_lowercase() == "json";
 
     let filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
 
@@ -86,8 +92,9 @@ async fn main() -> std::io::Result<()> {
 
     let rate_limit_config = RateLimitConfig::default();
     let ws_manager = ws::WsConnectionManager::new();
-    let csrf_secret = std::env::var("CSRF_SECRET").unwrap_or_else(|_| "change-me-in-production".to_string());
-    let allowed_origins = std::env::var("ALLOWED_ORIGINS").unwrap_or_else(|_| "http://localhost:3000".to_string());
+    // #1159: Use AppConfig fields — no direct std::env::var reads in main.rs.
+    let csrf_secret = app_config.csrf_secret.clone();
+    let allowed_origins = app_config.allowed_origins.clone();
 
     HttpServer::new(move || {
         let cors = {

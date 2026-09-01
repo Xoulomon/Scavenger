@@ -1,23 +1,17 @@
 // =============================================================================
-// ⚠️ DEPRECATED — This file has been relocated to tests/contributing-guidelines/
+// PURPOSE: This file is a CONTRIBUTING.md compliance test fixture.
 //
-// This directory is no longer used. The test file has been moved for better
-// organization and to avoid confusion with the main frontend application.
+// This standalone Vitest project exists solely to verify that
+// /workspaces/Scavenger/CONTRIBUTING.md contains all required sections,
+// conventions, and wording mandated by the project's contribution guidelines.
 //
-// NEW LOCATION:
-//   tests/contributing-guidelines/src/contributing.test.ts
+// This test fixture is located in tests/contributing-guidelines/ for clarity
+// and to avoid confusion with the main frontend application (which lives at
+// frontend/ in the project root).
 //
-// To run tests, use:
+// To run these tests:
 //   cd tests/contributing-guidelines && npm test
-//
-// See tests/contributing-guidelines/README.md for more information.
 // =============================================================================
-
-// Note: This file is deprecated. Use the version in tests/contributing-guidelines/ instead.
-// Keeping this file only for backward compatibility during the transition period.
-//
-// The original content has been moved to avoid duplicate maintenance.
-// All tests have been migrated to the new location.
 
 /// <reference types="vitest" />
 import { describe, it, expect } from "vitest";
@@ -26,7 +20,7 @@ import path from "node:path";
 
 // 4.1 - File-reading helper
 const contributingMd = fs.readFileSync(
-  path.resolve(__dirname, "../../CONTRIBUTING.md"),
+  path.resolve(__dirname, "../../../CONTRIBUTING.md"),
   "utf-8",
 );
 

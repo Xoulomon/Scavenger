@@ -90,6 +90,33 @@ fn query_string(req: &HttpRequest) -> String {
     }
 }
 
+// ── #1158: Extracted filter helpers ──────────────────────────────────────────
+
+/// #1158: extracted from list_wastes()
+/// Applies all optional query filters to a vec of waste items in-place.
+fn apply_waste_filters(items: &mut Vec<WasteResponse>, query: &WasteQueryParams) {
+    if let Some(ref status) = query.status {
+        items.retain(|w| w.status == *status);
+    }
+    if let Some(ref waste_type) = query.waste_type {
+        items.retain(|w| w.waste_type == *waste_type);
+    }
+    if let Some(ref pid) = query.participant_id {
+        items.retain(|w| w.participant_id == *pid);
+    }
+}
+
+/// #1158: extracted from list_participants()
+/// Applies all optional query filters to a vec of participant items in-place.
+fn apply_participant_filters(items: &mut Vec<ParticipantResponse>, query: &ParticipantQueryParams) {
+    if let Some(ref role) = query.role {
+        items.retain(|p| p.role == *role);
+    }
+    if let Some(ref search) = query.search {
+        items.retain(|p| p.name.to_lowercase().contains(&search.to_lowercase()));
+    }
+}
+
 pub async fn list_wastes(
     req: HttpRequest,
     cache: web::Data<Cache>,
@@ -155,15 +182,7 @@ pub async fn list_wastes(
         },
     ];
 
-    if let Some(ref status) = query.status {
-        items.retain(|w| w.status == *status);
-    }
-    if let Some(ref waste_type) = query.waste_type {
-        items.retain(|w| w.waste_type == *waste_type);
-    }
-    if let Some(ref pid) = query.participant_id {
-        items.retain(|w| w.participant_id == *pid);
-    }
+    apply_waste_filters(&mut items, &query);
 
     let response = paginate(&items, page, limit);
     if let Ok(json) = serde_json::to_vec(&response) {
@@ -256,12 +275,7 @@ pub async fn list_participants(
         },
     ];
 
-    if let Some(ref role) = query.role {
-        items.retain(|p| p.role == *role);
-    }
-    if let Some(ref search) = query.search {
-        items.retain(|p| p.name.to_lowercase().contains(&search.to_lowercase()));
-    }
+    apply_participant_filters(&mut items, &query);
 
     let response = paginate(&items, page, limit);
     if let Ok(json) = serde_json::to_vec(&response) {
@@ -550,5 +564,141 @@ mod tests {
             CacheTtl::ContractStats.duration() < CacheTtl::ContractInfo.duration(),
             "Stats should expire faster than near-static contract info"
         );
+    }
+
+    // ── #1158: apply_waste_filters unit tests ─────────────────────────────
+
+    fn sample_wastes() -> Vec<WasteResponse> {
+        vec![
+            WasteResponse {
+                id: "w1".to_string(),
+                waste_type: "plastic".to_string(),
+                weight: 100,
+                status: "pending".to_string(),
+                location: None,
+                participant_id: "p1".to_string(),
+                created_at: now(),
+                updated_at: now(),
+            },
+            WasteResponse {
+                id: "w2".to_string(),
+                waste_type: "metal".to_string(),
+                weight: 200,
+                status: "approved".to_string(),
+                location: None,
+                participant_id: "p2".to_string(),
+                created_at: now(),
+                updated_at: now(),
+            },
+            WasteResponse {
+                id: "w3".to_string(),
+                waste_type: "plastic".to_string(),
+                weight: 50,
+                status: "approved".to_string(),
+                location: None,
+                participant_id: "p1".to_string(),
+                created_at: now(),
+                updated_at: now(),
+            },
+        ]
+    }
+
+    #[test]
+    fn test_apply_waste_filters_no_filter_returns_all() {
+        let mut items = sample_wastes();
+        let q = WasteQueryParams { page: None, limit: None, status: None, waste_type: None, participant_id: None, sort_by: None, sort_order: None };
+        apply_waste_filters(&mut items, &q);
+        assert_eq!(items.len(), 3);
+    }
+
+    #[test]
+    fn test_apply_waste_filters_by_status() {
+        let mut items = sample_wastes();
+        let q = WasteQueryParams { page: None, limit: None, status: Some("approved".to_string()), waste_type: None, participant_id: None, sort_by: None, sort_order: None };
+        apply_waste_filters(&mut items, &q);
+        assert_eq!(items.len(), 2);
+        assert!(items.iter().all(|w| w.status == "approved"));
+    }
+
+    #[test]
+    fn test_apply_waste_filters_by_waste_type() {
+        let mut items = sample_wastes();
+        let q = WasteQueryParams { page: None, limit: None, status: None, waste_type: Some("plastic".to_string()), participant_id: None, sort_by: None, sort_order: None };
+        apply_waste_filters(&mut items, &q);
+        assert_eq!(items.len(), 2);
+        assert!(items.iter().all(|w| w.waste_type == "plastic"));
+    }
+
+    #[test]
+    fn test_apply_waste_filters_by_participant_id() {
+        let mut items = sample_wastes();
+        let q = WasteQueryParams { page: None, limit: None, status: None, waste_type: None, participant_id: Some("p1".to_string()), sort_by: None, sort_order: None };
+        apply_waste_filters(&mut items, &q);
+        assert_eq!(items.len(), 2);
+        assert!(items.iter().all(|w| w.participant_id == "p1"));
+    }
+
+    #[test]
+    fn test_apply_waste_filters_combined() {
+        let mut items = sample_wastes();
+        let q = WasteQueryParams { page: None, limit: None, status: Some("approved".to_string()), waste_type: Some("plastic".to_string()), participant_id: None, sort_by: None, sort_order: None };
+        apply_waste_filters(&mut items, &q);
+        assert_eq!(items.len(), 1);
+        assert_eq!(items[0].id, "w3");
+    }
+
+    #[test]
+    fn test_apply_waste_filters_no_match_returns_empty() {
+        let mut items = sample_wastes();
+        let q = WasteQueryParams { page: None, limit: None, status: Some("nonexistent".to_string()), waste_type: None, participant_id: None, sort_by: None, sort_order: None };
+        apply_waste_filters(&mut items, &q);
+        assert!(items.is_empty());
+    }
+
+    // ── #1158: apply_participant_filters unit tests ───────────────────────
+
+    fn sample_participants() -> Vec<ParticipantResponse> {
+        vec![
+            ParticipantResponse { id: "p1".to_string(), name: "Green Recycling Co".to_string(), role: "collector".to_string(), location: None, reputation: 80, joined_at: now() },
+            ParticipantResponse { id: "p2".to_string(), name: "Eco Waste Mgmt".to_string(), role: "processor".to_string(), location: None, reputation: 90, joined_at: now() },
+            ParticipantResponse { id: "p3".to_string(), name: "Blue Recycling".to_string(), role: "collector".to_string(), location: None, reputation: 70, joined_at: now() },
+        ]
+    }
+
+    #[test]
+    fn test_apply_participant_filters_no_filter_returns_all() {
+        let mut items = sample_participants();
+        let q = ParticipantQueryParams { page: None, limit: None, role: None, search: None };
+        apply_participant_filters(&mut items, &q);
+        assert_eq!(items.len(), 3);
+    }
+
+    #[test]
+    fn test_apply_participant_filters_by_role() {
+        let mut items = sample_participants();
+        let q = ParticipantQueryParams { page: None, limit: None, role: Some("collector".to_string()), search: None };
+        apply_participant_filters(&mut items, &q);
+        assert_eq!(items.len(), 2);
+        assert!(items.iter().all(|p| p.role == "collector"));
+    }
+
+    #[test]
+    fn test_apply_participant_filters_by_search_case_insensitive() {
+        let mut items = sample_participants();
+        let q = ParticipantQueryParams { page: None, limit: None, role: None, search: Some("recycling".to_string()) };
+        apply_participant_filters(&mut items, &q);
+        assert_eq!(items.len(), 2);
+        let names: Vec<_> = items.iter().map(|p| p.name.as_str()).collect();
+        assert!(names.contains(&"Green Recycling Co"));
+        assert!(names.contains(&"Blue Recycling"));
+    }
+
+    #[test]
+    fn test_apply_participant_filters_combined() {
+        let mut items = sample_participants();
+        let q = ParticipantQueryParams { page: None, limit: None, role: Some("collector".to_string()), search: Some("green".to_string()) };
+        apply_participant_filters(&mut items, &q);
+        assert_eq!(items.len(), 1);
+        assert_eq!(items[0].id, "p1");
     }
 }

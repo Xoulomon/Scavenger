@@ -117,49 +117,76 @@ pub struct AuditReadService {
     entries: std::sync::Arc<Mutex<Vec<AuditEntry>>>,
 }
 
+// ── #1158: Extracted filter predicates for AuditReadService::query() ─────────
+
+/// #1158: extracted from query()
+/// Returns true when the entry matches the optional event_type filter.
+fn matches_event_type(entry: &AuditEntry, filter: &Option<AuditEventType>) -> bool {
+    filter
+        .as_ref()
+        .map_or(true, |et| entry.event_type == et.to_string())
+}
+
+/// #1158: extracted from query()
+/// Returns true when the entry matches the optional user_id substring filter.
+fn matches_user_id(entry: &AuditEntry, filter: &Option<String>) -> bool {
+    filter
+        .as_ref()
+        .map_or(true, |uid| entry.user_id.contains(uid.as_str()))
+}
+
+/// #1158: extracted from query()
+/// Returns true when the entry matches the optional action filter.
+fn matches_action(entry: &AuditEntry, filter: &Option<AuditAction>) -> bool {
+    filter
+        .as_ref()
+        .map_or(true, |a| entry.action == a.to_string())
+}
+
+/// #1158: extracted from query()
+/// Returns true when the entry matches the optional resource_type filter.
+fn matches_resource_type(entry: &AuditEntry, filter: &Option<String>) -> bool {
+    filter
+        .as_ref()
+        .map_or(true, |rt| entry.resource_type == *rt)
+}
+
+/// #1158: extracted from query()
+/// Returns true when the entry timestamp is on or after the optional start date.
+fn matches_start_date(entry: &AuditEntry, filter: &Option<DateTime<Utc>>) -> bool {
+    filter.as_ref().map_or(true, |sd| entry.timestamp >= *sd)
+}
+
+/// #1158: extracted from query()
+/// Returns true when the entry timestamp is on or before the optional end date.
+fn matches_end_date(entry: &AuditEntry, filter: &Option<DateTime<Utc>>) -> bool {
+    filter.as_ref().map_or(true, |ed| entry.timestamp <= *ed)
+}
+
+/// #1158: extracted from query()
+/// Returns true when the entry matches the optional severity filter.
+fn matches_severity(entry: &AuditEntry, filter: &Option<String>) -> bool {
+    filter.as_ref().map_or(true, |s| entry.severity == *s)
+}
+
+/// #1158: extracted from query()
+/// Returns true only when an entry passes ALL filter fields in `query`.
+fn entry_matches_query(entry: &AuditEntry, query: &AuditQuery) -> bool {
+    matches_event_type(entry, &query.event_type)
+        && matches_user_id(entry, &query.user_id)
+        && matches_action(entry, &query.action)
+        && matches_resource_type(entry, &query.resource_type)
+        && matches_start_date(entry, &query.start_date)
+        && matches_end_date(entry, &query.end_date)
+        && matches_severity(entry, &query.severity)
+}
+
 impl AuditReadService {
     pub fn query(&self, query: AuditQuery) -> Vec<AuditEntry> {
         let entries = self.entries.lock().unwrap();
         let mut filtered: Vec<AuditEntry> = entries
             .iter()
-            .filter(|e| {
-                if let Some(ref et) = query.event_type {
-                    if e.event_type != et.to_string() {
-                        return false;
-                    }
-                }
-                if let Some(ref uid) = query.user_id {
-                    if !e.user_id.contains(uid) {
-                        return false;
-                    }
-                }
-                if let Some(ref a) = query.action {
-                    if e.action != a.to_string() {
-                        return false;
-                    }
-                }
-                if let Some(ref rt) = query.resource_type {
-                    if e.resource_type != *rt {
-                        return false;
-                    }
-                }
-                if let Some(ref sd) = query.start_date {
-                    if e.timestamp < *sd {
-                        return false;
-                    }
-                }
-                if let Some(ref ed) = query.end_date {
-                    if e.timestamp > *ed {
-                        return false;
-                    }
-                }
-                if let Some(ref s) = query.severity {
-                    if e.severity != *s {
-                        return false;
-                    }
-                }
-                true
-            })
+            .filter(|e| entry_matches_query(e, &query))
             .cloned()
             .collect();
 
@@ -594,6 +621,209 @@ impl Default for AuditService {
 mod tests {
     use super::*;
     use chrono::TimeZone;
+
+    // ── Helpers for predicate tests ────────────────────────────────────────────
+
+    fn make_entry(
+        event_type: &str,
+        action: &str,
+        user_id: &str,
+        resource_type: &str,
+        severity: &str,
+        timestamp: DateTime<Utc>,
+    ) -> AuditEntry {
+        AuditEntry {
+            id: uuid::Uuid::new_v4().to_string(),
+            event_type: event_type.to_string(),
+            action: action.to_string(),
+            user_id: user_id.to_string(),
+            resource_type: resource_type.to_string(),
+            resource_id: None,
+            details: "test".to_string(),
+            timestamp,
+            ip_address: "127.0.0.1".to_string(),
+            user_agent: None,
+            severity: severity.to_string(),
+            changes: None,
+        }
+    }
+
+    fn base_entry() -> AuditEntry {
+        make_entry(
+            "contract",
+            "create",
+            "user-001",
+            "waste",
+            "low",
+            Utc::now(),
+        )
+    }
+
+    // ── #1158: predicate unit tests ────────────────────────────────────────────
+
+    #[test]
+    fn test_matches_event_type_none_passes_all() {
+        let e = base_entry();
+        assert!(matches_event_type(&e, &None));
+    }
+
+    #[test]
+    fn test_matches_event_type_match() {
+        let e = base_entry();
+        assert!(matches_event_type(&e, &Some(AuditEventType::Contract)));
+    }
+
+    #[test]
+    fn test_matches_event_type_no_match() {
+        let e = base_entry();
+        assert!(!matches_event_type(&e, &Some(AuditEventType::Admin)));
+    }
+
+    #[test]
+    fn test_matches_user_id_none_passes_all() {
+        let e = base_entry();
+        assert!(matches_user_id(&e, &None));
+    }
+
+    #[test]
+    fn test_matches_user_id_substring() {
+        let e = base_entry(); // user_id = "user-001"
+        assert!(matches_user_id(&e, &Some("user".to_string())));
+        assert!(matches_user_id(&e, &Some("001".to_string())));
+        assert!(!matches_user_id(&e, &Some("admin".to_string())));
+    }
+
+    #[test]
+    fn test_matches_action_none_passes_all() {
+        let e = base_entry();
+        assert!(matches_action(&e, &None));
+    }
+
+    #[test]
+    fn test_matches_action_match() {
+        let e = base_entry(); // action = "create"
+        assert!(matches_action(&e, &Some(AuditAction::Create)));
+    }
+
+    #[test]
+    fn test_matches_action_no_match() {
+        let e = base_entry();
+        assert!(!matches_action(&e, &Some(AuditAction::Delete)));
+    }
+
+    #[test]
+    fn test_matches_resource_type_none_passes_all() {
+        let e = base_entry();
+        assert!(matches_resource_type(&e, &None));
+    }
+
+    #[test]
+    fn test_matches_resource_type_match() {
+        let e = base_entry(); // resource_type = "waste"
+        assert!(matches_resource_type(&e, &Some("waste".to_string())));
+    }
+
+    #[test]
+    fn test_matches_resource_type_no_match() {
+        let e = base_entry();
+        assert!(!matches_resource_type(&e, &Some("config".to_string())));
+    }
+
+    #[test]
+    fn test_matches_start_date_none_passes_all() {
+        let e = base_entry();
+        assert!(matches_start_date(&e, &None));
+    }
+
+    #[test]
+    fn test_matches_start_date_before_timestamp_passes() {
+        let ts = Utc::now();
+        let e = make_entry("contract", "create", "u", "waste", "low", ts);
+        let start = ts - Duration::hours(1);
+        assert!(matches_start_date(&e, &Some(start)));
+    }
+
+    #[test]
+    fn test_matches_start_date_after_timestamp_fails() {
+        let ts = Utc::now();
+        let e = make_entry("contract", "create", "u", "waste", "low", ts);
+        let start = ts + Duration::hours(1);
+        assert!(!matches_start_date(&e, &Some(start)));
+    }
+
+    #[test]
+    fn test_matches_end_date_none_passes_all() {
+        let e = base_entry();
+        assert!(matches_end_date(&e, &None));
+    }
+
+    #[test]
+    fn test_matches_end_date_after_timestamp_passes() {
+        let ts = Utc::now();
+        let e = make_entry("contract", "create", "u", "waste", "low", ts);
+        let end = ts + Duration::hours(1);
+        assert!(matches_end_date(&e, &Some(end)));
+    }
+
+    #[test]
+    fn test_matches_end_date_before_timestamp_fails() {
+        let ts = Utc::now();
+        let e = make_entry("contract", "create", "u", "waste", "low", ts);
+        let end = ts - Duration::hours(1);
+        assert!(!matches_end_date(&e, &Some(end)));
+    }
+
+    #[test]
+    fn test_matches_severity_none_passes_all() {
+        let e = base_entry();
+        assert!(matches_severity(&e, &None));
+    }
+
+    #[test]
+    fn test_matches_severity_match() {
+        let e = base_entry(); // severity = "low"
+        assert!(matches_severity(&e, &Some("low".to_string())));
+    }
+
+    #[test]
+    fn test_matches_severity_no_match() {
+        let e = base_entry();
+        assert!(!matches_severity(&e, &Some("high".to_string())));
+    }
+
+    #[test]
+    fn test_entry_matches_query_all_none_passes() {
+        let e = base_entry();
+        let q = AuditQuery {
+            event_type: None,
+            user_id: None,
+            action: None,
+            resource_type: None,
+            start_date: None,
+            end_date: None,
+            severity: None,
+            limit: None,
+            offset: None,
+        };
+        assert!(entry_matches_query(&e, &q));
+    }
+
+    #[test]
+    fn test_entry_matches_query_one_fail_rejects() {
+        let e = base_entry(); // event_type = "contract"
+        let q = AuditQuery {
+            event_type: Some(AuditEventType::Admin), // won't match
+            user_id: None,
+            action: None,
+            resource_type: None,
+            start_date: None,
+            end_date: None,
+            severity: None,
+            limit: None,
+            offset: None,
+        };
+        assert!(!entry_matches_query(&e, &q));
+    }
 
     #[test]
     fn test_audit_log_entry() {
