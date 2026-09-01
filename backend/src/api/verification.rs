@@ -179,21 +179,45 @@ pub async fn get_pending_reviews(service: web::Data<Arc<dyn VerificationService>
     }
 }
 
+// ── #1158: Extracted validation helpers for approve/reject handlers ───────────
+
+/// #1158: extracted from approve_participant()
+/// Validates that both participant_id and reviewer_id are non-empty.
+fn validate_approval_request(participant_id: &str, reviewer_id: &str) -> Vec<ValidationError> {
+    let mut errors = Vec::new();
+    if let Some(e) = validate_required(participant_id, "participant_id") {
+        errors.push(e);
+    }
+    if let Some(e) = validate_required(reviewer_id, "reviewer_id") {
+        errors.push(e);
+    }
+    errors
+}
+
+/// #1158: extracted from reject_participant()
+/// Validates that participant_id, reason, and reviewer_id are all non-empty.
+fn validate_rejection_request(participant_id: &str, reason: &str, reviewer_id: &str) -> Vec<ValidationError> {
+    let mut errors = Vec::new();
+    if let Some(e) = validate_required(participant_id, "participant_id") {
+        errors.push(e);
+    }
+    if let Some(e) = validate_required(reason, "reason") {
+        errors.push(e);
+    }
+    if let Some(e) = validate_required(reviewer_id, "reviewer_id") {
+        errors.push(e);
+    }
+    errors
+}
+
 pub async fn approve_participant(
     req: web::Json<ApprovalRequest>,
     service: web::Data<Arc<dyn VerificationService>>,
 ) -> HttpResponse {
-    let mut errors = Vec::new();
     let participant_id = sanitize_string(&req.participant_id);
     let reviewer_id = sanitize_string(&req.reviewer_id);
 
-    if let Some(e) = validate_required(&participant_id, "participant_id") {
-        errors.push(e);
-    }
-    if let Some(e) = validate_required(&reviewer_id, "reviewer_id") {
-        errors.push(e);
-    }
-
+    let errors = validate_approval_request(&participant_id, &reviewer_id);
     if !errors.is_empty() {
         return error_response(&errors);
     }
@@ -211,21 +235,11 @@ pub async fn reject_participant(
     req: web::Json<RejectionRequest>,
     service: web::Data<Arc<dyn VerificationService>>,
 ) -> HttpResponse {
-    let mut errors = Vec::new();
     let participant_id = sanitize_string(&req.participant_id);
     let reason = sanitize_string(&req.reason);
     let reviewer_id = sanitize_string(&req.reviewer_id);
 
-    if let Some(e) = validate_required(&participant_id, "participant_id") {
-        errors.push(e);
-    }
-    if let Some(e) = validate_required(&reason, "reason") {
-        errors.push(e);
-    }
-    if let Some(e) = validate_required(&reviewer_id, "reviewer_id") {
-        errors.push(e);
-    }
-
+    let errors = validate_rejection_request(&participant_id, &reason, &reviewer_id);
     if !errors.is_empty() {
         return error_response(&errors);
     }
@@ -607,5 +621,52 @@ mod tests {
     fn test_validate_doc_type_too_long() {
         assert!(validate_doc_type(&"a".repeat(65)).is_some());
         assert!(validate_doc_type(&"a".repeat(64)).is_none());
+    }
+
+    // ── #1158: validate_approval_request / validate_rejection_request ─────
+
+    #[test]
+    fn test_validate_approval_request_valid() {
+        let errors = validate_approval_request("participant-001", "reviewer-001");
+        assert!(errors.is_empty());
+    }
+
+    #[test]
+    fn test_validate_approval_request_empty_participant_id() {
+        let errors = validate_approval_request("", "reviewer-001");
+        assert_eq!(errors.len(), 1);
+        assert_eq!(errors[0].field, "participant_id");
+    }
+
+    #[test]
+    fn test_validate_approval_request_empty_reviewer_id() {
+        let errors = validate_approval_request("participant-001", "");
+        assert_eq!(errors.len(), 1);
+        assert_eq!(errors[0].field, "reviewer_id");
+    }
+
+    #[test]
+    fn test_validate_approval_request_both_empty() {
+        let errors = validate_approval_request("", "");
+        assert_eq!(errors.len(), 2);
+    }
+
+    #[test]
+    fn test_validate_rejection_request_valid() {
+        let errors = validate_rejection_request("participant-001", "Insufficient docs", "reviewer-001");
+        assert!(errors.is_empty());
+    }
+
+    #[test]
+    fn test_validate_rejection_request_missing_reason() {
+        let errors = validate_rejection_request("participant-001", "", "reviewer-001");
+        assert_eq!(errors.len(), 1);
+        assert_eq!(errors[0].field, "reason");
+    }
+
+    #[test]
+    fn test_validate_rejection_request_all_empty() {
+        let errors = validate_rejection_request("", "", "");
+        assert_eq!(errors.len(), 3);
     }
 }

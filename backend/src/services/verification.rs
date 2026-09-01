@@ -17,6 +17,22 @@ pub const MAX_VERIFICATION_RETRIES: u32 = 3;
 /// This constant is imported and reused by the API layer's input validation.
 pub const MAX_DOC_TYPE_LEN: usize = 64;
 
+// ── #1158: Extracted helper for retry logic ───────────────────────────────────
+
+/// #1158: extracted from retry_verification
+/// Returns `Ok(())` if a retry is allowed, or `Err` with a human-readable
+/// message when the participant has already exhausted their retries.
+pub fn check_retry_allowed(current_count: u32, max: u32) -> Result<(), String> {
+    if current_count >= max {
+        Err(format!(
+            "Maximum retry attempts ({}) exceeded",
+            max
+        ))
+    } else {
+        Ok(())
+    }
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum VerificationStatus {
     #[serde(rename = "pending")]
@@ -272,6 +288,7 @@ impl VerificationService for DefaultVerificationService {
     async fn retry_verification(&self, participant_id: String) -> Result<ParticipantVerification, String> {
         let mut verifications = self.verifications.lock().await;
         if let Some(verification) = verifications.get_mut(&participant_id) {
+            check_retry_allowed(verification.retry_count, MAX_VERIFICATION_RETRIES)?;
             verification.status = VerificationStatus::Pending;
             verification.retry_count += 1;
             verification.last_retry_at = Some(Utc::now());
@@ -301,6 +318,34 @@ impl VerificationService for DefaultVerificationService {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // ── #1158: check_retry_allowed unit tests ────────────────────────────────
+
+    #[test]
+    fn test_check_retry_allowed_zero_count_passes() {
+        assert!(check_retry_allowed(0, MAX_VERIFICATION_RETRIES).is_ok());
+    }
+
+    #[test]
+    fn test_check_retry_allowed_below_max_passes() {
+        assert!(check_retry_allowed(2, MAX_VERIFICATION_RETRIES).is_ok());
+    }
+
+    #[test]
+    fn test_check_retry_allowed_at_max_fails() {
+        assert!(check_retry_allowed(MAX_VERIFICATION_RETRIES, MAX_VERIFICATION_RETRIES).is_err());
+    }
+
+    #[test]
+    fn test_check_retry_allowed_above_max_fails() {
+        assert!(check_retry_allowed(MAX_VERIFICATION_RETRIES + 1, MAX_VERIFICATION_RETRIES).is_err());
+    }
+
+    #[test]
+    fn test_check_retry_allowed_error_message_mentions_max() {
+        let err = check_retry_allowed(5, 3).unwrap_err();
+        assert!(err.contains("3"), "error message should mention max: {err}");
+    }
 
     // ── basic service behaviour ────────────────────────────────────────────────
 

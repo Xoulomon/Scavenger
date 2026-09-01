@@ -16,27 +16,27 @@ Create three demo accounts representing different roles:
 ### Account 1: Recycler (Alice)
 ```bash
 # Generate keypair
-soroban keys generate alice
+stellar keys generate alice
 
 # Get address
-soroban keys address alice
+stellar keys address alice
 
 # Fund account
-curl "https://friendbot.stellar.org?addr=$(soroban keys address alice)"
+curl "https://friendbot.stellar.org?addr=$(stellar keys address alice)"
 ```
 
 ### Account 2: Collector (Bob)
 ```bash
-soroban keys generate bob
-soroban keys address bob
-curl "https://friendbot.stellar.org?addr=$(soroban keys address bob)"
+stellar keys generate bob
+stellar keys address bob
+curl "https://friendbot.stellar.org?addr=$(stellar keys address bob)"
 ```
 
 ### Account 3: Manufacturer (Carol)
 ```bash
-soroban keys generate carol
-soroban keys address carol
-curl "https://friendbot.stellar.org?addr=$(soroban keys address carol)"
+stellar keys generate carol
+stellar keys address carol
+curl "https://friendbot.stellar.org?addr=$(stellar keys address carol)"
 ```
 
 ## Demo Flow

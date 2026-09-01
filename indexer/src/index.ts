@@ -1,4 +1,6 @@
 import 'dotenv/config';
+// #1159: All env var access goes through the config module.
+import { config, validateConfig } from './config';
 import { runMigrations } from './db/migrate';
 import { closePool } from './db/client';
 import { runIndexer } from './indexer';
@@ -7,22 +9,18 @@ import { startAlertChecker, createAlertHistoryTable } from './monitoring/alerts'
 import { logger } from './utils/logger';
 
 async function main() {
-  const rpcUrl = process.env.STELLAR_RPC_URL;
-  const contractId = process.env.CONTRACT_ID;
+  // #1159: Fail fast on startup if required vars are missing.
+  validateConfig();
 
-  if (!rpcUrl || !contractId) {
-    throw new Error('STELLAR_RPC_URL and CONTRACT_ID must be set.');
-  }
-
-  logger.info('Starting Scavngr indexer', { rpcUrl, contractId });
+  logger.info('Starting Scavngr indexer', {
+    rpcUrl: config.stellar.rpcUrl,
+    contractId: config.stellar.contractId,
+  });
 
   await runMigrations();
   await createAlertHistoryTable();
 
-  const apiPort = Number(process.env.API_PORT ?? 3001);
-  const apiHost = process.env.API_HOST ?? '0.0.0.0';
-
-  const api = createApiServer({ port: apiPort, host: apiHost });
+  const api = createApiServer({ port: config.server.apiPort, host: config.server.apiHost });
   await api.start();
 
   startAlertChecker();
@@ -52,11 +50,11 @@ async function main() {
 
   await runIndexer(
     {
-      rpcUrl,
-      contractId,
-      startLedger: Number(process.env.START_LEDGER ?? 0),
+      rpcUrl: config.stellar.rpcUrl,
+      contractId: config.stellar.contractId,
+      startLedger: config.indexer.startLedger,
     },
-    Number(process.env.POLL_INTERVAL_MS ?? 5000),
+    config.indexer.pollIntervalMs,
     api.metrics,
     api.broadcastEvent
   );

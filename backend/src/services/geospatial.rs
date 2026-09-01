@@ -147,6 +147,17 @@ impl GridIndex {
     }
 }
 
+// ── #1158: Extracted filter helper ───────────────────────────────────────────
+
+/// #1158: extracted from proximity_search()
+/// Returns true when all required tag key/value pairs are present on the location.
+/// An empty `filter_tags` map always returns true (no filter applied).
+fn passes_tag_filter(location: &GeoLocation, filter_tags: &HashMap<String, String>) -> bool {
+    filter_tags
+        .iter()
+        .all(|(k, v)| location.tags.get(k).map_or(false, |val| val == v))
+}
+
 // ── Geospatial service ────────────────────────────────────────────────────────
 
 pub struct GeoService {
@@ -226,11 +237,7 @@ impl GeoService {
         let mut results: Vec<ProximityResult> = candidate_ids
             .iter()
             .filter_map(|id| locs.get(id.as_str()))
-            .filter(|loc| {
-                q.filter_tags
-                    .iter()
-                    .all(|(k, v)| loc.tags.get(k).map_or(false, |val| val == v))
-            })
+            .filter(|loc| passes_tag_filter(loc, &q.filter_tags))
             .filter_map(|loc| {
                 let d = Self::haversine_distance(&q.center, &loc.coordinates);
                 if d <= q.radius_m {
@@ -1085,5 +1092,64 @@ mod tests {
                 "expected error for lat={lat}, lon={lon}"
             );
         }
+    }
+
+    // ── #1158: passes_tag_filter unit tests ───────────────────────────────────
+
+    fn loc_with_tags(tags: &[(&str, &str)]) -> GeoLocation {
+        GeoLocation {
+            id: "test-loc".to_string(),
+            name: "Test".to_string(),
+            coordinates: Coordinates::new(0.0, 0.0).unwrap(),
+            tags: tags.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect(),
+        }
+    }
+
+    #[test]
+    fn test_passes_tag_filter_empty_filter_always_passes() {
+        let loc = loc_with_tags(&[]);
+        assert!(passes_tag_filter(&loc, &HashMap::new()));
+    }
+
+    #[test]
+    fn test_passes_tag_filter_matching_tag() {
+        let loc = loc_with_tags(&[("type", "recycler")]);
+        let mut filter = HashMap::new();
+        filter.insert("type".to_string(), "recycler".to_string());
+        assert!(passes_tag_filter(&loc, &filter));
+    }
+
+    #[test]
+    fn test_passes_tag_filter_non_matching_value() {
+        let loc = loc_with_tags(&[("type", "collector")]);
+        let mut filter = HashMap::new();
+        filter.insert("type".to_string(), "recycler".to_string());
+        assert!(!passes_tag_filter(&loc, &filter));
+    }
+
+    #[test]
+    fn test_passes_tag_filter_missing_key() {
+        let loc = loc_with_tags(&[("zone", "a")]);
+        let mut filter = HashMap::new();
+        filter.insert("type".to_string(), "recycler".to_string());
+        assert!(!passes_tag_filter(&loc, &filter));
+    }
+
+    #[test]
+    fn test_passes_tag_filter_multiple_tags_all_match() {
+        let loc = loc_with_tags(&[("type", "recycler"), ("region", "eu")]);
+        let mut filter = HashMap::new();
+        filter.insert("type".to_string(), "recycler".to_string());
+        filter.insert("region".to_string(), "eu".to_string());
+        assert!(passes_tag_filter(&loc, &filter));
+    }
+
+    #[test]
+    fn test_passes_tag_filter_multiple_tags_one_mismatch() {
+        let loc = loc_with_tags(&[("type", "recycler"), ("region", "us")]);
+        let mut filter = HashMap::new();
+        filter.insert("type".to_string(), "recycler".to_string());
+        filter.insert("region".to_string(), "eu".to_string());
+        assert!(!passes_tag_filter(&loc, &filter));
     }
 }

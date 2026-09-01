@@ -167,6 +167,52 @@ impl InferenceEngine for MockInferenceEngine {
     }
 }
 
+// ── #1158: Extracted helpers for evaluate() ──────────────────────────────────
+
+/// #1158: extracted from evaluate()
+/// Computes precision, recall, and F1 from raw TP/FP/FN counts.
+/// Returns a `ClassMetrics` value without needing any service state.
+fn compute_per_class_metrics(tp: usize, fp: usize, fn_: usize) -> ClassMetrics {
+    let precision = if tp + fp == 0 {
+        0.0
+    } else {
+        tp as f64 / (tp + fp) as f64
+    };
+    let recall = if tp + fn_ == 0 {
+        0.0
+    } else {
+        tp as f64 / (tp + fn_) as f64
+    };
+    let f1 = if precision + recall == 0.0 {
+        0.0
+    } else {
+        2.0 * precision * recall / (precision + recall)
+    };
+    ClassMetrics {
+        precision,
+        recall,
+        f1,
+        support: tp + fn_,
+    }
+}
+
+/// #1158: extracted from evaluate()
+/// Updates the `per_class` confusion-matrix map for a single prediction.
+/// `is_correct` indicates whether predicted == ground_truth.
+fn accumulate_predictions(
+    per_class: &mut HashMap<String, (usize, usize, usize)>,
+    ground_truth: &str,
+    predicted: &str,
+    is_correct: bool,
+) {
+    if is_correct {
+        per_class.entry(ground_truth.to_string()).or_default().0 += 1; // TP
+    } else {
+        per_class.entry(ground_truth.to_string()).or_default().2 += 1; // FN
+        per_class.entry(predicted.to_string()).or_default().1 += 1; // FP
+    }
+}
+
 // ── Classification service ────────────────────────────────────────────────────
 
 pub struct ClassificationService {
@@ -315,51 +361,23 @@ impl ClassificationService {
                 .map(|p| p.category.clone())
                 .unwrap_or(WasteCategory::Other);
 
-            let gt = sample.ground_truth.as_str().to_string();
-            let pred_str = predicted.as_str().to_string();
-
-            if predicted == sample.ground_truth {
+            let is_correct = predicted == sample.ground_truth;
+            if is_correct {
                 correct += 1;
-                let e = per_class.entry(gt).or_default();
-                e.0 += 1; // TP
-            } else {
-                let gt_e = per_class.entry(gt.clone()).or_default();
-                gt_e.2 += 1; // FN
-                let pred_e = per_class.entry(pred_str).or_default();
-                pred_e.1 += 1; // FP
             }
+            accumulate_predictions(
+                &mut per_class,
+                sample.ground_truth.as_str(),
+                predicted.as_str(),
+                is_correct,
+            );
         }
 
         let accuracy = correct as f64 / samples.len() as f64;
 
         let per_class_metrics = per_class
             .into_iter()
-            .map(|(cls, (tp, fp, fn_))| {
-                let precision = if tp + fp == 0 {
-                    0.0
-                } else {
-                    tp as f64 / (tp + fp) as f64
-                };
-                let recall = if tp + fn_ == 0 {
-                    0.0
-                } else {
-                    tp as f64 / (tp + fn_) as f64
-                };
-                let f1 = if precision + recall == 0.0 {
-                    0.0
-                } else {
-                    2.0 * precision * recall / (precision + recall)
-                };
-                (
-                    cls,
-                    ClassMetrics {
-                        precision,
-                        recall,
-                        f1,
-                        support: tp + fn_,
-                    },
-                )
-            })
+            .map(|(cls, (tp, fp, fn_))| (cls, compute_per_class_metrics(tp, fp, fn_)))
             .collect();
 
         Ok(EvaluationReport {
@@ -1091,6 +1109,76 @@ mod tests {
         assert!((plastic_metrics.precision - 1.0).abs() < 1e-9);
         assert!((plastic_metrics.recall - 1.0).abs() < 1e-9);
         assert!((plastic_metrics.f1 - 1.0).abs() < 1e-9);
+    }
+
+    // ── #1158: helpers extracted from evaluate() ──────────────────────────────
+
+    #[test]
+    fn test_compute_per_class_metrics_perfect() {
+        // tp=5, fp=0, fn=0 → precision=1, recall=1, f1=1
+        let m = compute_per_class_metrics(5, 0, 0);
+        assert!((m.precision - 1.0).abs() < 1e-9);
+        assert!((m.recall - 1.0).abs() < 1e-9);
+        assert!((m.f1 - 1.0).abs() < 1e-9);
+        assert_eq!(m.support, 5);
+    }
+
+    #[test]
+    fn test_compute_per_class_metrics_zero_tp() {
+        // tp=0, fp=3, fn=2 → precision=0, recall=0, f1=0
+        let m = compute_per_class_metrics(0, 3, 2);
+        assert!((m.precision - 0.0).abs() < 1e-9);
+        assert!((m.recall - 0.0).abs() < 1e-9);
+        assert!((m.f1 - 0.0).abs() < 1e-9);
+        assert_eq!(m.support, 2);
+    }
+
+    #[test]
+    fn test_compute_per_class_metrics_partial() {
+        // tp=2, fp=1, fn=1 → precision=2/3, recall=2/3, f1=2/3
+        let m = compute_per_class_metrics(2, 1, 1);
+        assert!((m.precision - 2.0 / 3.0).abs() < 1e-9);
+        assert!((m.recall - 2.0 / 3.0).abs() < 1e-9);
+        // f1 = 2 * (2/3 * 2/3) / (2/3 + 2/3) = 2/3
+        assert!((m.f1 - 2.0 / 3.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn test_compute_per_class_metrics_all_zeros() {
+        // Edge case: everything zero → no division by zero
+        let m = compute_per_class_metrics(0, 0, 0);
+        assert!((m.precision - 0.0).abs() < 1e-9);
+        assert!((m.recall - 0.0).abs() < 1e-9);
+        assert!((m.f1 - 0.0).abs() < 1e-9);
+        assert_eq!(m.support, 0);
+    }
+
+    #[test]
+    fn test_accumulate_predictions_correct() {
+        let mut per_class: HashMap<String, (usize, usize, usize)> = HashMap::new();
+        accumulate_predictions(&mut per_class, "plastic", "plastic", true);
+        let (tp, fp, fn_) = per_class["plastic"];
+        assert_eq!((tp, fp, fn_), (1, 0, 0));
+    }
+
+    #[test]
+    fn test_accumulate_predictions_incorrect() {
+        let mut per_class: HashMap<String, (usize, usize, usize)> = HashMap::new();
+        accumulate_predictions(&mut per_class, "plastic", "metal", false);
+        let (tp_p, fp_p, fn_p) = per_class["plastic"];
+        assert_eq!((tp_p, fp_p, fn_p), (0, 0, 1)); // plastic got FN
+        let (tp_m, fp_m, fn_m) = per_class["metal"];
+        assert_eq!((tp_m, fp_m, fn_m), (0, 1, 0)); // metal got FP
+    }
+
+    #[test]
+    fn test_accumulate_predictions_multiple_calls() {
+        let mut per_class: HashMap<String, (usize, usize, usize)> = HashMap::new();
+        accumulate_predictions(&mut per_class, "plastic", "plastic", true);
+        accumulate_predictions(&mut per_class, "plastic", "plastic", true);
+        accumulate_predictions(&mut per_class, "plastic", "metal", false);
+        let (tp, fp, fn_) = per_class["plastic"];
+        assert_eq!((tp, fp, fn_), (2, 0, 1));
     }
 
     // ── WasteCategory helpers ────────────────────────────────────────────────
