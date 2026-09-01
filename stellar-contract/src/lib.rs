@@ -2355,8 +2355,11 @@ impl ScavengerContract {
 
         Self::require_addresses_different(&from, &to);
 
-        // Align with v2: reject transfers on deactivated waste
-        // Note: Material doesn't have is_active, assuming active for deprecated function
+        // INTENTIONALLY DISABLED (#1152): The v1 `Material` struct does not carry
+        // an `is_active` field (that field lives on the v2 `Waste` struct only).
+        // This guard cannot be enabled without a storage migration. Callers should
+        // migrate to `transfer_waste_v2`, which performs this check on `Waste`.
+        //
         // if !material.is_active {
         //     panic!("Cannot transfer deactivated waste");
         // }

@@ -1,0 +1,6 @@
+packages:
+  - 'packages/*'
+  - 'indexer'
+  - 'backend'
+  - 'frontend'
+  - 'mobile'
