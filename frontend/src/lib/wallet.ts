@@ -11,7 +11,7 @@ export interface WalletConnectionState {
   isConnected: boolean
   isInstalled: boolean
   isLoading: boolean
-  error: string | null
+  error: string | undefined
 }
 
 export const initialWalletState: WalletConnectionState = {
@@ -19,7 +19,7 @@ export const initialWalletState: WalletConnectionState = {
   isConnected: false,
   isInstalled: false,
   isLoading: false,
-  error: null,
+  error: undefined,
 }
 
 export async function checkWalletInstalled(): Promise<boolean> {
@@ -31,11 +31,11 @@ export async function checkWalletInstalled(): Promise<boolean> {
   }
 }
 
-export async function getWalletPublicKey(): Promise<string | null> {
+export async function getWalletPublicKey(): Promise<string | undefined> {
   try {
     return await freighterGetPublicKey()
   } catch {
-    return null
+    return undefined
   }
 }
 
