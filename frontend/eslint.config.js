@@ -87,6 +87,25 @@ export default [
       ],
     },
   },
+  // src/lib utilities: prefer `undefined` over `null` for absent values
+  {
+    files: ['src/lib/**/*.{ts,tsx}'],
+    rules: {
+      // Convention: prefer `undefined` over `null` for absent values in lib utilities.
+      // External API wrappers that legitimately return null are exempt — add an
+      // eslint-disable-next-line comment with a reason.
+      'no-restricted-syntax': [
+        'warn',
+        {
+          selector: 'ReturnStatement[argument.type="Literal"][argument.value=null]',
+          message:
+            'Prefer returning `undefined` for absent values in lib utilities. ' +
+            'If this wraps an external API that returns null, add an ' +
+            'eslint-disable-next-line comment explaining why.',
+        },
+      ],
+    },
+  },
   // Test files: relax no-explicit-any and no-unused-vars
   {
     files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', '**/__tests__/**/*.ts', '**/__tests__/**/*.tsx'],

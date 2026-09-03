@@ -60,9 +60,9 @@ export function wasteSubmissionSchema(weightUnit: WeightUnit = 'grams') {
 
 export type WasteSubmissionFormValues = z.infer<ReturnType<typeof wasteSubmissionSchema>>
 
-export function convertWeight(weightValue: string, weightUnit: WeightUnit): string | null {
+export function convertWeight(weightValue: string, weightUnit: WeightUnit): string | undefined {
   const num = parseFloat(weightValue)
-  if (isNaN(num) || num <= 0) return null
+  if (isNaN(num) || num <= 0) return undefined
   if (weightUnit === 'grams') return `${(num / 1000).toFixed(3)} kg`
   return `${(num * 1000).toFixed(0)} g`
 }

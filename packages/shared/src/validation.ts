@@ -3,7 +3,7 @@ export function isValidEthereumAddress(address: string): boolean {
 }
 
 export function isValidStellarAddress(address: string): boolean {
-  return /^GA[0-9a-zA-Z]{55,56}$/.test(address);
+  return /^G[A-Z2-7]{55}$/.test(address);
 }
 
 export function isValidWasteType(type: string): boolean {
