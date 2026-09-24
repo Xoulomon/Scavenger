@@ -69,6 +69,7 @@ pub mod event_builder;
 pub mod type_utils;
 /// #816 — Hash-based commitment scheme for privacy-preserving (ZKP-style) operations.
 pub mod zkp;
+pub mod zkp_verifier;
 /// #817 — Versioned cryptographic key storage and rotation.
 pub mod key_rotation;
 
