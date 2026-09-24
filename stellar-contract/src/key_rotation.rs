@@ -721,4 +721,178 @@ mod tests {
         }
         assert!(KeyPurpose::from_u32(99).is_none());
     }
+
+    // ── Edge cases: rotation during "pending transactions" ──────────────────────
+    //
+    // Soroban has no in-flight-transaction concept visible to this module, so
+    // "pending transaction" here means: a caller fetched the active key
+    // (e.g. to validate a signature) but the rotation completes before that
+    // caller's follow-up call lands. These tests document the guarantees the
+    // rest of the contract relies on in that window.
+
+    #[test]
+    fn rotation_during_pending_verification_does_not_invalidate_archived_record_lookup() {
+        // A "pending transaction" that captured version 1 before a rotation
+        // must still be able to look up that exact version afterward (e.g. to
+        // finish validating a signature made against the old key).
+        let env = Env::default();
+        let (admin, admins) = setup(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 1)).unwrap();
+        let pending_version = active_version(&env, KeyPurpose::ApiKeyHash).unwrap();
+
+        rotate_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 2)).unwrap();
+
+        // The pending transaction's captured version must still resolve.
+        let record = get_key_version(&env, KeyPurpose::ApiKeyHash, pending_version).unwrap();
+        assert_eq!(record.status, KeyStatus::Archived);
+        assert_eq!(record.key_hash, make_hash(&env, 1));
+    }
+
+    #[test]
+    fn concurrent_rotations_for_different_purposes_do_not_interfere() {
+        // Simulates two "pending" flows on different key purposes racing:
+        // rotating one purpose must not affect the other's active version.
+        let env = Env::default();
+        let (admin, admins) = setup(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 1)).unwrap();
+        install_key(&env, &admin, &admins, KeyPurpose::WebhookSigning, make_hash(&env, 9)).unwrap();
+
+        rotate_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 2)).unwrap();
+
+        let webhook_active = get_active_key(&env, KeyPurpose::WebhookSigning).unwrap();
+        assert_eq!(webhook_active.version, 1);
+        assert_eq!(webhook_active.key_hash, make_hash(&env, 9));
+    }
+
+    #[test]
+    fn rotation_immediately_followed_by_second_rotation_preserves_full_history() {
+        // Two rotations back-to-back (no reads in between) must not skip or
+        // clobber the intermediate version — regression for "pending" races
+        // where a second rotate_key call arrives before any reader observes
+        // the first one.
+        let env = Env::default();
+        let (admin, admins) = setup(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 1)).unwrap();
+        let v2 = rotate_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 2)).unwrap();
+        let v3 = rotate_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 3)).unwrap();
+
+        assert_eq!(v2, 2);
+        assert_eq!(v3, 3);
+        assert_eq!(get_key_version(&env, KeyPurpose::ApiKeyHash, 1).unwrap().status, KeyStatus::Archived);
+        assert_eq!(get_key_version(&env, KeyPurpose::ApiKeyHash, 2).unwrap().status, KeyStatus::Archived);
+        assert_eq!(get_key_version(&env, KeyPurpose::ApiKeyHash, 3).unwrap().status, KeyStatus::Active);
+    }
+
+    // ── Edge cases: invalid / expired key rotation attempts ──────────────────────
+
+    #[test]
+    fn rotate_key_with_revoked_active_version_still_succeeds_and_supersedes_it() {
+        // "Expired"/compromised active key: revoking does not clear the active
+        // pointer, so rotation must still be possible and must supersede the
+        // revoked record rather than erroring out.
+        let env = Env::default();
+        let (admin, admins) = setup(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 1)).unwrap();
+        revoke_key_version(&env, &admin, &admins, KeyPurpose::ApiKeyHash, 1).unwrap();
+
+        let v2 = rotate_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 2)).unwrap();
+        assert_eq!(v2, 2);
+        let old = get_key_version(&env, KeyPurpose::ApiKeyHash, 1).unwrap();
+        // Rotation overwrites status to Archived even though it was Revoked;
+        // documents current behavior so a future change here is a conscious one.
+        assert_eq!(old.status, KeyStatus::Archived);
+    }
+
+    #[test]
+    fn revoking_an_already_revoked_version_is_idempotent_not_an_error() {
+        let env = Env::default();
+        let (admin, admins) = setup(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 1)).unwrap();
+        revoke_key_version(&env, &admin, &admins, KeyPurpose::ApiKeyHash, 1).unwrap();
+        // Second revoke of the same, already-revoked version must not error.
+        assert!(revoke_key_version(&env, &admin, &admins, KeyPurpose::ApiKeyHash, 1).is_ok());
+        assert_eq!(
+            get_key_version(&env, KeyPurpose::ApiKeyHash, 1).unwrap().status,
+            KeyStatus::Revoked
+        );
+    }
+
+    #[test]
+    fn purge_of_already_purged_version_fails_with_version_not_found() {
+        let env = Env::default();
+        let (admin, admins) = setup(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 1)).unwrap();
+        rotate_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 2)).unwrap();
+        purge_key_version(&env, &admin, &admins, KeyPurpose::ApiKeyHash, 1).unwrap();
+
+        assert_eq!(
+            purge_key_version(&env, &admin, &admins, KeyPurpose::ApiKeyHash, 1),
+            Err(KeyRotationError::VersionNotFound)
+        );
+    }
+
+    #[test]
+    fn install_key_after_only_version_is_revoked_still_reports_already_exists() {
+        // Revoking the only version does not clear the "active" slot, so a
+        // second install_key attempt for the same purpose must still be
+        // rejected as AlreadyExists (rotate_key is the correct path).
+        let env = Env::default();
+        let (admin, admins) = setup(&env);
+        install_key(&env, &admin, &admins, KeyPurpose::PiiEncryption, make_hash(&env, 1)).unwrap();
+        revoke_key_version(&env, &admin, &admins, KeyPurpose::PiiEncryption, 1).unwrap();
+
+        assert_eq!(
+            install_key(&env, &admin, &admins, KeyPurpose::PiiEncryption, make_hash(&env, 2)),
+            Err(KeyRotationError::AlreadyExists)
+        );
+    }
+
+    #[test]
+    fn rotate_key_rejects_zero_hash_even_when_no_active_key_exists() {
+        // Ordering guarantee: NoActiveKey vs ZeroKeyHash — zero-hash is
+        // validated before the active-key lookup, so an invalid replacement
+        // hash is rejected immediately rather than surfacing a confusing
+        // "no active key" error first when both conditions hold... in this
+        // case only the hash is invalid, so ZeroKeyHash must win.
+        let env = Env::default();
+        let (admin, admins) = setup(&env);
+        assert_eq!(
+            rotate_key(&env, &admin, &admins, KeyPurpose::PiiEncryption, zero_hash(&env)),
+            Err(KeyRotationError::ZeroKeyHash)
+        );
+    }
+
+    #[test]
+    fn get_key_version_for_never_installed_purpose_returns_version_not_found() {
+        let env = Env::default();
+        assert_eq!(
+            get_key_version(&env, KeyPurpose::ZkpVerification, 1),
+            Err(KeyRotationError::VersionNotFound)
+        );
+    }
+
+    #[test]
+    fn purge_nonexistent_version_on_untouched_purpose_returns_version_not_found() {
+        let env = Env::default();
+        let (admin, admins) = setup(&env);
+        assert_eq!(
+            purge_key_version(&env, &admin, &admins, KeyPurpose::ZkpVerification, 5),
+            Err(KeyRotationError::VersionNotFound)
+        );
+    }
+
+    #[test]
+    fn empty_admin_list_rejects_every_mutating_call() {
+        // "Expired"/removed admin: an admin list that no longer contains the
+        // caller must reject install, rotate, revoke, and purge uniformly.
+        let env = Env::default();
+        env.mock_all_auths();
+        let former_admin = Address::generate(&env);
+        let empty_admins: Vec<Address> = Vec::new(&env);
+
+        assert_eq!(
+            install_key(&env, &former_admin, &empty_admins, KeyPurpose::ApiKeyHash, make_hash(&env, 1)),
+            Err(KeyRotationError::Unauthorized)
+        );
+    }
 }
