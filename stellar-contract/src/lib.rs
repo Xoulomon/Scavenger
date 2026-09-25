@@ -70,6 +70,7 @@ pub mod event_builder;
 pub mod type_utils;
 /// #816 — Hash-based commitment scheme for privacy-preserving (ZKP-style) operations.
 pub mod zkp;
+pub mod zkp_verifier;
 /// #817 — Versioned cryptographic key storage and rotation.
 pub mod key_rotation;
 
@@ -2459,7 +2460,7 @@ impl ScavengerContract {
         Self::require_not_paused(&env);
         Self::only_registered(&env, &submitter);
 
-        validation::validate_weight(weight as u128, MAX_WASTE_WEIGHT);
+        validation::validate_weight_max(weight as u128, MAX_WASTE_WEIGHT);
         let min_weight = Self::get_min_weight(env.clone());
         if (weight as u128) < min_weight {
             panic!("Waste weight below minimum allowed");
@@ -2537,7 +2538,7 @@ impl ScavengerContract {
         Self::require_not_paused(&env);
         Self::only_registered(&env, &recycler);
 
-        validation::validate_weight(weight, MAX_WASTE_WEIGHT);
+        validation::validate_weight_max(weight, MAX_WASTE_WEIGHT);
         let min_weight = Self::get_min_weight(env.clone());
         if weight < min_weight {
             panic!("Waste weight below minimum allowed");
@@ -3431,7 +3432,7 @@ impl ScavengerContract {
         // Process each material
         for item in materials.iter() {
             let (waste_type, weight, description) = item;
-            validation::validate_weight(weight as u128, MAX_WASTE_WEIGHT);
+            validation::validate_weight_max(weight as u128, MAX_WASTE_WEIGHT);
             let waste_id = Self::next_waste_id(&env);
 
             let material = Material::new(

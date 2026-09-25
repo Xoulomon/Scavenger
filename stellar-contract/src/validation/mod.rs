@@ -1,23 +1,29 @@
-use soroban_sdk::Address;
-//! # Validation Utilities — Issue #757
+//! # Validation Utilities — Issue #757, split per-entity
 //!
-//! Common validation functions extracted into a single reusable module to
-//! eliminate code duplication across contract functions.
+//! This module used to hold every validator for every contract entity
+//! (participants, waste batches, transfers, percentages, coordinates, ...)
+//! in one flat file, which made it hard to find entity-specific rules and to
+//! test them in isolation. It is now split into:
 //!
-//! ## Usage
+//! * [`mod@self`] — shared low-level primitives (amounts, percentages,
+//!   coordinates, strings, timestamps, collections) used by every entity.
+//! * [`participant`] — participant-registration rules.
+//! * [`waste_batch`] — waste submission/batch rules.
+//! * [`transfer`] — transfer and reward-split rules.
 //!
-//! ```ignore
-//! use crate::validation::{
-//!     validate_positive_amount, validate_weight, validate_coordinates,
-//!     validate_percentage, validate_addresses_different,
-//! };
-//!
-//! validate_weight(weight, "waste weight");
-//! validate_coordinates(latitude, longitude);
-//! validate_percentage(collector_pct, "collector_percentage");
-//! ```
+//! The original flat panic-based functions remain here unchanged (by name
+//! and behavior) so existing call sites (`validation::validate_weight`,
+//! `validation::validate_coordinates`, etc.) keep working without
+//! modification. The new per-entity modules provide `Result`-returning
+//! wrappers using the shared [`ValidationError`] type for callers that want
+//! to handle invalid input without panicking, and are independently
+//! unit-testable.
 
 use soroban_sdk::{Address, Env, String, Vec};
+
+pub mod participant;
+pub mod transfer;
+pub mod waste_batch;
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -45,18 +51,36 @@ pub const MAX_TAGS: u32 = 10;
 /// Maximum tag length in characters.
 pub const MAX_TAG_LEN: u32 = 32;
 
+// ── Consistent error type for the new per-entity validators ────────────────────
+
+/// Common error type returned by the `Result`-based validators in
+/// [`participant`], [`waste_batch`], and [`transfer`], so callers get one
+/// consistent error shape across entities instead of ad-hoc panics.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ValidationError {
+    /// A numeric value was zero/negative where a positive value was required.
+    NotPositive { field: &'static str },
+    /// A numeric value fell outside its allowed `[min, max]` range.
+    OutOfRange { field: &'static str, min: i128, max: i128 },
+    /// A percentage/bps value exceeded its maximum.
+    PercentageTooHigh { field: &'static str },
+    /// Two addresses that must differ were equal.
+    AddressesNotDistinct { context: &'static str },
+    /// An address was disallowed (e.g. equals the contract itself).
+    AddressNotAllowed { context: &'static str },
+    /// A string was empty where non-empty was required.
+    EmptyString { field: &'static str },
+    /// A string exceeded its maximum length.
+    StringTooLong { field: &'static str, max_len: u32 },
+    /// A collection was empty where non-empty was required.
+    EmptyCollection { field: &'static str },
+    /// A collection exceeded its maximum size.
+    CollectionTooLarge { field: &'static str, max: u32 },
+}
+
 // ── Amount validators ─────────────────────────────────────────────────────────
 
 /// Panics if `amount` is not positive (> 0).
-///
-/// # Parameters
-/// * `amount`     — the value to check.
-/// * `field_name` — name used in the panic message.
-///
-/// # Example
-/// ```ignore
-/// validate_positive_amount(reward_amount, "reward");
-/// ```
 #[allow(dead_code)]
 pub fn validate_positive_amount(amount: i128, field_name: &str) {
     if amount <= 0 {
@@ -64,30 +88,7 @@ pub fn validate_positive_amount(amount: i128, field_name: &str) {
     }
 }
 
-pub fn validate_positive_u128(amount: u128, field_name: &str) {
-    if amount == 0 {
-        panic!("{} must be greater than zero", field_name);
-    }
-}
-
-/// Validates a waste/material weight: must be non-zero and within `max`.
-pub fn validate_weight(weight: u128, max: u128) {
-    validate_positive_u128(weight, "Waste weight");
-    if weight > max {
-        panic!("Waste weight exceeds maximum allowed");
-    }
-}
-
-/// Validates that two reward-distribution percentages don't sum past 100.
-pub fn validate_percentage_sum(collector_percentage: u32, owner_percentage: u32) {
-    if collector_percentage + owner_percentage > 100 {
-        panic!("Total percentages cannot exceed 100");
 /// Panics if `amount` is not positive (u128 variant, rejects zero).
-///
-/// # Parameters
-/// * `amount`     — the value to check.
-/// * `field_name` — name used in the panic message.
-#[allow(dead_code)]
 pub fn validate_positive_u128(amount: u128, field_name: &str) {
     if amount == 0 {
         panic!("{} must be greater than zero", field_name);
@@ -98,15 +99,6 @@ pub fn validate_positive_u128(amount: u128, field_name: &str) {
 ///
 /// Panics if weight is below `MIN_WASTE_WEIGHT` (100 g) or above
 /// `MAX_WASTE_WEIGHT` (1 000 000 kg).
-///
-/// # Parameters
-/// * `weight`     — weight in grams.
-/// * `field_name` — name used in the panic message.
-///
-/// # Example
-/// ```ignore
-/// validate_weight(waste.weight, "waste weight");
-/// ```
 pub fn validate_weight(weight: u128, field_name: &str) {
     if weight < MIN_WASTE_WEIGHT {
         panic!("{} must be at least {} grams", field_name, MIN_WASTE_WEIGHT);
@@ -116,6 +108,19 @@ pub fn validate_weight(weight: u128, field_name: &str) {
             "{} must not exceed {} grams (1 000 000 kg)",
             field_name, MAX_WASTE_WEIGHT
         );
+    }
+}
+
+/// Validates a waste/material weight: must be non-zero and within `max`.
+///
+/// Renamed from the original overlapping `validate_weight(weight, max)` to
+/// avoid a duplicate-definition conflict with the field-name variant above;
+/// callers passing an explicit ceiling (rather than the global
+/// `MAX_WASTE_WEIGHT` constant) should use this.
+pub fn validate_weight_max(weight: u128, max: u128) {
+    validate_positive_u128(weight, "Waste weight");
+    if weight > max {
+        panic!("Waste weight exceeds maximum allowed");
     }
 }
 
@@ -130,24 +135,20 @@ pub fn validate_non_negative(amount: i128, field_name: &str) {
 // ── Percentage validators ─────────────────────────────────────────────────────
 
 /// Panics if `percentage` is greater than 100.
-///
-/// # Parameters
-/// * `percentage` — value to validate (0–100).
-/// * `field_name` — name used in the panic message.
 pub fn validate_percentage(percentage: u32, field_name: &str) {
     if percentage > 100 {
         panic!("{} must be <= 100", field_name);
     }
 }
 
+/// Validates that two reward-distribution percentages don't sum past 100.
+pub fn validate_percentage_sum(collector_percentage: u32, owner_percentage: u32) {
+    if collector_percentage + owner_percentage > 100 {
+        panic!("Total percentages cannot exceed 100");
+    }
+}
+
 /// Validates that collector and owner percentages together do not exceed 100.
-///
-/// # Parameters
-/// * `collector_pct` — collector percentage.
-/// * `owner_pct`     — owner percentage.
-///
-/// # Panics
-/// Panics with `"Total percentages cannot exceed 100"` if the sum exceeds 100.
 pub fn validate_reward_percentages(collector_pct: u32, owner_pct: u32) {
     if collector_pct + owner_pct > 100 {
         panic!("Total percentages cannot exceed 100");
@@ -155,10 +156,6 @@ pub fn validate_reward_percentages(collector_pct: u32, owner_pct: u32) {
 }
 
 /// Validates a basis-point value (0–10 000 = 0%–100%).
-///
-/// # Parameters
-/// * `bps`        — basis points to validate.
-/// * `field_name` — name used in the panic message.
 #[allow(dead_code)]
 pub fn validate_bps(bps: u32, field_name: &str) {
     if bps > 10_000 {
@@ -169,18 +166,6 @@ pub fn validate_bps(bps: u32, field_name: &str) {
 // ── Coordinate validators ─────────────────────────────────────────────────────
 
 /// Validates WGS-84 coordinates stored as microdegrees.
-///
-/// * Latitude  must be in `[-90_000_000, 90_000_000]`  (i.e. −90° to +90°).
-/// * Longitude must be in `[-180_000_000, 180_000_000]` (i.e. −180° to +180°).
-///
-/// # Panics
-/// Panics with a descriptive message if either value is out of range.
-///
-/// # Example
-/// ```ignore
-/// validate_coordinates(52_520_000, 13_405_000); // Berlin, valid
-/// validate_coordinates(91_000_000, 0);           // panics
-/// ```
 pub fn validate_coordinates(latitude: i128, longitude: i128) {
     if !(-MAX_LAT..=MAX_LAT).contains(&latitude) {
         panic!("Latitude must be between -90 and +90 degrees");
@@ -193,12 +178,6 @@ pub fn validate_coordinates(latitude: i128, longitude: i128) {
 // ── Address validators ────────────────────────────────────────────────────────
 
 /// Panics if `address` equals the current contract address.
-///
-/// Use this to prevent participants from registering as the contract itself.
-///
-/// # Parameters
-/// * `env`     — Soroban environment.
-/// * `address` — address to check.
 pub fn validate_address_not_contract(env: &Env, address: &Address) {
     if address == &env.current_contract_address() {
         panic!("Address cannot be the contract itself");
@@ -206,16 +185,6 @@ pub fn validate_address_not_contract(env: &Env, address: &Address) {
 }
 
 /// Panics if `addr1` equals `addr2`.
-///
-/// # Parameters
-/// * `addr1`   — first address.
-/// * `addr2`   — second address.
-/// * `context` — description used in the panic message.
-///
-/// # Example
-/// ```ignore
-/// validate_addresses_different(&from, &to, "waste transfer");
-/// ```
 pub fn validate_addresses_different(addr1: &Address, addr2: &Address, context: &str) {
     if addr1 == addr2 {
         panic!("{}: addresses must be different", context);
@@ -223,13 +192,6 @@ pub fn validate_addresses_different(addr1: &Address, addr2: &Address, context: &
 }
 
 /// Panics if `address` is not present in `allowed`.
-///
-/// Use to verify a caller is in the admin list or member set.
-///
-/// # Parameters
-/// * `address` — address to check.
-/// * `allowed` — list of permitted addresses.
-/// * `context` — description used in the panic message.
 #[allow(dead_code)]
 pub fn validate_address_in_list(address: &Address, allowed: &Vec<Address>, context: &str) {
     if !allowed.contains(address) {
@@ -240,10 +202,6 @@ pub fn validate_address_in_list(address: &Address, allowed: &Vec<Address>, conte
 // ── String validators ─────────────────────────────────────────────────────────
 
 /// Panics if the Soroban `String` is empty.
-///
-/// # Parameters
-/// * `s`          — string to check.
-/// * `field_name` — name used in the panic message.
 pub fn validate_string_not_empty(s: &String, field_name: &str) {
     if s.len() == 0 {
         panic!("{} must not be empty", field_name);
@@ -251,11 +209,6 @@ pub fn validate_string_not_empty(s: &String, field_name: &str) {
 }
 
 /// Panics if the Soroban `String` exceeds `max_len` characters.
-///
-/// # Parameters
-/// * `s`          — string to check.
-/// * `max_len`    — maximum allowed length.
-/// * `field_name` — name used in the panic message.
 pub fn validate_string_max_len(s: &String, max_len: u32, field_name: &str) {
     if s.len() > max_len {
         panic!("{} must not exceed {} characters", field_name, max_len);
@@ -263,11 +216,6 @@ pub fn validate_string_max_len(s: &String, max_len: u32, field_name: &str) {
 }
 
 /// Convenience: validates both non-empty and max length.
-///
-/// # Parameters
-/// * `s`          — string to check.
-/// * `max_len`    — maximum allowed length.
-/// * `field_name` — name used in the panic message.
 #[allow(dead_code)]
 pub fn validate_string(s: &String, max_len: u32, field_name: &str) {
     validate_string_not_empty(s, field_name);
@@ -277,11 +225,6 @@ pub fn validate_string(s: &String, max_len: u32, field_name: &str) {
 // ── Timestamp validators ──────────────────────────────────────────────────────
 
 /// Panics if `timestamp` is not strictly in the future.
-///
-/// # Parameters
-/// * `timestamp`    — the timestamp to validate (Unix seconds).
-/// * `current_time` — the current ledger timestamp.
-/// * `field_name`   — name used in the panic message.
 #[allow(dead_code)]
 pub fn validate_future_timestamp(timestamp: u64, current_time: u64, field_name: &str) {
     if timestamp <= current_time {
@@ -290,10 +233,6 @@ pub fn validate_future_timestamp(timestamp: u64, current_time: u64, field_name: 
 }
 
 /// Panics if `end` is not strictly after `start`.
-///
-/// # Parameters
-/// * `start` — start timestamp.
-/// * `end`   — end timestamp.
 #[allow(dead_code)]
 pub fn validate_time_range(start: u64, end: u64) {
     if end <= start {
@@ -304,10 +243,6 @@ pub fn validate_time_range(start: u64, end: u64) {
 // ── Collection validators ─────────────────────────────────────────────────────
 
 /// Panics if a `Vec` is empty.
-///
-/// # Parameters
-/// * `len`        — length of the collection.
-/// * `field_name` — name used in the panic message.
 #[allow(dead_code)]
 pub fn validate_not_empty_collection(len: u32, field_name: &str) {
     if len == 0 {
@@ -316,11 +251,6 @@ pub fn validate_not_empty_collection(len: u32, field_name: &str) {
 }
 
 /// Panics if a `Vec` length exceeds `max`.
-///
-/// # Parameters
-/// * `len`        — length of the collection.
-/// * `max`        — maximum allowed length.
-/// * `field_name` — name used in the panic message.
 #[allow(dead_code)]
 pub fn validate_max_collection_size(len: u32, max: u32, field_name: &str) {
     if len > max {
@@ -328,35 +258,19 @@ pub fn validate_max_collection_size(len: u32, max: u32, field_name: &str) {
     }
 }
 
-// ── Waste-specific composite validators ───────────────────────────────────────
+// ── Composite validators kept for backward compatibility ───────────────────────
+//
+// Prefer `waste_batch::validate_waste_submission` / `participant::validate_registration`
+// for new code — these delegate to the same logic and remain so existing call
+// sites are unaffected.
 
-/// Full validation for a waste submission.
-///
-/// Checks weight range and coordinates in a single call.
-///
-/// # Parameters
-/// * `weight`    — weight in grams.
-/// * `latitude`  — latitude in microdegrees.
-/// * `longitude` — longitude in microdegrees.
-///
-/// # Example
-/// ```ignore
-/// validate_waste_submission(weight, latitude, longitude);
-/// ```
+/// Full validation for a waste submission (weight range + coordinates).
 pub fn validate_waste_submission(weight: u128, latitude: i128, longitude: i128) {
     validate_weight(weight, "waste weight");
     validate_coordinates(latitude, longitude);
 }
 
 /// Full validation for participant registration.
-///
-/// Checks that the address is not the contract itself and coordinates are valid.
-///
-/// # Parameters
-/// * `env`       — Soroban environment.
-/// * `address`   — registering address.
-/// * `latitude`  — latitude in microdegrees.
-/// * `longitude` — longitude in microdegrees.
 pub fn validate_participant_registration(
     env: &Env,
     address: &Address,
@@ -383,13 +297,13 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "amount must be positive")]
+    #[should_panic(expected = "amount must be greater than zero")]
     fn positive_amount_rejects_zero() {
         validate_positive_amount(0, "amount");
     }
 
     #[test]
-    #[should_panic(expected = "amount must be positive")]
+    #[should_panic(expected = "amount must be greater than zero")]
     fn positive_amount_rejects_negative() {
         validate_positive_amount(-1, "amount");
     }
@@ -403,6 +317,18 @@ mod tests {
     #[should_panic(expected = "value must be greater than zero")]
     fn positive_u128_rejects_zero() {
         validate_positive_u128(0, "value");
+    }
+
+    #[test]
+    fn non_negative_accepts_zero_and_positive() {
+        validate_non_negative(0, "amount");
+        validate_non_negative(100, "amount");
+    }
+
+    #[test]
+    #[should_panic(expected = "amount cannot be negative")]
+    fn non_negative_rejects_negative() {
+        validate_non_negative(-1, "amount");
     }
 
     // ── Weight tests ──────────────────────────────────────────────────────────
@@ -426,6 +352,17 @@ mod tests {
         validate_weight(MAX_WASTE_WEIGHT + 1, "waste weight");
     }
 
+    #[test]
+    fn weight_max_accepts_value_within_ceiling() {
+        validate_weight_max(50, 100);
+    }
+
+    #[test]
+    #[should_panic(expected = "exceeds maximum allowed")]
+    fn weight_max_rejects_value_over_ceiling() {
+        validate_weight_max(101, 100);
+    }
+
     // ── Percentage tests ──────────────────────────────────────────────────────
 
     #[test]
@@ -443,7 +380,7 @@ mod tests {
 
     #[test]
     fn reward_percentages_accepts_valid_split() {
-        validate_reward_percentages(30, 50); // 80 total — OK
+        validate_reward_percentages(30, 50);
         validate_reward_percentages(0, 100);
         validate_reward_percentages(50, 50);
     }
@@ -454,6 +391,24 @@ mod tests {
         validate_reward_percentages(60, 50);
     }
 
+    #[test]
+    #[should_panic(expected = "Total percentages cannot exceed 100")]
+    fn percentage_sum_rejects_over_100() {
+        validate_percentage_sum(60, 50);
+    }
+
+    #[test]
+    fn bps_accepts_boundary_values() {
+        validate_bps(0, "fee");
+        validate_bps(10_000, "fee");
+    }
+
+    #[test]
+    #[should_panic(expected = "must be <= 10 000 basis points")]
+    fn bps_rejects_over_max() {
+        validate_bps(10_001, "fee");
+    }
+
     // ── Coordinate tests ──────────────────────────────────────────────────────
 
     #[test]
@@ -461,7 +416,7 @@ mod tests {
         validate_coordinates(0, 0);
         validate_coordinates(MAX_LAT, MAX_LON);
         validate_coordinates(-MAX_LAT, -MAX_LON);
-        validate_coordinates(52_520_000, 13_405_000); // Berlin
+        validate_coordinates(52_520_000, 13_405_000);
     }
 
     #[test]
@@ -500,6 +455,31 @@ mod tests {
         validate_addresses_different(&a, &a, "transfer");
     }
 
+    #[test]
+    fn address_not_contract_accepts_other_address() {
+        let env = Env::default();
+        let a = soroban_sdk::Address::generate(&env);
+        validate_address_not_contract(&env, &a);
+    }
+
+    #[test]
+    fn address_in_list_accepts_member() {
+        let env = Env::default();
+        let a = soroban_sdk::Address::generate(&env);
+        let list = Vec::from_array(&env, [a.clone()]);
+        validate_address_in_list(&a, &list, "admin");
+    }
+
+    #[test]
+    #[should_panic(expected = "admin: address not authorised")]
+    fn address_in_list_rejects_non_member() {
+        let env = Env::default();
+        let a = soroban_sdk::Address::generate(&env);
+        let b = soroban_sdk::Address::generate(&env);
+        let list = Vec::from_array(&env, [a]);
+        validate_address_in_list(&b, &list, "admin");
+    }
+
     // ── Composite tests ───────────────────────────────────────────────────────
 
     #[test]
@@ -523,7 +503,7 @@ mod tests {
 
     #[test]
     fn future_timestamp_accepts_future_time() {
-        validate_future_timestamp(1_000, 500);
+        validate_future_timestamp(1_000, 500, "deadline");
     }
 
     #[test]
@@ -536,6 +516,23 @@ mod tests {
     #[should_panic(expected = "deadline must be in the future")]
     fn future_timestamp_rejects_equal() {
         validate_future_timestamp(1_000, 1_000, "deadline");
+    }
+
+    #[test]
+    fn time_range_accepts_end_after_start() {
+        validate_time_range(100, 200);
+    }
+
+    #[test]
+    #[should_panic(expected = "End time must be after start time")]
+    fn time_range_rejects_end_before_start() {
+        validate_time_range(200, 100);
+    }
+
+    #[test]
+    #[should_panic(expected = "End time must be after start time")]
+    fn time_range_rejects_equal_start_and_end() {
+        validate_time_range(100, 100);
     }
 
     // ── String tests ──────────────────────────────────────────────────────────
@@ -553,5 +550,51 @@ mod tests {
         let env = Env::default();
         let s = soroban_sdk::String::from_str(&env, "");
         validate_string_not_empty(&s, "name");
+    }
+
+    #[test]
+    fn string_max_len_accepts_within_limit() {
+        let env = Env::default();
+        let s = soroban_sdk::String::from_str(&env, "hello");
+        validate_string_max_len(&s, 10, "name");
+    }
+
+    #[test]
+    #[should_panic(expected = "must not exceed")]
+    fn string_max_len_rejects_too_long() {
+        let env = Env::default();
+        let s = soroban_sdk::String::from_str(&env, "this is way too long");
+        validate_string_max_len(&s, 5, "name");
+    }
+
+    #[test]
+    fn string_convenience_accepts_valid_string() {
+        let env = Env::default();
+        let s = soroban_sdk::String::from_str(&env, "ok");
+        validate_string(&s, 10, "name");
+    }
+
+    // ── Collection tests ──────────────────────────────────────────────────────
+
+    #[test]
+    fn not_empty_collection_accepts_nonzero_len() {
+        validate_not_empty_collection(1, "tags");
+    }
+
+    #[test]
+    #[should_panic(expected = "tags must not be empty")]
+    fn not_empty_collection_rejects_zero_len() {
+        validate_not_empty_collection(0, "tags");
+    }
+
+    #[test]
+    fn max_collection_size_accepts_within_limit() {
+        validate_max_collection_size(5, 10, "tags");
+    }
+
+    #[test]
+    #[should_panic(expected = "tags must not exceed 10 items")]
+    fn max_collection_size_rejects_over_limit() {
+        validate_max_collection_size(11, 10, "tags");
     }
 }

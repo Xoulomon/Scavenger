@@ -10,3 +10,4 @@
 //! included via `mod common;` inside each test file that needs it.
 
 pub mod event_helpers;
+pub mod setup;
