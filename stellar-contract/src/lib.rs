@@ -63,6 +63,15 @@ pub mod batch_optimizer;
 /// Establishes baseline metrics and detects performance degradation over time.
 pub mod benchmark_regression;
 
+// ── Issue #1272: Storage key audit and collision detection ──────────
+/// Audited storage key constructors with naming convention enforcement.
+/// Verifies uniqueness across all storage key builders.
+pub mod storage_keys;
+
+// ── Issue #1273: Consolidated grading logic ──
+/// Single source of truth for all grading-related logic.
+pub mod grading;
+
 // ── Issues #814–#817: new utility modules ────────────────────────────────────
 /// #814 — Reusable event builder pattern, filtering, and formatting utilities.
 pub mod event_builder;
@@ -1416,7 +1425,7 @@ impl ScavengerContract {
     }
 
     /// Get the total count of waste records
-    fn get_waste_count(env: &Env) -> u64 {
+    pub(crate) fn get_waste_count(env: &Env) -> u64 {
         env.storage().instance().get(&("waste_count",)).unwrap_or(0)
     }
 
@@ -1649,21 +1658,14 @@ impl ScavengerContract {
     /// - `incentive_id`: ID of the incentive to use.
     /// - `waste_amount`: Waste weight in grams.
     ///
-    /// # Returns
-    /// Token reward amount (`u64`). Returns `0` for inactive incentives.
-    ///
-    /// # Errors
-    /// - Panics `"Incentive not found"`.
-    pub fn calculate_incentive_reward(
-        env: Env,
-        incentive_id: u64,
-        waste_amount: u64,
-    ) -> u64 {
-        let incentive: Incentive = Self::get_incentive_internal(&env, incentive_id)
-            .expect("Incentive not found");
-    pub fn calculate_incentive_reward(env: Env, incentive_id: u64, waste_amount: u64) -> u64 {
-        let incentive: Incentive =
-            Self::get_incentive_internal(&env, incentive_id).expect("Incentive not found");
+/// # Returns
+/// Token reward amount (`u64`). Returns `0` for inactive incentives.
+///
+/// # Errors
+/// - Panics `"Incentive not found"`.
+pub fn calculate_incentive_reward(env: Env, incentive_id: u64, waste_amount: u64) -> u64 {
+    let incentive: Incentive =
+        Self::get_incentive_internal(&env, incentive_id).expect("Incentive not found");
 
         // Check if incentive is active
         if !incentive.active {
@@ -4564,28 +4566,7 @@ impl ScavengerContract {
             .instance()
             .set(&("waste_v2", waste_id), &waste);
 
-        let history_key = ("grade_history", waste_id);
-        let mut history: Vec<types::GradeRecord> = env
-            .storage()
-            .instance()
-            .get(&history_key)
-            .unwrap_or(Vec::new(&env));
-        history.push_back(types::GradeRecord {
-            waste_id,
-            grade,
-            grader: grader.clone(),
-            graded_at: env.ledger().timestamp(),
-        });
-        env.storage().instance().set(&history_key, &history);
-
-        let stats_key = ("stats", grader.clone());
-        let mut stats: RecyclingStats = env
-            .storage()
-            .instance()
-            .get(&stats_key)
-            .unwrap_or_else(|| RecyclingStats::new(grader.clone()));
-        stats.record_grade(grade);
-        env.storage().instance().set(&stats_key, &stats);
+        grading::record_grade(&env, waste_id, grade, &grader_participant);
 
         events::emit_waste_graded(&env, waste_id, grade, &grader);
 
@@ -4620,7 +4601,7 @@ impl ScavengerContract {
 
     /// Apply the grade multiplier to a base reward: `base * grade.multiplier_pct() / 100`.
     pub fn apply_grade_multiplier(base_reward: u64, grade: WasteGrade) -> u64 {
-        base_reward * grade.multiplier_pct() / 100
+        grading::apply_grade_multiplier(base_reward, grade)
     }
 
     /// Get aggregated grading analytics across all participants.

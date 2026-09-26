@@ -579,3 +579,128 @@ fn test_performance_tracking_methodology() {
     assert!(methodology.contains("Baseline"));
     assert!(methodology.contains("Metrics"));
 }
+
+// ═════════════════════════════════════════════════════════════════════════════
+// Regression Enforcement Tests (Issue #1271)
+// ═════════════════════════════════════════════════════════════════════════════
+
+use stellar_scavngr_contract::benchmark_regression::{
+    BenchmarkSuite, RegressionDetector, BenchmarkResult, MetricType,
+};
+
+#[test]
+fn test_assert_no_regression_passes_when_no_regression() {
+    let detector = RegressionDetector::new();
+    let mut suite = BenchmarkSuite::new();
+    suite.add_result(BenchmarkResult {
+        name: "normal",
+        metric_type: MetricType::Gas,
+        measured: 1050,
+        baseline: 1000,
+        threshold_percentage: 10,
+    });
+    detector.assert_no_regression(&suite);
+}
+
+#[test]
+#[should_panic(expected = "Regression detected")]
+fn test_assert_no_regression_panics_on_regression() {
+    let detector = RegressionDetector::new();
+    let mut suite = BenchmarkSuite::new();
+    suite.add_result(BenchmarkResult {
+        name: "regressed",
+        metric_type: MetricType::Gas,
+        measured: 1150,
+        baseline: 1000,
+        threshold_percentage: 10,
+    });
+    detector.assert_no_regression(&suite);
+}
+
+#[test]
+fn test_check_regression_enforcement_ok() {
+    let detector = RegressionDetector::new();
+    let mut suite = BenchmarkSuite::new();
+    suite.add_result(BenchmarkResult {
+        name: "normal",
+        metric_type: MetricType::Gas,
+        measured: 1050,
+        baseline: 1000,
+        threshold_percentage: 10,
+    });
+    assert!(detector.check_regression_enforcement(&suite).is_ok());
+}
+
+#[test]
+fn test_check_regression_enforcement_err() {
+    let detector = RegressionDetector::new();
+    let mut suite = BenchmarkSuite::new();
+    suite.add_result(BenchmarkResult {
+        name: "regressed",
+        metric_type: MetricType::Gas,
+        measured: 1150,
+        baseline: 1000,
+        threshold_percentage: 10,
+    });
+    let result = detector.check_regression_enforcement(&suite);
+    assert!(result.is_err());
+    assert!(result.unwrap_err().contains("Regression detected"));
+}
+
+#[test]
+fn test_check_within_threshold_passes() {
+    let detector = RegressionDetector::new();
+    let result = BenchmarkResult {
+        name: "normal",
+        metric_type: MetricType::Gas,
+        measured: 1050,
+        baseline: 1000,
+        threshold_percentage: 10,
+    };
+    assert!(detector.check_within_threshold(&result).is_ok());
+}
+
+#[test]
+fn test_check_within_threshold_fails() {
+    let detector = RegressionDetector::new();
+    let result = BenchmarkResult {
+        name: "regressed",
+        metric_type: MetricType::Gas,
+        measured: 1150,
+        baseline: 1000,
+        threshold_percentage: 10,
+    };
+    assert!(detector.check_within_threshold(&result).is_err());
+}
+
+#[test]
+fn test_threshold_enforcement_documentation() {
+    let thresholds_doc = r#"
+    # Benchmark Regression Thresholds (Issue #1271)
+
+    ## Threshold Definitions
+    - register_participant: 10% above baseline (2,500 gas → 2,750 max)
+    - submit_waste: 10% above baseline (3,000 gas → 3,300 max)
+    - transfer_waste: 15% above baseline (4,500 gas → 5,175 max)
+    - query_participant: 5% above baseline (1,500 gas → 1,575 max)
+    - default: 10% above baseline
+
+    ## Enforcement
+    - `RegressionDetector::assert_no_regression(&suite)` panics if any
+      benchmark exceeds its threshold.
+    - `RegressionDetector::check_regression_enforcement(&suite)` returns
+      `Err(String)` with details about any regressions.
+    - `RegressionDetector::check_within_threshold(&result)` returns
+      `Err(String)` if a single benchmark exceeds its threshold.
+
+    ## Updating Thresholds
+    When intentionally updating thresholds:
+    1. Document the reason in the commit message
+    2. Run `cargo test --package stellar-scavngr-contract benchmark_regression_test`
+    3. Verify no false positives with `cargo bench`
+    4. Update `PerformanceThresholds::default()` values accordingly
+    "#;
+
+    assert!(thresholds_doc.contains("Threshold Definitions"));
+    assert!(thresholds_doc.contains("Enforcement"));
+}
