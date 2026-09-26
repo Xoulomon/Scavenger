@@ -51,7 +51,7 @@ export interface SimulationResult {
     memoryBytes: number
   }
   /** Decoded return value if the simulation succeeded. */
-  result?: any
+  result?: unknown
   /** Error message if the simulation failed. */
   error?: string
 }
@@ -61,7 +61,7 @@ export interface SimulationResult {
  *
  * @typeParam T - The expected decoded return type from the contract call.
  */
-export interface TransactionResult<T = any> {
+export interface TransactionResult<T = unknown> {
   /** Whether the transaction was accepted and confirmed on-chain. */
   success: boolean
   /**

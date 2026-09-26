@@ -19,15 +19,15 @@ export interface ErrorResponse {
   error: string;
   message: string;
   code: ErrorCode;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 export class AppError extends Error {
   public readonly code: ErrorCode;
   public readonly statusCode: number;
-  public readonly details?: Record<string, any>;
+  public readonly details?: Record<string, unknown>;
 
-  constructor(message: string, code: ErrorCode, statusCode: number, details?: Record<string, any>) {
+  constructor(message: string, code: ErrorCode, statusCode: number, details?: Record<string, unknown>) {
     const formattedMessage = formatErrorMessage(message);
     super(formattedMessage);
     this.code = code;
@@ -112,13 +112,20 @@ export function formatErrorResponse(error: AppError): ErrorResponse {
   };
 }
 
-export function errorHandler(err: Error, req: any, res: any, next: any): void {
+/** Express-compatible error handler. The `req`, `res`, and `next` parameters
+ *  intentionally use loose types to avoid a hard dependency on `@types/express`.
+ *  eslint-disable-next-line @typescript-eslint/no-explicit-any -- Express middleware
+ *  signature requires `any` for framework-agnostic compatibility. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- framework-agnostic Express middleware signature
+export function errorHandler(err: Error, req: unknown, res: any, _next: unknown): void {
   if (err instanceof AppError) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     res.status(err.statusCode).json(formatErrorResponse(err));
     return;
   }
 
   console.error('Unhandled error:', err);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   res.status(500).json({
     error: 'InternalServerError',
     message: 'An unexpected error occurred. Please try again later.',
