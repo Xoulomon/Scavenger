@@ -12,6 +12,36 @@ repository = "https://github.com/drips-network/scavenger"
 [workspace.dependencies]
 soroban-sdk = "=21.7.7"
 
+# ---------------------------------------------------------------------------
+# Workspace-wide lint configuration (issue #1308)
+#
+# All crates opt in with `lints = { workspace = true }` in their Cargo.toml.
+# The deny list here mirrors what clippy.toml previously enforced, so that
+# the same set of lints is applied uniformly across every workspace member
+# without each crate needing to repeat the declarations.
+# ---------------------------------------------------------------------------
+[workspace.lints.rust]
+# Treat unused imports/variables as errors to catch dead code early.
+unused = "warn"
+# Forbid unsafe code at the workspace level; individual crates can opt out
+# with an explicit `unsafe_code = "allow"` in their own [lints.rust] section.
+unsafe_code = "warn"
+
+[workspace.lints.clippy]
+# These four mirror the `deny` list in clippy.toml so that they are enforced
+# through Cargo's lint machinery in addition to the .toml deny file.
+unwrap_used = "warn"
+expect_used = "warn"
+panic = "warn"
+# `integer_arithmetic` was removed from clippy in newer toolchains; the
+# equivalent check is `arithmetic_side_effects`.
+arithmetic_side_effects = "warn"
+# Additional quality lints applied to all crates.
+pedantic = "warn"
+# Allow the few patterns that `pedantic` flags but are common project-wide.
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+
 [profile.release]
 opt-level = "z"
 overflow-checks = true

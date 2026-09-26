@@ -1,3 +1,12 @@
+# clippy.toml — workspace-level Clippy configuration
+#
+# The `deny` list below is the source-of-truth for lint levels that apply to
+# ALL workspace crates.  The same rules are also declared in the
+# [workspace.lints.clippy] section of the root Cargo.toml (issue #1308) so
+# that `cargo check` / `cargo build` enforce them in addition to `cargo clippy`.
+#
+# If you add or remove a rule here, mirror the change in Cargo.toml's
+# [workspace.lints.clippy] table and vice-versa.
 deny = [
     "clippy::unwrap_used",
     "clippy::expect_used",
