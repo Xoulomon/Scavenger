@@ -402,12 +402,6 @@ export interface GeoBounds {
 // ===========================
 // Export All Types
 // ===========================
-
-export type {
-  // Re-export commonly used utility types
-  Partial,
-  Required,
-  Pick,
-  Omit,
-  Record,
-} from 'typescript'
+// Note: Partial, Required, Pick, Omit, and Record are global TypeScript
+// built-in utility types — they do not need to be re-exported from this
+// package. Consumers can use them directly without any import.

@@ -1,5 +1,23 @@
 /**
- * Type definitions for the indexer
+ * @fileoverview Database row / persistence-layer types for the indexer.
+ *
+ * These types model the shape of rows returned by PostgreSQL queries —
+ * they intentionally differ from the domain types in @scavngr/types:
+ *
+ *   - Numeric values (lat/lon, weight, amounts) are returned as `string`
+ *     by the `pg` driver's default numeric type handling.
+ *   - Timestamps are `Date` objects hydrated by `pg`, not UNIX epoch numbers.
+ *   - Field names follow the DB column/alias naming convention (e.g.
+ *     `recyclerAddress`, `fromAddress`) rather than the domain convention.
+ *   - Enum values are stored / returned as their string label
+ *     ('Recycler' | 'Collector' | 'Manufacturer'), not numeric ordinals.
+ *
+ * For shared domain types (WasteType enum, ParticipantRole enum, Incentive
+ * interface, etc.) import from @scavngr/types instead:
+ *
+ *   import { WasteType, ParticipantRole } from '@scavngr/types'
+ *
+ * See issue #1309 for the type-consolidation context.
  */
 
 export interface Participant {

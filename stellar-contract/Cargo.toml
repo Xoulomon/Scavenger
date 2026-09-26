@@ -6,6 +6,11 @@ authors = ["Scavngr Team"]
 description = "Stellar Soroban smart contract for the Scavngr recycling platform"
 license = "MIT"
 
+# Inherit workspace-wide lint configuration (issue #1308).
+# All rules are defined once in the root Cargo.toml [workspace.lints] section.
+[lints]
+workspace = true
+
 [lib]
 crate-type = ["cdylib", "rlib"]
 

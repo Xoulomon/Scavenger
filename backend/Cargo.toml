@@ -4,6 +4,11 @@ version = "0.1.0"
 edition = "2021"
 license = "MIT"
 
+# Inherit workspace-wide lint configuration (issue #1308).
+# All rules are defined once in the root Cargo.toml [workspace.lints] section.
+[lints]
+workspace = true
+
 [dependencies]
 # #1085: audited against actual `use`/path references in src/. Anything not
 # reachable that way was dropped; see the removed list below the table for
