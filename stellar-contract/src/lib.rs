@@ -1,4 +1,5 @@
 #![no_std]
+//! Scavenger Stellar Contract - main contract entry point.
 
 // ── Core contract modules ─────────────────────────────────────────────────────
 // #921: errors is the single shared error module — exported publicly so that
@@ -585,6 +586,16 @@ impl ScavengerContract {
         if !admins.contains(caller) {
             panic!("Caller is not the contract admin");
         }
+    }
+
+    /// Check if the given address is a contract administrator
+    fn is_admin(env: &Env, caller: &Address) -> bool {
+        let admins: Vec<Address> = env
+            .storage()
+            .instance()
+            .get(&ADMINS)
+            .unwrap_or(Vec::new(&env));
+        admins.contains(caller)
     }
 
     /// Verify that the caller owns the specified waste item
@@ -1954,11 +1965,18 @@ pub fn calculate_incentive_reward(env: Env, incentive_id: u64, waste_amount: u64
     ///
     /// # Errors
     /// - Panics if auction not found or not ended
+    /// - Panics if caller is not the auction creator or an admin.
     pub fn end_auction(env: Env, auction_id: u64) {
         Self::require_not_paused(&env);
 
         let key = ("auction", auction_id);
         let mut auction: Auction = env.storage().instance().get(&key).expect("Auction not found");
+
+        // Authorization check: creator or admin can end the auction
+        let caller = env.current_caller();
+        if caller != auction.creator && !Self::is_admin(&env, &caller) {
+            panic!("Only auction creator or admin can end the auction");
+        }
 
         if !auction.is_active || !auction.is_ended(env.ledger().timestamp()) {
             panic!("Auction not ended");

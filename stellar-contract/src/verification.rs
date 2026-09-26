@@ -1,3 +1,4 @@
+//! ZK verification utilities.
 use soroban_sdk::{contracttype, Address, Env, String};
 
 /// Verification state for waste materials

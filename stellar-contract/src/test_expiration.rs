@@ -1,4 +1,5 @@
 #![cfg(test)]
+//! Expiration test helpers and utilities.
 
 //! Tests for the waste expiration system (issue #543).
 //!

@@ -1,3 +1,4 @@
+//! Storage optimization utilities.
 // Storage Optimization Module
 // Implements storage batching, prefetching, indexes, and caching for improved performance
 //

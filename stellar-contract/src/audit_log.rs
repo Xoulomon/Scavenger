@@ -1,3 +1,4 @@
+//! Audit logging service for tracking contract actions.
 use soroban_sdk::{contracttype, symbol_short, Address, Env, String, Vec};
 
 #[contracttype]

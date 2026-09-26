@@ -1,3 +1,4 @@
+//! Shared error types for the Scavenger contract.
 // ── Issue #921: Shared error module ──────────────────────────────────────────
 //
 // This file is the **single source of truth** for all error codes in the
