@@ -254,10 +254,6 @@ impl Incentive {
     /// Calculates reward for a given weight in grams.
     /// Uses tiered rates if tiers are set; falls back to flat `reward_points`.
     pub fn calculate_reward(&self, weight_grams: u64) -> u64 {
-        // Convert grams to kg and multiply by reward points
-        (weight_grams / 1000)
-            .checked_mul(self.reward_points)
-            .expect("Overflow in reward calculation")
         let weight_kg = weight_grams / 1000;
         if self.tiers.is_empty() {
             return weight_kg * self.reward_points;
