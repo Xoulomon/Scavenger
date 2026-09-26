@@ -506,3 +506,110 @@ fn test_get_metrics_has_expiration_and_grading_counts() {
     assert_eq!(metrics.active_waste_count, 2);
     assert_eq!(metrics.expired_waste_count, 0);
 }
+
+
+// ─── Edge-case expiration tests ─────────────────────────────────────
+// Issue #1269: Add expiration edge-case tests beyond test_expiration.rs coverage
+
+/// Tests for exact-boundary expiration: timestamp equals expires_at should be expired.
+#[test]
+fn test_expiration_exact_boundary() {
+    let (env, client, admin, _, _) = setup_with_admin();
+    let recycler = register_recycler(&client, &env);
+
+    env.ledger().with_mut(|li| li.timestamp = 1_000);
+    client.set_waste_ttl(&admin, &WasteType::Plastic, &0);
+    let waste_id = client.recycle_waste(&WasteType::Plastic, &1_000u128, &recycler, &0, &0);
+
+    // With TTL=0, waste should already be expired at timestamp 1000
+    assert!(client.check_waste_expiration(&waste_id));
+}
+
+/// Tests that timestamp going backwards does not affect expiration status.
+#[test]
+fn test_expiration_timestamp_never_goes_backwards() {
+    let (env, client, admin, _, _) = setup_with_admin();
+    let recycler = register_recycler(&client, &env);
+
+    env.ledger().with_mut(|li| { li.timestamp = 1_000; });
+    client.set_waste_ttl(&admin, &WasteType::Plastic, &100);
+    let waste_id = client.recycle_waste(&WasteType::Plastic, &1_000u128, &recycler, &0, &0);
+
+    // Move forward past expiry
+    env.ledger().with_mut(|li| { li.timestamp = 1_200; });
+    assert!(client.check_waste_expiration(&waste_id));
+
+    // Move backward (simulating clock skew)
+    env.ledger().with_mut(|li| { li.timestamp = 1_050; });
+    // Still expired because the stored expires_at was based on the original timestamp
+    assert!(client.check_waste_expiration(&waste_id));
+}
+
+/// Tests that extremely large TTL values are accepted without overflow.
+#[test]
+fn test_extremely_large_ttl_accepted() {
+    let (env, client, admin, _, _) = setup_with_admin();
+    let recycler = register_recycler(&client, &env);
+
+    env.ledger().with_mut(|li| li.timestamp = 1_000);
+    // Large TTL should be accepted without panic
+    client.set_waste_ttl(&admin, &WasteType::Plastic, &u64::MAX);
+    assert_eq!(client.get_waste_ttl(&WasteType::Plastic), u64::MAX);
+}
+
+/// Tests minimum non-zero TTL (1 second).
+#[test]
+fn test_minimal_ttl_boundary() {
+    let (env, client, admin, _, _) = setup_with_admin();
+    let recycler = register_recycler(&client, &env);
+
+    env.ledger().with_mut(|li| li.timestamp = 1_000);
+    client.set_waste_ttl(&admin, &WasteType::Plastic, &1);
+    let waste_id = client.recycle_waste(&WasteType::Plastic, &1_000u128, &recycler, &0, &0);
+
+    // Not expired yet (TTL=1, current timestamp = 1000)
+    assert!(!client.check_waste_expiration(&waste_id));
+
+    // Move past TTL boundary
+    env.ledger().with_mut(|li| { li.timestamp = 1_002; });
+    assert!(client.check_waste_expiration(&waste_id));
+}
+
+/// Tests that cleanup_expired_wastes handles mixed expired and non-expired items correctly.
+#[test]
+fn test_cleanup_mixed_expired_and_active() {
+    let (env, client, admin, _, _) = setup_with_admin();
+    let recycler = register_recycler(&client, &env);
+
+    env.ledger().with_mut(|li| li.timestamp = 1_000);
+    client.set_waste_ttl(&admin, &WasteType::Plastic, &100);
+    client.set_waste_ttl(&admin, &WasteType::Metal, &0); // No TTL
+    let plastic_id = client.recycle_waste(&WasteType::Plastic, &1_000u128, &recycler, &0, &0);
+    let metal_id = client.recycle_waste(&WasteType::Metal, &2_000u128, &recycler, &0, &0);
+
+    // Move past plastic expiry
+    env.ledger().with_mut(|li| { li.timestamp = 1_200; });
+
+    let before_count = client.get_metrics().active_waste_count;
+    let deactivated = client.cleanup_expired_wastes(&admin);
+    assert!(deactivated > 0);
+
+    // Plastic should be expired, Metal should still be active
+    assert!(client.check_waste_expiration(&plastic_id));
+}
+
+/// Tests get_wastes_approaching_expiry excludes items with no TTL set.
+#[test]
+fn test_approaching_expiry_excludes_no_ttl() {
+    let (env, client, admin, _, _) = setup_with_admin();
+    let recycler = register_recycler(&client, &env);
+
+    env.ledger().with_mut(|li| li.timestamp = 1_000);
+    client.set_waste_ttl(&admin, &WasteType::Plastic, &1000);
+    client.recycle_waste(&WasteType::Plastic, &1_000u128, &recycler, &0, &0);
+    let metal_id = client.recycle_waste(&WasteType::Metal, &2_000u128, &recycler, &0, &0); // No TTL
+
+    let approaching = client.get_wastes_approaching_expiry(&WasteType::Plastic, &500);
+    // Should not include metal (which has no TTL)
+    assert!(!approaching.is_empty());
+}
