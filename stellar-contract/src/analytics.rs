@@ -1,3 +1,4 @@
+//! Analytics and reporting module.
 use soroban_sdk::{contracttype, Address, String};
 
 /// Analytics report types

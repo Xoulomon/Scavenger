@@ -1,3 +1,4 @@
+//! Query optimization engine for storage reads.
 // Query Optimization Engine
 // Implements query analysis, optimization rules, plan caching, and cost estimation
 //

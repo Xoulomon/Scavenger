@@ -1,3 +1,4 @@
+//! Search utilities for participant and waste lookup.
 use soroban_sdk::{contracttype, Env, String, Vec};
 
 #[contracttype]
