@@ -74,8 +74,6 @@ pub mod storage_keys;
 pub mod grading;
 
 // ── Issues #814–#817: new utility modules ────────────────────────────────────
-/// #814 — Reusable event builder pattern, filtering, and formatting utilities.
-pub mod event_builder;
 /// #815 — Type size analysis, packed flags, coordinate compression, and validation.
 pub mod type_utils;
 /// #816 — Hash-based commitment scheme for privacy-preserving (ZKP-style) operations.

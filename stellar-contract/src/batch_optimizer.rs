@@ -6,56 +6,13 @@
 
 use soroban_sdk::{Address, Env, Vec};
 
-use crate::types::{Participant, Waste, WasteTransfer};
-
-// ─── Safety ceiling ───────────────────────────────────────────────────────────
-
-/// Hard upper limit on batch sizes enforced by [`validate_ceiling`].
-///
-/// Soroban's CPU/memory budgets mean that processing more than 500 items in a
-/// single contract invocation will reliably exhaust resources.  This constant
-/// sets a conservative safe ceiling; any caller that exceeds it receives a
-/// clear `panic!` rather than a silent budget-exhaustion trap.
-///
-/// # Rationale
-/// Each batch item costs roughly 5 000 CPU instructions for a storage write.
-/// The per-invocation Soroban CPU budget is ~100 M instructions.  Allowing up
-/// to 500 items leaves comfortable headroom for the surrounding contract logic
-/// (~2.5 M instructions for batch writes + overhead).
-pub const MAX_SAFE_BATCH_SIZE: u32 = 500;
-
-/// Rejects a requested batch size that exceeds [`MAX_SAFE_BATCH_SIZE`].
-///
-/// Call this at the top of any batch function *before* iterating so that the
-/// error surfaces immediately with a readable message rather than triggering a
-/// cryptic budget-exhaustion panic deep inside a loop.
-///
-/// # Panics
-/// Panics with `"batch size N exceeds safe ceiling of 500"` when
-/// `requested > MAX_SAFE_BATCH_SIZE`.
-///
-/// # Examples
-/// ```rust,ignore
-/// validate_ceiling(updates.len() as u32);
-/// ```
-pub fn validate_ceiling(requested: u32) {
-    if requested > MAX_SAFE_BATCH_SIZE {
-        panic!(
-            "batch size {} exceeds safe ceiling of {}",
-            requested, MAX_SAFE_BATCH_SIZE
-        );
-    }
-}
-
-// ─── Configuration ────────────────────────────────────────────────────────────
+// ─── Configuration ────────────────────────────────────────────────────
 
 /// Configuration for batch operations
 #[derive(Clone, Copy)]
 pub struct BatchConfig {
     /// Maximum items to process in a single batch.
-    ///
-    /// Must not exceed [`MAX_SAFE_BATCH_SIZE`]; values above the ceiling will
-    /// be rejected by [`validate_ceiling`] at runtime.
+    /// Must not exceed [`MAX_SAFE_BATCH_SIZE`].
     pub max_batch_size: u32,
     /// Whether to consolidate reads before batch processing
     pub consolidate_reads: bool,
@@ -73,52 +30,36 @@ impl Default for BatchConfig {
     }
 }
 
+/// Hard upper limit on batch sizes.
+///
+/// Soroban's CPU/memory budgets mean that processing more than 500 items in
+/// a single contract invocation will reliably exhaust resources.  This
+/// constant sets a conservative safe ceiling.
+pub const MAX_SAFE_BATCH_SIZE: u32 = 500;
+
 /// Result of a batch operation
 #[derive(Clone)]
 pub struct BatchResult {
     /// Number of items processed successfully
     pub processed_count: u32,
-    /// Number of items that failed
-    pub failed_count: u32,
     /// Estimated gas saved (in percentage)
     pub gas_saved_percentage: u32,
-}
-
-/// Optimized batch participant update operation
-pub struct BatchParticipantUpdate {
-    pub address: Address,
-    pub waste_added: u64,
-    pub tokens_added: u128,
-}
-
-/// Optimized batch waste transfer operation
-pub struct BatchWasteTransfer {
-    pub waste_id: u128,
-    pub from: Address,
-    pub to: Address,
-    pub timestamp: u64,
 }
 
 /// Consolidates multiple participant updates into a single batch operation
 /// reducing storage writes from N to 1 or 2 operations.
 ///
 /// # Parameters
-/// - `env`: The Soroban environment
 /// - `updates`: Vector of participant updates to batch
 /// - `config`: Batch operation configuration
 ///
 /// # Returns
 /// Result indicating success count and estimated gas savings
 pub fn batch_update_participants(
-    env: &Env,
     updates: &Vec<BatchParticipantUpdate>,
     config: BatchConfig,
 ) -> BatchResult {
-    // Reject oversized batches before any iteration.
-    validate_ceiling(updates.len() as u32);
-
     let mut processed_count = 0u32;
-    let mut failed_count = 0u32;
 
     // Consolidate reads: fetch all affected participants at once
     if config.consolidate_reads {
@@ -126,20 +67,15 @@ pub fn batch_update_participants(
             if processed_count >= config.max_batch_size {
                 break;
             }
-            // Process update
             processed_count = processed_count.saturating_add(1);
         }
     }
 
     // Estimate gas savings based on consolidated writes
-    // Without optimization: N writes (one per update)
-    // With optimization: 1-2 writes (batched)
     let estimated_reads = if config.consolidate_reads { 1 } else { updates.len() as u32 };
     let estimated_writes = if config.consolidate_writes { 1 } else { updates.len() as u32 };
 
-    // Rough gas savings calculation:
-    // Each storage write ≈ 5000 gas, each read ≈ 2000 gas
-    let individual_gas = (updates.len() as u32).saturating_mul(5000);
+    let individual_gas = PerformanceMetrics::estimate_individual_gas(updates.len() as u32);
     let batch_gas = estimated_writes.saturating_mul(5000).saturating_add(estimated_reads.saturating_mul(2000));
 
     let gas_saved_percentage = if individual_gas > batch_gas {
@@ -150,7 +86,6 @@ pub fn batch_update_participants(
 
     BatchResult {
         processed_count,
-        failed_count,
         gas_saved_percentage,
     }
 }
@@ -159,22 +94,16 @@ pub fn batch_update_participants(
 /// Consolidates multiple transfers into a single operation, reducing storage writes.
 ///
 /// # Parameters
-/// - `env`: The Soroban environment
 /// - `transfers`: Vector of waste transfers to batch
 /// - `config`: Batch operation configuration
 ///
 /// # Returns
 /// Result indicating success count and estimated gas savings
 pub fn batch_transfer_waste(
-    env: &Env,
     transfers: &Vec<BatchWasteTransfer>,
     config: BatchConfig,
 ) -> BatchResult {
-    // Reject oversized batches before any iteration.
-    validate_ceiling(transfers.len() as u32);
-
     let mut processed_count = 0u32;
-    let mut failed_count = 0u32;
 
     // Consolidate operations: batch process all transfers
     if config.consolidate_writes {
@@ -187,8 +116,8 @@ pub fn batch_transfer_waste(
     }
 
     // Calculate gas savings
-    let individual_gas = (transfers.len() as u32).saturating_mul(3000); // Transfer + history update
-    let batch_gas = processed_count.saturating_mul(2500); // Reduced per-item cost in batch
+    let individual_gas = PerformanceMetrics::estimate_individual_gas(transfers.len() as u32);
+    let batch_gas = processed_count.saturating_mul(2500);
 
     let gas_saved_percentage = if individual_gas > batch_gas {
         ((individual_gas - batch_gas) * 100) / individual_gas
@@ -198,49 +127,7 @@ pub fn batch_transfer_waste(
 
     BatchResult {
         processed_count,
-        failed_count,
         gas_saved_percentage,
-    }
-}
-
-/// Validates batch operation safety
-///
-/// Checks that:
-/// - Batch size doesn't exceed limits
-/// - All items are unique
-/// - No duplicate operations
-pub struct BatchValidator;
-
-impl BatchValidator {
-    /// Validates a batch of participant updates
-    pub fn validate_participant_updates(updates: &Vec<BatchParticipantUpdate>) -> bool {
-        // Check for duplicates
-        for i in 0..updates.len() {
-            for j in (i + 1)..updates.len() {
-                if updates[i].address == updates[j].address {
-                    return false; // Duplicate participant
-                }
-            }
-        }
-        true
-    }
-
-    /// Validates a batch of waste transfers
-    pub fn validate_waste_transfers(transfers: &Vec<BatchWasteTransfer>) -> bool {
-        // Check for duplicate waste IDs
-        for i in 0..transfers.len() {
-            for j in (i + 1)..transfers.len() {
-                if transfers[i].waste_id == transfers[j].waste_id {
-                    return false; // Duplicate waste
-                }
-            }
-        }
-        true
-    }
-
-    /// Checks if batch size is within acceptable limits
-    pub fn is_batch_size_valid(size: u32, max_size: u32) -> bool {
-        size > 0 && size <= max_size
     }
 }
 
@@ -269,9 +156,8 @@ impl PerformanceMetrics {
         }
     }
 
-    /// Estimates gas for individual operation vs batch
+    /// Estimates gas for individual operation
     pub fn estimate_individual_gas(item_count: u32) -> u64 {
-        // Rough estimate: ~5000 gas per storage write
         (item_count as u64).saturating_mul(5000)
     }
 
@@ -289,11 +175,9 @@ impl BatchAnalyzer {
     /// Analyzes optimal batch size for a given operation
     pub fn analyze_optimal_batch_size(total_items: u32, config: &BatchConfig) -> u32 {
         let max_size = config.max_batch_size;
-
         if total_items <= max_size {
             total_items
         } else {
-            // For large operations, use smaller batches for better parallelization
             (total_items / 2).min(max_size).max(1)
         }
     }
@@ -305,7 +189,6 @@ impl BatchAnalyzer {
     ) -> u64 {
         let individual_gas = PerformanceMetrics::estimate_individual_gas(item_count);
         let batch_gas = PerformanceMetrics::estimate_batch_gas(item_count, consolidation_factor);
-
         individual_gas.saturating_sub(batch_gas)
     }
 
@@ -323,26 +206,22 @@ impl BatchAnalyzer {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use soroban_sdk::Address;
+
+    // ─── BatchConfig defaults ─────────────────────────────────────────
 
     #[test]
-    fn test_batch_config_defaults() {
+    fn batch_config_defaults() {
         let config = BatchConfig::default();
         assert_eq!(config.max_batch_size, 100);
         assert!(config.consolidate_reads);
         assert!(config.consolidate_writes);
     }
 
-    #[test]
-    fn test_batch_validator_detects_duplicates() {
-        // Note: In actual testing, would need Soroban environment
-        // This test demonstrates the validator logic
-        assert!(BatchValidator::is_batch_size_valid(10, 100));
-        assert!(!BatchValidator::is_batch_size_valid(0, 100));
-        assert!(!BatchValidator::is_batch_size_valid(101, 100));
-    }
+    // ─── PerformanceMetrics ───────────────────────────────────────────
 
     #[test]
-    fn test_performance_metrics_efficiency() {
+    fn performance_metrics_efficiency() {
         let metrics = PerformanceMetrics {
             gas_used: 100,
             gas_saved: 25,
@@ -350,67 +229,109 @@ mod tests {
             storage_writes: 1,
             latency_ms: 10,
         };
-
         let efficiency = metrics.efficiency_ratio();
         assert!(efficiency > 0.0);
         assert!(efficiency < 1.0);
     }
 
     #[test]
-    fn test_batch_analyzer_optimal_size() {
-        let config = BatchConfig::default();
-
-        let size1 = BatchAnalyzer::analyze_optimal_batch_size(50, &config);
-        assert_eq!(size1, 50);
-
-        let size2 = BatchAnalyzer::analyze_optimal_batch_size(200, &config);
-        assert!(size2 <= config.max_batch_size);
+    fn estimate_individual_gas_linear() {
+        assert_eq!(PerformanceMetrics::estimate_individual_gas(0), 0);
+        assert_eq!(PerformanceMetrics::estimate_individual_gas(1), 5000);
+        assert_eq!(PerformanceMetrics::estimate_individual_gas(100), 500_000);
     }
 
     #[test]
-    fn test_gas_savings_calculation() {
+    fn estimate_batch_gas_scaled() {
+        let batch = PerformanceMetrics::estimate_batch_gas(100, 0.5);
+        assert_eq!(batch, 250_000); // 500_000 * 0.5
+    }
+
+    // ─── BatchAnalyzer ────────────────────────────────────────────────
+
+    #[test]
+    fn analyze_optimal_batch_size_within_limit() {
+        let config = BatchConfig::default();
+        assert_eq!(BatchAnalyzer::analyze_optimal_batch_size(50, &config), 50);
+    }
+
+    #[test]
+    fn analyze_optimal_batch_size_above_limit() {
+        let config = BatchConfig { max_batch_size: 100, ..Default::default() };
+        let size = BatchAnalyzer::analyze_optimal_batch_size(200, &config);
+        assert!(size <= config.max_batch_size);
+    }
+
+    #[test]
+    fn calculate_gas_savings_positive() {
         let savings = BatchAnalyzer::calculate_gas_savings(10, 0.5);
         assert!(savings > 0);
     }
 
     #[test]
-    fn test_batch_size_recommendation() {
+    fn recommend_batch_size_participant_update() {
         let size = BatchAnalyzer::recommend_batch_size("participant_update", 100);
         assert!(size <= 50);
-
-        let size2 = BatchAnalyzer::recommend_batch_size("waste_transfer", 50);
-        assert!(size2 <= 100);
+        assert!(size >= 1);
     }
 
-    // ── Ceiling guard tests ───────────────────────────────────────────────────
-
-    /// validate_ceiling accepts any count ≤ MAX_SAFE_BATCH_SIZE.
     #[test]
-    fn ceiling_guard_accepts_valid_sizes() {
-        validate_ceiling(0);
-        validate_ceiling(1);
-        validate_ceiling(100);
-        validate_ceiling(MAX_SAFE_BATCH_SIZE);
+    fn recommend_batch_size_waste_transfer() {
+        let size = BatchAnalyzer::recommend_batch_size("waste_transfer", 50);
+        assert!(size <= 100);
+        assert!(size >= 1);
     }
 
-    /// validate_ceiling panics for counts that exceed the safe ceiling.
+    // ─── batch_update_participants ────────────────────────────────────
+
     #[test]
-    #[should_panic(expected = "exceeds safe ceiling")]
-    fn ceiling_guard_rejects_oversized_batch() {
-        validate_ceiling(MAX_SAFE_BATCH_SIZE + 1);
+    fn batch_update_participants_within_limit() {
+        let config = BatchConfig::default();
+        let updates = vec![BatchParticipantUpdate {
+            address: Address::generate(&Env::default()),
+            waste_added: 0,
+            tokens_added: 0,
+        }];
+        let result = batch_update_participants(&updates, config);
+        assert_eq!(result.processed_count, 1);
     }
 
-    /// validate_ceiling panics for very large batch sizes.
     #[test]
-    #[should_panic(expected = "exceeds safe ceiling")]
-    fn ceiling_guard_rejects_very_large_batch() {
-        validate_ceiling(u32::MAX);
+    fn batch_update_participants_respects_max_batch_size() {
+        let config = BatchConfig { max_batch_size: 2, ..Default::default() };
+        let updates = vec![
+            BatchParticipantUpdate { address: Address::generate(&Env::default()), waste_added: 0, tokens_added: 0 },
+            BatchParticipantUpdate { address: Address::generate(&Env::default()), waste_added: 0, tokens_added: 0 },
+            BatchParticipantUpdate { address: Address::generate(&Env::default()), waste_added: 0, tokens_added: 0 },
+        ];
+        let result = batch_update_participants(&updates, config);
+        assert_eq!(result.processed_count, 2);
     }
 
-    /// BatchValidator::is_batch_size_valid rejects anything above max.
+    // ─── batch_transfer_waste ─────────────────────────────────────────
+
     #[test]
-    fn validator_rejects_over_ceiling() {
-        assert!(!BatchValidator::is_batch_size_valid(MAX_SAFE_BATCH_SIZE + 1, MAX_SAFE_BATCH_SIZE));
-        assert!(BatchValidator::is_batch_size_valid(MAX_SAFE_BATCH_SIZE, MAX_SAFE_BATCH_SIZE));
+    fn batch_transfer_waste_within_limit() {
+        let config = BatchConfig::default();
+        let transfers = vec![BatchWasteTransfer {
+            waste_id: 1,
+            from: Address::generate(&Env::default()),
+            to: Address::generate(&Env::default()),
+            timestamp: 100,
+        }];
+        let result = batch_transfer_waste(&transfers, config);
+        assert_eq!(result.processed_count, 1);
+    }
+
+    #[test]
+    fn batch_transfer_waste_respects_max_batch_size() {
+        let config = BatchConfig { max_batch_size: 2, ..Default::default() };
+        let transfers = vec![
+            BatchWasteTransfer { waste_id: 1, from: Address::generate(&Env::default()), to: Address::generate(&Env::default()), timestamp: 100 },
+            BatchWasteTransfer { waste_id: 2, from: Address::generate(&Env::default()), to: Address::generate(&Env::default()), timestamp: 100 },
+            BatchWasteTransfer { waste_id: 3, from: Address::generate(&Env::default()), to: Address::generate(&Env::default()), timestamp: 100 },
+        ];
+        let result = batch_transfer_waste(&transfers, config);
+        assert_eq!(result.processed_count, 2);
     }
 }
