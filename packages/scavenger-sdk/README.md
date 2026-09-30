@@ -50,6 +50,9 @@ main().catch(console.error)
 
 ---
 
+> 📖 A standalone API reference for third-party integrators is published at
+> [`docs/sdk-api-reference.md`](../../docs/sdk-api-reference.md).
+
 ## Table of Contents
 
 - [Client Setup & Configuration](#client-setup--configuration)

@@ -1,39 +1,22 @@
 version: '3.8'
 
+# Extends the canonical elasticsearch and kibana service definitions from
+# docker-compose.elasticsearch.yml to avoid duplicate configuration.
+# Usage: docker compose -f docker-compose.elasticsearch.yml -f docker-compose.observability.yml up
+
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
-    ports:
-      - "9200:9200"
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+    extends:
+      file: docker-compose.elasticsearch.yml
+      service: elasticsearch
 
   kibana:
-    image: docker.elastic.co/kibana/kibana:8.8.0
-    ports:
-      - "5601:5601"
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+    extends:
+      file: docker-compose.elasticsearch.yml
+      service: kibana
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:8.8.0
+    image: docker.elastic.co/logstash/logstash:8.11.0
     volumes:
       - ./config/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
       - ./config/logstash-patterns:/usr/share/logstash/patterns:ro
@@ -53,7 +36,7 @@ services:
       retries: 5
 
   filebeat:
-    image: docker.elastic.co/beats/filebeat:8.8.0
+    image: docker.elastic.co/beats/filebeat:8.11.0
     user: root
     volumes:
       - ./config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
@@ -91,5 +74,6 @@ services:
       retries: 5
 
 volumes:
-  elasticsearch_data:
+  elasticsearch-data:
+    driver: local
   jaeger_data:

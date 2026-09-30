@@ -1,13 +1,20 @@
 # Scavenger Backend — Structured Logging Convention
 
-> Issue #1074
+> Issue #1074 · Updated by #1313
 
 ## Overview
 
-All backend services emit structured log lines via the `log` crate macros
-(`log::info!`, `log::warn!`, `log::error!`).  The Rust key–value syntax
-(`key = %value; "message"`) produces output that is parseable by the Loki
-log aggregator configured in `config/grafana/`.
+All backend services emit **structured JSON log lines** to standard output/error so that
+log aggregators (Loki, Logstash, Elasticsearch) can parse them without additional
+configuration.
+
+- **Rust backend** — uses the `log` crate macros (`log::info!`, `log::warn!`,
+  `log::error!`) with key–value fields.  Output is captured and shipped by the
+  Loki agent configured in `config/grafana/`.
+- **Node.js indexer** — uses `StructuredLogger` from `packages/shared/src/logger.ts`.
+  All levels (`debug`, `info`, `warn`, `error`) are emitted as a single JSON line to
+  `console.log` / `console.warn` / `console.error`.  The log line is a flat JSON object
+  containing at least `{ timestamp, level, message }` plus any additional context fields.
 
 ## Required Fields
 
@@ -102,4 +109,41 @@ Replace them with:
 ```rust
 // ✅ Structured, queryable
 log::info!(service = "backend", op = "startup", outcome = "ok"; "server started");
+```
+
+## Indexer — JSON Log Format
+
+The indexer uses `StructuredLogger` (`packages/shared/src/logger.ts`).  Every call
+emits a **single-line JSON object** to stdout (debug/info) or stderr (warn/error):
+
+```json
+{"timestamp":"2026-09-30T08:20:16.429Z","level":"info","message":"Starting Scavngr indexer","rpcUrl":"https://soroban-testnet.stellar.org","contractId":"CA..."}
+```
+
+The fixed fields are:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `timestamp` | ISO 8601 string | Time the log entry was created |
+| `level` | `debug` \| `info` \| `warn` \| `error` | Log level |
+| `message` | string | Human-readable description |
+| `…context` | any | Additional key–value pairs spread from the `context` argument |
+
+All four levels are emitted to the console when `enableConsole` is `true` (the
+default in the indexer entrypoint):
+
+- `debug` / `info` → `console.log`
+- `warn` → `console.warn`
+- `error` → `console.error` (the `Error` object is logged separately on the next line)
+
+### Querying in Elasticsearch/Kibana
+
+When Filebeat ships indexer stdout to Elasticsearch, use:
+
+```kql
+# All errors from the indexer
+level: "error"
+
+# Specific operation failures
+level: "warn" AND message: "Shutdown initiated"
 ```
