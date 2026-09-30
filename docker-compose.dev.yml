@@ -63,7 +63,7 @@ services:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://scavenger_user:scavenger_pass@postgres:5432/scavenger
       - REDIS_URL=redis://redis:6379
-      - SOROBAN_RPC_URL=http://stellar:11626/soroban/rpc
+      - STELLAR_RPC_URL=http://stellar:11626/soroban/rpc
       - CONTRACT_ID=${CONTRACT_ID}
     ports:
       - "3000:3000"

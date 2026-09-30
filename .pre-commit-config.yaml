@@ -18,3 +18,39 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
+
+  # Rust formatting — requires `rustfmt` to be installed (`rustup component add rustfmt`)
+  - repo: local
+    hooks:
+      - id: cargo-fmt
+        name: cargo fmt
+        language: system
+        entry: cargo fmt --all --
+        types: [rust]
+        pass_filenames: false
+
+  # TypeScript / JavaScript formatting and linting
+  # Requires `prettier` and `eslint` to be available (run `pnpm install` first)
+  - repo: local
+    hooks:
+      - id: prettier
+        name: prettier
+        language: system
+        entry: pnpm exec prettier --write
+        types_or: [javascript, jsx, ts, tsx, json, css, markdown]
+        pass_filenames: true
+
+      - id: eslint
+        name: eslint
+        language: system
+        entry: pnpm exec eslint --fix
+        types_or: [javascript, jsx, ts, tsx]
+        pass_filenames: true
+
+  # Strip Jupyter notebook output before committing
+  # Requires `nbstripout` to be installed: `pip install nbstripout`
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.7.1
+    hooks:
+      - id: nbstripout
+        files: commit_push\.ipynb
