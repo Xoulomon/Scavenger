@@ -11,11 +11,10 @@ pub mod errors;
 mod events;
 #[cfg(feature = "debug")]
 mod explorer;
-mod query_optimizer;
 mod storage_optimizer;
 mod storage_utils;
+#[cfg(test)]
 mod test_factories;
-mod test_transfer_path_validation;
 mod types;
 pub mod types_domains;
 mod upgrade;
@@ -86,20 +85,21 @@ pub mod zkp_verifier;
 // ── Issue #925: domain-split modules ─────────────────────────────────────────
 /// Admin management: initialization, transfer, multisig proposals, pause/unpause.
 pub mod admin;
-/// Incentive programs: create, update, schedule, distribute, claim.
-pub mod incentive_mgmt;
-/// Participant registration, role management, location, reputation, leaderboard.
-pub mod participant_mgmt;
 /// Transfer workflows: initiate, approve, reject, expire pending transfers.
 pub mod transfer_mgmt;
 
 // ── Internal test modules (compile-time only) ─────────────────────────────────
+#[cfg(test)]
 #[path = "../../contracts/scavenger/src/test_edge_cases.rs"]
 mod test_edge_cases_coverage;
+#[cfg(test)]
 mod test_expiration;
+#[cfg(test)]
 mod test_grading;
+#[cfg(test)]
 #[path = "../../contracts/scavenger/src/test_pause.rs"]
 mod test_pause_coverage;
+#[cfg(test)]
 mod test_transfer_path_validation;
 
 #[cfg(test)]

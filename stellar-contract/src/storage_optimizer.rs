@@ -43,7 +43,7 @@
 // - `optimize_waste_storage`: 1 instance-storage read + at most 1
 //   temporary-storage write (0 when the hot copy is already current).
 
-use soroban_sdk::{Address, Env, Symbol, Vec};
+use soroban_sdk::{Address, Env, Map, Symbol, Vec, symbol_short};
 
 /// Storage cache for frequently accessed data
 pub struct StorageCache {
@@ -223,4 +223,200 @@ mod tests {
         index.remove(&env, 1);
         assert_eq!(index.get(&env, 1), None);
     }
+}
+
+// ── Query optimization (consolidated from query_optimizer.rs — issue #1512) ──
+//
+// `query_optimizer.rs` has been removed and its types merged here because both
+// modules address the same concern (optimising storage-read patterns) and
+// neither had any call sites in `lib.rs`.  Keeping two separate files created
+// a confusing split with no boundary value.  The query-planner types below are
+// unchanged from their origin; only the module location has moved.
+
+/// Query type for optimization planning.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum QueryType {
+    GetParticipant,
+    GetWaste,
+    GetWastesByStatus,
+    GetWastesByType,
+    GetWastesByGrade,
+    GetParticipantWastes,
+    GetTransferHistory,
+    GetIncentives,
+    GetLeaderboard,
+}
+
+/// Query plan with optimization strategy.
+#[derive(Clone)]
+pub struct QueryPlan {
+    pub query_type: QueryType,
+    pub use_cache: bool,
+    pub use_index: bool,
+    pub estimated_cost: u32,
+    pub execution_order: Vec<Symbol>,
+}
+
+impl QueryPlan {
+    pub fn new(env: &Env, query_type: QueryType) -> Self {
+        Self {
+            query_type,
+            use_cache: false,
+            use_index: false,
+            estimated_cost: 0,
+            execution_order: Vec::new(env),
+        }
+    }
+
+    pub fn with_cache(mut self) -> Self {
+        self.use_cache = true;
+        self.estimated_cost = self.estimated_cost.saturating_sub(10);
+        self
+    }
+
+    pub fn with_index(mut self) -> Self {
+        self.use_index = true;
+        self.estimated_cost = self.estimated_cost.saturating_sub(20);
+        self
+    }
+
+    pub fn estimated_cost(&self) -> u32 {
+        self.estimated_cost
+    }
+}
+
+/// Rule-based query optimizer with plan caching.
+pub struct QueryOptimizer {
+    plan_cache: Map<QueryType, QueryPlan>,
+}
+
+impl QueryOptimizer {
+    pub fn new(env: &Env) -> Self {
+        Self {
+            plan_cache: Map::new(env),
+        }
+    }
+
+    /// Analyze and return an optimized query plan.
+    pub fn optimize(&mut self, query_type: QueryType, env: &Env) -> QueryPlan {
+        if let Some(cached_plan) = self.plan_cache.get(query_type.clone()) {
+            return cached_plan;
+        }
+
+        let mut plan = QueryPlan::new(env, query_type.clone());
+
+        match query_type {
+            QueryType::GetParticipant => {
+                plan.estimated_cost = 10;
+                plan = plan.with_cache();
+                plan.execution_order.push_back(symbol_short!("cache"));
+                plan.execution_order.push_back(symbol_short!("storage"));
+            }
+            QueryType::GetWaste => {
+                plan.estimated_cost = 10;
+                plan = plan.with_cache();
+                plan.execution_order.push_back(symbol_short!("cache"));
+                plan.execution_order.push_back(symbol_short!("storage"));
+            }
+            QueryType::GetWastesByStatus | QueryType::GetWastesByType | QueryType::GetWastesByGrade => {
+                plan.estimated_cost = 50;
+                plan = plan.with_index();
+                plan.execution_order.push_back(symbol_short!("index"));
+                plan.execution_order.push_back(symbol_short!("filter"));
+            }
+            QueryType::GetParticipantWastes => {
+                plan.estimated_cost = 30;
+                plan = plan.with_index();
+                plan.execution_order.push_back(symbol_short!("index"));
+            }
+            QueryType::GetTransferHistory => {
+                plan.estimated_cost = 20;
+                plan = plan.with_cache();
+                plan.execution_order.push_back(symbol_short!("cache"));
+                plan.execution_order.push_back(symbol_short!("storage"));
+            }
+            QueryType::GetIncentives => {
+                plan.estimated_cost = 30;
+                plan = plan.with_cache();
+                plan.execution_order.push_back(symbol_short!("cache"));
+                plan.execution_order.push_back(symbol_short!("filter"));
+            }
+            QueryType::GetLeaderboard => {
+                plan.estimated_cost = 100;
+                plan = plan.with_cache();
+                plan.execution_order.push_back(symbol_short!("cache"));
+                plan.execution_order.push_back(symbol_short!("scan"));
+                plan.execution_order.push_back(symbol_short!("sort"));
+            }
+        }
+
+        self.plan_cache.set(query_type, plan.clone());
+        plan
+    }
+
+    /// Return basic optimizer statistics.
+    pub fn get_stats(&self) -> QueryOptimizerStats {
+        QueryOptimizerStats {
+            cached_plans: self.plan_cache.len(),
+            total_queries_optimized: self.plan_cache.len(),
+        }
+    }
+}
+
+/// Query optimizer statistics.
+pub struct QueryOptimizerStats {
+    pub cached_plans: u32,
+    pub total_queries_optimized: u32,
+}
+
+/// Per-query execution metrics.
+pub struct QueryMetrics {
+    pub query_type: QueryType,
+    pub execution_time_ms: u64,
+    pub cache_hits: u32,
+    pub cache_misses: u32,
+    pub storage_reads: u32,
+}
+
+impl QueryMetrics {
+    pub fn new(query_type: QueryType) -> Self {
+        Self {
+            query_type,
+            execution_time_ms: 0,
+            cache_hits: 0,
+            cache_misses: 0,
+            storage_reads: 0,
+        }
+    }
+
+    pub fn record_cache_hit(&mut self) {
+        self.cache_hits += 1;
+    }
+
+    pub fn record_cache_miss(&mut self) {
+        self.cache_misses += 1;
+    }
+
+    pub fn record_storage_read(&mut self) {
+        self.storage_reads += 1;
+    }
+
+    pub fn cache_hit_rate(&self) -> f64 {
+        if self.cache_hits + self.cache_misses == 0 {
+            return 0.0;
+        }
+        (self.cache_hits as f64) / ((self.cache_hits + self.cache_misses) as f64)
+    }
+}
+
+/// Cost estimation model for query planning.
+pub fn estimate_query_cost(query_type: &QueryType, result_size: u32) -> u32 {
+    let base_cost = match query_type {
+        QueryType::GetParticipant | QueryType::GetWaste => 10,
+        QueryType::GetTransferHistory => 20,
+        QueryType::GetParticipantWastes | QueryType::GetIncentives => 30,
+        QueryType::GetWastesByStatus | QueryType::GetWastesByType | QueryType::GetWastesByGrade => 50,
+        QueryType::GetLeaderboard => 100,
+    };
+    base_cost + (result_size / 10)
 }

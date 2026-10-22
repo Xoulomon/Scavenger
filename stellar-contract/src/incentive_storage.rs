@@ -7,8 +7,7 @@
 //! # Boundary
 //! This module owns **only** raw CRUD against Soroban persistent storage.
 //! Business logic (reward calculation, scheduling, budget exhaustion) remains
-//! in `incentive.rs`.  The `incentive_mgmt.rs` re-export module provides
-//! domain-scoped type imports for callers.
+//! in `incentive.rs`.
 //!
 //! # Storage layout
 //! | Key scheme                                | Value type        | Storage tier |
