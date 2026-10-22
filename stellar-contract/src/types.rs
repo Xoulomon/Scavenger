@@ -278,13 +278,11 @@ impl Incentive {
     /// Calculates reward for a given weight in grams.
     /// Uses tiered rates if tiers are set; falls back to flat `reward_points`.
     pub fn calculate_reward(&self, weight_grams: u64) -> u64 {
-        // Convert grams to kg and multiply by reward points
-        (weight_grams / 1000)
-            .checked_mul(self.reward_points)
-            .expect("Overflow in reward calculation")
         let weight_kg = weight_grams / 1000;
         if self.tiers.is_empty() {
-            return weight_kg * self.reward_points;
+            return weight_kg
+                .checked_mul(self.reward_points)
+                .expect("Overflow in reward calculation");
         }
         // Find the matching tier (tiers are sorted by min_weight_kg ascending)
         for i in 0..self.tiers.len() {
@@ -292,11 +290,15 @@ impl Incentive {
             let in_lower = weight_kg >= tier.min_weight_kg;
             let in_upper = tier.max_weight_kg == 0 || weight_kg < tier.max_weight_kg;
             if in_lower && in_upper {
-                return weight_kg * tier.reward_points;
+                return weight_kg
+                    .checked_mul(tier.reward_points)
+                    .expect("Overflow in reward calculation");
             }
         }
         // No tier matched — fall back to flat rate
-        weight_kg * self.reward_points
+        weight_kg
+            .checked_mul(self.reward_points)
+            .expect("Overflow in reward calculation")
     }
 
     /// Attempts to claim a reward, returns the amount claimed

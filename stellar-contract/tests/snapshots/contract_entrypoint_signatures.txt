@@ -1,0 +1,216 @@
+pub fn initialize_admin(env: Env, admin: Address)
+pub fn get_admins(env: Env) -> Vec<Address>
+pub fn get_admin(env: Env) -> Address
+pub fn transfer_admin(env: Env, current_admin: Address, new_admins: Vec<Address>)
+pub fn add_admin(env: Env, current_admin: Address, new_admin: Address)
+pub fn remove_admin(env: Env, current_admin: Address, admin_to_remove: Address)
+pub fn set_charity_contract(env: Env, admin: Address, charity_address: Address)
+pub fn get_charity_contract(env: Env) -> Option<Address>
+pub fn donate_to_charity(env: Env, donor: Address, amount: i128)
+pub fn set_percentages(env: Env, admin: Address, collector_percentage: u32, owner_percentage: u32)
+pub fn get_collector_percentage(env: Env) -> Option<u32>
+pub fn get_owner_percentage(env: Env) -> Option<u32>
+pub fn set_collector_percentage(env: Env, admin: Address, new_percentage: u32)
+pub fn set_owner_percentage(env: Env, admin: Address, new_percentage: u32)
+pub fn set_min_weight(env: Env, admin: Address, min_weight: u128)
+pub fn get_min_weight(env: Env) -> u128
+pub fn set_token_address(env: Env, admin: Address, token_address: Address)
+pub fn get_token_address(env: Env) -> Option<Address>
+pub fn set_seasonal_multiplier(env: Env, admin: Address, multiplier: u32, start: u64, end: u64)
+pub fn get_current_multiplier(env: Env) -> u32
+pub fn reward_tokens(env: Env, rewarder: Address, recipient: Address, amount: i128, waste_id: u64)
+pub fn is_participant_registered(env: Env, address: Address) -> bool
+pub fn register_participant(env: Env, address: Address, role: ParticipantRole, name: soroban_sdk::Symbol, latitude: i128, longitude: i128) -> Participant
+pub fn waste_exists(env: Env, waste_id: u64) -> bool
+pub fn get_waste_type_string(env: Env, waste_type: WasteType) -> String
+pub fn get_participant_role_string(env: Env, role: ParticipantRole) -> String
+pub fn is_valid_transfer(env: &Env, from: Address, to: Address) -> bool
+pub fn validate_transfer_path(env: Env, waste_id: u128, from: Address, to: Address) -> Result<(), Error>
+pub fn admin_override_transfer(env: Env, admin: Address, waste_id: u128, from: Address, to: Address, latitude: i128, longitude: i128) -> Result<WasteTransfer, Error>
+pub fn get_transfer_path_data(env: Env, waste_id: u128) -> Vec<WasteTransfer>
+pub fn incentive_exists(env: Env, incentive_id: u64) -> bool
+pub fn get_incentive_by_id(env: Env, incentive_id: u64) -> Option<Incentive>
+pub fn update_incentive_status(env: Env, incentive_id: u64, is_active: bool) -> Incentive
+pub fn update_incentive(env: Env, incentive_id: u64, new_reward_points: u64, new_total_budget: u64) -> Incentive
+pub fn calculate_incentive_reward(env: Env, incentive_id: u64, waste_amount: u64) -> u64
+pub fn get_incentives_by_waste_type(env: Env, waste_type: WasteType) -> soroban_sdk::Vec<Incentive>
+pub fn get_incentives(env: Env, waste_type: WasteType) -> soroban_sdk::Vec<Incentive>
+pub fn get_active_incentives(env: Env) -> soroban_sdk::Vec<Incentive>
+pub fn get_participant(env: Env, address: Address) -> Option<Participant>
+pub fn get_participant_earnings(env: Env, address: Address) -> i128
+pub fn get_participant_info(env: Env, address: Address) -> Option<ParticipantInfo>
+pub fn get_all_participants(env: Env, offset: u32, limit: u32) -> Vec<Address>
+pub fn grant_certification(env: Env, admin: Address, address: Address, level: CertificationLevel)
+pub fn get_participants_by_cert(env: Env, level: CertificationLevel) -> Vec<Address>
+pub fn create_auction(env: Env, creator: Address, waste_id: u128, start_price: u128, duration: u64) -> u64
+pub fn place_bid(env: Env, bidder: Address, auction_id: u64, amount: u128)
+pub fn end_auction(env: Env, auction_id: u64)
+pub fn cancel_auction(env: Env, caller: Address, auction_id: u64)
+pub fn get_waste_by_tracking_code(env: Env, code: soroban_sdk::String) -> Option<types::Waste>
+pub fn bulk_import_wastes(env: Env, admin: Address, wastes: soroban_sdk::Vec<types::Waste>)
+pub fn bulk_import_participants(env: Env, admin: Address, participants: soroban_sdk::Vec<Participant>)
+pub fn update_role(env: Env, address: Address, new_role: ParticipantRole) -> Participant
+pub fn deregister_participant(env: Env, address: Address) -> Participant
+pub fn update_participant_location(env: Env, address: Address, latitude: i128, longitude: i128) -> Participant
+pub fn update_location(env: Env, address: Address, latitude: i128, longitude: i128) -> Participant
+pub fn get_transfer_history(env: Env, waste_id: u64) -> Vec<WasteTransfer>
+pub fn get_waste_transfer_history(env: Env, waste_id: u64) -> Vec<WasteTransfer>
+pub fn get_waste_transfer_history_v2(env: Env, waste_id: u128) -> Vec<WasteTransfer>
+pub fn transfer_waste(env: Env, waste_id: u64, from: Address, to: Address, note: String) -> Material
+pub fn get_transfers_from(env: Env, _address: Address) -> Vec<(u64, Vec<WasteTransfer>)>
+pub fn get_transfers_to(env: Env, _address: Address) -> Vec<(u64, Vec<WasteTransfer>)>
+pub fn can_collect(env: Env, address: Address) -> bool
+pub fn can_manufacture(env: Env, address: Address) -> bool
+pub fn submit_material(env: Env, waste_type: WasteType, weight: u64, submitter: Address, description: String) -> Material
+pub fn recycle_waste(env: Env, waste_type: WasteType, weight: u128, recycler: Address, latitude: i128, longitude: i128) -> u128
+pub fn get_waste_v2(env: Env, waste_id: u128) -> Option<types::Waste>
+pub fn get_participant_wastes_v2(env: Env, participant: Address) -> Vec<u128>
+pub fn update_processing_status(env: Env, waste_id: u128, caller: Address, new_status: ProcessingStatus) -> types::Waste
+pub fn get_wastes_by_status(env: Env, status: ProcessingStatus) -> Vec<u128>
+pub fn transfer_waste_v2(env: Env, waste_id: u128, from: Address, to: Address, latitude: i128, longitude: i128) -> Result<WasteTransfer, Error>
+pub fn batch_transfer_waste(env: Env, waste_ids: Vec<u128>, to: Address, latitude: i128, longitude: i128) -> Result<Vec<WasteTransfer>, Error>
+pub fn transfer_collected_waste(env: Env, waste_type: WasteType, collector: Address, manufacturer: Address, latitude: i128, longitude: i128, notes: soroban_sdk::Symbol) -> u128
+pub fn confirm_waste_details(env: Env, waste_id: u128, confirmer: Address) -> types::Waste
+pub fn reset_waste_confirmation(env: Env, waste_id: u128, owner: Address) -> types::Waste
+pub fn deactivate_waste(env: Env, waste_id: u128, admin: Address) -> types::Waste
+pub fn batch_deactivate_waste(env: Env, waste_ids: Vec<u128>, admin: Address) -> u32
+pub fn set_waste_ttl(env: Env, admin: Address, waste_type: WasteType, ttl_seconds: u64)
+pub fn get_waste_ttl(env: Env, waste_type: WasteType) -> u64
+pub fn get_expired_wastes(env: Env) -> Vec<u128>
+pub fn cleanup_expired_wastes(env: Env, admin: Address) -> u32
+pub fn check_waste_expiration(env: Env, waste_id: u128) -> bool
+pub fn get_wastes_approaching_expiry(env: Env, within_seconds: u64) -> Vec<u128>
+pub fn get_lifecycle_summary(env: Env) -> (u64, u64)
+pub fn submit_materials_batch(env: Env, materials: soroban_sdk::Vec<(WasteType, u64, String)>, submitter: Address) -> soroban_sdk::Vec<Material>
+pub fn get_material(env: Env, material_id: u64) -> Option<Material>
+pub fn get_waste_by_id(env: Env, waste_id: u64) -> Option<Material>
+pub fn get_waste(env: Env, waste_id: u64) -> Option<Material>
+pub fn get_participant_wastes(env: Env, participant: Address) -> Vec<u64>
+pub fn get_wastes_batch(env: Env, waste_ids: soroban_sdk::Vec<u64>) -> soroban_sdk::Vec<Option<Material>>
+pub fn verify_material(env: Env, material_id: u64, verifier: Address) -> Material
+pub fn verify_materials_batch(env: Env, material_ids: soroban_sdk::Vec<u64>, verifier: Address) -> soroban_sdk::Vec<Material>
+pub fn get_stats(env: Env, participant: Address) -> Option<RecyclingStats>
+pub fn calculate_carbon_credits(waste_type: WasteType, weight_grams: u128) -> u128
+pub fn get_total_carbon_credits(env: Env) -> u128
+pub fn get_participant_carbon_credits(env: Env, participant: Address) -> u128
+pub fn redeem_carbon_credits(env: Env, participant: Address, amount: u128) -> Result<u128, Error>
+pub fn create_carbon_listing(env: Env, seller: Address, amount: u128, price_per_credit: i128) -> Result<u64, Error>
+pub fn cancel_carbon_listing(env: Env, listing_id: u64, seller: Address) -> Result<(), Error>
+pub fn purchase_carbon_listing(env: Env, listing_id: u64, buyer: Address) -> Result<(), Error>
+pub fn get_carbon_listing(env: Env, listing_id: u64) -> Option<CarbonListing>
+pub fn get_active_carbon_listings(env: Env) -> Vec<CarbonListing>
+pub fn mark_contaminated(env: Env, waste_id: u128, verifier: Address, level: u32, reason: String) -> types::Waste
+pub fn get_contaminated_wastes(env: Env) -> Vec<u128>
+pub fn get_contamination_score(env: Env, waste_id: u128) -> u32
+pub fn report_contamination(env: Env, waste_id: u128, reporter: Address, level: u32, reason: String) -> types::ContaminationReport
+pub fn get_contamination_reports(env: Env, waste_id: u128) -> Vec<types::ContaminationReport>
+pub fn batch_submit_materials(env: Env, materials: soroban_sdk::Vec<(WasteType, u64, String)>, submitter: Address) -> soroban_sdk::Vec<Material>
+pub fn batch_verify_materials(env: Env, material_ids: soroban_sdk::Vec<u64>, verifier: Address) -> soroban_sdk::Vec<Material>
+pub fn get_supply_chain_stats(env: Env) -> (u64, u64, u128)
+pub fn get_incentives_by_rewarder(env: Env, rewarder: Address) -> Vec<Incentive>
+pub fn get_active_mfr_incentive(env: Env, manufacturer: Address, waste_type: WasteType) -> Option<Incentive>
+pub fn create_incentive(env: Env, rewarder: Address, waste_type: WasteType, reward_points: u64, total_budget: u64) -> Incentive
+pub fn claim_incentive_reward(env: Env, incentive_id: u64, material_id: u64, claimer: Address) -> Result<i128, Error>
+pub fn deactivate_incentive(env: Env, incentive_id: u64, rewarder: Address) -> Incentive
+pub fn set_waste_grade(env: Env, waste_id: u128, grade: WasteGrade, grader: Address) -> types::Waste
+pub fn get_grade_history(env: Env, waste_id: u128) -> Vec<types::GradeRecord>
+pub fn get_wastes_by_grade(env: Env, grade: WasteGrade) -> Vec<u128>
+pub fn apply_grade_multiplier(base_reward: u64, grade: WasteGrade) -> u64
+pub fn get_grading_analytics(env: Env) -> (u64, u64, u64, u64)
+pub fn set_waste_grade_ai_verified(env: Env, waste_id: u128, grade: WasteGrade, grader: Address, ai_confidence: u32) -> Result<types::Waste, Error>
+pub fn get_ai_grade_confidence(env: Env, waste_id: u128) -> Option<u32>
+pub fn add_waste_tag(env: Env, waste_id: u128, tag: String, caller: Address) -> types::Waste
+pub fn remove_waste_tag(env: Env, waste_id: u128, tag: String, caller: Address) -> types::Waste
+pub fn get_wastes_by_tag(env: Env, tag: String) -> Vec<u128>
+pub fn set_waste_image(env: Env, waste_id: u128, hash: String, caller: Address) -> types::Waste
+pub fn add_waste_document(env: Env, waste_id: u128, hash: String, caller: Address) -> types::Waste
+pub fn set_multisig_threshold(env: Env, admin: Address, threshold: u32)
+pub fn get_multisig_threshold(env: Env) -> u32
+pub fn propose_admin_action(env: Env, proposer: Address, action: AdminAction) -> AdminProposal
+pub fn approve_admin_proposal(env: Env, approver: Address, proposal_id: u64) -> AdminProposal
+pub fn execute_admin_proposal(env: Env, executor: Address, proposal_id: u64) -> AdminProposal
+pub fn get_admin_proposal(env: Env, proposal_id: u64) -> AdminProposal
+pub fn get_metrics(env: Env) -> types::GlobalMetrics
+pub fn generate_compliance_report(env: Env, admin: Address, period: ReportPeriod) -> ComplianceReport
+pub fn get_compliance_report(env: Env, report_id: u64) -> ComplianceReport
+pub fn finalize_compliance_report(env: Env, admin: Address, report_id: u64)
+pub fn set_transfer_threshold(env: Env, admin: Address, threshold: u128)
+pub fn set_required_approvals(env: Env, admin: Address, count: u32)
+pub fn approve_high_value_transfer(env: Env, waste_id: u128, approver: Address) -> Result<(), Error>
+pub fn substitute_waste(env: Env, original_id: u128, substitute_id: u128, approver: Address, reason: String) -> Result<(), Error>
+pub fn get_transaction_stats(env: Env) -> TransactionStats
+pub fn record_performance_metric(env: Env, admin: Address, gas_used: u64, is_success: bool)
+pub fn take_performance_snapshot(env: Env, admin: Address, active_users: u32, waste_per_hour: u128, latency_ms: u32)
+pub fn analyze_performance_period(env: Env, start: u64, end: u64) -> TransactionStats
+pub fn pause(env: Env, admin: Address)
+pub fn unpause(env: Env, admin: Address)
+pub fn is_paused(env: Env) -> bool
+pub fn distribute_rewards(env: Env, waste_id: u64, incentive_id: u64, manufacturer: Address) -> i128
+pub fn split_waste(env: Env, waste_id: u128, owner: Address, weights: Vec<u128>) -> Result<Vec<u128>, Error>
+pub fn merge_wastes(env: Env, waste_ids: Vec<u128>, owner: Address) -> Result<u128, Error>
+pub fn reserve_waste(env: Env, waste_id: u128, reserver: Address, duration: u64) -> Result<types::Waste, Error>
+pub fn cancel_reservation(env: Env, waste_id: u128, caller: Address) -> Result<types::Waste, Error>
+pub fn create_challenge(env: Env, admin: Address, title: soroban_sdk::Symbol, target_weight: u128, waste_type: WasteType, start_time: u64, end_time: u64, reward: u128) -> Challenge
+pub fn join_challenge(env: Env, challenge_id: u64, participant: Address)
+pub fn get_challenge_progress(env: Env, challenge_id: u64, participant: Address) -> ChallengeProgress
+pub fn update_challenge_progress(env: Env, challenge_id: u64, participant: Address, weight_grams: u128)
+pub fn complete_challenge(env: Env, challenge_id: u64, participant: Address)
+pub fn get_active_challenges(env: Env) -> Vec<Challenge>
+pub fn get_challenge(env: Env, challenge_id: u64) -> Option<Challenge>
+pub fn initiate_transfer(env: Env, waste_id: u128, from: Address, to: Address, latitude: i128, longitude: i128) -> PendingTransfer
+pub fn approve_transfer(env: Env, transfer_id: u64, recipient: Address) -> PendingTransfer
+pub fn reject_transfer(env: Env, transfer_id: u64, recipient: Address) -> PendingTransfer
+pub fn get_pending_transfer(env: Env, transfer_id: u64) -> Option<PendingTransfer>
+pub fn expire_transfer(env: Env, transfer_id: u64) -> PendingTransfer
+pub fn get_milestones(env: Env) -> Vec<Milestone>
+pub fn get_participant_milestones(env: Env, participant: Address) -> Vec<u32>
+pub fn get_top_recyclers(env: Env, limit: u32) -> Vec<LeaderboardEntry>
+pub fn get_top_collectors(env: Env, limit: u32) -> Vec<LeaderboardEntry>
+pub fn get_top_verifiers(env: Env, limit: u32) -> Vec<LeaderboardEntry>
+pub fn get_top_earners(env: Env, limit: u32) -> Vec<LeaderboardEntry>
+pub fn get_participant_rank(env: Env, participant: Address, metric: soroban_sdk::Symbol) -> u32
+pub fn schedule_incentive(env: Env, incentive_id: u64, rewarder: Address, starts_at: Option<u64>, ends_at: Option<u64>) -> Result<Incentive, Error>
+pub fn set_processing_cost(env: Env, waste_id: u128, owner: Address, cost: u128) -> Result<types::Waste, Error>
+pub fn get_total_processing_costs(env: Env) -> u128
+pub fn get_participant_processing_costs(env: Env, participant: Address) -> u128
+pub fn set_waste_composition(env: Env, waste_id: u128, verifier: Address, composition: Vec<types::MaterialComposition>) -> Result<types::Waste, Error>
+pub fn get_wastes_by_composition(env: Env, material_type: WasteType, min_percentage: u32) -> Vec<u128>
+pub fn participant_composition_analysis(env: Env, participant: Address) -> Vec<types::CompositionEntry>
+pub fn get_composition_analytics(env: Env) -> Vec<types::CompositionEntry>
+pub fn verify_waste_composition(env: Env, waste_id: u128) -> Result<bool, Error>
+pub fn set_recycling_goal(env: Env, participant: Address, target_weight: u128, target_date: u64, waste_type: OptionalWasteType) -> Result<(), Error>
+pub fn get_goal_progress(env: Env, participant: Address) -> Vec<types::RecyclingGoal>
+pub fn get_participants_meeting_goals(env: Env) -> Vec<Address>
+pub fn get_global_recycling_rate(env: Env) -> u32
+pub fn get_participant_recycling_rate(env: Env, participant: Address) -> u32
+pub fn create_dispute(env: Env, disputer: Address, waste_id: u128, reason: String) -> Dispute
+pub fn resolve_dispute(env: Env, admin: Address, dispute_id: u64, accepted: bool, note: String) -> Dispute
+pub fn get_dispute(env: Env, dispute_id: u64) -> Option<Dispute>
+pub fn get_disputes(env: Env, status: DisputeStatus) -> Vec<Dispute>
+pub fn get_reputation_badge(env: Env, address: Address) -> ReputationBadge
+pub fn penalize_reputation(env: Env, admin: Address, target: Address, delta: i128)
+pub fn decay_reputation(env: Env, address: Address) -> i128
+pub fn get_participants_by_reputation(env: Env, min_score: i128) -> Vec<Address>
+pub fn create_collection_route(env: Env, collector: Address, waste_ids: Vec<u128>) -> CollectionRoute
+pub fn complete_route(env: Env, collector: Address, route_id: u64) -> CollectionRoute
+pub fn get_route(env: Env, route_id: u64) -> Option<CollectionRoute>
+pub fn get_wastes_in_radius(env: Env, lat: i128, lon: i128, radius_km: u32) -> Vec<u128>
+pub fn calculate_quality_score(env: Env, waste_id: u128, scorer: Address) -> Result<QualityScore, Error>
+pub fn get_quality_score(env: Env, waste_id: u128) -> Option<QualityScore>
+pub fn get_wastes_by_quality(env: Env, min_score: u32) -> Vec<u128>
+pub fn update_waste_location(env: Env, waste_id: u128, latitude: i128, longitude: i128, updater: Address) -> Result<(), Error>
+pub fn get_location_history(env: Env, waste_id: u128) -> Vec<LocationRecord>
+pub fn create_waste_batch(env: Env, creator: Address) -> Result<u64, Error>
+pub fn add_waste_to_batch(env: Env, batch_id: u64, waste_id: u128, adder: Address) -> Result<(), Error>
+pub fn get_batch(env: Env, batch_id: u64) -> Option<WasteBatch>
+pub fn mark_batch_ready(env: Env, batch_id: u64, marker: Address) -> Result<(), Error>
+pub fn process_batch(env: Env, batch_id: u64, processor: Address, note: String) -> Result<(), Error>
+pub fn certify_waste(env: Env, waste_id: u128, level: u32, certifier: Address, expires_at: u64, notes: String) -> Result<(), Error>
+pub fn get_waste_certification(env: Env, waste_id: u128) -> Option<WasteCertification>
+pub fn is_waste_certified(env: Env, waste_id: u128) -> bool
+pub fn grant_permission(env: Env, admin: Address, subject: Address, permission: u32) -> Result<(), Error>
+pub fn revoke_permission(env: Env, admin: Address, subject: Address, permission: u32) -> Result<(), Error>
+pub fn has_permission(env: Env, subject: Address, permission: u32) -> Result<bool, Error>
+pub fn get_permission_audit(env: Env, subject: Address) -> Vec<PermissionAuditEntry>
+pub fn reconcile_waste(env: Env, waste_id: u128, verified_weight: u128, reconciler: Address, reason: String) -> Result<ReconciliationRecord, Error>
+pub fn get_reconciliation_log(env: Env, waste_id: u128) -> Vec<ReconciliationRecord>
