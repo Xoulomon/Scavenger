@@ -1,7 +1,27 @@
-#!/bin/bash
-# Analyze current AWS costs for the Scavenger project
+#!/usr/bin/env bash
+# Analyze current AWS costs for the Scavenger project.
+#
+# Usage: ./scripts/cost-analysis.sh [--help]
 
 set -euo pipefail
+
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") [--help]
+
+Query AWS Cost Explorer and print a cost breakdown for the Scavenger project.
+
+Environment:
+  AWS_REGION           AWS region       (default: us-east-1)
+  ENVIRONMENT          Environment tag  (default: prod)
+  COST_ANALYSIS_DAYS   Look-back period (default: 30)
+EOF
+  exit 0
+}
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  usage
+fi
 
 REGION="${AWS_REGION:-us-east-1}"
 ENVIRONMENT="${ENVIRONMENT:-prod}"
@@ -30,6 +50,9 @@ aws ce get-cost-and-usage \
 
 echo ""
 echo "--- Cost Breakdown by Service ---"
+# SC2016: The single-quoted JMESPath expression uses backtick literals that are
+# AWS JMESPath syntax, not Bash command substitutions — disabling the warning.
+# shellcheck disable=SC2016
 aws ce get-cost-and-usage \
   --time-period "Start=$START_DATE,End=$END_DATE" \
   --granularity MONTHLY \
@@ -65,6 +88,7 @@ aws ce get-cost-and-usage \
 
 echo ""
 echo "--- Budget Status ---"
+# shellcheck disable=SC2016
 aws budgets describe-budgets \
   --account-id "$(aws sts get-caller-identity --query Account --output text)" \
   --query 'Budgets[?contains(BudgetName,`scavenger`)].{Name:BudgetName,Limit:BudgetLimit.Amount,Actual:CalculatedSpend.ActualSpend.Amount,Forecasted:CalculatedSpend.ForecastedSpend.Amount}' \

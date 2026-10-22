@@ -1,6 +1,32 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Scavngr Project Setup Verification Script.
+# Canonical implementation — verify-setup.ps1 delegates here.
+#
+# Usage: ./scripts/verify-setup.sh [--help]
 
-# Scavngr Project Setup Verification Script
+set -euo pipefail
+
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") [--help]
+
+Verify the local Scavngr development environment:
+  - Rust toolchain
+  - WASM target (wasm32-unknown-unknown)
+  - Soroban CLI
+  - Required project files
+  - Build and test pass
+
+Exit codes:
+  0  All checks passed (warnings may be present)
+  1  A hard requirement is missing (e.g. Rust not installed)
+EOF
+  exit 0
+}
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  usage
+fi
 
 echo "🔍 Verifying Scavngr Project Setup..."
 echo ""

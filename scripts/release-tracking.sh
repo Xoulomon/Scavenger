@@ -1,5 +1,26 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Release tracking — list releases and show per-release details.
+#
+# Usage: ./scripts/release-tracking.sh [action] [--help]
+
 set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [action] [--help]
+
+List or inspect git-tagged releases.
+
+Actions:
+  status            Show recent releases and current branch status (default)
+  list              List all release tags
+  details <tag>     Show details for a specific release tag
+
+Example:
+  $(basename "$0") details v1.2.3
+EOF
+  exit 0
+fi
 
 ACTION="${1:-status}"
 

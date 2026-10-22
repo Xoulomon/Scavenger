@@ -1,5 +1,19 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Capacity planning test suite.
+#
+# Usage: ./scripts/test-capacity.sh [--help]
+
 set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [--help]
+
+Run capacity planning tests — verifies that capacity models, forecasting logic,
+and scaling thresholds behave as expected.  Exits 1 if any test fails.
+EOF
+  exit 0
+fi
 
 echo "=== Capacity Planning Tests ==="
 echo ""

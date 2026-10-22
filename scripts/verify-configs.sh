@@ -1,7 +1,19 @@
-#!/bin/bash
-# Verify that all configs are working correctly
+#!/usr/bin/env bash
+# Verify that all configs are working correctly.
+#
+# Usage: ./scripts/verify-configs.sh [--help]
 
-set -e
+set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [--help]
+
+Check that tsconfig.json and eslint.config.js exist for each package
+(backend, frontend, indexer) and that the shared base configs are present.
+EOF
+  exit 0
+fi
 
 GREEN='\033[0;32m'
 RED='\033[0;31m'

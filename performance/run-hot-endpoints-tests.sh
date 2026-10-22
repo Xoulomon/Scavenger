@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 ##############################################################################
 # Hot Endpoints Load Testing Script
@@ -13,9 +13,23 @@
 #   ./run-hot-endpoints-tests.sh                 # Run all tests
 #   BASE_URL=http://api.example.com ./run-hot-endpoints-tests.sh  # Custom URL
 #   GENERATE_BASELINE=true ./run-hot-endpoints-tests.sh  # Generate baselines
+#   ./run-hot-endpoints-tests.sh --help          # Show this help
 ##############################################################################
 
-set -e
+set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [--help]
+
+Run hot-endpoint load tests (steady-state, spike, stress) via k6.
+
+Environment:
+  BASE_URL           Target API base URL       (default: http://localhost:8080)
+  GENERATE_BASELINE  Set "true" to save a new baseline JSON after the run
+EOF
+  exit 0
+fi
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

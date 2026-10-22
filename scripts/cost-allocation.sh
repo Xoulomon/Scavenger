@@ -1,11 +1,22 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Tag-based cost allocation report.
+#
+# Usage: ./scripts/cost-allocation.sh [--help]
+
 set -euo pipefail
 
-ENVIRONMENT="${ENVIRONMENT:-prod}"
-PROFILE="${AWS_PROFILE:-default}"
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [--help]
 
-echo "=== Cost Allocation Tagging ==="
-echo "Environment: $ENVIRONMENT"
+Generate a cost allocation breakdown by AWS tag for the Scavenger project.
+
+Environment:
+  ENVIRONMENT  Environment label  (default: prod)
+  AWS_PROFILE  AWS CLI profile    (default: default)
+EOF
+  exit 0
+fi
 echo ""
 
 apply_tags() {

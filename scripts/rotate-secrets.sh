@@ -1,7 +1,25 @@
-#!/bin/bash
-# Rotate secrets in HashiCorp Vault
+#!/usr/bin/env bash
+# Rotate secrets in HashiCorp Vault.
+#
+# Usage: ./scripts/rotate-secrets.sh [--help]
 
 set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [--help]
+
+Rotate application secrets stored in HashiCorp Vault.
+
+Environment (required):
+  VAULT_TOKEN    Vault authentication token
+
+Environment (optional):
+  VAULT_ADDR     Vault server address  (default: http://localhost:8200)
+  SECRET_PATH    KV secret path        (default: secret/scavenger)
+EOF
+  exit 0
+fi
 
 VAULT_ADDR="${VAULT_ADDR:-http://localhost:8200}"
 VAULT_TOKEN="${VAULT_TOKEN:?VAULT_TOKEN must be set}"

@@ -1,11 +1,23 @@
-#!/bin/bash
-# Load testing script using wrk
+#!/usr/bin/env bash
+# Simple wrk load test runner.
+#
+# Usage: ./scripts/load-test.sh [url] [threads] [connections] [--help]
 
 set -euo pipefail
 
-TARGET_URL="${1:-https://api.scavenger.com}"
-THREADS="${2:-12}"
-CONNECTIONS="${3:-400}"
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [url] [threads] [connections]
+
+Run a wrk load test against the given URL.
+
+Arguments:
+  url          Target URL         (default: https://api.scavenger.com)
+  threads      Thread count       (default: 12)
+  connections  Connection count   (default: 400)
+EOF
+  exit 0
+fi
 DURATION="${4:-30s}"
 
 echo "Starting load test..."

@@ -1,7 +1,24 @@
-#!/bin/bash
-# Weekly backup restoration verification
+#!/usr/bin/env bash
+# Weekly backup restoration verification.
+#
+# Usage: ./scripts/verify-backup-restore.sh [--help]
 
 set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [--help]
+
+Download the latest database backup from S3, restore it into a test database,
+run a smoke query, then drop the test database.  Exits 1 on any failure.
+
+Environment:
+  BACKUP_BUCKET   S3 bucket holding backups  (default: s3://scavenger-backups)
+  TEST_DB         Name of temporary test DB  (default: scavenger_restore_test)
+  DB_HOST         PostgreSQL host             (default: localhost)
+EOF
+  exit 0
+fi
 
 BACKUP_BUCKET="s3://scavenger-backups"
 TEST_DB="scavenger_restore_test"

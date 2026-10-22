@@ -1,78 +1,59 @@
-# Scavngr Project Setup Verification Script (PowerShell)
+# verify-setup.ps1 — thin wrapper for Windows developers
+# Canonical implementation lives in verify-setup.sh (runs on Linux/macOS and CI).
+# Requires: pwsh (PowerShell 7+) or Git Bash / WSL.
 
-Write-Host "🔍 Verifying Scavngr Project Setup..." -ForegroundColor Cyan
-Write-Host ""
+<#
+.SYNOPSIS
+  Verify the Scavngr project setup by delegating to the canonical Bash script.
 
-# Check Rust installation
-Write-Host "Checking Rust installation..." -ForegroundColor Yellow
-if (Get-Command rustc -ErrorAction SilentlyContinue) {
-    $rustVersion = rustc --version
-    Write-Host "✅ Rust installed: $rustVersion" -ForegroundColor Green
-} else {
-    Write-Host "❌ Rust not found. Install from https://rustup.rs" -ForegroundColor Red
+.DESCRIPTION
+  The single source-of-truth for setup verification is scripts/verify-setup.sh.
+  This wrapper locates that script and executes it with the system shell so that
+  Windows developers get identical behaviour to CI (Linux).
+
+  Prerequisites:
+    - PowerShell 7+ (pwsh)
+    - One of: WSL, Git-for-Windows bash, or another sh-compatible shell in PATH
+
+.EXAMPLE
+  .\scripts\verify-setup.ps1
+#>
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+$scriptDir  = Split-Path -Parent $MyInvocation.MyCommand.Path
+$bashScript = Join-Path $scriptDir 'verify-setup.sh'
+
+if (-not (Test-Path $bashScript)) {
+    Write-Error "Cannot find canonical script: $bashScript"
     exit 1
 }
 
-# Check WASM target
-Write-Host "Checking WASM target..." -ForegroundColor Yellow
-$targets = rustup target list
-if ($targets -match "wasm32-unknown-unknown \(installed\)") {
-    Write-Host "✅ WASM target installed" -ForegroundColor Green
-} else {
-    Write-Host "⚠️  WASM target not installed. Installing..." -ForegroundColor Yellow
-    rustup target add wasm32-unknown-unknown
-}
-
-# Check Soroban CLI
-Write-Host "Checking Soroban CLI..." -ForegroundColor Yellow
-if (Get-Command soroban -ErrorAction SilentlyContinue) {
-    $sorobanVersion = soroban --version
-    Write-Host "✅ Soroban CLI installed: $sorobanVersion" -ForegroundColor Green
-} else {
-    Write-Host "⚠️  Soroban CLI not found. Install with:" -ForegroundColor Yellow
-    Write-Host "   cargo install --locked soroban-cli --features opt"
-}
-
-# Check project structure
-Write-Host ""
-Write-Host "Checking project structure..." -ForegroundColor Yellow
-$requiredFiles = @(
-    "Cargo.toml",
-    "stellar-contract/Cargo.toml",
-    "stellar-contract/src/lib.rs",
-    "stellar-contract/src/types.rs",
-    ".gitignore",
-    "soroban.toml",
-    "README.md"
-)
-
-foreach ($file in $requiredFiles) {
-    if (Test-Path $file) {
-        Write-Host "✅ $file" -ForegroundColor Green
-    } else {
-        Write-Host "❌ $file missing" -ForegroundColor Red
+# Prefer explicit shells in order: wsl bash > git-bash > sh in PATH
+$shell = $null
+foreach ($candidate in @('wsl', 'bash', 'sh')) {
+    if (Get-Command $candidate -ErrorAction SilentlyContinue) {
+        $shell = $candidate
+        break
     }
 }
 
-# Try to build
-Write-Host ""
-Write-Host "Attempting to build project..." -ForegroundColor Yellow
-$buildOutput = cargo build 2>&1 | Out-String
-if ($buildOutput -match "Finished") {
-    Write-Host "✅ Project builds successfully" -ForegroundColor Green
-} else {
-    Write-Host "⚠️  Build encountered issues" -ForegroundColor Yellow
+if ($null -eq $shell) {
+    Write-Error "No compatible shell found. Install WSL, Git-for-Windows, or add bash/sh to PATH."
+    exit 1
 }
 
-# Try to run tests
+Write-Host "Using shell: $shell" -ForegroundColor Cyan
+Write-Host "Running: $bashScript" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "Running tests..." -ForegroundColor Yellow
-$testOutput = cargo test 2>&1 | Out-String
-if ($testOutput -match "test result: ok") {
-    Write-Host "✅ All tests passed" -ForegroundColor Green
+
+if ($shell -eq 'wsl') {
+    # Convert Windows path to WSL path
+    $wslPath = wsl wslpath -a $bashScript.Replace('\', '/')
+    & wsl bash $wslPath
 } else {
-    Write-Host "⚠️  Some tests failed" -ForegroundColor Yellow
+    & $shell $bashScript
 }
 
-Write-Host ""
-Write-Host "✨ Setup verification complete!" -ForegroundColor Cyan
+exit $LASTEXITCODE

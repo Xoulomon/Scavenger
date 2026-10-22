@@ -1,8 +1,28 @@
-#!/bin/bash
-# Blue-green deployment monitoring script
-# Tracks pod health, error rates, and latency during a deployment
+#!/usr/bin/env bash
+# Blue-green deployment monitoring script.
+# Tracks pod health, error rates, and latency during a deployment.
+#
+# Usage: ./scripts/monitor-deployment.sh [slot] [--help]
 
 set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [slot] [--help]
+
+Monitor pod health, error rates, and latency for a blue-green deployment slot.
+
+Arguments:
+  slot   Deployment slot to monitor (default: green)
+
+Environment:
+  NAMESPACE          Kubernetes namespace  (default: scavenger-prod)
+  DURATION           Monitoring duration in seconds (default: 120)
+  ERROR_THRESHOLD    Max errors in tail-100 logs before alerting (default: 10)
+  PROMETHEUS_URL     Prometheus base URL  (default: http://localhost:9090)
+EOF
+  exit 0
+fi
 
 NAMESPACE="${NAMESPACE:-scavenger-prod}"
 SLOT="${1:-green}"

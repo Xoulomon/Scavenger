@@ -1,17 +1,28 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Invalidate a CloudFront distribution.
+# Canonical implementation — called directly or from CI.
+#
+# Usage: ./scripts/cdn-invalidation.sh [distribution-id] [paths]
+
 set -euo pipefail
 
 usage() {
   cat <<EOF
-Usage: $0 [distribution-id] [paths]
+Usage: $(basename "$0") [distribution-id] [paths]
+
+Invalidate objects in a CloudFront distribution.
+
+Arguments:
+  distribution-id   CloudFront distribution ID (e.g. E1234567890ABC).
+                    Falls back to DISTRIBUTION_ID env var if omitted.
+  paths             Space-separated path(s) to invalidate (default: /*)
 
 Examples:
-  $0 E1234567890ABC "/*"
-  DISTRIBUTION_ID=E1234567890ABC $0 "/index.html /app.js"
-
-If distribution id is not passed as the first argument, the script reads DISTRIBUTION_ID from the environment.
+  $(basename "$0") E1234567890ABC "/*"
+  $(basename "$0") E1234567890ABC "/index.html /app.js"
+  DISTRIBUTION_ID=E1234567890ABC $(basename "$0") "/index.html"
 EOF
-  exit 1
+  exit 0
 }
 
 if [[ "${1:-}" == "-h" ]] || [[ "${1:-}" == "--help" ]]; then
@@ -41,6 +52,9 @@ echo "Invalidating CloudFront distribution: $DISTRIBUTION_ID"
 echo "Paths: $PATHS"
 
 # Create invalidation
+# Word-splitting on $PATHS is intentional here: the --paths flag accepts
+# space-separated path tokens, so we deliberately do not quote it.
+# shellcheck disable=SC2086
 INVALIDATION_ID=$(aws cloudfront create-invalidation \
   --distribution-id "$DISTRIBUTION_ID" \
   --paths $PATHS \

@@ -1,7 +1,24 @@
-#!/bin/bash
-# Database failover testing script
+#!/usr/bin/env bash
+# Database failover testing script.
+#
+# Usage: ./scripts/test-failover.sh [--help]
 
 set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [--help]
+
+Test database failover by verifying primary accessibility and promoting a replica.
+
+Environment:
+  PRIMARY_HOST   Primary PostgreSQL host   (default: localhost)
+  REPLICA_HOST   Replica PostgreSQL host   (default: localhost)
+  PRIMARY_USER   PostgreSQL user           (default: postgres)
+  PRIMARY_DB     Database name             (default: scavenger)
+EOF
+  exit 0
+fi
 
 PRIMARY_HOST="${PRIMARY_HOST:-localhost}"
 REPLICA_HOST="${REPLICA_HOST:-localhost}"

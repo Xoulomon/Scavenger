@@ -1,28 +1,53 @@
-#!/bin/bash
-# Remove a feature flag and its dead branches
+#!/usr/bin/env bash
+# Remove a feature flag and its dead branches.
+#
+# Usage: ./scripts/remove-feature-flag.sh <flag-name> [--help]
 
-set -e
+set -euo pipefail
+
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") <flag-name> [--help]
+
+Remove all occurrences of a feature flag from TypeScript, JavaScript, and Rust
+source files (excluding node_modules, dist, build).  A timestamped backup is
+created in ./backups/ before any file is modified.
+
+Arguments:
+  flag-name   Identifier to remove (e.g. new_circuits)
+
+Example:
+  $(basename "$0") new_circuits
+EOF
+  exit 0
+}
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  usage
+fi
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-if [ -z "$1" ]; then
+if [ -z "${1:-}" ]; then
   echo "Usage: $0 <flag-name>"
   echo "Example: $0 new_circuits"
   exit 1
 fi
 
-FLAG=$1
+FLAG="$1"
 
 echo -e "${YELLOW}🔍 Removing feature flag: ${FLAG}${NC}"
 
-# Check if flag exists
+# Check if flag exists; grep -c counts matching lines (|| true avoids exit on no match)
 COUNT=$(grep -r --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" --include="*.rs" \
-  -l "$FLAG" . 2>/dev/null | grep -v "node_modules" | grep -v "dist" | grep -v "build" | wc -l)
+  -l "$FLAG" . 2>/dev/null \
+  | grep -v "node_modules" | grep -v "dist" | grep -v "build" \
+  | grep -c "" || true)
 
-if [ $COUNT -eq 0 ]; then
+if [ "$COUNT" -eq 0 ]; then
   echo -e "${RED}❌ Feature flag '${FLAG}' not found in code${NC}"
   exit 1
 fi
@@ -40,16 +65,17 @@ mkdir -p "$BACKUP_DIR"
 
 echo -e "${YELLOW}📦 Creating backup in ${BACKUP_DIR}${NC}"
 
-# Remove flag from files (simple approach - remove lines containing flag)
-for file in $(grep -r --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" --include="*.rs" \
-  -l "$FLAG" . 2>/dev/null | grep -v "node_modules" | grep -v "dist" | grep -v "build"); do
-  
+# Remove flag from files (simple approach — remove lines containing flag)
+# Use a while-read loop instead of $(grep ...) to handle filenames with spaces
+while IFS= read -r file; do
   echo "  Processing: $file"
-  cp "$file" "$BACKUP_DIR/$(basename $file).bak"
-  
-  # Remove lines containing the flag (simple approach)
+  cp "$file" "$BACKUP_DIR/$(basename "$file").bak"
+  # Remove lines containing the flag
   sed -i "/$FLAG/d" "$file"
-done
+done < <(
+  grep -r --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" --include="*.rs" \
+    -l "$FLAG" . 2>/dev/null | grep -v "node_modules" | grep -v "dist" | grep -v "build"
+)
 
 echo -e "${GREEN}✅ Feature flag '${FLAG}' removed from codebase${NC}"
 echo -e "${GREEN}📦 Backup saved to ${BACKUP_DIR}${NC}"

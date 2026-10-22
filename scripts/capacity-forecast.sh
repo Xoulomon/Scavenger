@@ -1,10 +1,24 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Forecast future capacity requirements.
+#
+# Usage: ./scripts/capacity-forecast.sh [--help]
+
 set -euo pipefail
 
-ENVIRONMENT="${ENVIRONMENT:-prod}"
-DAYS_HISTORY="${DAYS_HISTORY:-90}"
-DAYS_FORECAST="${DAYS_FORECAST:-30}"
-OUTPUT_DIR="${OUTPUT_DIR:-/tmp/capacity-reports}"
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [--help]
+
+Analyse historical resource usage and project capacity requirements.
+
+Environment:
+  ENVIRONMENT    Environment label        (default: prod)
+  DAYS_HISTORY   Days of history to use   (default: 90)
+  DAYS_FORECAST  Days to forecast ahead   (default: 30)
+  OUTPUT_DIR     Report output directory  (default: /tmp/capacity-reports)
+EOF
+  exit 0
+fi
 
 mkdir -p "$OUTPUT_DIR"
 

@@ -1,24 +1,60 @@
-# Build and optimize WASM for Soroban deployment (PowerShell)
+# build-wasm.ps1 — thin wrapper for Windows developers
+# Canonical implementation lives in build-wasm.sh (runs on Linux/macOS and CI).
+# Requires: pwsh (PowerShell 7+) or Git Bash / WSL.
 
-Write-Host "🔨 Building Scavngr Contract..." -ForegroundColor Cyan
+<#
+.SYNOPSIS
+  Build and optimise the Soroban WASM contract by delegating to the canonical Bash script.
 
-# Build WASM
-Write-Host "Building WASM..." -ForegroundColor Yellow
-cargo build --target wasm32-unknown-unknown --release
+.DESCRIPTION
+  The single source-of-truth for the WASM build is scripts/build-wasm.sh.
+  This wrapper locates that script and executes it with the system shell so that
+  Windows developers get identical behaviour to CI (Linux).
 
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ Build failed" -ForegroundColor Red
+  Prerequisites:
+    - PowerShell 7+ (pwsh)
+    - One of: WSL, Git-for-Windows bash, or another sh-compatible shell in PATH
+    - Rust toolchain with wasm32-unknown-unknown target
+    - Soroban CLI
+
+.EXAMPLE
+  .\scripts\build-wasm.ps1
+#>
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+$scriptDir  = Split-Path -Parent $MyInvocation.MyCommand.Path
+$bashScript = Join-Path $scriptDir 'build-wasm.sh'
+
+if (-not (Test-Path $bashScript)) {
+    Write-Error "Cannot find canonical script: $bashScript"
     exit 1
 }
 
-# Optimize WASM
-Write-Host "Optimizing WASM..." -ForegroundColor Yellow
-soroban contract optimize --wasm target/wasm32-unknown-unknown/release/stellar_scavngr_contract.wasm
+# Prefer explicit shells in order: wsl bash > git-bash > sh in PATH
+$shell = $null
+foreach ($candidate in @('wsl', 'bash', 'sh')) {
+    if (Get-Command $candidate -ErrorAction SilentlyContinue) {
+        $shell = $candidate
+        break
+    }
+}
 
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "❌ Optimization failed" -ForegroundColor Red
+if ($null -eq $shell) {
+    Write-Error "No compatible shell found. Install WSL, Git-for-Windows, or add bash/sh to PATH."
     exit 1
 }
 
-Write-Host "✅ Build complete!" -ForegroundColor Green
-Write-Host "📦 Optimized WASM: target/wasm32-unknown-unknown/release/stellar_scavngr_contract.optimized.wasm" -ForegroundColor Cyan
+Write-Host "Using shell: $shell" -ForegroundColor Cyan
+Write-Host "Running: $bashScript" -ForegroundColor Cyan
+Write-Host ""
+
+if ($shell -eq 'wsl') {
+    $wslPath = wsl wslpath -a $bashScript.Replace('\', '/')
+    & wsl bash $wslPath
+} else {
+    & $shell $bashScript
+}
+
+exit $LASTEXITCODE

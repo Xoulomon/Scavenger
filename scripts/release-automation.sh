@@ -1,5 +1,25 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Scavenger release automation — bump version, tag, and push.
+#
+# Usage: ./scripts/release-automation.sh [type] [--help]
+
 set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [type] [--help]
+
+Automate the release process: validate, bump version, tag, and push.
+
+Arguments:
+  type   Release type: major | minor | patch (default: patch)
+
+Environment:
+  RELEASE_BRANCH   Branch to release from (default: main)
+  WORKSPACE        Repo root directory    (default: git rev-parse --show-toplevel)
+EOF
+  exit 0
+fi
 
 RELEASE_TYPE="${1:-patch}"
 RELEASE_BRANCH="${RELEASE_BRANCH:-main}"

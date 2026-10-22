@@ -1,5 +1,26 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Generate release notes from git log for a given version tag.
+#
+# Usage: ./scripts/release-notes.sh <version> [output-dir] [--help]
+
 set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") <version> [output-dir]
+
+Generate a Markdown release notes file from the git log for a version tag.
+
+Arguments:
+  version     Git tag to document (e.g. v1.2.3) — required
+  output-dir  Directory to write the file to (default: current directory)
+
+Example:
+  $(basename "$0") v1.2.3
+  $(basename "$0") v1.2.3 ./releases/
+EOF
+  exit 0
+fi
 
 VERSION="${1:-}"
 OUTPUT_DIR="${OUTPUT_DIR:-.}"
@@ -8,8 +29,8 @@ echo "=== Release Notes Generator ==="
 echo ""
 
 if [ -z "$VERSION" ]; then
-  echo "Usage: $0 <version> [output_dir]"
-  echo "Example: $0 v1.2.3"
+  echo "Error: version argument is required."
+  echo "Run '$(basename "$0") --help' for usage."
   exit 1
 fi
 

@@ -1,7 +1,23 @@
-#!/bin/bash
-# Database replication monitoring script
+#!/usr/bin/env bash
+# Database replication monitoring script.
+#
+# Usage: ./scripts/monitor-replication.sh [--help]
 
 set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [--help]
+
+Check PostgreSQL replication status and replica lag.
+
+Environment:
+  PRIMARY_HOST   PostgreSQL primary host  (default: localhost)
+  PRIMARY_USER   PostgreSQL user          (default: postgres)
+  PRIMARY_DB     Database name            (default: scavenger)
+EOF
+  exit 0
+fi
 
 PRIMARY_HOST="${PRIMARY_HOST:-localhost}"
 PRIMARY_USER="${PRIMARY_USER:-postgres}"

@@ -4,8 +4,21 @@
 # Generates an HTML + summary coverage report for stellar-contract using
 # cargo-llvm-cov.  Installs prerequisites if missing.
 #
-# Usage:
-#   ./scripts/generate-coverage.sh          # HTML report in stellar-contract/coverage/
+# Usage: ./scripts/generate-coverage.sh [--help]
+
+set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [--help]
+
+Generate an HTML + lcov coverage report for the stellar-contract package using
+cargo-llvm-cov.  Installs the tool if it is not already present.
+
+Output: stellar-contract/coverage/
+EOF
+  exit 0
+fi
 #   ./scripts/generate-coverage.sh --ci     # Summary only, fails if < 85 % lines
 #
 # Requirements: Rust stable toolchain, rustup
