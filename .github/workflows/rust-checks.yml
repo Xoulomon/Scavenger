@@ -41,7 +41,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: rustup component add clippy
       - uses: Swatinem/rust-cache@v2
-      - run: cargo clippy --all-targets --all-features -- -D warnings
+      # --workspace ensures both backend/ and stellar-contract/ are checked.
+      # -D warnings turns every warning into an error, enforcing zero-warning baseline.
+      - run: cargo clippy --workspace --all-targets -- -D warnings
 
   clippy-security:
     name: Clippy Security Lints
@@ -52,7 +54,7 @@ jobs:
       - run: rustup component add clippy
       - uses: Swatinem/rust-cache@v2
       - run: |
-          cargo clippy --all-targets --all-features -- \
+          cargo clippy --workspace --all-targets -- \
             -D warnings \
             -D clippy::unwrap_in_result \
             -D clippy::mem_forget \

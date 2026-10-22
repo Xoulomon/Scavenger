@@ -8,7 +8,9 @@ packages:
 allowBuilds:
   '@firebase/util': true
   core-js: true
+  cpu-features: true
   esbuild: true
   msw: true
   protobufjs: true
+  ssh2: true
   unrs-resolver: true

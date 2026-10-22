@@ -1,11 +1,29 @@
-// Re-export all shared types
+// Re-export all shared types from @scavngr/types so SDK consumers get
+// a one-stop import from '@scavngr/sdk'.
 export * from '@scavngr/types'
 
-// SDK-specific types and client extensions
+// ── SDK-specific aliases ──────────────────────────────────────────────────────
+// @scavngr/types uses `ParticipantRole` and `StellarNetwork` as canonical names.
+// The SDK's public surface uses the shorter aliases `Role` and `Network` to
+// keep call-site code concise.  We re-export them here so that internal SDK
+// modules can use either name without ambiguity.
+export {
+  ParticipantRole as Role,
+  StellarNetwork as Network,
+} from '@scavngr/types'
+
+// ── SDK-specific types ────────────────────────────────────────────────────────
+
 import type { ClientOptions as BaseClientOptions } from '@scavngr/types'
 
 /**
- * Enhanced client options for the `ScavengerClient`.
+ * Alias so SDK consumers can write `ClientOptions` without knowing the
+ * underlying base type from `@scavngr/types`.
+ */
+export type { BaseClientOptions as ClientOptions }
+
+/**
+ * Enhanced client options for `ScavengerClient`.
  *
  * Extends the base `ClientOptions` (contractId, network, rpcUrl,
  * networkPassphrase) with SDK-level concerns like retry policies and logging.

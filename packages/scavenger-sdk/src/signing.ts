@@ -1,7 +1,5 @@
 import {
   TransactionBuilder,
-  BASE_FEE,
-  xdr,
 } from '@stellar/stellar-sdk'
 import { SigningError } from './errors'
 

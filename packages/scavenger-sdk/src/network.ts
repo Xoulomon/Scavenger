@@ -6,18 +6,22 @@ const NETWORK_PRESETS: Record<Network, NetworkConfig> = {
   [Network.Standalone]: {
     rpcUrl: 'http://localhost:8000/soroban/rpc',
     networkPassphrase: 'Standalone Network ; June 2022',
+    network: Network.Standalone,
   },
   [Network.Testnet]: {
     rpcUrl: 'https://soroban-testnet.stellar.org',
     networkPassphrase: 'Test SDF Network ; September 2025',
+    network: Network.Testnet,
   },
   [Network.Futurenet]: {
     rpcUrl: 'https://rpc-futurenet.stellar.org',
     networkPassphrase: 'Futurenet Network ; January 2025',
+    network: Network.Futurenet,
   },
   [Network.Mainnet]: {
     rpcUrl: 'https://soroban-rpc.mainnet.stellar.org',
     networkPassphrase: 'Public Global Stellar Network ; September 2025',
+    network: Network.Mainnet,
   },
 }
 

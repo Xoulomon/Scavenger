@@ -79,13 +79,6 @@ export class StructuredLogger {
     return { timestamp, level, message, ...context };
   }
 
-  /** @deprecated Use structured JSON output. Retained for internal log retrieval only. */
-  private formatEntry(entry: LogEntry): string {
-    const { timestamp, level, message, context } = entry;
-    const contextStr = context ? ` ${JSON.stringify(context)}` : '';
-    return `[${timestamp}] ${level.toUpperCase()}: ${message}${contextStr}`;
-  }
-
   getLogs(level?: LogLevel): LogEntry[] {
     if (!level) return this.logs;
     return this.logs.filter((log) => LOG_LEVELS[log.level] >= LOG_LEVELS[level]);

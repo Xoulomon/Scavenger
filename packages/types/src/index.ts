@@ -184,6 +184,8 @@ export interface ContractConfig {
   contractId: string
   network: StellarNetwork
   rpcUrl: string
+  /** Stellar network passphrase required for transaction building. */
+  networkPassphrase: string
 }
 
 /** Options for initializing SDK clients */

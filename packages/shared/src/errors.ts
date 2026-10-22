@@ -117,7 +117,7 @@ export function formatErrorResponse(error: AppError): ErrorResponse {
  *  eslint-disable-next-line @typescript-eslint/no-explicit-any -- Express middleware
  *  signature requires `any` for framework-agnostic compatibility. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- framework-agnostic Express middleware signature
-export function errorHandler(err: Error, req: unknown, res: any, _next: unknown): void {
+export function errorHandler(err: Error, _req: unknown, res: any, _next: unknown): void {
   if (err instanceof AppError) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     res.status(err.statusCode).json(formatErrorResponse(err));
@@ -143,7 +143,7 @@ export function validateErrorMessage(message: string): {
     issues.push('Message cannot be empty');
   }
   
-  if (message.length > 0 && message[0] !== message[0].toUpperCase()) {
+  if (message.length > 0 && message.charAt(0) !== message.charAt(0).toUpperCase()) {
     issues.push('Message must start with a capital letter');
   }
   

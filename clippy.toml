@@ -7,9 +7,13 @@
 #
 # If you add or remove a rule here, mirror the change in Cargo.toml's
 # [workspace.lints.clippy] table and vice-versa.
+#
+# NOTE: `integer_arithmetic` was removed from Clippy in toolchain ≥ 1.72.
+# The equivalent check is `arithmetic_side_effects`, which is set in
+# [workspace.lints.clippy] in Cargo.toml.
 deny = [
     "clippy::unwrap_used",
     "clippy::expect_used",
     "clippy::panic",
-    "clippy::integer_arithmetic",
+    "clippy::arithmetic_side_effects",
 ]

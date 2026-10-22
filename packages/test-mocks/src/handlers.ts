@@ -15,7 +15,7 @@ import { RpcResponseFactoryOptions } from './types';
 export function mockGetEventsHandler(
   options?: RpcResponseFactoryOptions
 ) {
-  return (req: any, res: any, ctx: any) => {
+  return (_req: any, res: any, ctx: any) => {
     const response = createGetEventsResponse(options);
     return res(ctx.json(response));
   };
@@ -27,7 +27,7 @@ export function mockGetEventsHandler(
 export function mockGetLedgerHandler(
   options?: RpcResponseFactoryOptions
 ) {
-  return (req: any, res: any, ctx: any) => {
+  return (_req: any, res: any, ctx: any) => {
     const response = createGetLedgerResponse(options);
     return res(ctx.json(response));
   };
@@ -39,7 +39,7 @@ export function mockGetLedgerHandler(
 export function mockSimulateTransactionHandler(
   options?: RpcResponseFactoryOptions
 ) {
-  return (req: any, res: any, ctx: any) => {
+  return (_req: any, res: any, ctx: any) => {
     const response = createSimulateTransactionResponse(options);
     return res(ctx.json(response));
   };
