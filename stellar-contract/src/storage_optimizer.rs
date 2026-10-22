@@ -1,3 +1,12 @@
+//! Storage optimization utilities.
+//!
+//! ## Arithmetic audit (issue #1508)
+//!
+//! This module performs no token-amount or counter arithmetic. Its numeric
+//! fields are TTL/config values copied verbatim; there is no addition,
+//! subtraction, multiplication, or division on balances. The checked-math
+//! changes for issue #1508 therefore live in `key_rotation/lifecycle.rs` and
+//! `types.rs`/`incentive.rs`; this note records the completed audit.
 // Storage Optimization Module
 // Implements storage batching, prefetching, indexes, and caching for improved performance
 //
@@ -34,7 +43,7 @@
 // - `optimize_waste_storage`: 1 instance-storage read + at most 1
 //   temporary-storage write (0 when the hot copy is already current).
 
-use soroban_sdk::{Env, Vec, Address, Symbol};
+use soroban_sdk::{Address, Env, Symbol, Vec};
 
 /// Storage cache for frequently accessed data
 pub struct StorageCache {
@@ -48,7 +57,7 @@ impl StorageCache {
     }
 
     /// Check if a key exists in the cache
-    pub fn contains<K>(&self, env: &Env, key: &K) -> bool 
+    pub fn contains<K>(&self, env: &Env, key: &K) -> bool
     where
         K: soroban_sdk::IntoVal<Env, soroban_sdk::Val> + Clone,
     {
@@ -138,9 +147,9 @@ impl<'a> StorageBatch<'a> {
 /// Prefetch frequently accessed storage slots
 pub fn prefetch_participant_data(env: &Env, address: &Address) {
     let cache = StorageCache::new(100);
-    
+
     // Prefetch participant record
-    let participant_key = (address.clone(),);
+    let participant_key = crate::storage_keys::participant_key(address);
     if !cache.contains(env, &participant_key) {
         if let Some(participant) = env.storage().instance().get::<_, crate::Participant>(&participant_key) {
             cache.set(env, &participant_key, &participant, 1000);
@@ -148,7 +157,7 @@ pub fn prefetch_participant_data(env: &Env, address: &Address) {
     }
 
     // Prefetch stats
-    let stats_key = ("stats", address.clone());
+    let stats_key = crate::storage_keys::stats_key(address);
     if !cache.contains(env, &stats_key) {
         if let Some(stats) = env.storage().instance().get::<_, crate::RecyclingStats>(&stats_key) {
             cache.set(env, &stats_key, &stats, 1000);
@@ -162,8 +171,7 @@ pub fn optimize_waste_storage(env: &Env, waste_id: u128) {
     // Hot data: frequently accessed (status, owner)
     // Cold data: rarely accessed (full history, documents)
 
-    let waste_key = ("waste_v2", waste_id);
-    if let Some(waste) = env.storage().instance().get::<_, crate::Waste>(&waste_key) {
+    if let Some(waste) = crate::waste_storage::read_waste(env, waste_id) {
         let hot_key = ("waste_hot", waste_id);
         let hot_data = (waste.is_active, waste.current_owner.clone(), waste.waste_type);
 
@@ -193,10 +201,10 @@ mod tests {
     fn test_storage_cache() {
         let env = Env::default();
         let cache = StorageCache::new(10);
-        
+
         let key = "test_key";
         let value = 42u32;
-        
+
         assert!(!cache.contains(&env, &key));
         cache.set(&env, &key, &value, 100);
         assert!(cache.contains(&env, &key));
@@ -208,10 +216,10 @@ mod tests {
         let env = Env::default();
         let index = StorageIndex::new(soroban_sdk::symbol_short!("waste"));
         let addr = Address::generate(&env);
-        
+
         index.add(&env, 1, addr.clone());
         assert_eq!(index.get(&env, 1), Some(addr.clone()));
-        
+
         index.remove(&env, 1);
         assert_eq!(index.get(&env, 1), None);
     }

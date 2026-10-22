@@ -22,16 +22,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 /** Read the generated API reference document. */
 function readApiDoc(): string {
   // docs/tests/ → docs/ → CONTRACT_API.md
-  // But the file lives at Scavenger/docs/CONTRACT_API.md relative to workspace root.
-  // When running from docs/tests/, __dirname is <workspace>/docs/tests
+  // When running from docs/tests/, __dirname is <workspace>/docs/tests.
   const docPath = resolve(__dirname, "../CONTRACT_API.md");
-  // Fallback: try Scavenger/docs path (workspace root layout)
-  try {
-    return readFileSync(docPath, "utf-8");
-  } catch {
-    const altPath = resolve(__dirname, "../../Scavenger/docs/CONTRACT_API.md");
-    return readFileSync(altPath, "utf-8");
-  }
+  return readFileSync(docPath, "utf-8");
 }
 
 /** Read the Rust contract source. */

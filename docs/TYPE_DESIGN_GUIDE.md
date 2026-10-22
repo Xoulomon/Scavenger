@@ -127,4 +127,4 @@ cd stellar-contract
 cargo bench --bench contract_benchmarks
 ```
 
-Results are stored in `stellar-contract/BENCHMARK_RESULTS.md`.
+Results are stored in `docs/archive/stellar-contract/BENCHMARK_RESULTS.md`.

@@ -9,7 +9,8 @@ usage() {
   cat <<EOF
 Usage: $(basename "$0") [--help]
 
-Run the full k6 performance test suite (load, stress, endurance, spike).
+Run the full k6 performance test suite (load, stress, endurance, spike,
+waste-submission-regression).
 Set GENERATE_BASELINE=true to update baseline metrics after the run.
 
 Environment:
@@ -56,14 +57,17 @@ run_test "Endurance Test" "endurance.js"
 # 4. Run Spike Test
 run_test "Spike Test" "spike.js"
 
-# 5. Generate/Update Baseline if requested
+# 5. Run Waste Submission Regression Test
+run_test "Waste Submission Regression" "waste-submission-regression.js"
+
+# 6. Generate/Update Baseline if requested
 if [ "${GENERATE_BASELINE:-false}" = "true" ]; then
   echo "-------------------------------------------"
   echo "[+] Generating performance baseline..."
   node performance/generate-baseline.js
 fi
 
-# 6. Analyze Results and Generate Report
+# 7. Analyze Results and Generate Report
 echo "-------------------------------------------"
 echo "[+] Analyzing results and generating report..."
 if command -v node &> /dev/null; then

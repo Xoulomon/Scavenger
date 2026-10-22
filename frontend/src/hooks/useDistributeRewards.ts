@@ -4,6 +4,7 @@ import { useWallet } from '@/context/WalletContext'
 import { useContract } from '@/context/ContractContext'
 import { useToast } from '@/hooks/useToast'
 import { networkConfig } from '@/lib/stellar'
+import { invalidateKeys, invalidationPlan } from '@/lib/cacheInvalidation'
 
 export interface DistributeRewardsParams {
   wasteId: bigint
@@ -28,9 +29,7 @@ export function useDistributeRewards() {
       return { total, wasteId, incentiveId }
     },
     onSuccess: ({ total, wasteId }) => {
-      queryClient.invalidateQueries({ queryKey: ['rewards'] })
-      queryClient.invalidateQueries({ queryKey: ['stats'] })
-      queryClient.invalidateQueries({ queryKey: ['supply-chain-stats'] })
+      invalidateKeys(queryClient, invalidationPlan.distributeRewards())
       toast.success(`Rewards distributed for waste #${wasteId}: ${total.toLocaleString()} tokens total.`)
     },
     onError: (error) => {

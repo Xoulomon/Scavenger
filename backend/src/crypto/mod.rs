@@ -1,3 +1,6 @@
+//! Ownership: the cipher primitives and key handling for the backend. Services use these; a single
+//! ciphertext format header is a follow-up.
+
 //! Shared cryptographic primitives for the Scavenger backend
 //! 
 //! This module consolidates all cryptographic operations into a single

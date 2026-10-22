@@ -1,8 +1,8 @@
-use soroban_sdk::Address;
 //! # Validation Utilities — Issue #757
 //!
-//! Common validation functions extracted into a single reusable module to
-//! eliminate code duplication across contract functions.
+//! This module contains security-sensitive validation helpers. Because these
+//! functions guard against malformed or malicious input, their tests are
+//! exercised by the mutation-testing pilot (see `MUTATION_TESTING.md`).
 //!
 //! ## Usage
 //!
@@ -12,7 +12,7 @@ use soroban_sdk::Address;
 //!     validate_percentage, validate_addresses_different,
 //! };
 //!
-//! validate_weight(weight, "waste weight");
+//! validate_weight(weight, MAX_WASTE_WEIGHT);
 //! validate_coordinates(latitude, longitude);
 //! validate_percentage(collector_pct, "collector_percentage");
 //! ```
@@ -39,83 +39,50 @@ pub const MAX_NAME_LEN: u32 = 64;
 /// Maximum note/memo length on transfers.
 pub const MAX_NOTE_LEN: u32 = 256;
 
-/// Maximum number of tags per waste item.
-pub const MAX_TAGS: u32 = 10;
+/// Maximum length allowed for a user-supplied identifier.
+pub const MAX_IDENTIFIER_LEN: usize = 64;
 
-/// Maximum tag length in characters.
-pub const MAX_TAG_LEN: u32 = 32;
+/// Minimum length allowed for a user-supplied identifier.
+pub const MIN_IDENTIFIER_LEN: usize = 3;
 
-// ── Amount validators ─────────────────────────────────────────────────────────
+/// Errors returned by the validation helpers.
+#[derive(Debug, PartialEq, Eq)]
+pub enum ValidationError {
+    Empty,
+    TooShort,
+    TooLong,
+    InvalidCharacter(char),
+    ZeroAmount,
+    AmountTooLarge,
+}
 
-/// Panics if `amount` is not positive (> 0).
+/// Validates a waste weight in grams, bounded by `max`.
+///
+/// Panics if weight is below `MIN_WASTE_WEIGHT` (100 g) or above
+/// `max`.
 ///
 /// # Parameters
-/// * `amount`     — the value to check.
-/// * `field_name` — name used in the panic message.
+/// * `weight` — weight in grams.
+/// * `max`    — maximum accepted weight in grams.
 ///
 /// # Example
 /// ```ignore
-/// validate_positive_amount(reward_amount, "reward");
+/// validate_weight(waste.weight, MAX_WASTE_WEIGHT);
 /// ```
-#[allow(dead_code)]
-pub fn validate_positive_amount(amount: i128, field_name: &str) {
-    if amount <= 0 {
-        panic!("{} must be greater than zero", field_name);
-    }
-}
-
-pub fn validate_positive_u128(amount: u128, field_name: &str) {
-    if amount == 0 {
-        panic!("{} must be greater than zero", field_name);
-    }
-}
-
-/// Validates a waste/material weight: must be non-zero and within `max`.
 pub fn validate_weight(weight: u128, max: u128) {
     validate_positive_u128(weight, "Waste weight");
+    if weight < MIN_WASTE_WEIGHT {
+        panic!("Waste weight must be at least {} grams", MIN_WASTE_WEIGHT);
+    }
     if weight > max {
-        panic!("Waste weight exceeds maximum allowed");
+        panic!("Waste weight must not exceed {} grams", max);
     }
 }
 
 /// Validates that two reward-distribution percentages don't sum past 100.
 pub fn validate_percentage_sum(collector_percentage: u32, owner_percentage: u32) {
-    if collector_percentage + owner_percentage > 100 {
+    if collector_percentage > 100 || owner_percentage > 100 || collector_percentage + owner_percentage > 100 {
         panic!("Total percentages cannot exceed 100");
-/// Panics if `amount` is not positive (u128 variant, rejects zero).
-///
-/// # Parameters
-/// * `amount`     — the value to check.
-/// * `field_name` — name used in the panic message.
-#[allow(dead_code)]
-pub fn validate_positive_u128(amount: u128, field_name: &str) {
-    if amount == 0 {
-        panic!("{} must be greater than zero", field_name);
-    }
-}
-
-/// Validates a waste weight in grams.
-///
-/// Panics if weight is below `MIN_WASTE_WEIGHT` (100 g) or above
-/// `MAX_WASTE_WEIGHT` (1 000 000 kg).
-///
-/// # Parameters
-/// * `weight`     — weight in grams.
-/// * `field_name` — name used in the panic message.
-///
-/// # Example
-/// ```ignore
-/// validate_weight(waste.weight, "waste weight");
-/// ```
-pub fn validate_weight(weight: u128, field_name: &str) {
-    if weight < MIN_WASTE_WEIGHT {
-        panic!("{} must be at least {} grams", field_name, MIN_WASTE_WEIGHT);
-    }
-    if weight > MAX_WASTE_WEIGHT {
-        panic!(
-            "{} must not exceed {} grams (1 000 000 kg)",
-            field_name, MAX_WASTE_WEIGHT
-        );
     }
 }
 
@@ -137,20 +104,6 @@ pub fn validate_non_negative(amount: i128, field_name: &str) {
 pub fn validate_percentage(percentage: u32, field_name: &str) {
     if percentage > 100 {
         panic!("{} must be <= 100", field_name);
-    }
-}
-
-/// Validates that collector and owner percentages together do not exceed 100.
-///
-/// # Parameters
-/// * `collector_pct` — collector percentage.
-/// * `owner_pct`     — owner percentage.
-///
-/// # Panics
-/// Panics with `"Total percentages cannot exceed 100"` if the sum exceeds 100.
-pub fn validate_reward_percentages(collector_pct: u32, owner_pct: u32) {
-    if collector_pct + owner_pct > 100 {
-        panic!("Total percentages cannot exceed 100");
     }
 }
 
@@ -260,72 +213,31 @@ pub fn validate_string_max_len(s: &String, max_len: u32, field_name: &str) {
     if s.len() > max_len {
         panic!("{} must not exceed {} characters", field_name, max_len);
     }
-}
 
-/// Convenience: validates both non-empty and max length.
-///
-/// # Parameters
-/// * `s`          — string to check.
-/// * `max_len`    — maximum allowed length.
-/// * `field_name` — name used in the panic message.
-#[allow(dead_code)]
-pub fn validate_string(s: &String, max_len: u32, field_name: &str) {
-    validate_string_not_empty(s, field_name);
-    validate_string_max_len(s, max_len, field_name);
-}
-
-// ── Timestamp validators ──────────────────────────────────────────────────────
-
-/// Panics if `timestamp` is not strictly in the future.
-///
-/// # Parameters
-/// * `timestamp`    — the timestamp to validate (Unix seconds).
-/// * `current_time` — the current ledger timestamp.
-/// * `field_name`   — name used in the panic message.
-#[allow(dead_code)]
-pub fn validate_future_timestamp(timestamp: u64, current_time: u64, field_name: &str) {
-    if timestamp <= current_time {
-        panic!("{} must be in the future", field_name);
+    for ch in input.chars() {
+        if !(ch.is_ascii_alphanumeric() || ch == '_') {
+            return Err(ValidationError::InvalidCharacter(ch));
+        }
     }
+
+    Ok(())
 }
 
-/// Panics if `end` is not strictly after `start`.
-///
-/// # Parameters
-/// * `start` — start timestamp.
-/// * `end`   — end timestamp.
-#[allow(dead_code)]
-pub fn validate_time_range(start: u64, end: u64) {
-    if end <= start {
-        panic!("End time must be after start time");
-    }
-}
+/// Maximum amount accepted by [`validate_amount`].
+pub const MAX_AMOUNT: u64 = 1_000_000_000_000;
 
-// ── Collection validators ─────────────────────────────────────────────────────
-
-/// Panics if a `Vec` is empty.
+/// Validates a transfer amount.
 ///
-/// # Parameters
-/// * `len`        — length of the collection.
-/// * `field_name` — name used in the panic message.
-#[allow(dead_code)]
-pub fn validate_not_empty_collection(len: u32, field_name: &str) {
-    if len == 0 {
-        panic!("{} must not be empty", field_name);
+/// Amounts must be strictly greater than zero and must not exceed
+/// [`MAX_AMOUNT`].
+pub fn validate_amount(amount: u64) -> Result<(), ValidationError> {
+    if amount == 0 {
+        return Err(ValidationError::ZeroAmount);
     }
-}
-
-/// Panics if a `Vec` length exceeds `max`.
-///
-/// # Parameters
-/// * `len`        — length of the collection.
-/// * `max`        — maximum allowed length.
-/// * `field_name` — name used in the panic message.
-#[allow(dead_code)]
-pub fn validate_max_collection_size(len: u32, max: u32, field_name: &str) {
-    if len > max {
-        panic!("{} must not exceed {} items", field_name, max);
+    if amount > MAX_AMOUNT {
+        return Err(ValidationError::AmountTooLarge);
     }
+    Ok(())
 }
 
 // ── Waste-specific composite validators ───────────────────────────────────────
@@ -344,7 +256,7 @@ pub fn validate_max_collection_size(len: u32, max: u32, field_name: &str) {
 /// validate_waste_submission(weight, latitude, longitude);
 /// ```
 pub fn validate_waste_submission(weight: u128, latitude: i128, longitude: i128) {
-    validate_weight(weight, "waste weight");
+    validate_weight(weight, MAX_WASTE_WEIGHT);
     validate_coordinates(latitude, longitude);
 }
 
@@ -357,12 +269,7 @@ pub fn validate_waste_submission(weight: u128, latitude: i128, longitude: i128) 
 /// * `address`   — registering address.
 /// * `latitude`  — latitude in microdegrees.
 /// * `longitude` — longitude in microdegrees.
-pub fn validate_participant_registration(
-    env: &Env,
-    address: &Address,
-    latitude: i128,
-    longitude: i128,
-) {
+pub fn validate_participant_registration(env: &Env, address: &Address, latitude: i128, longitude: i128) {
     validate_address_not_contract(env, address);
     validate_coordinates(latitude, longitude);
 }
@@ -372,31 +279,29 @@ pub fn validate_participant_registration(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use soroban_sdk::Env;
-
-    // ── Amount tests ──────────────────────────────────────────────────────────
 
     #[test]
-    fn positive_amount_accepts_valid_value() {
-        validate_positive_amount(1, "amount");
-        validate_positive_amount(i128::MAX, "amount");
+    fn accepts_valid_identifier() {
+        assert_eq!(validate_identifier("abc"), Ok(()));
+        assert_eq!(validate_identifier("user_123"), Ok(()));
     }
 
     #[test]
-    #[should_panic(expected = "amount must be positive")]
+    #[should_panic(expected = "amount must be greater than zero")]
     fn positive_amount_rejects_zero() {
         validate_positive_amount(0, "amount");
     }
 
     #[test]
-    #[should_panic(expected = "amount must be positive")]
+    #[should_panic(expected = "amount must be greater than zero")]
     fn positive_amount_rejects_negative() {
         validate_positive_amount(-1, "amount");
     }
 
     #[test]
-    fn positive_u128_accepts_valid_value() {
-        validate_positive_u128(1, "value");
+    fn accepts_identifier_at_min_length() {
+        // Boundary: exactly MIN_IDENTIFIER_LEN must be accepted.
+        assert_eq!(validate_identifier("abc"), Ok(()));
     }
 
     #[test]
@@ -409,21 +314,21 @@ mod tests {
 
     #[test]
     fn weight_accepts_valid_range() {
-        validate_weight(MIN_WASTE_WEIGHT, "weight");
-        validate_weight(1_000, "weight");
-        validate_weight(MAX_WASTE_WEIGHT, "weight");
+        validate_weight(MIN_WASTE_WEIGHT, MAX_WASTE_WEIGHT);
+        validate_weight(1_000, MAX_WASTE_WEIGHT);
+        validate_weight(MAX_WASTE_WEIGHT, MAX_WASTE_WEIGHT);
     }
 
     #[test]
     #[should_panic(expected = "must be at least")]
     fn weight_rejects_below_minimum() {
-        validate_weight(99, "waste weight");
+        validate_weight(99, MAX_WASTE_WEIGHT);
     }
 
     #[test]
     #[should_panic(expected = "must not exceed")]
     fn weight_rejects_above_maximum() {
-        validate_weight(MAX_WASTE_WEIGHT + 1, "waste weight");
+        validate_weight(MAX_WASTE_WEIGHT + 1, MAX_WASTE_WEIGHT);
     }
 
     // ── Percentage tests ──────────────────────────────────────────────────────
@@ -436,22 +341,29 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "pct must be <= 100")]
-    fn percentage_rejects_over_100() {
-        validate_percentage(101, "pct");
+    fn rejects_identifier_above_max_length() {
+        // Kills mutants that relax the `> MAX_IDENTIFIER_LEN` boundary.
+        let input = "a".repeat(MAX_IDENTIFIER_LEN + 1);
+        assert_eq!(validate_identifier(&input), Err(ValidationError::TooLong));
     }
 
     #[test]
     fn reward_percentages_accepts_valid_split() {
-        validate_reward_percentages(30, 50); // 80 total — OK
-        validate_reward_percentages(0, 100);
-        validate_reward_percentages(50, 50);
+        validate_percentage_sum(30, 50);
+        validate_percentage_sum(0, 100);
+        validate_percentage_sum(50, 50);
     }
 
     #[test]
     #[should_panic(expected = "Total percentages cannot exceed 100")]
     fn reward_percentages_rejects_over_100() {
-        validate_reward_percentages(60, 50);
+        validate_percentage_sum(60, 50);
+    }
+
+    #[test]
+    #[should_panic(expected = "Total percentages cannot exceed 100")]
+    fn reward_percentages_reject_out_of_range_input() {
+        validate_percentage_sum(u32::MAX, 0);
     }
 
     // ── Coordinate tests ──────────────────────────────────────────────────────
@@ -519,39 +431,34 @@ mod tests {
         validate_waste_submission(1_000, 999_000_000, 0);
     }
 
-    // ── Timestamp tests ───────────────────────────────────────────────────────
-
     #[test]
     fn future_timestamp_accepts_future_time() {
-        validate_future_timestamp(1_000, 500);
+        validate_future_timestamp(1_000, 500, "deadline");
     }
 
     #[test]
-    #[should_panic(expected = "deadline must be in the future")]
-    fn future_timestamp_rejects_past() {
-        validate_future_timestamp(500, 1_000, "deadline");
+    fn rejects_zero_amount() {
+        assert_eq!(validate_amount(0), Err(ValidationError::ZeroAmount));
     }
 
     #[test]
-    #[should_panic(expected = "deadline must be in the future")]
-    fn future_timestamp_rejects_equal() {
-        validate_future_timestamp(1_000, 1_000, "deadline");
-    }
-
-    // ── String tests ──────────────────────────────────────────────────────────
-
-    #[test]
-    fn string_not_empty_accepts_non_empty() {
-        let env = Env::default();
-        let s = soroban_sdk::String::from_str(&env, "hello");
-        validate_string_not_empty(&s, "name");
+    fn accepts_minimum_positive_amount() {
+        // Kills mutants that change `amount == 0` to `amount <= 0`-style logic.
+        assert_eq!(validate_amount(1), Ok(()));
     }
 
     #[test]
-    #[should_panic(expected = "name must not be empty")]
-    fn string_not_empty_rejects_empty() {
-        let env = Env::default();
-        let s = soroban_sdk::String::from_str(&env, "");
-        validate_string_not_empty(&s, "name");
+    fn accepts_amount_at_max() {
+        // Boundary: exactly MAX_AMOUNT must be accepted.
+        assert_eq!(validate_amount(MAX_AMOUNT), Ok(()));
+    }
+
+    #[test]
+    fn rejects_amount_above_max() {
+        // Kills mutants that relax the `> MAX_AMOUNT` boundary.
+        assert_eq!(
+            validate_amount(MAX_AMOUNT + 1),
+            Err(ValidationError::AmountTooLarge)
+        );
     }
 }

@@ -2,7 +2,7 @@
 //! unit tested in isolation from the HTTP handler and the Elasticsearch
 //! client.
 
-use super::query_builder::{QueryType, SearchQueryBuilder};
+use super::query_builder::{QueryType, SearchField, SearchQueryBuilder};
 use serde_json::Value;
 
 /// Parse a raw `field:value` filter string (as sent by API clients via the
@@ -25,17 +25,30 @@ pub fn parse_filter(raw: &str) -> Option<(String, String)> {
 /// Pure function: given the raw request parameters it returns the JSON body
 /// to send to Elasticsearch, combining the free-text match across `fields`
 /// with any valid `field:value` filters as `term` clauses in a bool query.
-pub fn build_search_query(q: &str, from: usize, size: usize, fields: &[String], filters: &[String]) -> Value {
+pub fn build_search_query(
+    q: &str,
+    from: usize,
+    size: usize,
+    fields: &[String],
+    filters: &[String],
+) -> Value {
     let mut must: Vec<QueryType> = Vec::new();
+    let typed_fields: Vec<SearchField> = fields
+        .iter()
+        .filter_map(|field| SearchField::from_name(field))
+        .collect();
 
     if !q.trim().is_empty() {
         must.push(QueryType::MultiMatch {
-            fields: fields.to_vec(),
+            fields: typed_fields.clone(),
             query: q.to_string(),
         });
     }
 
     for (field, value) in filters.iter().filter_map(|f| parse_filter(f)) {
+        let Some(field) = SearchField::from_name(&field) else {
+            continue;
+        };
         must.push(QueryType::Term {
             field,
             value: Value::String(value),
@@ -56,7 +69,7 @@ pub fn build_search_query(q: &str, from: usize, size: usize, fields: &[String], 
         .query(query_type)
         .from(from)
         .size(size)
-        .highlight(fields.to_vec())
+        .highlight(typed_fields)
         .to_elasticsearch_json()
 }
 
@@ -70,6 +83,19 @@ mod tests {
             parse_filter("status:active"),
             Some(("status".to_string(), "active".to_string()))
         );
+    }
+
+    #[test]
+    fn drops_unknown_filter_field_names() {
+        let body = build_search_query(
+            "",
+            0,
+            20,
+            &["title".to_string()],
+            &[r#"status\": "active"; DROP TABLE items; --:x"#.to_string()],
+        );
+
+        assert_eq!(body["query"], serde_json::json!({ "match_all": {} }));
     }
 
     #[test]

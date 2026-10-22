@@ -76,13 +76,3 @@ export function formatDistance(km: number, locale?: string): string {
   const value = config.distanceUnit === 'mi' ? km * KM_TO_MI : km
   return `${formatNumber(value, resolved, 1)} ${config.distanceUnit}`
 }
-
-export function formatDate(date: Date | number | string, locale?: string): string {
-  const resolved = locale ?? detectLocale()
-  const config = getLocaleConfig(resolved)
-  return new Intl.DateTimeFormat(config.currencyLocale, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  }).format(new Date(date))
-}

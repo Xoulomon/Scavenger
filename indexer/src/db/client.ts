@@ -1,34 +1,31 @@
 import { Pool, PoolClient, PoolConfig } from 'pg';
+import { config } from '../config';
 import { logger } from '../utils/logger';
 
 let pool: Pool | null = null;
 
 /**
- * Build pool configuration from environment variables.
+ * Build pool configuration from the central config module (#1159).
  *
- * Supported env vars (all optional, sensible defaults provided):
- *   DATABASE_URL              – connection string (required by pg)
- *   DB_MAX_CONNECTIONS        – pool max size              (default: 10)
- *   DB_MIN_CONNECTIONS        – pool min size / idle slots (default: 2)
- *   DB_IDLE_TIMEOUT_MS        – ms before idle client is closed (default: 30000)
- *   DB_CONNECTION_TIMEOUT_MS  – ms to wait for a free client  (default: 5000)
- *   DB_STATEMENT_TIMEOUT_MS   – ms before a query is cancelled (default: 30000)
+ * All database connection variables are read from `config.database.*` rather
+ * than directly from `process.env`.  Add new variables to
+ * `indexer/src/config/index.ts` rather than here.
  */
 function buildPoolConfig(): PoolConfig {
   return {
-    connectionString: process.env.DATABASE_URL,
-    max: parseInt(process.env.DB_MAX_CONNECTIONS ?? '10', 10),
-    min: parseInt(process.env.DB_MIN_CONNECTIONS ?? '2', 10),
-    idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT_MS ?? '30000', 10),
-    connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT_MS ?? '5000', 10),
-    statement_timeout: parseInt(process.env.DB_STATEMENT_TIMEOUT_MS ?? '30000', 10),
+    connectionString: config.database.url,
+    max: config.database.maxConnections,
+    min: config.database.minConnections,
+    idleTimeoutMillis: config.database.idleTimeout,
+    connectionTimeoutMillis: config.database.connectionTimeoutMs,
+    statement_timeout: config.database.statementTimeoutMs,
   };
 }
 
 export function getPool(): Pool {
   if (!pool) {
-    const config = buildPoolConfig();
-    pool = new Pool(config);
+    const poolConfig = buildPoolConfig();
+    pool = new Pool(poolConfig);
 
     pool.on('error', (err) => {
       logger.error('Unexpected DB pool error', { error: String(err) });
@@ -39,11 +36,11 @@ export function getPool(): Pool {
     });
 
     logger.info('DB connection pool created', {
-      max: config.max,
-      min: config.min,
-      idleTimeoutMs: config.idleTimeoutMillis,
-      connectionTimeoutMs: config.connectionTimeoutMillis,
-      statementTimeoutMs: config.statement_timeout,
+      max: poolConfig.max,
+      min: poolConfig.min,
+      idleTimeoutMs: poolConfig.idleTimeoutMillis,
+      connectionTimeoutMs: poolConfig.connectionTimeoutMillis,
+      statementTimeoutMs: poolConfig.statement_timeout,
     });
   }
   return pool;

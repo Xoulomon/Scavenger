@@ -254,7 +254,7 @@ fn test_merge_type_mismatch() {
     let id2 = make_waste(&client, &owner, WasteType::Metal, 500, 0, 0);
 
     let result = client.try_merge_wastes(&vec![&env, id1, id2], &owner);
-    assert_eq!(result, Err(Ok(Error::WasteTypeMismatchMerge)));
+    assert_eq!(result, Err(Ok(Error::WasteTypeMismatch)));
 }
 
 #[test]

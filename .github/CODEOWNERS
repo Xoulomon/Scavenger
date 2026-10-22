@@ -36,7 +36,7 @@
 /docker-compose*.yml @Xoulomon
 
 # Test suites
-/integration-tests/ @Xoulomon
+/tests/integration/ @Xoulomon
 /performance/ @Xoulomon
 /security-tests/ @Xoulomon
 

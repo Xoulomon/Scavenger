@@ -249,7 +249,7 @@ cd frontend && npm install && npm run dev
 
 ```bash
 # Run automated smoke tests
-cd integration-tests
+cd tests/integration
 npm test -- --network testnet --contract $CONTRACT_ID
 
 # Manual: register a test participant
@@ -764,7 +764,7 @@ RUSTFLAGS="-C opt-level=z" cargo build --target wasm32-unknown-unknown --release
 ## Related Documentation
 
 - [Architecture Diagram](./architecture-diagram.svg)
-- [API Reference Guide](./API_REFERENCE_GUIDE.md)
+- [API Reference Guide](./API_REFERENCE.md)
 - [Troubleshooting Guide](./TROUBLESHOOTING_GUIDE.md)
 - [Kubernetes Deployment](./KUBERNETES_DEPLOYMENT.md)
 - [CI/CD Pipeline](./CI_CD_PIPELINE.md)

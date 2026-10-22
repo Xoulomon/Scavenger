@@ -1,6 +1,6 @@
 use scavenger_backend::search::{
     field_builders, Facet, FacetType, FacetedSearch, IndexConfig, IndexMapping, IndexingPipeline, SearchClient,
-    SearchClientConfig, SearchFilter, SearchIndex, SearchQueryBuilder,
+    SearchClientConfig, SearchFilter, SearchIndex, SearchQueryBuilder, SearchField, SortOrder,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -38,10 +38,10 @@ fn test_index_mapping_builder() {
 #[test]
 fn test_search_query_builder() {
     let query = SearchQueryBuilder::new()
-        .match_query("title", "test document")
+        .match_query(SearchField::Title, "test document")
         .from(0)
         .size(20)
-        .sort("created_at", "desc")
+        .sort(SearchField::CreatedAt, SortOrder::Desc)
         .build();
 
     assert_eq!(query.from, 0);
@@ -52,7 +52,7 @@ fn test_search_query_builder() {
 #[test]
 fn test_multi_match_query() {
     let query = SearchQueryBuilder::new()
-        .multi_match(vec!["title".to_string(), "description".to_string()], "search term")
+        .multi_match(vec![SearchField::Title, SearchField::Description], "search term")
         .build();
 
     // Verify the query was built correctly
@@ -65,12 +65,12 @@ fn test_bool_query_builder() {
     use scavenger_backend::search::query_builder::QueryType;
 
     let must_queries = vec![QueryType::Term {
-        field: "status".to_string(),
+        field: SearchField::Status,
         value: json!("active"),
     }];
 
     let should_queries = vec![QueryType::Match {
-        field: "title".to_string(),
+        field: SearchField::Title,
         query: "important".to_string(),
     }];
 
@@ -136,11 +136,11 @@ fn test_faceted_search() {
 #[test]
 fn test_query_to_elasticsearch_json() {
     let builder = SearchQueryBuilder::new()
-        .match_query("title", "test")
+        .match_query(SearchField::Title, "test")
         .from(10)
         .size(50)
-        .sort("_score", "desc")
-        .highlight(vec!["title".to_string()]);
+        .sort(SearchField::RelevanceScore, SortOrder::Desc)
+        .highlight(vec![SearchField::Title]);
 
     let json = builder.to_elasticsearch_json();
 
@@ -181,11 +181,11 @@ fn test_aggregation_builder() {
 #[test]
 fn test_source_filtering() {
     let query = SearchQueryBuilder::new()
-        .source(vec!["title".to_string(), "description".to_string()])
+        .source(vec![SearchField::Title, SearchField::Description])
         .build();
 
     assert!(query.source.is_some());
     let source = query.source.unwrap();
     assert_eq!(source.len(), 2);
-    assert!(source.contains(&"title".to_string()));
+    assert!(source.contains(&SearchField::Title));
 }

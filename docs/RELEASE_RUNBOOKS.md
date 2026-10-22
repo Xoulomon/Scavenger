@@ -13,7 +13,7 @@
    ```bash
    git checkout main
    git pull origin main
-   ./scripts/release-automation.sh patch
+   ./scripts/release.sh publish patch
    ```
 
 2. **Review Changes**
@@ -63,7 +63,7 @@
 
 3. **Create Hotfix Release**
    ```bash
-   ./scripts/release-automation.sh patch
+   ./scripts/release.sh publish patch
    ```
 
 4. **Push and Deploy**
@@ -88,7 +88,7 @@
 ### Steps
 1. **Identify Previous Stable Version**
    ```bash
-   ./scripts/release-tracking.sh list
+   ./scripts/release.sh track list
    ```
 
 2. **Redeploy Previous Version**

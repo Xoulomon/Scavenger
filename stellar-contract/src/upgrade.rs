@@ -1,3 +1,4 @@
+//! Contract upgrade and migration logic.
 use soroban_sdk::{contracttype, Address, Env, String};
 
 /// Supported upgrade path.

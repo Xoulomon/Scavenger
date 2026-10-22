@@ -73,3 +73,40 @@ Hooks validate:
 - Terraform validation
 - Security scanning with tfsec
 - Cost estimation with infracost
+
+## Environment Variable Matrix
+
+All variables default to safe dev values in `variables.tf`. Each environment
+only overrides what differs.
+
+| Variable | Default | dev | staging | prod |
+|---|---|---|---|---|
+| `environment` | (required) | `dev` | `staging` | `prod` |
+| `vpc_cidr` | `10.0.0.0/16` | `10.0.0.0/16` | `10.1.0.0/16` | `10.2.0.0/16` |
+| `db_instance_class` | `db.t3.micro` | same | `db.t3.small` | `db.r6i.large` |
+| `db_allocated_storage` | `20` | same | `100` | `500` |
+| `db_backup_retention` | `7` | same | `14` | `90` |
+| `db_multi_az` | `false` | same | same | `true` |
+| `db_enhanced_backup` | `false` | same | same | `true` |
+| `ecs_desired_count` | `1` | same | `2` | `3` |
+| `ecs_min_capacity` | `1` | same | `2` | `2` |
+| `ecs_max_capacity` | `3` | `1` | `4` | `10` |
+| `enable_load_balancer` | `false` | same | `true` | `true` |
+| `log_retention_days` | `7` | same | `14` | `90` |
+| `enable_autoscaling` | `false` | same | same | `true` |
+| `autoscaling_target_cpu` | `70` | same | same | `70` |
+
+### State isolation
+
+The S3 backend key is **not** set in `main.tf` (Terraform forbids variables in
+backend blocks). Supply it per environment at init time:
+
+```bash
+# dev
+terraform init -backend-config="key=dev/terraform.tfstate"
+
+# staging
+terraform init -backend-config="key=staging/terraform.tfstate"
+
+# prod
+terraform init -backend-config="key=prod/terraform.tfstate"

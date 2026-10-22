@@ -206,6 +206,14 @@ Access Grafana dashboards:
 
 ## Environment Variables Reference
 
+Environment variables are documented in three `.env.example` files, one per component:
+
+| Component | Example file | Code that references variables |
+|---|---|---|
+| Root / backend | `.env.example` | `src/` (Node backend) |
+| Frontend | `frontend/.env.example` | `frontend/src/` (`VITE_*` variables) |
+| Indexer | `indexer/.env.example` | `indexer/src/` (`process.env.*`) |
+
 ### Common Variables
 ```
 ENVIRONMENT=dev|staging|prod
@@ -225,6 +233,79 @@ S3_BUCKET=scavenger-{env}
 SOROBAN_NETWORK=standalone|testnet|mainnet
 CONTRACT_ID={environment-specific}
 SYNC_INTERVAL_SECONDS=30|60|120
+```
+
+### Required Variables by Component
+
+**Root / backend (`.env.example`)**
+- Every variable read via `process.env.*` in the backend source must be listed here.
+- Includes database, Redis, S3, logging and environment settings shown above.
+
+**Frontend (`frontend/.env.example`)**
+- Only `VITE_*` variables are exposed to the browser bundle and must be prefixed with `VITE_`.
+- Every `import.meta.env.VITE_*` / `VITE_*` reference in `frontend/src` must appear in this file.
+- Never put secrets in `VITE_*` variables — they are embedded in the client bundle.
+
+**Indexer (`indexer/.env.example`)**
+- Every `process.env.*` reference in `indexer/src` must appear in this file.
+- Includes `SOROBAN_NETWORK`, `CONTRACT_ID`, `SYNC_INTERVAL_SECONDS` and related settings.
+
+## Environment Variable Parity Check
+
+To prevent setup failures for new contributors, the repository enforces parity between
+code usage and the `.env.example` files with `scripts/check-env-parity.mjs`.
+
+### What it does
+
+1. Extracts every `VITE_*` reference from `frontend/src`.
+2. Extracts every `process.env.*` reference from `indexer/src` (and the backend source).
+3. Compares the extracted names against the corresponding `.env.example` file.
+4. Reports:
+   - **Missing**: variables used in code but absent from the example file.
+   - **Unused**: variables present in the example file but not referenced in code.
+
+### Running the check
+
+```bash
+# Run directly
+node scripts/check-env-parity.mjs
+
+# Or via npm script (if defined)
+npm run check:env-parity
+```
+
+The script exits with a non-zero status code when drift is detected, so it can be wired
+into CI and pre-commit hooks. A clean run exits `0`.
+
+### Fixing drift
+
+- **Missing variable**: add it to the relevant `.env.example` with a safe placeholder value
+  and a short comment describing its purpose.
+- **Unused variable**: remove it from the `.env.example`, or — if it is intentionally kept
+  (e.g. reserved for an upcoming feature or consumed by tooling outside the scanned source) —
+  document it as an intentional exception (see below).
+
+### Intentional exceptions
+
+When a variable must remain in an `.env.example` without a direct code reference, record it
+in the exception list inside `scripts/check-env-parity.mjs` (with a comment explaining why).
+The script ignores listed exceptions when reporting unused variables. Keep this list small
+and review it during code review; remove entries once the variable is either used or deleted.
+
+### Verifying the check
+
+```bash
+# 1. Run the script — should exit 0 on a clean tree
+node scripts/check-env-parity.mjs
+
+# 2. Deliberately introduce drift, e.g. add an unused entry to frontend/.env.example
+echo "VITE_UNUSED_EXAMPLE=1" >> frontend/.env.example
+
+# 3. Re-run — should exit non-zero and report the unused variable
+node scripts/check-env-parity.mjs
+
+# 4. Revert the change
+git checkout frontend/.env.example
 ```
 
 ## Troubleshooting

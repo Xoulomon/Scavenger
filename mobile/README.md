@@ -1,5 +1,22 @@
 # Scavenger Mobile App
 
+> ⚠️ **Status: Unmaintained / Archived**
+>
+> This directory contains scaffolding from an earlier mobile initiative.
+> It is **not actively maintained**, is **not built or tested in CI**, and
+> is **not part of any current release**.
+>
+> **Do not use this code in production.**
+> **Do not add new features here.**
+>
+> If you want to revive the mobile app, please open an issue titled
+> `[Proposal] Revive mobile app` describing scope, tech stack, and
+> maintenance plan, and wait for maintainer approval before writing code.
+
+---
+
+# Scavenger Mobile App
+
 React Native mobile application for iOS and Android platforms.
 
 ## Features

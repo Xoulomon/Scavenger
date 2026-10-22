@@ -68,32 +68,29 @@ pub fn is_in_window(incentive: &Incentive, now: u64) -> bool {
 // ── Reward calculation ────────────────────────────────────────────────────────
 
 /// Calculates the reward for `weight_grams` using the incentive's rate schedule.
-/// Returns `0` if no tier matches and the flat rate is also `0`.
-pub fn calculate_reward(incentive: &Incentive, weight_grams: u64) -> u64 {
+///
+/// Returns [`Error::Overflow`] when the multiplication would overflow `u64`.
+pub fn calculate_reward(incentive: &Incentive, weight_grams: u64) -> Result<u64, Error> {
     incentive.calculate_reward(weight_grams)
 }
 
 /// Attempts to claim a reward from `incentive`, updating its budget in place.
 /// Returns the claimed amount or `Err(Error::NoRewardAvailable)` / budget errors.
-pub fn claim(
-    incentive: &mut Incentive,
-    weight_grams: u64,
-    now: u64,
-) -> Result<u64, Error> {
+pub fn claim(incentive: &mut Incentive, weight_grams: u64, now: u64) -> Result<u64, Error> {
     if !incentive.active {
         return Err(Error::IncentiveInactive);
     }
     if !is_in_window(incentive, now) {
         return Err(Error::IncentiveInactive);
     }
-    let reward = incentive.calculate_reward(weight_grams);
+    let reward = incentive.calculate_reward(weight_grams)?;
     if reward == 0 {
         return Err(Error::NoRewardAvailable);
     }
     if reward > incentive.remaining_budget {
         return Err(Error::InsufficientBudget);
     }
-    incentive.remaining_budget -= reward;
+    incentive.remaining_budget = incentive.remaining_budget.checked_sub(reward).ok_or(Error::Overflow)?;
     if incentive.remaining_budget == 0 {
         incentive.active = false;
     }
@@ -108,4 +105,116 @@ pub fn require_matching_type(incentive: &Incentive, waste_type: WasteType) -> Re
         return Err(Error::WasteTypeMismatch);
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::types::IncentiveTier;
+    use proptest::prelude::*;
+    use soroban_sdk::{testutils::Address as _, Address, Env, Vec};
+
+    fn incentive(env: &Env, reward_points: u64, budget: u64) -> Incentive {
+        Incentive::new(
+            1,
+            Address::generate(env),
+            WasteType::Plastic,
+            reward_points,
+            budget,
+            0,
+            env,
+        )
+    }
+
+    #[test]
+    fn zero_weight_earns_zero_reward() {
+        let env = Env::default();
+        let inc = incentive(&env, 10, 100);
+        assert_eq!(calculate_reward(&inc, 0), Ok(0));
+    }
+
+    #[test]
+    fn reward_overflow_is_typed_error() {
+        let env = Env::default();
+        let inc = incentive(&env, u64::MAX, u64::MAX);
+        assert_eq!(calculate_reward(&inc, 1_000), Err(Error::Overflow));
+    }
+
+    #[test]
+    fn claim_does_not_mutate_on_error() {
+        let env = Env::default();
+        let mut inc = incentive(&env, u64::MAX, u64::MAX);
+        assert_eq!(claim(&mut inc, 1_000, 0), Err(Error::Overflow));
+        assert_eq!(inc.remaining_budget, u64::MAX);
+        assert!(inc.active);
+
+        let mut inc = incentive(&env, 10, 5);
+        assert_eq!(claim(&mut inc, 1_000, 0), Err(Error::InsufficientBudget));
+        assert_eq!(inc.remaining_budget, 5);
+        assert!(inc.active);
+    }
+
+    #[test]
+    fn claim_exact_budget_deactivates() {
+        let env = Env::default();
+        let mut inc = incentive(&env, 10, 50);
+        assert_eq!(claim(&mut inc, 5_000, 0), Ok(50));
+        assert_eq!(inc.remaining_budget, 0);
+        assert!(!inc.active);
+    }
+
+    #[test]
+    fn tiered_reward_uses_checked_multiplication() {
+        let env = Env::default();
+        let mut inc = incentive(&env, 1, u64::MAX);
+        inc.tiers = Vec::from_array(
+            &env,
+            [IncentiveTier {
+                min_weight_kg: 0,
+                max_weight_kg: 0,
+                reward_points: u64::MAX,
+            }],
+        );
+        assert_eq!(calculate_reward(&inc, 1_000), Err(Error::Overflow));
+    }
+
+    proptest! {
+        #![proptest_config(ProptestConfig::with_cases(256))]
+
+        #[test]
+        fn reward_matches_checked_multiplication(
+            weight_grams in any::<u64>(),
+            reward_points in any::<u64>(),
+        ) {
+            let env = Env::default();
+            let inc = incentive(&env, reward_points, u64::MAX);
+            let expected = (weight_grams / 1_000).checked_mul(reward_points);
+            let actual = calculate_reward(&inc, weight_grams);
+            match expected {
+                Some(value) => prop_assert_eq!(actual, Ok(value)),
+                None => prop_assert_eq!(actual, Err(Error::Overflow)),
+            }
+        }
+
+        #[test]
+        fn claim_never_wraps_budget(
+            budget in any::<u64>(),
+            reward_points in any::<u64>(),
+            weight_grams in any::<u64>(),
+        ) {
+            let env = Env::default();
+            let mut inc = incentive(&env, reward_points, budget);
+            let before = inc.remaining_budget;
+            match claim(&mut inc, weight_grams, 0) {
+                Ok(amount) => {
+                    prop_assert!(amount <= before);
+                    prop_assert_eq!(inc.remaining_budget, before - amount);
+                }
+                Err(_) => {
+                    prop_assert_eq!(inc.remaining_budget, before);
+                    prop_assert!(inc.active);
+                }
+            }
+        }
+    }
 }

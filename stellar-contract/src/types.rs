@@ -1,4 +1,6 @@
-use soroban_sdk::{contracttype, Address, String, Symbol};
+//! Re-export fa?ade for the contract types.
+
+use crate::errors::Error;
 
 /// Represents an incentive offered by a manufacturer to encourage recycling
 /// Represents a transfer record in the recycling system
@@ -252,61 +254,65 @@ impl Incentive {
     }
 
     /// Calculates reward for a given weight in grams.
+    ///
     /// Uses tiered rates if tiers are set; falls back to flat `reward_points`.
-    pub fn calculate_reward(&self, weight_grams: u64) -> u64 {
-        // Convert grams to kg and multiply by reward points
-        (weight_grams / 1000)
-            .checked_mul(self.reward_points)
-            .expect("Overflow in reward calculation")
+    /// Returns [`Error::Overflow`] instead of wrapping when
+    /// `weight_kg * reward_points` exceeds `u64::MAX`.
+    pub fn calculate_reward(&self, weight_grams: u64) -> Result<u64, Error> {
+        // Integer division is intentional: only whole kilograms are rewarded.
         let weight_kg = weight_grams / 1000;
         if self.tiers.is_empty() {
-            return weight_kg * self.reward_points;
+            return weight_kg.checked_mul(self.reward_points).ok_or(Error::Overflow);
         }
+
         // Find the matching tier (tiers are sorted by min_weight_kg ascending)
-        for i in 0..self.tiers.len() {
-            let tier = self.tiers.get(i).unwrap();
+        for tier in self.tiers.iter() {
             let in_lower = weight_kg >= tier.min_weight_kg;
             let in_upper = tier.max_weight_kg == 0 || weight_kg < tier.max_weight_kg;
             if in_lower && in_upper {
-                return weight_kg * tier.reward_points;
+                return weight_kg.checked_mul(tier.reward_points).ok_or(Error::Overflow);
             }
         }
+
         // No tier matched — fall back to flat rate
-        weight_kg * self.reward_points
+        weight_kg.checked_mul(self.reward_points).ok_or(Error::Overflow)
     }
 
-    /// Attempts to claim a reward, returns the amount claimed
-    /// Returns None if insufficient budget
-    pub fn claim_reward(&mut self, weight_grams: u64) -> Option<u64> {
+    /// Attempts to claim a reward, returning the amount claimed.
+    ///
+    /// Returns a typed error when the incentive is inactive, the budget is
+    /// insufficient, or the reward calculation would overflow.
+    pub fn claim_reward(&mut self, weight_grams: u64) -> Result<u64, Error> {
         if !self.active {
-            return None;
+            return Err(Error::IncentiveInactive);
         }
 
-        let reward = self.calculate_reward(weight_grams);
+        let reward = self.calculate_reward(weight_grams)?;
         if reward > self.remaining_budget {
-            return None;
+            return Err(Error::InsufficientBudget);
         }
 
-        self.remaining_budget = self
-            .remaining_budget
-            .checked_sub(reward)
-            .expect("Overflow in remaining budget");
+        self.remaining_budget = self.remaining_budget.checked_sub(reward).ok_or(Error::Overflow)?;
 
         // Auto-deactivate if budget exhausted
         if self.remaining_budget == 0 {
             self.active = false;
         }
 
-        Some(reward)
+        Ok(reward)
     }
 
-    /// Checks if the incentive has sufficient budget for a reward
+    /// Checks if the incentive has sufficient budget for a reward.
+    ///
+    /// An overflow while calculating the reward is treated as "not enough
+    /// budget" rather than silently wrapping to a small value.
     pub fn has_sufficient_budget(&self, weight_grams: u64) -> bool {
         if !self.active {
             return false;
         }
-        let reward = self.calculate_reward(weight_grams);
-        reward <= self.remaining_budget
+        self.calculate_reward(weight_grams)
+            .map(|reward| reward <= self.remaining_budget)
+            .unwrap_or(false)
     }
 }
 
@@ -418,10 +424,10 @@ impl CertificationLevel {
     /// Gets the reward multiplier for this certification level
     pub fn reward_multiplier(&self) -> u64 {
         match self {
-            CertificationLevel::Beginner => 100, // 1.0x
+            CertificationLevel::Beginner => 100,     // 1.0x
             CertificationLevel::Intermediate => 110, // 1.1x
-            CertificationLevel::Advanced => 125, // 1.25x
-            CertificationLevel::Expert => 150, // 1.5x
+            CertificationLevel::Advanced => 125,     // 1.25x
+            CertificationLevel::Expert => 150,       // 1.5x
         }
     }
 }
@@ -604,11 +610,9 @@ impl Material {
             WasteType::Electronic => 6,
         };
 
-        // Points = (weight in kg) * multiplier * 10
-        (self.weight / 1000)
-            .checked_mul(multiplier)
-            .and_then(|v| v.checked_mul(10))
-            .expect("Overflow in reward points calculation")
+        // Points = (weight in kg) * multiplier * 10. Saturation is documented
+        // and preferable to aborting the whole transaction on absurd weights.
+        (self.weight / 1000).saturating_mul(multiplier).saturating_mul(10)
     }
 }
 
@@ -857,10 +861,7 @@ impl Waste {
         let max_lat = 90_000_000i128;
         let max_lon = 180_000_000i128;
 
-        self.latitude >= -max_lat
-            && self.latitude <= max_lat
-            && self.longitude >= -max_lon
-            && self.longitude <= max_lon
+        self.latitude >= -max_lat && self.latitude <= max_lat && self.longitude >= -max_lon && self.longitude <= max_lon
     }
 
     /// Checks if the waste has been recycled
@@ -1157,12 +1158,7 @@ pub struct WasteBuilder {
 #[allow(dead_code)]
 impl WasteBuilder {
     /// Creates a new WasteBuilder with required fields
-    pub fn new(
-        waste_id: u128,
-        waste_type: WasteType,
-        weight: u128,
-        current_owner: Address,
-    ) -> Self {
+    pub fn new(waste_id: u128, waste_type: WasteType, weight: u128, current_owner: Address) -> Self {
         Self {
             waste_id,
             waste_type,
@@ -1352,14 +1348,8 @@ impl RecyclingStats {
 
     /// Records a new material submission
     pub fn record_submission(&mut self, material: &Material) {
-        self.total_submissions = self
-            .total_submissions
-            .checked_add(1)
-            .expect("Overflow in total submissions");
-        self.total_weight = self
-            .total_weight
-            .checked_add(material.weight)
-            .expect("Overflow in total weight");
+        self.total_submissions = self.total_submissions.saturating_add(1);
+        self.total_weight = self.total_weight.saturating_add(material.weight);
 
         // Update waste type count
         let count = match material.waste_type {
@@ -1369,7 +1359,7 @@ impl RecyclingStats {
             WasteType::Metal => &mut self.metal_count,
             WasteType::Glass => &mut self.glass_count,
         };
-        *count = count.checked_add(1).expect("Overflow in waste type count");
+        *count = count.saturating_add(1);
         match material.waste_type {
             WasteType::Paper => self.paper_count += 1,
             WasteType::PetPlastic => self.pet_plastic_count += 1,
@@ -1384,16 +1374,10 @@ impl RecyclingStats {
     /// Records a material verification and updates carbon credits
     pub fn record_verification(&mut self, material: &Material) {
         if material.verified {
-            self.verified_submissions = self
-                .verified_submissions
-                .checked_add(1)
-                .expect("Overflow in verified submissions");
-            self.total_points = self
-                .total_points
-                .checked_add(material.calculate_reward_points())
-                .expect("Overflow in total points");
+            self.verified_submissions = self.verified_submissions.saturating_add(1);
+            self.total_points = self.total_points.saturating_add(material.calculate_reward_points());
             self.verified_submissions += 1;
-            self.total_points += material.calculate_reward_points();
+            self.total_points = self.total_points.saturating_add(material.calculate_reward_points());
             self.carbon_credits_earned += calculate_carbon_credits(material.waste_type, material.weight as u128);
         }
     }
@@ -1403,10 +1387,7 @@ impl RecyclingStats {
         if self.total_submissions == 0 {
             0
         } else {
-            self.verified_submissions
-                .checked_mul(100)
-                .expect("Overflow in verification rate")
-                / self.total_submissions
+            self.verified_submissions.saturating_mul(100) / self.total_submissions
         }
     }
 
@@ -1687,14 +1668,7 @@ mod material_tests {
         let submitter = Address::generate(&env);
         let description = String::from_str(&env, "Test");
 
-        let mut material = Material::new(
-            1,
-            WasteType::Paper,
-            1000,
-            submitter,
-            1234567890,
-            description,
-        );
+        let mut material = Material::new(1, WasteType::Paper, 1000, submitter, 1234567890, description);
 
         assert!(!material.verified);
         material.verify();
@@ -1727,8 +1701,7 @@ mod material_tests {
         );
         assert!(material_exact.meets_minimum_weight());
 
-        let material_above =
-            Material::new(3, WasteType::Paper, 500, submitter, 1234567890, description);
+        let material_above = Material::new(3, WasteType::Paper, 500, submitter, 1234567890, description);
         assert!(material_above.meets_minimum_weight());
     }
 
@@ -1739,14 +1712,7 @@ mod material_tests {
         let description = String::from_str(&env, "Test");
 
         // Paper: 5kg * 1 * 10 = 50 points
-        let paper = Material::new(
-            1,
-            WasteType::Paper,
-            5000,
-            submitter.clone(),
-            0,
-            description.clone(),
-        );
+        let paper = Material::new(1, WasteType::Paper, 5000, submitter.clone(), 0, description.clone());
         assert_eq!(paper.calculate_reward_points(), 50);
 
         // PetPlastic: 5kg * 3 * 10 = 150 points
@@ -1761,25 +1727,11 @@ mod material_tests {
         assert_eq!(pet.calculate_reward_points(), 150);
 
         // Plastic: 5kg * 2 * 10 = 100 points
-        let plastic = Material::new(
-            3,
-            WasteType::Plastic,
-            5000,
-            submitter.clone(),
-            0,
-            description.clone(),
-        );
+        let plastic = Material::new(3, WasteType::Plastic, 5000, submitter.clone(), 0, description.clone());
         assert_eq!(plastic.calculate_reward_points(), 100);
 
         // Metal: 5kg * 5 * 10 = 250 points
-        let metal = Material::new(
-            4,
-            WasteType::Metal,
-            5000,
-            submitter.clone(),
-            0,
-            description.clone(),
-        );
+        let metal = Material::new(4, WasteType::Metal, 5000, submitter.clone(), 0, description.clone());
         assert_eq!(metal.calculate_reward_points(), 250);
 
         // Glass: 5kg * 2 * 10 = 100 points
@@ -1794,14 +1746,7 @@ mod material_tests {
         let submitter = Address::generate(&env);
         let description = String::from_str(&env, "Storage test");
 
-        let material = Material::new(
-            1,
-            WasteType::Metal,
-            3000,
-            submitter,
-            1234567890,
-            description,
-        );
+        let material = Material::new(1, WasteType::Metal, 3000, submitter, 1234567890, description);
 
         // Material can be stored in Soroban storage (validated through contract tests)
         assert_eq!(material.id, 1);
@@ -1827,14 +1772,13 @@ mod incentive_tests {
     use soroban_sdk::testutils::Address as _;
 
     #[test]
-    #[should_panic(expected = "Overflow in reward calculation")]
     fn test_calculate_reward_overflows_at_extreme_reward_points() {
         let env = soroban_sdk::Env::default();
         let rewarder = Address::generate(&env);
 
         let incentive = Incentive::new(1, rewarder, WasteType::Metal, u64::MAX, u64::MAX, 0);
         // 5000g -> 5kg, 5 * u64::MAX overflows u64
-        incentive.calculate_reward(5000);
+        assert_eq!(incentive.calculate_reward(5000), Err(Error::Overflow));
     }
 
     #[test]
@@ -1844,11 +1788,11 @@ mod incentive_tests {
 
         let mut incentive = Incentive::new(1, rewarder, WasteType::Metal, 10, 45, 0);
         // 5kg * 10 = 50 > 45 remaining budget -> rejected
-        assert_eq!(incentive.claim_reward(5000), None);
+        assert_eq!(incentive.claim_reward(5000), Err(Error::InsufficientBudget));
         assert_eq!(incentive.remaining_budget, 45);
 
         // 4kg * 10 = 40 <= 45 remaining budget -> accepted, deactivates only when exhausted
-        assert_eq!(incentive.claim_reward(4000), Some(40));
+        assert_eq!(incentive.claim_reward(4000), Ok(40));
         assert_eq!(incentive.remaining_budget, 5);
         assert!(incentive.active);
     }
@@ -1859,7 +1803,7 @@ mod incentive_tests {
         let rewarder = Address::generate(&env);
 
         let mut incentive = Incentive::new(1, rewarder, WasteType::Metal, 10, 50, 0);
-        assert_eq!(incentive.claim_reward(5000), Some(50));
+        assert_eq!(incentive.claim_reward(5000), Ok(50));
         assert_eq!(incentive.remaining_budget, 0);
         assert!(!incentive.active);
     }
@@ -1872,7 +1816,18 @@ mod waste_tests {
     use soroban_sdk::Env;
 
     fn make_waste(env: &Env, owner: Address, latitude: i128, longitude: i128) -> Waste {
-        Waste::new(1, WasteType::Metal, 5000, owner.clone(), latitude, longitude, 0, true, false, owner)
+        Waste::new(
+            1,
+            WasteType::Metal,
+            5000,
+            owner.clone(),
+            latitude,
+            longitude,
+            0,
+            true,
+            false,
+            owner,
+        )
     }
 
     #[test]
@@ -1880,7 +1835,18 @@ mod waste_tests {
         let env = Env::default();
         let owner = Address::generate(&env);
         let confirmer = Address::generate(&env);
-        let waste = Waste::new(7, WasteType::Glass, 250, owner.clone(), 1, 2, 99, false, true, confirmer.clone());
+        let waste = Waste::new(
+            7,
+            WasteType::Glass,
+            250,
+            owner.clone(),
+            1,
+            2,
+            99,
+            false,
+            true,
+            confirmer.clone(),
+        );
 
         assert_eq!(waste.waste_id, 7);
         assert_eq!(waste.waste_type, WasteType::Glass);
@@ -2228,18 +2194,9 @@ mod tests {
 
     #[test]
     fn test_from_u32() {
-        assert_eq!(
-            ParticipantRole::from_u32(0),
-            Some(ParticipantRole::Recycler)
-        );
-        assert_eq!(
-            ParticipantRole::from_u32(1),
-            Some(ParticipantRole::Collector)
-        );
-        assert_eq!(
-            ParticipantRole::from_u32(2),
-            Some(ParticipantRole::Manufacturer)
-        );
+        assert_eq!(ParticipantRole::from_u32(0), Some(ParticipantRole::Recycler));
+        assert_eq!(ParticipantRole::from_u32(1), Some(ParticipantRole::Collector));
+        assert_eq!(ParticipantRole::from_u32(2), Some(ParticipantRole::Manufacturer));
         assert_eq!(ParticipantRole::from_u32(3), None);
         assert_eq!(ParticipantRole::from_u32(999), None);
     }
@@ -2830,12 +2787,7 @@ impl BatchStatus {
 
 impl WasteBatch {
     /// Creates a new waste batch
-    pub fn new(
-        batch_id: u64,
-        created_by: Address,
-        created_at: u64,
-        env: &soroban_sdk::Env,
-    ) -> Self {
+    pub fn new(batch_id: u64, created_by: Address, created_at: u64, env: &soroban_sdk::Env) -> Self {
         Self {
             batch_id,
             waste_ids: soroban_sdk::Vec::new(env),

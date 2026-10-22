@@ -1,4 +1,5 @@
 #![cfg(test)]
+//! Grading test helpers and utilities.
 
 //! Tests for the waste grading system (issue #544).
 //!

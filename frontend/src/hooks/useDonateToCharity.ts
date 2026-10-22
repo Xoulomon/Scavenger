@@ -4,6 +4,7 @@ import { useWallet } from '@/context/WalletContext'
 import { useContract } from '@/context/ContractContext'
 import { useToast } from '@/hooks/useToast'
 import { networkConfig } from '@/lib/stellar'
+import { invalidateKeys, invalidationPlan } from '@/lib/cacheInvalidation'
 
 export function useDonateToCharity() {
   const { address } = useWallet()
@@ -25,7 +26,7 @@ export function useDonateToCharity() {
       return amount
     },
     onSuccess: (amount) => {
-      queryClient.invalidateQueries({ queryKey: ['rewards'] })
+      invalidateKeys(queryClient, invalidationPlan.donateToCharity())
       toast.success(`Successfully donated ${amount.toLocaleString()} tokens to charity.`)
     },
     onError: (error) => {

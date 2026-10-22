@@ -1,4 +1,10 @@
 {
+	"name": "scavenger",
+	"private": true,
+	"packageManager": "pnpm@12.11.2",
+	"scripts": {
+		"test:integration": "pnpm --filter scavenger-integration-tests test"
+	},
 	"devDependencies": {
 		"ts-prune": "^0.10.3"
 	}

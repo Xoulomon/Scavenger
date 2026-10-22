@@ -46,6 +46,8 @@ metadata:
   name: prometheus-recording-rules
   namespace: monitoring
 data:
+  # Recording rules only. Alert definitions live in config/prometheus/rules/*.yml
+  # (single source of alert definitions) and must not be added here.
   recording_rules.yml: |
     groups:
     - name: scavenger_recording

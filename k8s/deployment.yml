@@ -1,3 +1,18 @@
+# Authoritative Deployment manifest for the Scavenger backend.
+# Environment-specific values (replicas, image tags, resource sizing, env vars)
+# are provided by the Kustomize overlays in k8s/overlays/{dev,staging,prod}.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scavenger-config
+  namespace: default
+  labels:
+    app: scavenger-contract
+data:
+  stellar_network: "testnet"
+  api_url: "http://scavenger-contract.default.svc.cluster.local"
+  log_level: "info"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -22,6 +37,7 @@ spec:
         app: scavenger-contract
         version: v1
     spec:
+      serviceAccountName: scavenger-contract
       containers:
       - name: contract
         image: ghcr.io/xoulomon/scavenger:latest
@@ -80,9 +96,22 @@ spec:
         volumeMounts:
         - name: tmp
           mountPath: /tmp
+        - name: config
+          mountPath: /etc/scavenger
+          readOnly: true
+        - name: secrets
+          mountPath: /etc/scavenger/secrets
+          readOnly: true
       volumes:
       - name: tmp
         emptyDir: {}
+      - name: config
+        configMap:
+          name: scavenger-config
+      - name: secrets
+        secret:
+          secretName: scavenger-secrets
+          optional: true
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -243,3 +272,16 @@ spec:
         value: 2
         periodSeconds: 30
       selectPolicy: Max
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: scavenger-contract-pdb
+  namespace: default
+  labels:
+    app: scavenger-contract
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: scavenger-contract

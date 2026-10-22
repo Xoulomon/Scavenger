@@ -107,7 +107,7 @@ Run the offline functionality tests:
 
 ```bash
 npm test src/lib/offline.test.tsx
-npm test src/components/OfflineIndicator.test.tsx
+npm test src/components/OfflineStatus/OfflineStatus.test.tsx
 ```
 
 ## Browser Support

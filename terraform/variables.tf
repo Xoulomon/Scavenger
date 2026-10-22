@@ -57,14 +57,20 @@ variable "db_allocated_storage" {
 
 variable "db_backup_retention" {
   type        = number
-  default     = 30
+  default     = 7
   description = "Backup retention period in days"
 }
 
 variable "db_multi_az" {
   type        = bool
-  default     = true
+  default     = false
   description = "Enable Multi-AZ deployment"
+}
+
+variable "db_enhanced_backup" {
+  type        = bool
+  default     = false
+  description = "Enable enhanced backup features"
 }
 
 variable "container_image" {
@@ -80,20 +86,50 @@ variable "container_port" {
 
 variable "ecs_desired_count" {
   type        = number
-  default     = 3
+  default     = 1
   description = "Desired number of ECS tasks"
 }
 
 variable "ecs_min_capacity" {
   type        = number
-  default     = 3
+  default     = 1
   description = "Minimum ECS capacity"
 }
 
 variable "ecs_max_capacity" {
   type        = number
-  default     = 10
+  default     = 3
   description = "Maximum ECS capacity"
+}
+
+variable "enable_autoscaling" {
+  type        = bool
+  default     = false
+  description = "Enable ECS autoscaling"
+}
+
+variable "autoscaling_target_cpu" {
+  type        = number
+  default     = 70
+  description = "Target CPU percentage for autoscaling"
+}
+
+variable "enable_load_balancer" {
+  type        = bool
+  default     = false
+  description = "Enable ALB"
+}
+
+variable "enable_detailed_monitoring" {
+  type        = bool
+  default     = true
+  description = "Enable detailed CloudWatch monitoring"
+}
+
+variable "log_retention_days" {
+  type        = number
+  default     = 7
+  description = "CloudWatch log retention in days"
 }
 
 variable "certificate_arn" {
@@ -142,4 +178,10 @@ variable "budget_alert_emails" {
 variable "scheduler_role_arn" {
   type        = string
   description = "IAM role ARN for EventBridge scheduler (RDS auto-stop)"
+}
+
+variable "tags" {
+  type        = map(string)
+  default     = {}
+  description = "Additional tags to apply to resources"
 }

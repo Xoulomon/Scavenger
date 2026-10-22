@@ -1,144 +1,73 @@
 # Docker Setup
 
-This project uses Docker and Docker Compose to run all services locally.
+> **Moved.** Setup instructions are consolidated in
+> [getting-started.md](./getting-started.md). Compose files, Docker reference and troubleshooting are in its "Docker reference" section.
 
----
+## Consolidated Compose setup
 
-## Prerequisites
+All optional stacks are now defined in a single base file, `docker-compose.yml`, using
+[Compose profiles](https://docs.docker.com/compose/profiles/). There is no longer a need to
+combine multiple `-f` overlay files by hand.
 
-- [Docker](https://docs.docker.com/get-docker/) 24+
-- [Docker Compose](https://docs.docker.com/compose/install/) v2.20+
+- `docker-compose.yml` — the one base file. Contains the core services plus the optional
+  stacks behind profiles.
+- `docker-compose.dev.yml` — the only override, used for local development.
 
----
+The former overlay files (`docker-compose.monitoring.yml`, `docker-compose.observability.yml`,
+`docker-compose.logging.yml`, `docker-compose.elasticsearch.yml`) have been removed; their
+services now live in the base file under the profiles below.
 
-## Services
+### Profiles
 
-| Service  | Image             | Local port | Description                       |
-|----------|-------------------|------------|-----------------------------------|
-| stellar  | stellar/quickstart | 8000       | Stellar standalone + Soroban RPC  |
-| postgres | postgres:16-alpine | 5432       | Primary database                  |
-| redis    | redis:7-alpine    | 6379       | Cache / session store             |
-| backend  | ./backend         | 8080       | Rust / Actix-web API              |
-| indexer  | ./indexer         | 3001       | Node.js blockchain indexer        |
-| frontend | ./frontend        | 5173       | Vite / React UI                   |
+| Profile      | Services                                              |
+| ------------ | ----------------------------------------------------- |
+| `monitoring` | Prometheus, Grafana, Jaeger and related observability |
+| `logging`    | Logging stack                                         |
+| `search`     | Elasticsearch and related search services             |
 
----
+### Example commands
 
-## Quick Start
-
-```bash
-# Start all services (detached)
-docker compose up -d
-
-# View logs for a specific service
-docker compose logs -f backend
-
-# Stop all services
-docker compose down
-
-# Stop and remove volumes
-docker compose down -v
-```
-
----
-
-## Environment Variables
-
-Copy `.env.example` to `.env` and fill in the required values before starting:
+Start only the core services (no profiles):
 
 ```bash
-cp .env.example .env
+docker compose up
 ```
 
-| Variable              | Required | Description                           |
-|-----------------------|----------|---------------------------------------|
-| `CONTRACT_ID`         | No       | Deployed Soroban contract address     |
-| `VITE_FIREBASE_*`     | No       | Firebase config (dev stubs used by default) |
-
----
-
-## Build Targets
-
-Each service Dockerfile defines three build stages:
-
-| Target    | Purpose                                   |
-|-----------|-------------------------------------------|
-| `dev`     | Hot-reload for local development          |
-| `builder` | Compile / bundle production artefacts     |
-| `runtime` | Minimal production image                  |
-
-Use the `target` field in `docker-compose.yml` (already set to `dev`) or override at build time:
+Start the core services plus the monitoring stack:
 
 ```bash
-# Build a production image for the backend
-docker build --target runtime -t scavngr-backend:prod ./backend
+docker compose --profile monitoring up
 ```
 
----
-
-## Dockerfiles
-
-### frontend — `frontend/Dockerfile`
-
-| Stage     | Base image       | Notes                          |
-|-----------|------------------|--------------------------------|
-| dev       | node:20-alpine   | `npm run dev --host 0.0.0.0`   |
-| builder   | node:20-alpine   | `npm run build` → `/app/dist`  |
-| runtime   | nginx:alpine     | Serves static build artefacts  |
-
-### backend — `backend/Dockerfile`
-
-| Stage     | Base image          | Notes                                      |
-|-----------|---------------------|--------------------------------------------|
-| dev       | rust:1.78-slim      | `cargo-watch` for live reload              |
-| builder   | rust:1.78-slim      | `cargo build --release`                    |
-| runtime   | debian:bookworm-slim | Minimal binary-only image, port 8080      |
-
-### indexer — `indexer/Dockerfile`
-
-| Stage     | Base image      | Notes                                        |
-|-----------|-----------------|----------------------------------------------|
-| dev       | node:20-alpine  | `npm run dev`                                |
-| builder   | node:20-alpine  | `npm run build` → `/app/dist`                |
-| runtime   | node:20-alpine  | Production deps only, `node dist/index.js`   |
-
----
-
-## Additional Compose Files
-
-| File                            | Purpose                              |
-|---------------------------------|--------------------------------------|
-| `docker-compose.yml`            | Core dev environment                 |
-| `docker-compose.monitoring.yml` | Prometheus + Grafana stack           |
-| `docker-compose.logging.yml`    | Loki + Promtail log aggregation      |
-
-Merge files with the `-f` flag:
+Start the logging stack:
 
 ```bash
-# Core + monitoring
-docker compose -f docker-compose.yml -f docker-compose.monitoring.yml up -d
+docker compose --profile logging up
 ```
 
----
-
-## Healthchecks
-
-All services define Docker healthchecks. Wait for healthy status before running scripts:
+Start the search stack (Elasticsearch):
 
 ```bash
-docker compose up -d
-docker compose ps   # STATUS column shows (healthy) / (starting)
+docker compose --profile search up
 ```
 
----
-
-## Rebuilding After Code Changes
-
-Volume mounts keep source code in sync during development for the frontend and indexer. The backend uses `cargo-watch` to recompile on change.
-
-To force a full image rebuild:
+Combine multiple profiles:
 
 ```bash
-docker compose build --no-cache <service>
-docker compose up -d <service>
+docker compose --profile monitoring --profile logging up
 ```
+
+Local development (base file plus the dev override):
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+```
+
+Validate the resolved configuration:
+
+```bash
+docker compose config
+docker compose --profile monitoring config
+```
+
+For full setup instructions, see [getting-started.md](./getting-started.md).

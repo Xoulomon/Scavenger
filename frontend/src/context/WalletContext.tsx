@@ -1,41 +1,34 @@
 /**
  * context/WalletContext.tsx
  *
- * Compatibility shim — delegates to the wallet store slice.
- * Existing components that call useWallet() continue to work unchanged.
+ * WalletProvider performs the initial Freighter detection and writes the
+ * result into the wallet store slice. useWallet lives in features/wallet and
+ * is re-exported here so existing imports keep working.
  *
- * The actual state and dispatch live in StoreProvider (store/index.tsx).
- * Freighter API calls are handled via lib/wallet.ts service.
+ * Freighter calls go through features/wallet/service.
  */
 import React, { useEffect, type ReactNode } from 'react'
-import { isBrowser } from '@stellar/freighter-api'
 import { useWalletStore } from '@/store'
 import {
   checkWalletInstalled,
   getWalletPublicKey,
-  connectWallet,
-} from '@/lib/wallet'
+  isWalletEnvironment,
+  watchWalletAccount,
+} from '@/features/wallet/service'
 
-// ── Type kept for import compatibility ───────────────────────────
-export interface WalletContextType {
-  address: string | null
-  isConnected: boolean
-  isInstalled: boolean
-  connect: () => Promise<void>
-  disconnect: () => void
-  isLoading: boolean
-  error: string | null
-}
+export { useWallet } from '@/features/wallet/useWallet'
+export type { WalletContextType } from '@/features/wallet/useWallet'
 
 /**
- * WalletProvider — initialises the Freighter extension connection and
- * writes results into the wallet store slice.
+ * WalletProvider — detects the Freighter extension and restores an existing
+ * connection into the wallet store slice.
  */
 export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const { dispatch } = useWalletStore()
+  const { state, dispatch } = useWalletStore()
+  const { address, isConnected } = state
 
   useEffect(() => {
-    if (!isBrowser) {
+    if (!isWalletEnvironment()) {
       dispatch({ type: 'WALLET_READY' })
       return
     }
@@ -57,49 +50,15 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     })()
   }, [dispatch])
 
+  // One account watcher for the whole app, started only while connected.
+  // Follows account switches and lock/unlock.
+  useEffect(() => {
+    if (!isConnected) return
+    return watchWalletAccount((next) => {
+      if (!next) dispatch({ type: 'WALLET_DISCONNECTED' })
+      else if (next !== address) dispatch({ type: 'WALLET_CONNECTED', payload: next })
+    })
+  }, [isConnected, address, dispatch])
+
   return <>{children}</>
-}
-
-/**
- * useWallet — thin adapter over the wallet store slice.
- * Returns the same shape as the original WalletContext.
- */
-// eslint-disable-next-line react-refresh/only-export-components
-export function useWallet(): WalletContextType {
-  const { state, dispatch } = useWalletStore()
-
-  const connect = async () => {
-    dispatch({ type: 'WALLET_LOADING' })
-    if (!state.isInstalled) {
-      dispatch({
-        type: 'WALLET_ERROR',
-        payload: 'Freighter extension is not installed. Please install it from freighter.app.',
-      })
-      return
-    }
-    try {
-      const addr = await connectWallet()
-      dispatch({ type: 'WALLET_CONNECTED', payload: addr })
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err)
-      dispatch({
-        type: 'WALLET_ERROR',
-        payload: msg,
-      })
-    }
-  }
-
-  const disconnect = () => {
-    dispatch({ type: 'WALLET_DISCONNECTED' })
-  }
-
-  return {
-    address: state.address,
-    isConnected: state.isConnected,
-    isInstalled: state.isInstalled,
-    isLoading: state.isLoading,
-    error: state.error,
-    connect,
-    disconnect,
-  }
 }

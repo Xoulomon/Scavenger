@@ -1,3 +1,6 @@
+//! HTTP handlers for audit endpoints. Business logic lives in `services/audit.rs`; these handlers
+//! only parse the request, call the audit service and serialise the response.
+
 use actix_web::{web, HttpResponse};
 use crate::api::pagination::paginate;
 use chrono::{DateTime, Utc};

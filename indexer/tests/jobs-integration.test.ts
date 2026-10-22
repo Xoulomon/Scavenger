@@ -500,4 +500,41 @@ describe('JobQueue', () => {
       });
     });
   });
+
+
+  // ── Backoff ──────────────────────────────────────────────────────────
+
+  describe('backoff', () => {
+    test('should respect backoff delay between retries', async () => {
+      const processor = jest.fn(async () => {
+        throw new Error('fail');
+      });
+      queue.registerProcessor('backoff-job', processor);
+
+      const jobId = await queue.enqueue('backoff-job', {}, JobPriority.NORMAL, 2);
+      await queue.process();
+      await queue.process();
+
+      const job = await queue.getJob(jobId);
+      expect(job?.attempts).toBe(2);
+    });
+  });
+
+  // ── Dead-letter handling ─────────────────────────────────────────────
+
+  describe('dead-letter', () => {
+    test('should mark job as FAILED after exhausting all attempts', async () => {
+      const processor = jest.fn(async () => {
+        throw new Error('Permanent');
+      });
+      queue.registerProcessor('dlq-job', processor);
+
+      const jobId = await queue.enqueue('dlq-job', {}, JobPriority.NORMAL, 1);
+      await queue.process();
+
+      const job = await queue.getJob(jobId);
+      expect(job?.status).toBe(JobStatus.FAILED);
+      expect(job?.error).toBe('Permanent');
+    });
+  });
 });

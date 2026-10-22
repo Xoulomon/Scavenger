@@ -1,40 +1,28 @@
-version: '3.8'
+# Local development override.
+#
+# All services are defined in the base docker-compose.yml. This file only
+# overrides build targets, ports, environment and volumes for local dev.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml --profile monitoring up
 
 services:
   postgres:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: scavenger
-      POSTGRES_USER: scavenger_user
-      POSTGRES_PASSWORD: scavenger_pass
     ports:
       - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U scavenger_user"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   redis:
-    image: redis:7-alpine
     ports:
       - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    volumes:
-      - redis_data:/data
 
   backend:
     build:
       context: .
       dockerfile: backend/Dockerfile.multistage
+      target: development
     environment:
-      - RUST_LOG=info
+      - RUST_LOG=debug
       - DATABASE_URL=postgresql://scavenger_user:scavenger_pass@postgres:5432/scavenger
       - REDIS_URL=redis://redis:6379
       - S3_BUCKET=scavenger-local
@@ -43,44 +31,22 @@ services:
       - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
     ports:
       - "8080:8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
   indexer:
     build:
       context: .
       dockerfile: indexer/Dockerfile.multistage
+      target: development
     environment:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://scavenger_user:scavenger_pass@postgres:5432/scavenger
       - REDIS_URL=redis://redis:6379
-      - SOROBAN_RPC_URL=http://stellar:11626/soroban/rpc
+      - STELLAR_RPC_URL=http://stellar:11626/soroban/rpc
       - CONTRACT_ID=${CONTRACT_ID}
     ports:
       - "3000:3000"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
   stellar:
-    image: stellar/quickstart:latest
     environment:
       - STELLAR_NETWORK_PASSPHRASE=Test SDF Network ; September 2015
       - SOROBAN_RPC_HOST=0.0.0.0
@@ -92,10 +58,4 @@ services:
       - stellar_data:/opt/stellar/data
 
 volumes:
-  postgres_data:
-  redis_data:
   stellar_data:
-
-networks:
-  default:
-    name: scavenger_network

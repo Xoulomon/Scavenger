@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { cn } from '@/lib/utils'
+import { cacheKeys } from '@/lib/cacheKeys'
 
 // ── Status helpers ────────────────────────────────────────────────────────────
 
@@ -54,7 +55,7 @@ const STATUS_CONFIG: Record<
 function useWasteById(wasteId: bigint | null) {
   const { config } = useContract()
   return useQuery<Waste | null>({
-    queryKey: ['waste', wasteId?.toString()],
+    queryKey: cacheKeys.waste(wasteId?.toString()),
     queryFn: async () => {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,

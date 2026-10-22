@@ -263,8 +263,8 @@ let verified = client.verify_materials_batch(&ids, &recycler);
 
 ## Documentation Links
 
-- **Full Implementation Guide:** `docs/PARTICIPANT_IMPLEMENTATION.md`
-- **Changes Summary:** `docs/PARTICIPANT_CHANGES_SUMMARY.md`
+- **Full Implementation Guide:** `docs/archive/PARTICIPANT_IMPLEMENTATION.md`
+- **Changes Summary:** `docs/archive/PARTICIPANT_CHANGES_SUMMARY.md`
 - **Completion Report:** `PARTICIPANT_IMPLEMENTATION_COMPLETE.md`
 
 ## Support

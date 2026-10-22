@@ -1,30 +1,11 @@
-import {
-  collection,
-  doc,
-  setDoc,
-  updateDoc,
-  deleteDoc,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  increment,
-} from 'firebase/firestore'
-import { db } from './firebase'
+import type { Notification, NewNotification, NotificationPreferences } from './notifications/types'
+import type { NotificationTransport } from './notifications/transport'
+import { LocalStorageNotificationTransport } from './notifications/localStorageTransport'
 
-export type NotificationType = 'transfer' | 'confirmation' | 'reward' | 'system'
-
-export interface Notification {
-  id: string
-  type: NotificationType
-  title: string
-  body: string
-  read: boolean
-  createdAt: number
-  count: number
-}
-
-export type NotificationPreferences = Record<NotificationType, boolean>
+export type { Notification, NotificationType, NotificationPreferences, NewNotification } from './notifications/types'
+export type { NotificationTransport } from './notifications/transport'
+export { InMemoryNotificationTransport } from './notifications/inMemoryTransport'
+export { LocalStorageNotificationTransport } from './notifications/localStorageTransport'
 
 export const DEFAULT_PREFS: NotificationPreferences = {
   transfer: true,
@@ -34,7 +15,6 @@ export const DEFAULT_PREFS: NotificationPreferences = {
 }
 
 const PREFS_KEY = 'scavngr_notif_prefs'
-const LS_KEY = (address: string) => `scavngr_notifications_${address}`
 const BATCH_WINDOW_MS = 10_000
 
 function loadPrefs(): NotificationPreferences {
@@ -50,102 +30,112 @@ function savePrefs(prefs: NotificationPreferences): void {
   localStorage.setItem(PREFS_KEY, JSON.stringify(prefs))
 }
 
-function lsLoad(address: string): Notification[] {
-  try {
-    const raw = localStorage.getItem(LS_KEY(address))
-    return raw ? (JSON.parse(raw) as Notification[]) : []
-  } catch {
-    return []
-  }
+/** Remote transport is used only when Firebase is configured; otherwise localStorage is the store. */
+function isRemoteConfigured(): boolean {
+  return Boolean(import.meta.env.VITE_FIREBASE_PROJECT_ID)
 }
 
-function lsSave(address: string, notifications: Notification[]): void {
-  localStorage.setItem(LS_KEY(address), JSON.stringify(notifications))
+async function loadDefaultRemote(): Promise<NotificationTransport> {
+  if (!isRemoteConfigured()) return new LocalStorageNotificationTransport()
+  const { createFirebaseTransport } = await import('./notifications/firebaseTransport')
+  return createFirebaseTransport()
+}
+
+export interface NotificationStoreOptions {
+  /** Primary transport. Defaults to Firebase when configured, otherwise localStorage. */
+  remote?: NotificationTransport
 }
 
 export class NotificationStore {
   private walletAddress: string
+  private remote: NotificationTransport | null
+  private remotePromise: Promise<NotificationTransport> | null = null
+  private readonly local = new LocalStorageNotificationTransport()
 
-  constructor(walletAddress: string) {
+  constructor(walletAddress: string, options: NotificationStoreOptions = {}) {
     this.walletAddress = walletAddress
+    this.remote = options.remote ?? null
   }
 
-  private col() {
-    return collection(db, 'notifications', this.walletAddress, 'items')
+  private getRemote(): Promise<NotificationTransport> {
+    if (this.remote) return Promise.resolve(this.remote)
+    this.remotePromise ??= loadDefaultRemote().then((t) => {
+      this.remote = t
+      return t
+    })
+    return this.remotePromise
   }
 
-  async add(notification: Omit<Notification, 'id' | 'read' | 'count'>): Promise<void> {
-    const prefs = loadPrefs()
-    if (!prefs[notification.type]) return
+  /** Runs `op` on the primary transport and retries it on localStorage if the primary fails. */
+  private async withFallback(op: (t: NotificationTransport) => Promise<void>): Promise<void> {
+    try {
+      await op(await this.getRemote())
+    } catch {
+      await op(this.local)
+    }
+  }
+
+  async add(notification: NewNotification): Promise<void> {
+    if (!loadPrefs()[notification.type]) return
 
     const now = Date.now()
-    const windowStart = now - BATCH_WINDOW_MS
+    const since = now - BATCH_WINDOW_MS
+    const address = this.walletAddress
 
-    try {
-      const q = query(
-        this.col(),
-        where('type', '==', notification.type),
-        where('read', '==', false),
-        where('createdAt', '>=', windowStart),
-        orderBy('createdAt', 'desc'),
-      )
-      const snap = await getDocs(q)
-
-      if (!snap.empty) {
-        const existing = snap.docs[0]
-        await updateDoc(existing.ref, { count: increment(1) })
+    await this.withFallback(async (t) => {
+      const recent = await t.findRecentUnread(address, notification.type, since)
+      if (recent) {
+        await t.incrementCount(address, recent.id)
         return
       }
-
-      const id = `${notification.type}_${now}`
-      const newDoc: Notification = { ...notification, id, read: false, count: 1 }
-      await setDoc(doc(this.col(), id), newDoc)
-    } catch {
-      // localStorage fallback
-      const items = lsLoad(this.walletAddress)
-      const recent = items.find(
-        (n) =>
-          n.type === notification.type &&
-          !n.read &&
-          n.createdAt >= windowStart,
-      )
-      if (recent) {
-        recent.count += 1
-      } else {
-        const id = `${notification.type}_${now}`
-        items.unshift({ ...notification, id, read: false, count: 1 })
-      }
-      lsSave(this.walletAddress, items)
-    }
+      await t.insert(address, { ...notification, id: `${notification.type}_${now}`, read: false, count: 1 })
+    })
   }
 
   async markRead(id: string): Promise<void> {
-    try {
-      await updateDoc(doc(this.col(), id), { read: true })
-    } catch {
-      const items = lsLoad(this.walletAddress)
-      const n = items.find((x) => x.id === id)
-      if (n) n.read = true
-      lsSave(this.walletAddress, items)
-    }
+    const address = this.walletAddress
+    await this.withFallback((t) => t.markRead(address, id))
   }
 
   async markAllRead(): Promise<void> {
-    try {
-      const snap = await getDocs(query(this.col(), where('read', '==', false)))
-      await Promise.all(snap.docs.map((d) => updateDoc(d.ref, { read: true })))
-    } catch {
-      const items = lsLoad(this.walletAddress).map((n) => ({ ...n, read: true }))
-      lsSave(this.walletAddress, items)
-    }
+    const address = this.walletAddress
+    await this.withFallback((t) => t.markAllRead(address))
   }
 
   async delete(id: string): Promise<void> {
-    try {
-      await deleteDoc(doc(this.col(), id))
-    } catch {
-      const items = lsLoad(this.walletAddress).filter((n) => n.id !== id)
-      lsSave(this.walletAddress, items)
+    const address = this.walletAddress
+    await this.withFallback((t) => t.remove(address, id))
+  }
+
+  /**
+   * Streams the newest `limit` notifications. If the primary transport reports an error,
+   * the stream switches to localStorage. Returns an unsubscribe function.
+   */
+  subscribe(limit: number, onItems: (items: Notification[]) => void): () => void {
+    const address = this.walletAddress
+    let active = true
+    let fellBack = false
+    let unsubscribe: (() => void) | null = null
+
+    const switchToLocal = () => {
+      if (fellBack || !active) return
+      fellBack = true
+      unsubscribe?.()
+      unsubscribe = this.local.subscribe(address, limit, onItems)
+    }
+
+    this.getRemote()
+      .then((remote) => {
+        if (!active || fellBack) return
+        const stop = remote.subscribe(address, limit, onItems, switchToLocal)
+        if (fellBack) stop()
+        else unsubscribe = stop
+      })
+      .catch(switchToLocal)
+
+    return () => {
+      active = false
+      unsubscribe?.()
     }
   }
 

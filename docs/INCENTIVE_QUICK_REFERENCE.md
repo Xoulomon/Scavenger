@@ -246,6 +246,6 @@ cargo test test_incentive
 
 ## Documentation Links
 
-- **Full Implementation Guide:** `docs/INCENTIVE_IMPLEMENTATION.md`
-- **Changes Summary:** `docs/INCENTIVE_CHANGES_SUMMARY.md`
+- **Full Implementation Guide:** `docs/archive/INCENTIVE_IMPLEMENTATION.md`
+- **Changes Summary:** `docs/archive/INCENTIVE_CHANGES_SUMMARY.md`
 - **Completion Report:** `INCENTIVE_IMPLEMENTATION_COMPLETE.md`

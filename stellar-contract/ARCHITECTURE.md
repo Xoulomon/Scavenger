@@ -1,5 +1,7 @@
 # Stellar Soroban Contract Architecture & Module Map
 
+> Decision record: [ADR-0013](../docs/adr/0013-contract-module-layout.md).
+
 This document outlines the architectural design, module layout, dependencies, and responsibilities for the Scavenger smart contract located in `stellar-contract/src`.
 
 ---
@@ -17,7 +19,6 @@ graph TD
     subgraph Domain_Management_Facades ["Domain Management Facades (Issue #925)"]
         ADMIN["admin.rs"]
         PART_MGMT["participant_mgmt.rs"]
-        WASTE_MGMT["waste_mgmt.rs"]
         INC_MGMT["incentive_mgmt.rs"]
         XFR_MGMT["transfer_mgmt.rs"]
     end
@@ -140,8 +141,8 @@ Provides a domain-scoped facade and type re-exports for administrative capabilit
 #### [`participant_mgmt.rs`](file:///workspaces/Scavenger/stellar-contract/src/participant_mgmt.rs)
 Exposes domain-scoped re-exports for participant types and documents client-facing endpoints for participant registration, profile and location updates, role management, certification tracking, recycling challenges, milestones, and leaderboard ranking queries.
 
-#### [`waste_mgmt.rs`](file:///workspaces/Scavenger/stellar-contract/src/waste_mgmt.rs)
-Exposes domain-scoped re-exports for waste data models and lists the contract dispatch methods governing waste registration, batch verification, transfers, splitting, merging, grading, deactivation, and contamination reporting.
+#### `waste.rs` domain exports
+`waste.rs` owns the waste business rules and also re-exports waste data models for domain-scoped imports. `waste_mgmt.rs` was removed in issue #1509; persistence lives exclusively in `waste_storage.rs`.
 
 #### [`incentive_mgmt.rs`](file:///workspaces/Scavenger/stellar-contract/src/incentive_mgmt.rs)
 Exposes domain-scoped re-exports for incentive structures and outlines contract methods for creating, updating, scheduling, querying, and distributing manufacturer incentive reward programs.
@@ -237,7 +238,6 @@ Several modules have overlapping or unclear boundaries resulting from incrementa
 
 | Module Pair / Group | Current Overlap | Recommended Action |
 |---------------------|-----------------|-------------------|
-| **`waste.rs`** vs **`waste_mgmt.rs`** | `waste.rs` contains validation and lifecycle guards, whereas `waste_mgmt.rs` contains only type re-exports and docstrings. | Merge `waste_mgmt.rs` into `waste.rs` or move domain dispatch functions into `waste_mgmt.rs`. |
 | **`incentive.rs`** vs **`incentive_mgmt.rs`** | `incentive.rs` contains reward calculations and scheduling guards, while `incentive_mgmt.rs` only re-exports `Incentive`. | Delete `incentive_mgmt.rs` and re-export `Incentive` directly from `incentive.rs`. |
 | **`participant.rs`** vs **`participant_mgmt.rs`** vs **`participant_storage.rs`** | Three separate modules handle participant logic: `participant.rs` (tiers/roles), `participant_mgmt.rs` (re-exports), and `participant_storage.rs` (CRUD/indexes). | Eliminate `participant_mgmt.rs`; retain `participant_storage.rs` strictly for storage access and `participant.rs` for business rules. |
 | **`events.rs`** vs **`event_builder.rs`** | `events.rs` uses standalone static emit functions while `event_builder.rs` implements a fluent builder pattern. | Refactor `events.rs` to internally use `EventBuilder` or standardize the contract on `event_builder.rs`. |

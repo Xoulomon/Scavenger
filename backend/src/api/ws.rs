@@ -94,6 +94,16 @@ fn error_frame_msg(code: WsErrorCode, message: &str) -> String {
     WsErrorFrame::with_message(code, message).to_json()
 }
 
+/// Serialise an outgoing frame. The types here always serialise, so the
+/// fallback is a safety net: it logs and sends a generic error frame rather
+/// than panicking the connection task.
+fn to_frame<T: Serialize>(value: &T) -> String {
+    serde_json::to_string(value).unwrap_or_else(|e| {
+        error!(error = %e, "failed to serialise WebSocket frame");
+        r#"{"type":"error","payload":{"code":"internal","message":"serialisation failure"}}"#.to_string()
+    })
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 pub async fn ws_handler(
@@ -133,11 +143,10 @@ pub async fn ws_handler(
                                     // Minimal length check — replace with real JWT validation.
                                     if token.len() >= 8 {
                                         authenticated = true;
-                                        user_id = Some(format!("user_{}", &token[..8]));
-                                        info!(user_id = %user_id.as_ref().unwrap(), "WebSocket client authenticated");
-                                        let _ = session
-                                            .text(serde_json::to_string(&WsMessage::AuthSuccess).unwrap())
-                                            .await;
+                                        let uid = format!("user_{}", &token[..8]);
+                                        info!(user_id = %uid, "WebSocket client authenticated");
+                                        user_id = Some(uid);
+                                        let _ = session.text(to_frame(&WsMessage::AuthSuccess)).await;
                                     } else {
                                         warn!("WebSocket authentication failed: invalid token");
                                         let _ = session
@@ -158,11 +167,10 @@ pub async fn ws_handler(
                                     }
                                     let _ = session
                                         .text(
-                                            serde_json::to_string(&serde_json::json!({
+                                            to_frame(&serde_json::json!({
                                                 "type": "subscribed",
                                                 "channel": channel
-                                            }))
-                                            .unwrap(),
+                                            })),
                                         )
                                         .await;
                                 }
@@ -170,18 +178,17 @@ pub async fn ws_handler(
                                     subscribed_channels.retain(|c| c != &channel);
                                     let _ = session
                                         .text(
-                                            serde_json::to_string(&serde_json::json!({
+                                            to_frame(&serde_json::json!({
                                                 "type": "unsubscribed",
                                                 "channel": channel
-                                            }))
-                                            .unwrap(),
+                                            })),
                                         )
                                         .await;
                                 }
                                 Ok(WsMessage::Ping) | Ok(WsMessage::Pong) => {
                                     last_heartbeat = std::time::Instant::now();
                                     let _ = session
-                                        .text(serde_json::to_string(&WsMessage::Pong).unwrap())
+                                        .text(to_frame(&WsMessage::Pong))
                                         .await;
                                 }
                                 // Unrecognised message type — structured error.
@@ -321,6 +328,16 @@ mod tests {
     }
 
     // ── Structured error frame helpers ────────────────────────────────────────
+
+    #[test]
+    fn to_frame_encodes_pong_and_json_values() {
+        let pong: serde_json::Value = serde_json::from_str(&to_frame(&WsMessage::Pong)).unwrap();
+        assert_eq!(pong["type"], "pong");
+
+        let channel = to_frame(&serde_json::json!({"type": "subscribed", "channel": "waste"}));
+        let parsed: serde_json::Value = serde_json::from_str(&channel).unwrap();
+        assert_eq!(parsed["channel"], "waste");
+    }
 
     #[test]
     fn error_frame_helper_produces_valid_json_with_code() {

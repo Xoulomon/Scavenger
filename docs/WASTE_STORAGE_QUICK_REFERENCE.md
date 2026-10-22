@@ -331,6 +331,6 @@ Total:       ~64 bytes + location length
 
 ## Documentation Links
 
-- **Full Implementation Guide:** `docs/WASTE_STORAGE_IMPLEMENTATION.md`
-- **Changes Summary:** `docs/WASTE_STORAGE_CHANGES_SUMMARY.md`
+- **Full Implementation Guide:** `docs/archive/WASTE_STORAGE_IMPLEMENTATION.md`
+- **Changes Summary:** `docs/archive/WASTE_STORAGE_CHANGES_SUMMARY.md`
 - **Completion Report:** `WASTE_STORAGE_IMPLEMENTATION_COMPLETE.md`

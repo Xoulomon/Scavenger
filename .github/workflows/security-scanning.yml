@@ -91,60 +91,53 @@ jobs:
           upload: true
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # 3. Dependency Scanning — npm (frontend, indexer, packages)
+  # 3. Dependency Scanning — pnpm (single root workspace lockfile)
   # ─────────────────────────────────────────────────────────────────────────────
-  npm-dependency-scan:
-    name: npm Dependency Scan
+  dependency-audit:
+    name: Dependency Audit (pnpm)
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        workspace:
-          - frontend
-          - indexer
-          - packages/scavenger-sdk
     steps:
       - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.11.2
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: npm
-          cache-dependency-path: ${{ matrix.workspace }}/package-lock.json
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm ci --prefix ${{ matrix.workspace }}
+        run: pnpm install --frozen-lockfile
 
-      - name: npm audit (fail on moderate+)
+      - name: pnpm audit (moderate+)
         run: |
-          npm audit --prefix ${{ matrix.workspace }} \
-            --audit-level=moderate \
-            --json > npm-audit-${{ matrix.workspace }}.json || true
+          pnpm audit --audit-level=moderate \
+            --json > pnpm-audit.json || true
 
       - name: Check for high/critical vulnerabilities
         run: |
-          CRITICAL=$(jq '.metadata.vulnerabilities.critical // 0' \
-            npm-audit-${{ matrix.workspace }}.json)
-          HIGH=$(jq '.metadata.vulnerabilities.high // 0' \
-            npm-audit-${{ matrix.workspace }}.json)
-          MODERATE=$(jq '.metadata.vulnerabilities.moderate // 0' \
-            npm-audit-${{ matrix.workspace }}.json)
+          CRITICAL=$(jq '.metadata.vulnerabilities.critical // 0' pnpm-audit.json)
+          HIGH=$(jq '.metadata.vulnerabilities.high // 0' pnpm-audit.json)
+          MODERATE=$(jq '.metadata.vulnerabilities.moderate // 0' pnpm-audit.json)
           echo "Critical: $CRITICAL, High: $HIGH, Moderate: $MODERATE"
           if [ "$CRITICAL" -gt "0" ]; then
-            echo "::error::Critical npm vulnerabilities found in ${{ matrix.workspace }}"
+            echo "::error::Critical pnpm vulnerabilities found in the workspace"
             exit 1
           fi
           if [ "$HIGH" -gt "0" ]; then
-            echo "::error::High npm vulnerabilities found in ${{ matrix.workspace }}"
+            echo "::error::High pnpm vulnerabilities found in the workspace"
             exit 1
           fi
 
-      - name: Upload npm audit report
+      - name: Upload pnpm audit report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: npm-audit-${{ matrix.workspace }}
-          path: npm-audit-${{ matrix.workspace }}.json
+          name: pnpm-audit-report
+          path: pnpm-audit.json
           retention-days: 30
 
   # ─────────────────────────────────────────────────────────────────────────────
@@ -269,14 +262,14 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - rust-sast
-      - npm-dependency-scan
+      - dependency-audit
       - secret-scan
     if: always()
     steps:
       - name: Download all audit artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: npm-audit-*
+          pattern: pnpm-audit-*
           merge-multiple: true
 
       - name: Generate summary
@@ -287,7 +280,7 @@ jobs:
           echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| Rust SAST (Clippy + cargo-audit) | ${{ needs.rust-sast.result }} |" \
             >> $GITHUB_STEP_SUMMARY
-          echo "| npm Dependency Scan | ${{ needs.npm-dependency-scan.result }} |" \
+          echo "| pnpm Dependency Audit | ${{ needs.dependency-audit.result }} |" \
             >> $GITHUB_STEP_SUMMARY
           echo "| Secret Scanning (gitleaks) | ${{ needs.secret-scan.result }} |" \
             >> $GITHUB_STEP_SUMMARY

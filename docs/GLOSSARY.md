@@ -84,7 +84,7 @@ See: `Challenge` / `ChallengeProgress` types.
 **Cleanup Job** ⛓  
 The `cleanup_expired_wastes` admin function that iterates all active waste items, deactivates
 expired ones, and emits a `WasteExpired` event per item. Should be called periodically
-(e.g. via off-chain scheduler). See: [Expiration System](./WASTE_STORAGE_IMPLEMENTATION.md).
+(e.g. via off-chain scheduler). See: [Expiration System](./archive/WASTE_STORAGE_IMPLEMENTATION.md).
 
 **Collector** 👤  
 A participant role that collects waste from Recyclers and transports it to Manufacturers.
@@ -151,7 +151,7 @@ Key events include:
 The mechanism by which waste items become invalid after a configurable time-to-live (TTL).
 Each waste type has an independent TTL set via `set_waste_ttl`; newly registered waste items
 store their deadline in `expires_at`. Expired waste cannot be transferred.
-See: [Waste Expiration System](./WASTE_STORAGE_IMPLEMENTATION.md).
+See: [Waste Expiration System](./archive/WASTE_STORAGE_IMPLEMENTATION.md).
 
 **Expert** 👤  
 The highest `CertificationLevel` (201+ wastes processed). Earns a 1.5× reward multiplier.
@@ -418,7 +418,7 @@ weight, carbon credits, reward points, per-type counts, and grade counts.
 
 **Storage** ⛓  
 On-chain data persistence via Soroban's instance storage. Keys are tuples or `Symbol` values.
-See: [Storage Implementation](./PARTICIPANTS_STORAGE_IMPLEMENTATION.md)
+See: [Storage Implementation](./archive/PARTICIPANTS_STORAGE_IMPLEMENTATION.md)
 
 **Stroops** ⛓  
 The smallest unit of XLM. 1 XLM = 10,000,000 stroops. Used for transaction fees.
@@ -558,17 +558,17 @@ operations. Abbreviated from the ISO currency code XLM.
 
 **Participant Management**
 - [Participant Quick Reference](./PARTICIPANT_QUICK_REFERENCE.md)
-- [Participant Implementation](./PARTICIPANT_IMPLEMENTATION.md)
+- [Participant Implementation](./archive/PARTICIPANT_IMPLEMENTATION.md)
 - [Participant Serialization](./PARTICIPANT_SERIALIZATION.md)
 
 **Waste Management**
 - [Waste Storage Quick Reference](./WASTE_STORAGE_QUICK_REFERENCE.md)
-- [Waste Storage Implementation](./WASTE_STORAGE_IMPLEMENTATION.md)
-- [Transfer Record Implementation](./TRANSFER_RECORD_IMPLEMENTATION.md)
+- [Waste Storage Implementation](./archive/WASTE_STORAGE_IMPLEMENTATION.md)
+- [Transfer Record Implementation](./archive/TRANSFER_RECORD_IMPLEMENTATION.md)
 
 **Incentive Management**
 - [Incentive Quick Reference](./INCENTIVE_QUICK_REFERENCE.md)
-- [Incentive Implementation](./INCENTIVE_IMPLEMENTATION.md)
+- [Incentive Implementation](./archive/INCENTIVE_IMPLEMENTATION.md)
 
 **Grading System**
 - `stellar-contract/src/types.rs` — `WasteGrade`, `GradeRecord`, `WasteType::min_acceptable_grade`
@@ -591,7 +591,7 @@ operations. Abbreviated from the ISO currency code XLM.
 
 ## Related Documentation
 
-- [Contract API](./API_DOCUMENTATION.md) — Complete API reference
+- [Contract API](./API_REFERENCE.md) — Complete API reference
 - [Architecture](./ARCHITECTURE.md) — System design overview
 - [README](../README.md) — Project overview
 - [Contributing Guide](../CONTRIBUTING.md) — Development guidelines

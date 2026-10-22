@@ -4,6 +4,7 @@ import { useWallet } from '@/context/WalletContext'
 import { useContract } from '@/context/ContractContext'
 import { useToast } from '@/hooks/useToast'
 import { networkConfig } from '@/lib/stellar'
+import { invalidateKeys, invalidationPlan } from '@/lib/cacheInvalidation'
 
 export function useConfirmWaste() {
   const { address } = useWallet()
@@ -23,8 +24,7 @@ export function useConfirmWaste() {
       return wasteId
     },
     onSuccess: (wasteId) => {
-      queryClient.invalidateQueries({ queryKey: ['participant-wastes'] })
-      queryClient.invalidateQueries({ queryKey: ['waste', wasteId.toString()] })
+      invalidateKeys(queryClient, invalidationPlan.confirmWaste(wasteId.toString()))
       toast.success(`Waste #${wasteId} confirmed successfully.`)
     },
     onError: (error) => {

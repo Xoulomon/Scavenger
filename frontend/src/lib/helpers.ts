@@ -17,3 +17,8 @@ export const wasteTypeLabel = (type: WasteType): string =>
 
 export const roleLabel = (role: Role): string =>
   ({ [Role.Recycler]: 'Recycler', [Role.Collector]: 'Collector', [Role.Manufacturer]: 'Manufacturer' })[role] ?? 'Unknown'
+
+/** Validates a Stellar public key: 56 chars total, starts with G, base-32 alphabet. */
+export function isValidStellarAddress(address: string): boolean {
+  return /^G[A-Z2-7]{55}$/.test(address)
+}

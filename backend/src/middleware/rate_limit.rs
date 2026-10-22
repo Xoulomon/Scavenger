@@ -295,7 +295,7 @@ where
         let key = format!("{}:{}", client_ip, route_prefix);
 
         let check_result = {
-            let mut s = self.state.lock().unwrap();
+            let mut s = super::lock_unpoisoned(&self.state);
             s.check_and_record(&key, &config)
         };
 

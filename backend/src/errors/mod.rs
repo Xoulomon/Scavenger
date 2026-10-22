@@ -1,4 +1,8 @@
 pub mod codes;
+
+/// Conversions from service and storage errors into the API error type.
+mod service_conversions;
+pub use crate::api::errors::{ApiError, ErrorBody, ErrorDetail};
 pub mod conversion;
 pub mod format;
 pub mod serialization;

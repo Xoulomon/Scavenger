@@ -1,3 +1,6 @@
+//! Ownership: dependency wiring is in `container.rs`. Services are constructed there and handlers get
+//! them through Axum state, not through statics. Remaining direct construction is a follow-up.
+
 //! Dependency injection container (#914, #1091).
 //!
 //! `AppContainer` is the single composition root. Every service dependency is

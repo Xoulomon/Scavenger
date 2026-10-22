@@ -877,7 +877,7 @@ A: Read-only queries still work. Contact the admin team. State-changing calls ar
 
 ### Self-Service Resources
 
-- [API Reference Guide](./API_REFERENCE_GUIDE.md)
+- [API Reference Guide](./API_REFERENCE.md)
 - [Deployment Runbook](./DEPLOYMENT_RUNBOOK.md)
 - [Architecture Diagram](./architecture-diagram.svg)
 - [Stellar Documentation](https://developers.stellar.org/)

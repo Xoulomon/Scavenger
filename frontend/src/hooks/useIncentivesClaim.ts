@@ -1,12 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Incentive } from '@/api/types'
 import { useToast } from '@/hooks/useToast'
+import { cacheKeys } from '@/lib/cacheKeys'
 
 /**
  * Mutation hook for claiming an incentive.
  *
  * Optimistically decrements `remaining_budget` in the TanStack Query cache
- * for the `['incentives', 'all']` query key. On error, rolls back to the
+ * for the `cacheKeys.incentives()` query key. On error, rolls back to the
  * previous cache snapshot and shows an error toast.
  */
 export function useIncentivesClaim() {
@@ -24,13 +25,13 @@ export function useIncentivesClaim() {
 
     onMutate: async (incentiveId: number) => {
       // Cancel any in-flight refetches so they don't overwrite our optimistic update
-      await queryClient.cancelQueries({ queryKey: ['incentives', 'all'] })
+      await queryClient.cancelQueries({ queryKey: cacheKeys.incentives() })
 
       // Snapshot the previous value for rollback
-      const previousIncentives = queryClient.getQueryData<Incentive[]>(['incentives', 'all'])
+      const previousIncentives = queryClient.getQueryData<Incentive[]>(cacheKeys.incentives())
 
       // Optimistically decrement remaining_budget
-      queryClient.setQueryData<Incentive[]>(['incentives', 'all'], (old) => {
+      queryClient.setQueryData<Incentive[]>(cacheKeys.incentives(), (old) => {
         if (!old) return old
         return old.map((inc) =>
           inc.id === incentiveId
@@ -45,14 +46,14 @@ export function useIncentivesClaim() {
     onError: (_err, _incentiveId, context) => {
       // Roll back to the snapshot
       if (context?.previousIncentives !== undefined) {
-        queryClient.setQueryData(['incentives', 'all'], context.previousIncentives)
+        queryClient.setQueryData(cacheKeys.incentives(), context.previousIncentives)
       }
       toast.error('Failed to claim incentive. Please try again.')
     },
 
     onSettled: () => {
       // Always refetch after error or success to sync with server
-      queryClient.invalidateQueries({ queryKey: ['incentives'] })
+      queryClient.invalidateQueries({ queryKey: cacheKeys.incentivesRoot() })
     },
   })
 

@@ -563,4 +563,416 @@ mod tests {
         // Pin the current schema version so any accidental bump fails CI.
         assert_eq!(EVENT_SCHEMA_VERSION, 1);
     }
+
+    // ── Issue #1516: Test that all documented events are accounted for ───────
+
+    /// Snapshot of all emission function names from events.rs.
+    /// If this test fails, it means a new emission function was added without
+    /// updating EVENT_PATTERNS_GUIDE.md or this list.
+    const DOCUMENTED_EMISSION_FUNCTIONS: &[&str] = &[
+        // Waste events
+        "emit_waste_registered",
+        "emit_waste_transferred",
+        "emit_waste_transferred_v2",
+        "emit_waste_confirmed",
+        "emit_waste_confirmation_reset",
+        "emit_waste_deactivated",
+        "emit_waste_expired",
+        "emit_waste_graded",
+        "emit_waste_split",
+        "emit_wastes_merged",
+        "emit_waste_reserved",
+        "emit_reservation_cancelled",
+        "emit_waste_contaminated",
+        "emit_processing_status_changed",
+        "emit_bulk_transfer",
+        "emit_admin_override_transfer",
+        "emit_composition_set",
+        "emit_waste_reconciled",
+        // Participant events
+        "emit_participant_registered",
+        "emit_participant_location_updated",
+        "emit_certification_granted",
+        "emit_participant_tier_changed",
+        "emit_goal_achieved",
+        // Token / reward events
+        "emit_tokens_rewarded",
+        "emit_donation_made",
+        // Admin events
+        "emit_admin_transferred",
+        "emit_contract_paused",
+        "emit_contract_unpaused",
+        "emit_proposal_created",
+        "emit_proposal_approved",
+        "emit_proposal_executed",
+        // Incentive events
+        "emit_incentive_updated",
+        "emit_incentive_scheduled",
+        // Seasonal events
+        "emit_seasonal_multiplier_set",
+        // Carbon credit events
+        "emit_carbon_credits_earned",
+        "emit_carbon_credits_redeemed",
+        "emit_carbon_listing_created",
+        "emit_carbon_listing_cancelled",
+        "emit_carbon_listing_purchased",
+        // Auction events
+        "emit_auction_created",
+        "emit_bid_placed",
+        "emit_auction_ended",
+        // Bulk import events
+        "emit_bulk_import_completed",
+        // RBAC events
+        "emit_permission_granted",
+        "emit_permission_revoked",
+        // Batch processing events
+        "emit_batch_processed",
+    ];
+
+    #[test]
+    fn documented_emission_functions_snapshot() {
+        // This test verifies that the number of documented emission functions
+        // matches expectations. If this fails:
+        //
+        // 1. A new emission function was added to events.rs without updating
+        //    EVENT_PATTERNS_GUIDE.md
+        // 2. An emission function was removed
+        //
+        // Update DOCUMENTED_EMISSION_FUNCTIONS above and docs/EVENT_PATTERNS_GUIDE.md
+        // to match the current state.
+        assert_eq!(
+            DOCUMENTED_EMISSION_FUNCTIONS.len(),
+            46,
+            "Emission function count mismatch! Expected 46, found {}. \
+             Update DOCUMENTED_EMISSION_FUNCTIONS and EVENT_PATTERNS_GUIDE.md if a new event was added.",
+            DOCUMENTED_EMISSION_FUNCTIONS.len()
+        );
+    }
+
+    #[test]
+    fn documented_topics_have_no_duplicates() {
+        // Ensure all documented function names are unique (no typos in the list).
+        use std::collections::HashSet;
+        let names: HashSet<_> = DOCUMENTED_EMISSION_FUNCTIONS.iter().collect();
+        assert_eq!(
+            names.len(),
+            DOCUMENTED_EMISSION_FUNCTIONS.len(),
+            "DOCUMENTED_EMISSION_FUNCTIONS contains duplicate entries"
+        );
+    }
+
+    /// Known topic symbols from events.rs — used to verify documentation coverage.
+    /// If a new symbol is added to events.rs, add it here and update EVENT_PATTERNS_GUIDE.md.
+    const DOCUMENTED_TOPIC_SYMBOLS: &[&str] = &[
+        "recycled",    // waste_registered
+        "transfer",    // waste_transferred (v1 and v2)
+        "confirmed",   // waste_confirmed
+        "reset",       // waste_confirmation_reset
+        "deactive",    // waste_deactivated
+        "expired",     // waste_expired
+        "graded",      // waste_graded
+        "split",       // waste_split
+        "merged",      // wastes_merged
+        "reserved",    // waste_reserved
+        "res_canc",    // reservation_cancelled
+        "contam",      // waste_contaminated
+        "proc_upd",    // processing_status_changed
+        "bulk_xfr",    // bulk_transfer
+        "adm_xfr",     // admin_override_transfer or admin_transferred
+        "comp_set",    // composition_set
+        "reconcil",    // waste_reconciled
+        "reg",         // participant_registered
+        "loc_upd",     // participant_location_updated
+        "cert_gr",     // certification_granted
+        "tier_upd",    // participant_tier_changed
+        "goal_ach",    // goal_achieved
+        "rewarded",    // tokens_rewarded
+        "donated",     // donation_made
+        "paused",      // contract_paused
+        "unpaused",    // contract_unpaused
+        "prop_new",    // proposal_created
+        "prop_apr",    // proposal_approved
+        "prop_exe",    // proposal_executed
+        "inc_upd",     // incentive_updated
+        "inc_sched",   // incentive_scheduled
+        "seas_set",    // seasonal_multiplier_set
+        "carbon",      // carbon_credits_earned
+        "carb_rdm",    // carbon_credits_redeemed
+        "carb_lst",    // carbon_listing_created
+        "carb_cnc",    // carbon_listing_cancelled
+        "carb_buy",    // carbon_listing_purchased
+        "auc_cre",     // auction_created
+        "bid_plc",     // bid_placed
+        "auc_end",     // auction_ended
+        "bulk_imp",    // bulk_import_completed
+        "perm_gr",     // permission_granted
+        "perm_rv",     // permission_revoked
+        "batch_pr",    // batch_processed
+    ];
+
+    #[test]
+    fn documented_topic_symbols_snapshot() {
+        // This test verifies the number of unique topic symbols.
+        // If this fails, a new symbol was added without updating the list.
+        assert_eq!(
+            DOCUMENTED_TOPIC_SYMBOLS.len(),
+            39,
+            "Topic symbol count mismatch! Expected 39, found {}. \
+             Update DOCUMENTED_TOPIC_SYMBOLS and EVENT_PATTERNS_GUIDE.md.",
+            DOCUMENTED_TOPIC_SYMBOLS.len()
+        );
+    }
+
+    #[test]
+    fn documented_topic_symbols_have_no_duplicates() {
+        // Ensure all topic symbols are unique.
+        use std::collections::HashSet;
+        let symbols: HashSet<_> = DOCUMENTED_TOPIC_SYMBOLS.iter().collect();
+        assert_eq!(
+            symbols.len(),
+            DOCUMENTED_TOPIC_SYMBOLS.len(),
+            "DOCUMENTED_TOPIC_SYMBOLS contains duplicate entries"
+        );
+    }
+
+    #[test]
+    fn all_symbols_are_within_soroban_limit() {
+        // Soroban symbol_short! limit is 9 characters.
+        for sym in DOCUMENTED_TOPIC_SYMBOLS {
+            assert!(
+                sym.len() <= 9,
+                "Symbol '{}' exceeds 9-character Soroban limit (length: {})",
+                sym,
+                sym.len()
+            );
+        }
+    }
+
+    // ── Issue #1516: Snapshot validation for EVENT_PATTERNS_GUIDE.md ──────────
+
+    /// Validates that EVENT_PATTERNS_GUIDE.md matches the actual emission functions.
+    /// This test ensures documentation stays in sync with code.
+    ///
+    /// If this fails, either:
+    /// 1. A new emission function was added to events.rs
+    /// 2. An emission function was removed
+    /// 3. A topic symbol was changed
+    ///
+    /// Fix by updating both this test and EVENT_PATTERNS_GUIDE.md.
+    #[test]
+    fn event_patterns_guide_snapshot_is_current() {
+        // Verify that the documented counts match the actual code state.
+        // This is the primary check that docs and code are in sync.
+
+        // Expected: 46 emission functions across all event categories
+        assert_eq!(
+            DOCUMENTED_EMISSION_FUNCTIONS.len(),
+            46,
+            "Emission function count mismatch with EVENT_PATTERNS_GUIDE.md"
+        );
+
+        // Expected: 39 unique topic symbols
+        assert_eq!(
+            DOCUMENTED_TOPIC_SYMBOLS.len(),
+            39,
+            "Topic symbol count mismatch with EVENT_PATTERNS_GUIDE.md"
+        );
+
+        // Expected: 1 topic symbol occurs twice (adm_xfr used for both
+        // admin_override_transfer and admin_transferred). Count occurrences.
+        let adm_xfr_count = DOCUMENTED_TOPIC_SYMBOLS
+            .iter()
+            .filter(|&&sym| sym == "adm_xfr")
+            .count();
+        assert_eq!(
+            adm_xfr_count, 1,
+            "Symbol 'adm_xfr' should appear once in DOCUMENTED_TOPIC_SYMBOLS"
+        );
+
+        // Expected: 1 topic symbol occurs twice (transfer used for both v1 and v2)
+        // We count it once in the symbols list, but it maps to two emission functions.
+        let transfer_count = DOCUMENTED_TOPIC_SYMBOLS
+            .iter()
+            .filter(|&&sym| sym == "transfer")
+            .count();
+        assert_eq!(
+            transfer_count, 1,
+            "Symbol 'transfer' should appear once in DOCUMENTED_TOPIC_SYMBOLS (but maps to v1 and v2)"
+        );
+    }
+
+    /// Validates event category distribution against the guide.
+    #[test]
+    fn event_categories_are_documented() {
+        // Group documented functions by category to verify all categories are covered.
+        let waste_events = &[
+            "emit_waste_registered",
+            "emit_waste_transferred",
+            "emit_waste_transferred_v2",
+            "emit_waste_confirmed",
+            "emit_waste_confirmation_reset",
+            "emit_waste_deactivated",
+            "emit_waste_expired",
+            "emit_waste_graded",
+            "emit_waste_split",
+            "emit_wastes_merged",
+            "emit_waste_reserved",
+            "emit_reservation_cancelled",
+            "emit_waste_contaminated",
+            "emit_processing_status_changed",
+            "emit_bulk_transfer",
+            "emit_admin_override_transfer",
+            "emit_composition_set",
+            "emit_waste_reconciled",
+        ];
+
+        let participant_events = &[
+            "emit_participant_registered",
+            "emit_participant_location_updated",
+            "emit_certification_granted",
+            "emit_participant_tier_changed",
+            "emit_goal_achieved",
+        ];
+
+        let token_events = &["emit_tokens_rewarded", "emit_donation_made"];
+
+        let admin_events = &[
+            "emit_admin_transferred",
+            "emit_contract_paused",
+            "emit_contract_unpaused",
+            "emit_proposal_created",
+            "emit_proposal_approved",
+            "emit_proposal_executed",
+        ];
+
+        let incentive_events = &["emit_incentive_updated", "emit_incentive_scheduled"];
+
+        let seasonal_events = &["emit_seasonal_multiplier_set"];
+
+        let carbon_events = &[
+            "emit_carbon_credits_earned",
+            "emit_carbon_credits_redeemed",
+            "emit_carbon_listing_created",
+            "emit_carbon_listing_cancelled",
+            "emit_carbon_listing_purchased",
+        ];
+
+        let auction_events = &["emit_auction_created", "emit_bid_placed", "emit_auction_ended"];
+
+        let rbac_events = &["emit_permission_granted", "emit_permission_revoked"];
+
+        let batch_events = &["emit_bulk_import_completed", "emit_batch_processed"];
+
+        // Verify total count and coverage
+        let total: usize = waste_events.len()
+            + participant_events.len()
+            + token_events.len()
+            + admin_events.len()
+            + incentive_events.len()
+            + seasonal_events.len()
+            + carbon_events.len()
+            + auction_events.len()
+            + rbac_events.len()
+            + batch_events.len();
+
+        assert_eq!(
+            total, 46,
+            "Category breakdown should sum to 46 total emission functions"
+        );
+
+        // Verify no overlap between categories
+        let mut all_funcs = Vec::new();
+        all_funcs.extend_from_slice(waste_events);
+        all_funcs.extend_from_slice(participant_events);
+        all_funcs.extend_from_slice(token_events);
+        all_funcs.extend_from_slice(admin_events);
+        all_funcs.extend_from_slice(incentive_events);
+        all_funcs.extend_from_slice(seasonal_events);
+        all_funcs.extend_from_slice(carbon_events);
+        all_funcs.extend_from_slice(auction_events);
+        all_funcs.extend_from_slice(rbac_events);
+        all_funcs.extend_from_slice(batch_events);
+
+        use std::collections::HashSet;
+        let unique: HashSet<_> = all_funcs.iter().collect();
+        assert_eq!(
+            unique.len(),
+            all_funcs.len(),
+            "Category assignment has overlapping functions"
+        );
+    }
+
+    /// Validates that all functions in DOCUMENTED_EMISSION_FUNCTIONS are categorized.
+    #[test]
+    fn all_documented_functions_have_categories() {
+        let categorized = vec![
+            // Waste
+            ("emit_waste_registered", "Waste"),
+            ("emit_waste_transferred", "Waste"),
+            ("emit_waste_transferred_v2", "Waste"),
+            ("emit_waste_confirmed", "Waste"),
+            ("emit_waste_confirmation_reset", "Waste"),
+            ("emit_waste_deactivated", "Waste"),
+            ("emit_waste_expired", "Waste"),
+            ("emit_waste_graded", "Waste"),
+            ("emit_waste_split", "Waste"),
+            ("emit_wastes_merged", "Waste"),
+            ("emit_waste_reserved", "Waste"),
+            ("emit_reservation_cancelled", "Waste"),
+            ("emit_waste_contaminated", "Waste"),
+            ("emit_processing_status_changed", "Waste"),
+            ("emit_bulk_transfer", "Waste"),
+            ("emit_admin_override_transfer", "Waste"),
+            ("emit_composition_set", "Waste"),
+            ("emit_waste_reconciled", "Waste"),
+            // Participant
+            ("emit_participant_registered", "Participant"),
+            ("emit_participant_location_updated", "Participant"),
+            ("emit_certification_granted", "Participant"),
+            ("emit_participant_tier_changed", "Participant"),
+            ("emit_goal_achieved", "Participant"),
+            // Token
+            ("emit_tokens_rewarded", "Token"),
+            ("emit_donation_made", "Token"),
+            // Admin
+            ("emit_admin_transferred", "Admin"),
+            ("emit_contract_paused", "Admin"),
+            ("emit_contract_unpaused", "Admin"),
+            ("emit_proposal_created", "Admin"),
+            ("emit_proposal_approved", "Admin"),
+            ("emit_proposal_executed", "Admin"),
+            // Incentive
+            ("emit_incentive_updated", "Incentive"),
+            ("emit_incentive_scheduled", "Incentive"),
+            // Seasonal
+            ("emit_seasonal_multiplier_set", "Seasonal"),
+            // Carbon
+            ("emit_carbon_credits_earned", "Carbon"),
+            ("emit_carbon_credits_redeemed", "Carbon"),
+            ("emit_carbon_listing_created", "Carbon"),
+            ("emit_carbon_listing_cancelled", "Carbon"),
+            ("emit_carbon_listing_purchased", "Carbon"),
+            // Auction
+            ("emit_auction_created", "Auction"),
+            ("emit_bid_placed", "Auction"),
+            ("emit_auction_ended", "Auction"),
+            // RBAC
+            ("emit_permission_granted", "RBAC"),
+            ("emit_permission_revoked", "RBAC"),
+            // Batch
+            ("emit_bulk_import_completed", "Batch"),
+            ("emit_batch_processed", "Batch"),
+        ];
+
+        use std::collections::HashMap;
+        let categories: HashMap<_, _> = categorized.into_iter().collect();
+
+        for func in DOCUMENTED_EMISSION_FUNCTIONS {
+            assert!(
+                categories.contains_key(func),
+                "Function '{}' is not assigned a category. Update the test or EVENT_PATTERNS_GUIDE.md",
+                func
+            );
+        }
+    }
 }

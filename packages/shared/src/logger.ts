@@ -41,33 +41,45 @@ export class StructuredLogger {
 
   debug(message: string, context?: Record<string, unknown>): void {
     if (this.shouldLog('debug')) {
-      this.logs.push(this.createEntry('debug', message, context));
+      const entry = this.createEntry('debug', message, context);
+      this.logs.push(entry);
+      if (this.enableConsole) console.log(JSON.stringify(this.formatJson(entry)));
     }
   }
 
   info(message: string, context?: Record<string, unknown>): void {
     if (this.shouldLog('info')) {
-      this.logs.push(this.createEntry('info', message, context));
+      const entry = this.createEntry('info', message, context);
+      this.logs.push(entry);
+      if (this.enableConsole) console.log(JSON.stringify(this.formatJson(entry)));
     }
   }
 
   warn(message: string, context?: Record<string, unknown>): void {
     if (this.shouldLog('warn')) {
-      this.logs.push(this.createEntry('warn', message, context));
-      if (this.enableConsole) console.warn(this.formatEntry(this.logs[this.logs.length - 1]));
+      const entry = this.createEntry('warn', message, context);
+      this.logs.push(entry);
+      if (this.enableConsole) console.warn(JSON.stringify(this.formatJson(entry)));
     }
   }
 
   error(message: string, error?: Error, context?: Record<string, unknown>): void {
     if (this.shouldLog('error')) {
-      this.logs.push(this.createEntry('error', message, context, error));
+      const entry = this.createEntry('error', message, context, error);
+      this.logs.push(entry);
       if (this.enableConsole) {
-        console.error(this.formatEntry(this.logs[this.logs.length - 1]));
+        console.error(JSON.stringify(this.formatJson(entry)));
         if (error) console.error(error);
       }
     }
   }
 
+  private formatJson(entry: LogEntry): Record<string, unknown> {
+    const { timestamp, level, message, context } = entry;
+    return { timestamp, level, message, ...context };
+  }
+
+  /** @deprecated Use structured JSON output. Retained for internal log retrieval only. */
   private formatEntry(entry: LogEntry): string {
     const { timestamp, level, message, context } = entry;
     const contextStr = context ? ` ${JSON.stringify(context)}` : '';

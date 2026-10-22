@@ -780,6 +780,6 @@ For migration issues:
 - [Disaster Recovery Plan](./DISASTER_RECOVERY_PLAN.md)
 - [Blue/Green Deployment](./BLUE_GREEN_DEPLOYMENT.md)
 - [Deployment Guide](./KUBERNETES_DEPLOYMENT.md)
-- [API Documentation](./API_DOCUMENTATION.md)
+- [API Documentation](./API_REFERENCE.md)
 - [Glossary](./GLOSSARY.md)
 - [Architecture](./ARCHITECTURE.md)

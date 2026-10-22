@@ -5,6 +5,7 @@ import { useContract } from '@/context/ContractContext'
 import { networkConfig } from '@/lib/stellar'
 import { StrKey } from '@stellar/stellar-sdk'
 import { useOfflineMutation } from '@/hooks/useOfflineMutation'
+import { invalidateKeys, invalidationPlan } from '@/lib/cacheInvalidation'
 
 export interface TransferWasteParams {
   wasteId: bigint
@@ -32,8 +33,7 @@ export function useTransferWaste() {
       return to
     },
     onSuccess: (_to, { wasteId }) => {
-      queryClient.invalidateQueries({ queryKey: ['participant-wastes'] })
-      queryClient.invalidateQueries({ queryKey: ['transfer-history', wasteId.toString()] })
+      invalidateKeys(queryClient, invalidationPlan.transferWaste(wasteId.toString()))
     },
     mutationKey: ['transfer-waste'],
   })

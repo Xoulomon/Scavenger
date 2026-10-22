@@ -4,6 +4,7 @@ import { WasteType } from '@/api/types'
 import { useContract } from '@/context/ContractContext'
 import { networkConfig } from '@/lib/stellar'
 import { useToast } from '@/hooks/useToast'
+import { invalidateKeys, invalidationPlan } from '@/lib/cacheInvalidation'
 
 export interface RecycleWasteParams {
   recycler: string
@@ -33,7 +34,7 @@ export function useRecycleWaste() {
     onSuccess: (wasteId, { recycler }) => {
       toast.success(`Waste registered successfully. ID: #${wasteId}`)
       // Invalidate participant wastes so the list refreshes
-      queryClient.invalidateQueries({ queryKey: ['participant-wastes', recycler] })
+      invalidateKeys(queryClient, invalidationPlan.recycleWaste(recycler))
     },
     onError: (error) => {
       toast.error(error)

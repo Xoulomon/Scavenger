@@ -212,7 +212,7 @@ Rules:
 - **No CSS module or styled-components file** — this project styles exclusively with Tailwind utility classes, so there's no separate stylesheet to colocate.
 - **Types stay inline in `index.tsx` by default.** Only pull them into `ComponentName.types.ts` when the component is complex enough that a separate file measurably helps readability (see `ApiPlayground/types.ts` for a precedent).
 
-This convention has been applied to `components/ui/Badge/`, `components/ui/EmptyState/`, `components/ui/StatCard/`, `components/ui/Checkbox/`, `components/ui/Switch/`, `components/ui/VerificationBadge/`, `components/ui/SearchBar/`, `components/OfflineIndicator/`, `components/analytics/CarbonImpactCard/`, and `components/qr/QRGenerator/`. Older components not yet migrated keep their existing flat-file or `__tests__/`-subfolder layout until they're next touched — there's no wholesale rewrite planned; components move to this structure incrementally as they're edited.
+This convention has been applied to `components/ui/Badge/`, `components/ui/EmptyState/`, `components/ui/StatCard/`, `components/ui/Checkbox/`, `components/ui/Switch/`, `components/ui/VerificationBadge/`, `components/ui/SearchBar/`, `components/OfflineStatus/`, `components/analytics/CarbonImpactCard/`, and `components/qr/QRGenerator/`. Older components not yet migrated keep their existing flat-file or `__tests__/`-subfolder layout until they're next touched — there's no wholesale rewrite planned; components move to this structure incrementally as they're edited.
 
 ---
 

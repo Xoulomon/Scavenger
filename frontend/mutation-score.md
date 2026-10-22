@@ -4,9 +4,12 @@ Tracks mutation testing scores for the critical frontend modules:
 
 - `src/lib/wallet.ts` — Freighter wallet integration
 - `src/api/client.ts` — Soroban contract client
+- `src/lib/validation/wasteSubmission.ts` — Waste submission validation logic
+- `src/features/transfers/service.ts` — Material transfer transaction logic
+- `src/features/transfers/schemas.ts` — Transfer form validation schemas
 
 Scores are appended automatically by `npm run mutation:score` after each
-Stryker run.  The minimum accepted score is **70 %**.
+Stryker run.  The minimum accepted score is **80 %**.
 
 Tool: [Stryker Mutator](https://stryker-mutator.io) via `@stryker-mutator/vitest-runner`  
 Config: [`stryker.config.cjs`](./stryker.config.cjs)  

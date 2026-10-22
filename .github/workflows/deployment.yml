@@ -12,7 +12,19 @@ jobs:
     environment: staging
     steps:
       - uses: actions/checkout@v4
-      
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.11.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
       - name: Build Contract
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -24,8 +36,7 @@ jobs:
           cd backend && cargo build --release
 
       - name: Build Frontend
-        run: |
-          cd frontend && npm ci && npm run build
+        run: pnpm --filter scavngr-frontend run build
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -52,7 +63,12 @@ jobs:
     needs: build-and-deploy
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12.11.2
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
-      - run: cd integration-tests && npm ci && npm test
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter scavenger-integration-tests test

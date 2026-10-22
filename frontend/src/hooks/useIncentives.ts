@@ -5,6 +5,7 @@ import { networkConfig } from '@/lib/stellar'
 import { useWallet } from '@/context/WalletContext'
 import { useToast } from '@/hooks/useToast'
 import { ScavengerClient } from '@/api/client'
+import { cacheKeys } from '@/lib/cacheKeys'
 
 const INCENTIVES_STALE_TIME = 30 * 1000 // 30 seconds
 
@@ -15,7 +16,7 @@ export function useIncentives(wasteType?: WasteType) {
   const toast = useToast()
 
   const { data, isLoading, isError } = useQuery<Incentive[]>({
-    queryKey: ['incentives', wasteType ?? 'all'],
+    queryKey: cacheKeys.incentives(wasteType),
     queryFn: async () => {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
@@ -35,7 +36,7 @@ export function useIncentives(wasteType?: WasteType) {
       contractId: config.contractId,
     })
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ['incentives'] })
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: cacheKeys.incentivesRoot() })
 
   const createIncentive = useMutation({
     mutationFn: ({ wt, rewardPoints, budget }: { wt: WasteType; rewardPoints: bigint; budget: bigint }) => {

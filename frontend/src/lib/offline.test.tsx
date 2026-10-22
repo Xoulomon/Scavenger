@@ -248,8 +248,12 @@ describe('Offline Functionality', () => {
       navigator.onLine = true
       rerender()
 
-      // Wait for sync to complete
-      await new Promise(resolve => setTimeout(resolve, 100))
+      // Use act to flush all pending microtasks and state updates instead of
+      // an arbitrary real-clock sleep, which is flaky under CPU load.
+      await act(async () => {
+        // Flush all pending microtasks / promise resolutions
+        await Promise.resolve()
+      })
 
       expect(mockMutationFn).toHaveBeenCalledWith({ param: 'value' })
     })

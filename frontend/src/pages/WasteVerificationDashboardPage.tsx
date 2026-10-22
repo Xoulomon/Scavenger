@@ -1,37 +1,17 @@
-import { useState, useCallback, useMemo } from 'react'
-import {
-  CheckCircle2,
-  XCircle,
-  Clock,
-  AlertTriangle,
-  Search,
-  Download,
-  Filter,
-  ChevronDown,
-  ChevronUp,
-  ShieldCheck,
-  PackageCheck,
-  Truck,
-  BarChart3,
-  ListChecks,
-  Eye,
-  SlidersHorizontal,
-} from 'lucide-react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { ScavengerClient } from '@/api/client'
-import { useContract } from '@/context/ContractContext'
-import { useWallet } from '@/context/WalletContext'
-import { networkConfig } from '@/lib/stellar'
-import { wasteTypeLabel, formatDate, formatAddress } from '@/lib/helpers'
-import { Badge } from '@/components/ui/Badge'
+import { Download, ShieldCheck } from 'lucide-react'
+
 import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
-import { StatCard } from '@/components/ui/StatCard'
+import { Card, CardContent } from '@/components/ui/Card'
+import { BulkVerificationPanel } from '@/features/verification/components/BulkVerificationPanel'
+import { DashboardStats } from '@/features/verification/components/DashboardStats'
+import { DetailPanel } from '@/features/verification/components/DetailPanel'
+import { FilterBar } from '@/features/verification/components/FilterBar'
+import { ResultsList } from '@/features/verification/components/ResultsList'
 import { useAppTitle } from '@/hooks/useAppTitle'
 import { cn } from '@/lib/utils'
 import type { Material, WasteType, WasteTransfer } from '@/api/types'
 import { WasteType as WasteTypeEnum } from '@/api/types'
+import { cacheKeys } from '@/lib/cacheKeys'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -126,7 +106,7 @@ function useAllMaterials() {
   const { address } = useWallet()
 
   return useQuery<Material[]>({
-    queryKey: ['dashboard-materials', address],
+    queryKey: cacheKeys.dashboardMaterials(address),
     queryFn: async () => {
       if (!address) return []
       const client = new ScavengerClient({
@@ -161,7 +141,7 @@ function useVerifyMaterial() {
       return client.verifyMaterial(materialId, address, address)
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['dashboard-materials'] })
+      qc.invalidateQueries({ queryKey: cacheKeys.dashboardMaterials() })
     },
   })
 }
@@ -170,7 +150,7 @@ function useMaterialTransfers(materialId: number | null) {
   const { config } = useContract()
 
   return useQuery<WasteTransfer[]>({
-    queryKey: ['material-transfers', materialId],
+    queryKey: cacheKeys.materialTransfers(materialId),
     queryFn: async () => {
       if (materialId === null) return []
       const client = new ScavengerClient({
@@ -1107,149 +1087,10 @@ function exportVerificationCsv(materials: Material[], history: VerificationRecor
 
 export function WasteVerificationDashboardPage() {
   useAppTitle('Verification Dashboard')
-  const { address } = useWallet()
-  const { data: allMaterials = [], isLoading } = useAllMaterials()
-  const verify = useVerifyMaterial()
-
-  // Filter state
-  const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
-  const [wasteTypeFilter, setWasteTypeFilter] = useState('all')
-  const [dateFrom, setDateFrom] = useState('')
-  const [dateTo, setDateTo] = useState('')
-  const [showFilters, setShowFilters] = useState(false)
-  const [sortField, setSortField] = useState<SortField>('date')
-  const [sortDir, setSortDir] = useState<SortDirection>('desc')
-
-  // Selection state
-  const [selectedId, setSelectedId] = useState<number | null>(null)
-  const [checkedIds, setCheckedIds] = useState<Set<number>>(new Set())
-
-  // Apply filters
-  const filteredMaterials = useMemo(() => {
-    let result = [...allMaterials]
-
-    // Search
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase()
-      result = result.filter(
-        (m) =>
-          String(m.id).includes(q) ||
-          m.submitter.toLowerCase().includes(q) ||
-          m.current_owner.toLowerCase().includes(q)
-      )
-    }
-
-    // Status filter
-    if (statusFilter === 'pending') result = result.filter((m) => !m.verified)
-    if (statusFilter === 'verified') result = result.filter((m) => m.verified)
-
-    // Waste type filter
-    if (wasteTypeFilter !== 'all') {
-      const wt = Number(wasteTypeFilter) as WasteType
-      result = result.filter((m) => m.waste_type === wt)
-    }
-
-    // Date range
-    if (dateFrom) {
-      const from = Math.floor(new Date(dateFrom).getTime() / 1000)
-      result = result.filter((m) => m.submitted_at >= from)
-    }
-    if (dateTo) {
-      const to = Math.floor(new Date(dateTo + 'T23:59:59').getTime() / 1000)
-      result = result.filter((m) => m.submitted_at <= to)
-    }
-
-    // Sort
-    result.sort((a, b) => {
-      let cmp = 0
-      switch (sortField) {
-        case 'id':
-          cmp = a.id - b.id
-          break
-        case 'date':
-          cmp = a.submitted_at - b.submitted_at
-          break
-        case 'weight':
-          cmp = a.weight - b.weight
-          break
-        case 'type':
-          cmp = a.waste_type - b.waste_type
-          break
-      }
-      return sortDir === 'asc' ? cmp : -cmp
-    })
-
-    return result
-  }, [allMaterials, searchQuery, statusFilter, wasteTypeFilter, dateFrom, dateTo, sortField, sortDir])
-
-  const selectedMaterial = filteredMaterials.find((m) => m.id === selectedId) ?? null
-
-  // Handlers
-  const handleVerify = useCallback(
-    async (materialId: number, decision: 'approved' | 'rejected', form: VerificationFormData) => {
-      if (decision === 'approved') {
-        await verify.mutateAsync({ materialId: BigInt(materialId) })
-      }
-      const record: VerificationRecord = {
-        materialId,
-        decision,
-        notes: form.notes,
-        contaminated: form.contaminated,
-        grade: form.grade,
-        verifiedAt: Math.floor(Date.now() / 1000),
-        verifier: address ?? '',
-      }
-      addRecord(record)
-    },
-    [verify, address]
-  )
-
-  const handleBulkAction = useCallback(
-    async (ids: number[], decision: 'approved' | 'rejected', form: VerificationFormData) => {
-      for (const id of ids) {
-        await handleVerify(id, decision, form)
-      }
-      setCheckedIds(new Set())
-    },
-    [handleVerify]
-  )
-
-  const handleCheckItem = useCallback((id: number, checked: boolean) => {
-    setCheckedIds((prev) => {
-      const next = new Set(prev)
-      if (checked) next.add(id)
-      else next.delete(id)
-      return next
-    })
-  }, [])
-
-  const handleSelectAll = useCallback(() => {
-    if (checkedIds.size === filteredMaterials.length) {
-      setCheckedIds(new Set())
-    } else {
-      setCheckedIds(new Set(filteredMaterials.map((m) => m.id)))
-    }
-  }, [checkedIds.size, filteredMaterials])
-
-  const handleSort = useCallback(
-    (field: SortField) => {
-      if (sortField === field) {
-        setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))
-      } else {
-        setSortField(field)
-        setSortDir('desc')
-      }
-    },
-    [sortField]
-  )
-
-  const handleExport = useCallback(() => {
-    exportVerificationCsv(filteredMaterials, getSessionHistory())
-  }, [filteredMaterials])
+  const d = useVerificationDashboard()
 
   // Not connected state
-  if (!address) {
+  if (!d.address) {
     return (
       <div className="flex h-64 items-center justify-center text-muted-foreground">
         Connect your wallet to access the verification dashboard.
@@ -1271,8 +1112,8 @@ export function WasteVerificationDashboardPage() {
           variant="outline"
           size="sm"
           className="gap-2 self-start"
-          onClick={handleExport}
-          disabled={filteredMaterials.length === 0}
+          onClick={d.handleExport}
+          disabled={d.filteredMaterials.length === 0}
           aria-label="Export results as CSV"
         >
           <Download className="h-4 w-4" />
@@ -1281,136 +1122,59 @@ export function WasteVerificationDashboardPage() {
       </div>
 
       {/* Stats */}
-      <DashboardStats materials={allMaterials} isLoading={isLoading} />
+      <DashboardStats materials={d.allMaterials} isLoading={d.isLoading} />
 
       {/* Filters */}
       <FilterBar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        statusFilter={statusFilter}
-        onStatusChange={setStatusFilter}
-        wasteTypeFilter={wasteTypeFilter}
-        onWasteTypeChange={setWasteTypeFilter}
-        dateFrom={dateFrom}
-        dateTo={dateTo}
-        onDateFromChange={setDateFrom}
-        onDateToChange={setDateTo}
-        showFilters={showFilters}
-        onToggleFilters={() => setShowFilters((s) => !s)}
+        searchQuery={d.searchQuery}
+        onSearchChange={d.setSearchQuery}
+        statusFilter={d.statusFilter}
+        onStatusChange={d.setStatusFilter}
+        wasteTypeFilter={d.wasteTypeFilter}
+        onWasteTypeChange={d.setWasteTypeFilter}
+        dateFrom={d.dateFrom}
+        dateTo={d.dateTo}
+        onDateFromChange={d.setDateFrom}
+        onDateToChange={d.setDateTo}
+        showFilters={d.showFilters}
+        onToggleFilters={d.toggleFilters}
       />
 
       {/* Bulk actions */}
       <BulkVerificationPanel
-        selectedIds={checkedIds}
-        materials={allMaterials}
-        onBulkAction={handleBulkAction}
-        onClearSelection={() => setCheckedIds(new Set())}
-        isPending={verify.isPending}
+        selectedIds={d.checkedIds}
+        materials={d.allMaterials}
+        onBulkAction={d.handleBulkAction}
+        onClearSelection={() => d.setCheckedIds(new Set())}
+        isPending={d.verify.isPending}
       />
 
       {/* Main content: list + detail */}
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
-        {/* Left: waste list */}
-        <div className="space-y-3">
-          {/* List header / sort controls */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={
-                  filteredMaterials.length > 0 && checkedIds.size === filteredMaterials.length
-                }
-                onChange={handleSelectAll}
-                className="h-4 w-4 rounded border"
-                aria-label="Select all items"
-              />
-              <span className="text-sm text-muted-foreground">
-                {isLoading
-                  ? 'Loading...'
-                  : `${filteredMaterials.length} item${filteredMaterials.length !== 1 ? 's' : ''}`}
-              </span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-muted-foreground">Sort:</span>
-              {([
-                { field: 'date' as SortField, label: 'Date' },
-                { field: 'id' as SortField, label: 'ID' },
-                { field: 'weight' as SortField, label: 'Weight' },
-              ]).map(({ field, label }) => (
-                <Button
-                  key={field}
-                  variant={sortField === field ? 'secondary' : 'ghost'}
-                  size="sm"
-                  onClick={() => handleSort(field)}
-                  aria-label={`Sort by ${label}`}
-                  className="h-7 px-2 text-xs"
-                >
-                  {label}
-                  {sortField === field && (
-                    sortDir === 'asc' ? (
-                      <ChevronUp className="ml-0.5 h-3 w-3" />
-                    ) : (
-                      <ChevronDown className="ml-0.5 h-3 w-3" />
-                    )
-                  )}
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          {/* List */}
-          {isLoading ? (
-            <div className="space-y-2">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-[72px] animate-pulse rounded-lg bg-muted" />
-              ))}
-            </div>
-          ) : filteredMaterials.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed py-12 text-muted-foreground">
-              <Filter className="h-8 w-8 opacity-30" />
-              <p className="text-sm">No materials match your filters.</p>
-              {(searchQuery || statusFilter !== 'all' || wasteTypeFilter !== 'all' || dateFrom || dateTo) && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setSearchQuery('')
-                    setStatusFilter('all')
-                    setWasteTypeFilter('all')
-                    setDateFrom('')
-                    setDateTo('')
-                  }}
-                  aria-label="Clear all filters"
-                >
-                  Clear filters
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-2 max-h-[calc(100vh-24rem)] overflow-y-auto pr-1" role="listbox" aria-label="Waste materials list">
-              {filteredMaterials.map((material) => (
-                <WasteListItem
-                  key={material.id}
-                  material={material}
-                  isSelected={selectedId === material.id}
-                  isChecked={checkedIds.has(material.id)}
-                  onSelect={() => setSelectedId(material.id)}
-                  onCheck={(checked) => handleCheckItem(material.id, checked)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        <ResultsList
+          materials={d.filteredMaterials}
+          isLoading={d.isLoading}
+          selectedId={d.selectedId}
+          checkedIds={d.checkedIds}
+          onSelect={d.setSelectedId}
+          onCheck={d.handleCheckItem}
+          onSelectAll={d.handleSelectAll}
+          sortField={d.sortField}
+          sortDir={d.sortDir}
+          onSort={d.handleSort}
+          hasActiveFilters={d.hasActiveFilters}
+          onClearFilters={d.clearFilters}
+        />
 
         {/* Right: detail panel */}
         <div className="lg:sticky lg:top-6 lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto">
-          {selectedMaterial ? (
+          {d.selectedMaterial ? (
             <Card>
               <CardContent className="p-4 sm:p-6">
                 <DetailPanel
-                  material={selectedMaterial}
-                  onVerify={handleVerify}
-                  isVerifying={verify.isPending}
+                  material={d.selectedMaterial}
+                  onVerify={d.handleVerify}
+                  isVerifying={d.verify.isPending}
                 />
               </CardContent>
             </Card>

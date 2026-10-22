@@ -1,0 +1,23 @@
+name: Docs Checks
+
+# Issue #1550 – Prevent stray plain-text documentation files from accumulating
+# outside the designated docs/archive/ location.
+#
+# Runs on every push and PR so that any accidental .txt doc added anywhere
+# other than docs/archive/ is caught immediately.
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  no-stray-txt-docs:
+    name: No stray .txt documentation files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for stray .txt files
+        run: bash scripts/check-no-txt-docs.sh

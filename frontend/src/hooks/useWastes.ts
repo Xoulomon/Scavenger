@@ -4,6 +4,7 @@ import { Waste, WasteType } from '@/api/types'
 import { useWallet } from '@/context/WalletContext'
 import { useContract } from '@/context/ContractContext'
 import { networkConfig } from '@/lib/stellar'
+import { cacheKeys } from '@/lib/cacheKeys'
 
 export interface WasteFilters {
   wasteType?: WasteType
@@ -15,7 +16,7 @@ export function useWastes(filters?: WasteFilters) {
   const { config } = useContract()
 
   const { data, isLoading, isError } = useQuery<Waste[]>({
-    queryKey: ['wastes', address, filters],
+    queryKey: cacheKeys.wastes(address, filters),
     queryFn: async () => {
       if (!address) return []
       const client = new ScavengerClient({

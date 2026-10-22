@@ -201,7 +201,7 @@ function ProtectedLayout() {
 // Each protected page gets its own `errorElement` so a crash on one route
 // renders a fallback in place of just that page — the app shell and every
 // other route stay unaffected, and navigating away recovers automatically.
-const PROTECTED_ROUTES = [
+export const PROTECTED_ROUTES = [
   { path: 'dashboard', element: <HomePage /> },
   { path: 'submit', element: <div>Submit Waste</div> },
   { path: 'collect', element: <CollectorDashboardPage /> },

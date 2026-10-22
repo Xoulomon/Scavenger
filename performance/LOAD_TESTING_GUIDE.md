@@ -4,15 +4,13 @@ Comprehensive load testing suite for the Scavenger platform using k6.
 
 ## Overview
 
-This guide covers load testing with 8+ scenarios:
-1. Steady State (100 users)
-2. Spike Test (sudden 1000 users)
-3. Stress Test (gradual increase to 10000)
-4. Endurance Test (sustained load)
-5. Ramp Test (gradual increase)
-6. Wave Test (multiple waves)
-7. Peak Hour Simulation
-8. Bottleneck Detection
+Consolidated testing framework with **5 load profiles**, each optimized for specific testing purposes:
+
+1. **Smoke** - Quick sanity check (1 user, 50 seconds)
+2. **Load** - Steady state baseline (100 users, 6 minutes)
+3. **Stress** - Breaking point detection (1000-10000 users, 15 minutes)
+4. **Spike** - Traffic burst response (100→1000 users, 6 minutes)
+5. **Soak** - Endurance & degradation (500 users, 40 minutes)
 
 ## Prerequisites
 
@@ -34,90 +32,199 @@ sudo apt-get install k6
 choco install k6
 ```
 
-## Running Load Tests
+## Quick Start
 
-### Comprehensive Load Test (All Scenarios)
+### Run Default Smoke Test
 
 ```bash
-k6 run performance/k6-load-test-comprehensive.js
+./scripts/run-perf-tests.sh
 ```
 
-### Individual Scenarios
+### Run Specific Profile
 
 ```bash
-# Steady State Test (100 users)
-k6 run --stage 2m:100 --stage 5m:100 --stage 2m:0 performance/load-test-scenarios.js
+# Load test
+./scripts/run-perf-tests.sh --profile load
 
-# Spike Test
-k6 run --stage 1m:100 --stage 30s:1000 --stage 2m:1000 --stage 30s:100 --stage 1m:0 performance/load-test-scenarios.js
+# Stress test (WARNING: resource intensive)
+./scripts/run-perf-tests.sh --profile stress
 
-# Stress Test
-k6 run --stage 2m:1000 --stage 2m:5000 --stage 2m:10000 --stage 5m:10000 --stage 2m:0 performance/load-test-scenarios.js
+# Soak test (40+ minute test)
+./scripts/run-perf-tests.sh --profile soak
+```
 
-# Endurance Test (30 minutes)
-k6 run --stage 5m:500 --stage 30m:500 --stage 5m:0 performance/load-test-scenarios.js
+### Run All Profiles Sequentially
 
-# Ramp Test
-k6 run --stage 10m:5000 --stage 5m:5000 --stage 5m:0 performance/load-test-scenarios.js
-
-# Wave Test
-k6 run performance/load-test-scenarios.js
-
-# Peak Hour Simulation
-k6 run performance/load-test-scenarios.js
-
-# Bottleneck Detection
-k6 run performance/load-test-scenarios.js
+```bash
+./scripts/run-perf-tests.sh --all
 ```
 
 ### With Custom Configuration
 
 ```bash
-# Set API URL
-BASE_URL=http://api.example.com k6 run performance/k6-load-test-comprehensive.js
+# Custom API URL
+BASE_URL=https://api.example.com ./scripts/run-perf-tests.sh --profile load
 
-# Set VU count
-k6 run -u 1000 -d 5m performance/k6-load-test-comprehensive.js
+# Custom contract ID
+CONTRACT_ID=CABC... ./scripts/run-perf-tests.sh --profile load
 
-# Output to file
-k6 run --out json=reports/load-test-results.json performance/k6-load-test-comprehensive.js
+# Output JSON results
+./scripts/run-perf-tests.sh --profile load --json --output reports/
 ```
 
-## Test Scenarios
+## Manual k6 Commands
 
-### 1. Steady State (100 users)
-- **Duration**: 9 minutes
-- **Users**: 100 concurrent
-- **Purpose**: Baseline performance under normal load
-- **Thresholds**: p95 < 500ms, error rate < 5%
+### Run Individual Scripts
 
-### 2. Spike Test
-- **Duration**: 6.5 minutes
-- **Peak Users**: 1000 concurrent
-- **Purpose**: Test system response to sudden traffic spike
-- **Thresholds**: p95 < 1000ms, error rate < 10%
+```bash
+# Smoke test
+k6 run performance/k6-smoke.js
+
+# Load test
+BASE_URL=http://api.example.com k6 run performance/k6-load.js
+
+# Stress test (resource intensive)
+BASE_URL=http://api.example.com k6 run performance/k6-stress.js
+
+# Spike test
+BASE_URL=http://api.example.com k6 run performance/k6-spike.js
+
+# Soak test (long running)
+BASE_URL=http://api.example.com k6 run performance/k6-soak.js
+```
+
+### With Output Options
+
+```bash
+# JSON output
+k6 run --out json=results.json performance/k6-load.js
+
+# Summary output
+k6 run --summary-export=summary.json performance/k6-load.js
+
+# Multiple outputs
+k6 run --out json=results.json --out csv=metrics.csv performance/k6-load.js
+```
+
+## Test Profiles
+
+### 1. Smoke Test
+- **File**: `performance/k6-smoke.js`
+- **Duration**: ~50 seconds
+- **Concurrent Users**: 1
+- **Purpose**: Quick verification that system is operational
+- **Thresholds**: p95 < 500ms, error rate < 1%
+- **Use When**: Before running larger tests, CI/CD validation
+- **Operations**: Register participant, submit waste, basic queries
+
+### 2. Load Test
+- **File**: `performance/k6-load.js`
+- **Duration**: ~6 minutes
+- **Concurrent Users**: 100 (ramp: 10→100→50)
+- **Purpose**: Baseline performance under sustained normal load
+- **Thresholds**: p95 < 1000ms, error rate < 5%
+- **Use When**: Regular CI/CD checks, baseline establishment
+- **Operations**: 30% participant ops, 30% waste ops, 40% queries
 
 ### 3. Stress Test
-- **Duration**: 13 minutes
-- **Peak Users**: 10000 concurrent
-- **Purpose**: Find breaking point of system
-- **Thresholds**: p95 < 2000ms, error rate < 20%
+- **File**: `performance/k6-stress.js`
+- **Duration**: ~15 minutes
+- **Concurrent Users**: 1000-10000 (gradual increase)
+- **Purpose**: Find system breaking point and resource limits
+- **Thresholds**: p95 < 2000ms, error rate < 10%
+- **Use When**: Release validation, capacity planning
+- **⚠️ WARNING**: Resource intensive; use staging environment only
 
-### 4. Endurance Test
-- **Duration**: 40 minutes
-- **Users**: 500 concurrent
-- **Purpose**: Detect memory leaks and degradation
+### 4. Spike Test
+- **File**: `performance/k6-spike.js`
+- **Duration**: ~6 minutes
+- **Concurrent Users**: 100 → 1000 (spike) → 100
+- **Purpose**: Verify system handles sudden traffic bursts
+- **Thresholds**: p95 < 2000ms, error rate < 15%
+- **Use When**: High traffic events, DDoS resilience
+- **Operations**: Lighter before spike, aggressive during spike
+
+### 5. Soak Test
+- **File**: `performance/k6-soak.js`
+- **Duration**: ~40 minutes (extended test)
+- **Concurrent Users**: 500 (sustained)
+- **Purpose**: Detect memory leaks, connection issues, degradation
 - **Thresholds**: p95 < 500ms, error rate < 5%
+- **Use When**: Overnight runs, weekly checks, before major releases
+- **⚠️ WARNING**: Long-running test; schedule for off-peak hours
 
-### 5. Ramp Test
-- **Duration**: 20 minutes
-- **Peak Users**: 5000 concurrent
-- **Purpose**: Gradual load increase to identify breaking point
-- **Thresholds**: p95 < 1000ms, error rate < 10%
+## Shared Components
 
-### 6. Wave Test
-- **Duration**: 19 minutes
-- **Peak Users**: 2000 concurrent
+### Common Configuration (`k6-common.js`)
+
+Provides standardized utilities for all tests:
+
+- **Custom Metrics**: error_rate, api_duration_ms, contract_call_duration_ms
+- **Threshold Definitions**: Per profile baseline thresholds
+- **Stage Definitions**: Pre-configured load patterns
+- **Helper Functions**: `makeRequest()`, `checkResponse()`, `scenarios.*`
+
+### Reusable Scenarios
+
+```javascript
+// Example usage in test scripts
+import { scenarios, getConfig } from './k6-common.js';
+
+const config = getConfig();
+
+// Register participant
+scenarios.registerParticipant(config, address, role, name);
+
+// Submit waste
+scenarios.submitWaste(config, submitter, wasteType, weight);
+
+// Query operations
+scenarios.queryParticipant(config, address);
+scenarios.queryWaste(config, wasteId);
+scenarios.getGlobalMetrics(config);
+```
+
+## Performance Baselines
+
+Expected performance under normal conditions:
+
+| Profile | P95 (ms) | P99 (ms) | Error Rate | Status |
+|---------|----------|----------|------------|--------|
+| Smoke   | < 500    | < 1000   | < 1%       | ✓ Pass |
+| Load    | < 1000   | < 2000   | < 5%       | ✓ Pass |
+| Stress  | < 2000   | < 5000   | < 10%      | ✓ Pass |
+| Spike   | < 2000   | < 5000   | < 15%      | ✓ Pass |
+| Soak    | < 500    | < 1000   | < 5%       | ✓ Pass |
+
+Update these baselines when system capacity changes.
+
+## Script Organization
+
+```
+performance/
+├── k6-common.js              # Shared utilities and configurations
+├── k6-smoke.js               # Quick verification test
+├── k6-load.js                # Steady state load test
+├── k6-stress.js              # Breaking point test
+├── k6-spike.js               # Traffic burst test
+├── k6-soak.js                # Endurance test
+├── LOAD_TESTING_GUIDE.md     # This file
+├── README.md                 # Quick reference
+└── performance-benchmarks.md # Historical results
+```
+
+## Deprecated Scripts
+
+The following scripts are deprecated and should no longer be used:
+- `k6-load-test-comprehensive.js`
+- `k6-load-test.js`
+- `k6-concurrent-users.js`
+- `k6-api-response-times.js`
+- `k6-database-queries.js`
+- `k6-waste-submission.js`
+- `load-test-scenarios.js`
+
+Use the consolidated scripts (k6-smoke.js, k6-load.js, etc.) instead
 - **Purpose**: Multiple load waves to test recovery
 - **Thresholds**: p95 < 1000ms, error rate < 10%
 

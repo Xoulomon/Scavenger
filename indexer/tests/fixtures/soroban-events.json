@@ -1,0 +1,122 @@
+[
+  {
+    "_comment": "WasteRegistered (recycled) — wasteTypeNum=1 (PetPlastic), Paper=0, full coords",
+    "ledgerSequence": 1001,
+    "ledgerCloseTime": "2024-01-01T00:00:00.000Z",
+    "transactionHash": "0xAAA111",
+    "contractId": "CONTRACT_A",
+    "eventType": "recycled",
+    "topic": ["recycled", "waste_001"],
+    "value": [1, "500", "GADDR_RECYCLER_001", "12000000", "34000000"]
+  },
+  {
+    "_comment": "ParticipantRegistered (reg) — roleNum=1 (Collector)",
+    "ledgerSequence": 1002,
+    "ledgerCloseTime": "2024-01-01T00:01:00.000Z",
+    "transactionHash": "0xAAA222",
+    "contractId": "CONTRACT_A",
+    "eventType": "reg",
+    "topic": ["reg", "GADDR_PARTICIPANT_001"],
+    "value": [1, "Alice Recycler", "48000000", "2000000"]
+  },
+  {
+    "_comment": "WasteTransferred (transfer)",
+    "ledgerSequence": 1003,
+    "ledgerCloseTime": "2024-01-01T00:02:00.000Z",
+    "transactionHash": "0xAAA333",
+    "contractId": "CONTRACT_A",
+    "eventType": "transfer",
+    "topic": ["transfer", "waste_001"],
+    "value": ["GADDR_FROM_001", "GADDR_TO_001"]
+  },
+  {
+    "_comment": "WasteConfirmed (confirmed)",
+    "ledgerSequence": 1004,
+    "ledgerCloseTime": "2024-01-01T00:03:00.000Z",
+    "transactionHash": "0xAAA444",
+    "contractId": "CONTRACT_A",
+    "eventType": "confirmed",
+    "topic": ["confirmed", "waste_001"],
+    "value": ["GADDR_CONFIRMER"]
+  },
+  {
+    "_comment": "TokensRewarded (rewarded)",
+    "ledgerSequence": 1005,
+    "ledgerCloseTime": "2024-01-01T00:04:00.000Z",
+    "transactionHash": "0xAAA555",
+    "contractId": "CONTRACT_A",
+    "eventType": "rewarded",
+    "topic": ["rewarded", "GADDR_RECIPIENT_001"],
+    "value": ["10000", "waste_001"]
+  },
+  {
+    "_comment": "WasteDeactivated (deactive)",
+    "ledgerSequence": 1006,
+    "ledgerCloseTime": "2024-01-01T00:05:00.000Z",
+    "transactionHash": "0xAAA666",
+    "contractId": "CONTRACT_A",
+    "eventType": "deactive",
+    "topic": ["deactive", "waste_001"],
+    "value": []
+  },
+  {
+    "_comment": "WasteGraded (graded)",
+    "ledgerSequence": 1007,
+    "ledgerCloseTime": "2024-01-01T00:06:00.000Z",
+    "transactionHash": "0xAAA777",
+    "contractId": "CONTRACT_A",
+    "eventType": "graded",
+    "topic": ["graded", "waste_001"],
+    "value": ["A+", "GADDR_GRADER"]
+  },
+  {
+    "_comment": "ProcessingStatusChanged (proc_upd)",
+    "ledgerSequence": 1008,
+    "ledgerCloseTime": "2024-01-01T00:07:00.000Z",
+    "transactionHash": "0xAAA888",
+    "contractId": "CONTRACT_A",
+    "eventType": "proc_upd",
+    "topic": ["proc_upd", "waste_001"],
+    "value": ["GADDR_CALLER", 2]
+  },
+  {
+    "_comment": "WasteContaminated (contam)",
+    "ledgerSequence": 1009,
+    "ledgerCloseTime": "2024-01-01T00:08:00.000Z",
+    "transactionHash": "0xAAA999",
+    "contractId": "CONTRACT_A",
+    "eventType": "contam",
+    "topic": ["contam", "waste_002"],
+    "value": ["GADDR_VERIFIER", 3]
+  },
+  {
+    "_comment": "AuctionCreated (auc_cre)",
+    "ledgerSequence": 1010,
+    "ledgerCloseTime": "2024-01-01T00:09:00.000Z",
+    "transactionHash": "0xBBB100",
+    "contractId": "CONTRACT_A",
+    "eventType": "auc_cre",
+    "topic": ["auc_cre", "auction_001"],
+    "value": ["waste_002", "GADDR_CREATOR", "5000", "9999999999"]
+  },
+  {
+    "_comment": "AuctionEnded (auc_end) — with a winner",
+    "ledgerSequence": 1011,
+    "ledgerCloseTime": "2024-01-01T00:10:00.000Z",
+    "transactionHash": "0xBBB200",
+    "contractId": "CONTRACT_A",
+    "eventType": "auc_end",
+    "topic": ["auc_end", "auction_001"],
+    "value": ["GADDR_WINNER", "6500"]
+  },
+  {
+    "_comment": "CarbonCreditsEarned (carbon) — wasteTypeNum=3 (Metal)",
+    "ledgerSequence": 1012,
+    "ledgerCloseTime": "2024-01-01T00:11:00.000Z",
+    "transactionHash": "0xBBB300",
+    "contractId": "CONTRACT_A",
+    "eventType": "carbon",
+    "topic": ["carbon", "GADDR_PARTICIPANT_001"],
+    "value": [3, "250", "125"]
+  }
+]

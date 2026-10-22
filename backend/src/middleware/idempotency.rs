@@ -173,13 +173,13 @@ where
 
         // Evict stale entries (cheap amortised cost)
         {
-            let mut guard = store.lock().unwrap();
+            let mut guard = super::lock_unpoisoned(&store);
             guard.retain(|_, c| !c.is_expired(ttl));
         }
 
         // Cache hit → replay
         {
-            let guard = store.lock().unwrap();
+            let guard = super::lock_unpoisoned(&store);
             if let Some(cached) = guard.get(&key) {
                 let status = cached.status;
                 let body = cached.body.clone();
@@ -209,7 +209,7 @@ where
 
             // Only cache successful/client-error responses
             if status.is_success() || status.is_client_error() {
-                let mut guard = store.lock().unwrap();
+                let mut guard = super::lock_unpoisoned(&store);
                 guard.insert(
                     key,
                     Cached {

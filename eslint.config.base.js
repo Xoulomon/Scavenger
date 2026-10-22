@@ -34,7 +34,9 @@ module.exports = {
     // TypeScript
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/no-explicit-any': 'warn',
+    // Enforced as errors: no-explicit-any and no-unused-vars accumulate lint debt quickly.
+    // Justified exceptions should use an eslint-disable-next-line comment with a reason.
+    '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/no-unused-vars': [
       'error',
       {

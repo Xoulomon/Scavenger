@@ -20,7 +20,7 @@ import {
   GlobalMetrics,
   ContractError,
 } from './types'
-import { signTransactionXDR } from '@/lib/wallet'
+import { signTransactionXDR } from '@/features/wallet/service'
 
 export interface ClientOptions {
   rpcUrl: string
