@@ -22,7 +22,7 @@ const ROOT = join(__dirname, '..');
 
 const REPORT_PATH = join(ROOT, 'reports', 'mutation', 'mutation.json');
 const SCORE_LOG   = join(ROOT, 'mutation-score.md');
-const MIN_SCORE   = 70; // must match stryker.config.cjs thresholds.break
+const MIN_SCORE   = 80; // must match stryker.config.cjs thresholds.break
 
 // ─── Parse Stryker JSON report ────────────────────────────────────────────────
 

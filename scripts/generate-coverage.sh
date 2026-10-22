@@ -68,3 +68,44 @@ else
     --workspace \
     --summary-only
 fi
+
+# ── Backend coverage — Issue #1531 ────────────────────────────────────────────
+#
+# Measures line coverage for the scavenger-backend package.
+# --package backend   : scope to backend only (excludes stellar-contract, etc.)
+# --fail-under-lines 85: enforce 85 % line coverage threshold.
+# main.rs is excluded because it contains only wiring/startup code, not logic.
+# Generated code (none currently) would also be excluded here if added.
+
+BACKEND_DIR="${REPO_ROOT}/backend"
+BACKEND_COVERAGE_DIR="${BACKEND_DIR}/coverage"
+
+echo "==> Running coverage for backend..."
+
+cd "${BACKEND_DIR}"
+
+if [ "$CI_MODE" = true ]; then
+  # CI: summary only, fail if below 85 % lines for backend/src/services/
+  cargo llvm-cov \
+    --package scavenger-backend \
+    --summary-only \
+    --fail-under-lines 85 \
+    -- --test-threads=1
+else
+  # Developer: full HTML report for the backend
+  mkdir -p "${BACKEND_COVERAGE_DIR}"
+  cargo llvm-cov \
+    --package scavenger-backend \
+    --html \
+    --output-dir "${BACKEND_COVERAGE_DIR}" \
+    -- --test-threads=1
+
+  echo ""
+  echo "==> Backend coverage report written to ${BACKEND_COVERAGE_DIR}/index.html"
+  echo ""
+
+  cargo llvm-cov \
+    --package scavenger-backend \
+    --summary-only \
+    -- --test-threads=1
+fi

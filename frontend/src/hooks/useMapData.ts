@@ -5,6 +5,7 @@ import type { Waste, Participant } from '@/api/types'
 import { useWallet } from '@/context/WalletContext'
 import { useContract } from '@/context/ContractContext'
 import { networkConfig } from '@/lib/stellar'
+import { cacheKeys } from '@/lib/cacheKeys'
 
 export interface MapFilters {
   wasteType?: WasteType
@@ -120,7 +121,7 @@ export function useMapData(filters?: MapFilters) {
   const { config } = useContract()
 
   const { data: wastes = [], isLoading: wastesLoading } = useQuery<WasteMapPoint[]>({
-    queryKey: ['map-wastes', address, filters],
+    queryKey: cacheKeys.mapWastes(address, filters),
     queryFn: async () => {
       if (!address) return []
       const client = new ScavengerClient({
@@ -162,7 +163,7 @@ export function useMapData(filters?: MapFilters) {
   })
 
   const { data: participants = [], isLoading: participantsLoading } = useQuery<ParticipantMapPoint[]>({
-    queryKey: ['map-participant', address, filters],
+    queryKey: cacheKeys.mapParticipant(address, filters),
     queryFn: async () => {
       if (!address) return []
       const client = new ScavengerClient({

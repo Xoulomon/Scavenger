@@ -1,5 +1,6 @@
 import { getPool } from '../db/client';
 import { recordQueryMetric } from '../db/queryOptimizer';
+import { QUERY_LIMITS } from '../constants';
 
 export interface EventFilter {
   eventType?: string;
@@ -20,7 +21,7 @@ export interface EventQueryResult {
 
 export async function queryEvents(filter: EventFilter): Promise<EventQueryResult> {
   const pool = getPool();
-  const limit = Math.min(filter.limit ?? 100, 1000);
+  const limit = Math.min(filter.limit ?? QUERY_LIMITS.MAX, QUERY_LIMITS.MAX);
   const offset = filter.offset ?? 0;
 
   let sql = 'SELECT * FROM raw_events WHERE 1=1';

@@ -1,5 +1,7 @@
 # Stellar Soroban Contract Architecture & Module Map
 
+> Decision record: [ADR-0013](../docs/adr/0013-contract-module-layout.md).
+
 This document outlines the architectural design, module layout, dependencies, and responsibilities for the Scavenger smart contract located in `stellar-contract/src`.
 
 ---

@@ -51,4 +51,62 @@ else
   exit 1
 fi
 
+# Check Prometheus rules
+echo -e "${YELLOW}📝 Checking Prometheus rules...${NC}"
+
+RULES_DIR="config/prometheus/rules"
+
+if [ ! -d "$RULES_DIR" ]; then
+  echo -e "${RED}  ❌ $RULES_DIR missing${NC}"
+  exit 1
+fi
+
+RULE_FILES=()
+while IFS= read -r -d '' f; do
+  RULE_FILES+=("$f")
+done < <(find "$RULES_DIR" -maxdepth 1 -type f -name '*.yml' -print0 | sort -z)
+
+if [ ${#RULE_FILES[@]} -eq 0 ]; then
+  echo -e "${RED}  ❌ No rule files found in $RULES_DIR${NC}"
+  exit 1
+fi
+
+# Validate each rule file with promtool
+if ! command -v promtool >/dev/null 2>&1; then
+  echo -e "${RED}  ❌ promtool not found in PATH${NC}"
+  exit 1
+fi
+
+for f in "${RULE_FILES[@]}"; do
+  if promtool check rules "$f" >/dev/null 2>&1; then
+    echo "  ✅ promtool check rules passed: $f"
+  else
+    echo -e "${RED}  ❌ promtool check rules failed: $f${NC}"
+    promtool check rules "$f" || true
+    exit 1
+  fi
+done
+
+# Check for duplicate alert names across all rule files
+echo -e "${YELLOW}📝 Checking for duplicate alert names...${NC}"
+
+DUPLICATES=$(grep -hE '^[[:space:]]*-[[:space:]]*alert:' "${RULE_FILES[@]}" \
+  | sed -E 's/^[[:space:]]*-[[:space:]]*alert:[[:space:]]*//' \
+  | sed -E 's/[[:space:]]+$//' \
+  | sed -E 's/^"(.*)"$/\1/' \
+  | sed -E "s/^'(.*)'$/\1/" \
+  | grep -v '^$' \
+  | sort \
+  | uniq -d)
+
+if [ -n "$DUPLICATES" ]; then
+  echo -e "${RED}  ❌ Duplicate alert names found:${NC}"
+  echo "$DUPLICATES" | while IFS= read -r name; do
+    echo -e "${RED}     - $name${NC}"
+  done
+  exit 1
+fi
+
+echo "  ✅ No duplicate alert names"
+
 echo -e "${GREEN}✅ All configs verified!${NC}"

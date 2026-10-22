@@ -4,6 +4,7 @@ import { Waste, WasteType } from '@/api/types'
 import { useWallet } from '@/context/WalletContext'
 import { useContract } from '@/context/ContractContext'
 import { networkConfig } from '@/lib/stellar'
+import { cacheKeys } from '@/lib/cacheKeys'
 
 export interface WasteFilters {
   wasteType?: WasteType
@@ -16,7 +17,7 @@ export function useParticipantWastes(filters?: WasteFilters) {
   const { config } = useContract()
 
   const { data, isLoading, isError } = useQuery<Waste[]>({
-    queryKey: ['participant-wastes', address, filters],
+    queryKey: cacheKeys.participantWastes(address, filters),
     queryFn: async () => {
       if (!address) return []
 

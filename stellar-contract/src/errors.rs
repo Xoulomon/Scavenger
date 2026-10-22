@@ -1,3 +1,4 @@
+//! Shared error types for the Scavenger contract.
 // ── Issue #921: Shared error module ──────────────────────────────────────────
 //
 // This file is the **single source of truth** for all error codes in the
@@ -319,6 +320,41 @@ pub enum Error {
     /// (54) The reconciliation adjustment exceeds the allowed threshold.
     /// Returned by: `reconcile_waste`
     ReconciliationThresholdExceeded = 54,
+
+    // ── Consolidated subsystem errors (#1097 audit) ──────────────────────────
+    //
+    // These variants mirror `KeyRotationError` (key_rotation.rs) and
+    // `CommitmentError` (zkp.rs) one-for-one. They are additive-only: the
+    // existing local enums in those modules are left in place for now (per
+    // rule #3 above, since neither is a `#[contracterror]` type surfaced to
+    // external callers), but new call sites in those subsystems should
+    // prefer these shared variants so the crate converges on a single
+    // source of truth over time. No existing numeric codes were renumbered.
+
+    /// (55) No key has been installed for this purpose yet.
+    KeyRotationNoActiveKey = 55,
+    /// (56) The requested (purpose, version) pair does not exist.
+    KeyRotationVersionNotFound = 56,
+    /// (57) Only the contract admin may rotate or revoke keys.
+    KeyRotationUnauthorized = 57,
+    /// (58) Cannot purge the currently active key version.
+    KeyRotationCannotPurgeActive = 58,
+    /// (59) The supplied key hash is all-zeros (likely an accident).
+    KeyRotationZeroKeyHash = 59,
+    /// (60) A key already exists for this purpose.
+    KeyRotationAlreadyExists = 60,
+    /// (61) No commitment found for this (committer, id) pair.
+    CommitmentNotFound = 61,
+    /// (62) Commitment hash does not match the supplied preimage.
+    CommitmentHashMismatch = 62,
+    /// (63) Commitment has already been consumed.
+    CommitmentAlreadyVerified = 63,
+    /// (64) Commitment has been cancelled.
+    CommitmentCancelled = 64,
+    /// (65) Commitment has expired.
+    CommitmentExpired = 65,
+    /// (66) Commitment is still pending — cannot cancel a verified commitment.
+    CommitmentNotPending = 66,
 }
 
 // ── Issue #760: error categorization and context ──────────────────────────────
@@ -402,6 +438,19 @@ impl Error {
 
             Error::Overflow => ErrorCategory::Arithmetic,
 
+            Error::KeyRotationNoActiveKey
+            | Error::KeyRotationVersionNotFound
+            | Error::KeyRotationUnauthorized
+            | Error::KeyRotationCannotPurgeActive
+            | Error::KeyRotationZeroKeyHash
+            | Error::KeyRotationAlreadyExists
+            | Error::CommitmentNotFound
+            | Error::CommitmentHashMismatch
+            | Error::CommitmentAlreadyVerified
+            | Error::CommitmentCancelled
+            | Error::CommitmentExpired
+            | Error::CommitmentNotPending => ErrorCategory::Auth,
+
             Error::CharityNotSet | Error::TokenAddressNotSet => ErrorCategory::Config,
         }
     }
@@ -464,6 +513,18 @@ impl Error {
             Error::Overflow => "ARITHMETIC/OVERFLOW",
             Error::CharityNotSet => "CONFIG/CHARITY_NOT_SET",
             Error::TokenAddressNotSet => "CONFIG/TOKEN_ADDRESS_NOT_SET",
+            Error::KeyRotationNoActiveKey => "AUTH/KEY_ROTATION_NO_ACTIVE_KEY",
+            Error::KeyRotationVersionNotFound => "AUTH/KEY_ROTATION_VERSION_NOT_FOUND",
+            Error::KeyRotationUnauthorized => "AUTH/KEY_ROTATION_UNAUTHORIZED",
+            Error::KeyRotationCannotPurgeActive => "AUTH/KEY_ROTATION_CANNOT_PURGE_ACTIVE",
+            Error::KeyRotationZeroKeyHash => "AUTH/KEY_ROTATION_ZERO_KEY_HASH",
+            Error::KeyRotationAlreadyExists => "AUTH/KEY_ROTATION_ALREADY_EXISTS",
+            Error::CommitmentNotFound => "AUTH/COMMITMENT_NOT_FOUND",
+            Error::CommitmentHashMismatch => "AUTH/COMMITMENT_HASH_MISMATCH",
+            Error::CommitmentAlreadyVerified => "AUTH/COMMITMENT_ALREADY_VERIFIED",
+            Error::CommitmentCancelled => "AUTH/COMMITMENT_CANCELLED",
+            Error::CommitmentExpired => "AUTH/COMMITMENT_EXPIRED",
+            Error::CommitmentNotPending => "AUTH/COMMITMENT_NOT_PENDING",
         }
     }
 

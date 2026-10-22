@@ -309,4 +309,4 @@ Adjust limits based on system load:
 - **Implementation**: `stellar-contract/src/lib.rs`
 - **Tests**: `stellar-contract/tests/max_weight_validation_test.rs`
 - **Related Issues**: #562
-- **Related Documentation**: `WASTE_TAGS_AND_MAX_WEIGHT_IMPLEMENTATION.md`
+- **Related Documentation**: `archive/WASTE_TAGS_AND_MAX_WEIGHT_IMPLEMENTATION.md`

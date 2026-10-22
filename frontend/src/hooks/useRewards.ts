@@ -5,6 +5,7 @@ import { useWallet } from '@/context/WalletContext'
 import { useContract } from '@/context/ContractContext'
 import { useParticipant } from '@/hooks/useParticipant'
 import { networkConfig } from '@/lib/stellar'
+import { cacheKeys } from '@/lib/cacheKeys'
 
 export interface RewardsData {
   stats: ParticipantStats | null
@@ -20,7 +21,7 @@ export function useRewards(): RewardsData {
   const { participant } = useParticipant()
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['rewards', address],
+    queryKey: cacheKeys.rewards(address),
     queryFn: async (): Promise<{ stats: ParticipantStats; wastes: Waste[] }> => {
       if (!address) throw new Error('No address.')
       const client = new ScavengerClient({

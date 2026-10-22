@@ -1,3 +1,6 @@
+//! Ownership: request protection (rate limits, CORS and CSRF) is in `middleware/`. `security/` keeps
+//! the crypto and auth primitives only.
+
 //! Security module — pure identity and cryptographic concerns.
 //!
 //! # Responsibility boundary

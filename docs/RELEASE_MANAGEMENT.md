@@ -12,15 +12,17 @@ Releases follow semantic versioning (MAJOR.MINOR.PATCH):
 - **PATCH**: Bug fixes, performance improvements, minor changes
 
 ### 2. Automated Release
+All release steps are performed through a single entry point, `scripts/release.sh`, which exposes the `notes`, `changelog`, `track` and `publish` subcommands.
+
 ```bash
 # Create a patch release
-./scripts/release-automation.sh patch
+./scripts/release.sh publish patch
 
 # Create a minor release
-./scripts/release-automation.sh minor
+./scripts/release.sh publish minor
 
 # Create a major release
-./scripts/release-automation.sh major
+./scripts/release.sh publish major
 ```
 
 ### 3. What the Release Script Does
@@ -36,16 +38,16 @@ Releases follow semantic versioning (MAJOR.MINOR.PATCH):
 ### 4. Changelog Generation
 ```bash
 # Generate full changelog
-./scripts/changelog-generator.sh
+./scripts/release.sh changelog
 
 # Generate changelog since specific tag
-./scripts/changelog-generator.sh CHANGELOG.md v1.0.0
+./scripts/release.sh changelog CHANGELOG.md v1.0.0
 ```
 
 ### 5. Release Notes
 ```bash
 # Generate release notes for a version
-./scripts/release-notes.sh v1.2.3
+./scripts/release.sh notes v1.2.3
 ```
 
 ## Release Workflows
@@ -66,7 +68,7 @@ git checkout main
 git pull origin main
 
 # Run release automation
-./scripts/release-automation.sh patch
+./scripts/release.sh publish patch
 
 # Push the tag
 git push origin main --tags
@@ -75,16 +77,16 @@ git push origin main --tags
 ## Release Tracking
 ```bash
 # View release status
-./scripts/release-tracking.sh status
+./scripts/release.sh track status
 
 # List all releases
-./scripts/release-tracking.sh list
+./scripts/release.sh track list
 
 # Show release details
-./scripts/release-tracking.sh show v1.2.3
+./scripts/release.sh track show v1.2.3
 
 # View pending changes
-./scripts/release-tracking.sh pending
+./scripts/release.sh track pending
 ```
 
 ## Artifacts
@@ -95,7 +97,7 @@ Each release produces:
 - GitHub Release with release notes
 
 ## Version Files
-The following files are updated during a release:
+`config/release-versioning.yaml` is the single source of truth for the version. All release subcommands read the version from this file only; the following files are updated to match it during a release:
 - `k8s/Chart.yaml` - Helm chart version
 - `frontend/package.json` - Frontend version
 - `packages/scavenger-sdk/package.json` - SDK version

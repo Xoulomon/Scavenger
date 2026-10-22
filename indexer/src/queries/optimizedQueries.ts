@@ -10,6 +10,7 @@
 
 import { getPool } from '../db/client';
 import { recordQueryMetric } from '../db/queryOptimizer';
+import { CACHE, EVENT_PAGINATION } from '../constants';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -157,11 +158,11 @@ export interface EventSummary {
  * index (created in migration 003) to avoid seq-scans on large tables.
  */
 export async function getRecentEvents(
-  limit = 50,
+  limit = EVENT_PAGINATION.DEFAULT_RECENT_EVENTS_LIMIT,
   offset = 0,
   eventType?: string,
 ): Promise<EventSummary[]> {
-  const params: unknown[] = [Math.min(limit, 500), offset];
+  const params: unknown[] = [Math.min(limit, EVENT_PAGINATION.MAX_RECENT_EVENTS_LIMIT), offset];
   const typeClause = eventType ? ` AND event_type = $3` : '';
   if (eventType) {params.push(eventType);}
 
@@ -182,15 +183,13 @@ const metricsCache: { value: SupplyChainStats | null; expiresAt: number } = {
   value: null,
   expiresAt: 0,
 };
-const METRICS_TTL_MS = 30_000; // 30 seconds
-
 export async function getCachedSupplyChainStats(): Promise<SupplyChainStats> {
   if (metricsCache.value && Date.now() < metricsCache.expiresAt) {
     return metricsCache.value;
   }
   const fresh = await getSupplyChainStats();
   metricsCache.value = fresh;
-  metricsCache.expiresAt = Date.now() + METRICS_TTL_MS;
+  metricsCache.expiresAt = Date.now() + CACHE.METRICS_TTL_MS;
   return fresh;
 }
 

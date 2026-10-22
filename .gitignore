@@ -26,7 +26,8 @@ Consider gas costs for proposal storage
 
 # Rust
 target/
-Cargo.lock
+# Cargo.lock is intentionally committed for reproducible builds.
+# See docs/DEPENDENCY_POLICY.md for the versioning policy.
 **/*.rs.bk
 *.pdb
 

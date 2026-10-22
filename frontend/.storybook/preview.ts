@@ -16,7 +16,7 @@ const preview: Preview = {
         { name: 'dark', value: 'hsl(222 47% 8%)' },
       ],
     },
-    a11y: { test: 'todo' },
+    a11y: { test: 'error' },
   },
   decorators: [
     (Story, context) => {

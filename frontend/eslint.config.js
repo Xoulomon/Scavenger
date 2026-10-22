@@ -15,6 +15,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // Load the custom error-message-format rule from the root eslint-rules directory
 const errorMessageFormat = require_('../eslint-rules/error-message-format.js')
+// Load the custom no-only-tests rule from the root eslint-rules directory
+const noOnlyTests = require_('../eslint-rules/no-only-tests.js')
 
 const sharedPlugins = {
   '@typescript-eslint': tsPlugin,
@@ -25,6 +27,9 @@ const sharedPlugins = {
   'simple-import-sort': simpleImportSortPlugin,
   'error-message-format': {
     rules: { 'error-message-format': errorMessageFormat },
+  },
+  'no-only-tests': {
+    rules: { 'no-only-tests': noOnlyTests },
   },
 }
 
@@ -59,13 +64,14 @@ const sharedRules = {
   'require-jsdoc': 'off',
   'valid-jsdoc': 'off',
   'error-message-format/error-message-format': 'error',
+  'no-only-tests/no-only-tests': 'error',
 }
 
 export default [
   // Production source files
   {
     files: ['**/*.{ts,tsx}'],
-    ignores: ['dist', 'node_modules', '**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', '**/__tests__/**', '*.stories.tsx', '*.stories.ts'],
+    ignores: ['dist', 'node_modules', '**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', '*.stories.tsx', '*.stories.ts'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -87,9 +93,47 @@ export default [
       ],
     },
   },
+  // src/lib utilities: prefer `undefined` over `null` for absent values
+  {
+    files: ['src/lib/**/*.{ts,tsx}'],
+    rules: {
+      // Convention: prefer `undefined` over `null` for absent values in lib utilities.
+      // External API wrappers that legitimately return null are exempt — add an
+      // eslint-disable-next-line comment with a reason.
+      'no-restricted-syntax': [
+        'warn',
+        {
+          selector: 'ReturnStatement[argument.type="Literal"][argument.value=null]',
+          message:
+            'Prefer returning `undefined` for absent values in lib utilities. ' +
+            'If this wraps an external API that returns null, add an ' +
+            'eslint-disable-next-line comment explaining why.',
+        },
+      ],
+    },
+  },
+  // Feature modules: import from another feature only through its index.ts
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/features/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/features/*/*', '!**/features/*/index', '!**/features/*/index.ts', '!**/features/*/index.tsx'],
+              message:
+                'Import feature modules through their index.ts only (see docs/adr/0009-feature-folder-layout.md).',
+            },
+          ],
+        },
+      ],
+    },
+  },
   // Test files: relax no-explicit-any and no-unused-vars
   {
-    files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', '**/__tests__/**/*.ts', '**/__tests__/**/*.tsx'],
+    files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {

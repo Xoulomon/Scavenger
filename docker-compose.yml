@@ -1,11 +1,28 @@
 # Scavngr local development environment
-# Usage: docker compose up -d
+#
+# This is the single base Compose file. Optional stacks are gated behind
+# Compose profiles so developers never have to guess a `-f` combination:
+#
+#   docker compose up -d                       # core stack only
+#   docker compose --profile monitoring up -d  # + Prometheus/Grafana/Alertmanager
+#   docker compose --profile logging up -d     # + Elasticsearch/Kibana/Logstash/Filebeat
+#   docker compose --profile search up -d      # + Elasticsearch (search only)
+#   docker compose --profile monitoring --profile logging up -d
+#
+# Local development overrides live in docker-compose.dev.yml:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+#
 # Stellar quickstart UI: http://localhost:8000
 # Frontend:             http://localhost:5173
 # Backend API:          http://localhost:8080
 # Indexer:              http://localhost:3001
 # Redis:                localhost:6379
 # Postgres:             localhost:5432
+# Prometheus:           http://localhost:9090   (profile: monitoring)
+# Grafana:              http://localhost:3000   (profile: monitoring)
+# Alertmanager:         http://localhost:9093   (profile: monitoring)
+# Kibana:               http://localhost:5601   (profile: logging)
+# Jaeger UI:            http://localhost:16686  (profile: logging)
 
 name: scavngr-dev
 
@@ -137,7 +154,170 @@ services:
       - backend
       - indexer
 
+  # ════════════════════════════════════════════════════════════════════════════
+  # Profile: monitoring
+  # ════════════════════════════════════════════════════════════════════════════
+
+  # ── Prometheus ──────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    profiles: ["monitoring"]
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alert-rules.yml:/etc/prometheus/alert-rules.yml:ro
+      - prometheus_data:/prometheus
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # ── Grafana ─────────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:latest
+    profiles: ["monitoring"]
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  # ── Alertmanager ────────────────────────────────────────────────────────────
+  alertmanager:
+    image: prom/alertmanager:latest
+    profiles: ["monitoring"]
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    restart: unless-stopped
+
+  # ── Node Exporter ───────────────────────────────────────────────────────────
+  node-exporter:
+    image: prom/node-exporter:latest
+    profiles: ["monitoring"]
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --path.rootfs=/host/root
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host/root:ro,rslave
+    restart: unless-stopped
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Profile: logging
+  # ════════════════════════════════════════════════════════════════════════════
+
+  # ── Elasticsearch ───────────────────────────────────────────────────────────
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
+    profiles: ["logging", "search"]
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    restart: unless-stopped
+
+  # ── Kibana ──────────────────────────────────────────────────────────────────
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.13.0
+    profiles: ["logging"]
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Logstash ────────────────────────────────────────────────────────────────
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.13.0
+    profiles: ["logging"]
+    volumes:
+      - ./logging/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
+    ports:
+      - "5044:5044"
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+    environment:
+      LS_JAVA_OPTS: "-Xms256m -Xmx256m"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Filebeat ────────────────────────────────────────────────────────────────
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.13.0
+    profiles: ["logging"]
+    user: root
+    command: filebeat -e -strict.perms=false
+    volumes:
+      - ./logging/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - logstash
+    restart: unless-stopped
+
+  # ── Jaeger (tracing) ────────────────────────────────────────────────────────
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    profiles: ["logging"]
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686"   # Jaeger UI
+      - "4317:4317"     # OTLP gRPC
+      - "4318:4318"     # OTLP HTTP
+    restart: unless-stopped
+
+  # ── Elasticsearch index setup (one-shot) ────────────────────────────────────
+  es-setup:
+    image: curlimages/curl:latest
+    profiles: ["logging", "search"]
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      - ./logging/es-setup.sh:/es-setup.sh:ro
+    entrypoint: ["/bin/sh", "/es-setup.sh"]
+    restart: "no"
+
 volumes:
   postgres_data:
   cargo_cache:
   target_cache:
+  prometheus_data:
+  grafana_data:
+  alertmanager_data:
+  elasticsearch_data:

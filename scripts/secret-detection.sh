@@ -43,22 +43,32 @@ check_gitleaks() {
 # Function to scan the current repository
 scan_repository() {
     log "🔍 Scanning repository for secrets..."
-    
-    # Run gitleaks with our configuration
-    if gitleaks detect --config .gitleaks.toml --report-format json --report-path "$GITLEAKS_REPORT" --verbose; then
-        log "✅ No secrets detected in repository"
-        return 0
-    else
-        local exit_code=$?
-        if [ $exit_code -eq 1 ]; then
+
+    # Remove any stale report so we never process results from a previous run
+    rm -f "$GITLEAKS_REPORT"
+
+    # Run gitleaks with our configuration. Capture the exit code immediately:
+    # `if cmd; then` would mask the real status, and `$?` after the `else`
+    # branch reflects the failed condition, not gitleaks itself.
+    local exit_code=0
+    gitleaks detect --config .gitleaks.toml --report-format json --report-path "$GITLEAKS_REPORT" --verbose || exit_code=$?
+
+    case "$exit_code" in
+        0)
+            log "✅ No secrets detected in repository"
+            return 0
+            ;;
+        1)
             log "⚠️ Secrets detected - processing report"
             return 1
-        else
+            ;;
+        *)
             log "❌ Error running gitleaks (exit code: $exit_code)"
-            return $exit_code
-        fi
-    fi
+            return "$exit_code"
+            ;;
+    esac
 }
+======
 
 # Function to process and categorize findings
 process_findings() {
@@ -99,6 +109,40 @@ process_findings() {
         return 0
     fi
 }
+
+# Function to write a concise, PR-attachable summary of the scan
+write_summary() {
+    local summary_file="$REPORT_DIR/secret_scan_summary_${TIMESTAMP}.md"
+    local total_findings=0
+    local high_risk_findings=0
+
+    if [ -f "$GITLEAKS_REPORT" ]; then
+        total_findings=$(jq '. | length' "$GITLEAKS_REPORT" 2>/dev/null || echo 0)
+        high_risk_findings=$(jq '[.[] | select(.File | test("^(?!.*(test|spec|example|doc/)).*$"))] | length' "$GITLEAKS_REPORT" 2>/dev/null || echo 0)
+    fi
+
+    {
+        echo "# Secret Scan Summary"
+        echo
+        echo "- **Date**: $(date '+%Y-%m-%d %H:%M:%S')"
+        echo "- **Config**: .gitleaks.toml"
+        echo "- **gitleaks version**: $(gitleaks version 2>/dev/null || echo unknown)"
+        echo "- **JSON report**: $GITLEAKS_REPORT"
+        echo "- **Total findings**: $total_findings"
+        echo "- **Unallowlisted high-risk findings**: $high_risk_findings"
+        echo
+        if [ "$total_findings" -gt 0 ]; then
+            echo "## Findings by rule"
+            echo
+            jq -r '.[] | .RuleID' "$GITLEAKS_REPORT" | sort | uniq -c | while read -r count rule; do
+                echo "- $rule: $count"
+            done
+        fi
+    } > "$summary_file"
+
+    log "📋 Scan summary written to: $summary_file"
+}
+======
 
 # Function to suggest remediations
 suggest_remediations() {
@@ -279,14 +323,15 @@ main() {
     # Parse command line arguments
     case "${1:-scan}" in
         "scan")
-            scan_repository
-            local scan_result=$?
-            process_findings
-            local process_result=$?
+            local scan_result=0
+            scan_repository || scan_result=$?
+            local process_result=0
+            process_findings || process_result=$?
             suggest_remediations
-            
-            if [ $scan_result -ne 0 ] || [ $process_result -ne 0 ]; then
-                echo -e "${RED}❌ Secret detection found issues. Check the remediation suggestions.${NC}"
+            write_summary
+
+            if [ "$scan_result" -ne 0 ] || [ "$process_result" -ne 0 ]; then
+                echo -e "${RED}❌ Secret detection found unallowlisted high-risk secrets. Check the remediation suggestions.${NC}"
                 exit 1
             else
                 echo -e "${GREEN}✅ No secrets detected or all findings are low-risk.${NC}"
@@ -295,9 +340,15 @@ main() {
         "paths")
             shift
             scan_paths "$@"
-            process_findings
+            local process_result=0
+            process_findings || process_result=$?
             suggest_remediations
+            write_summary
+            if [ "$process_result" -ne 0 ]; then
+                exit 1
+            fi
             ;;
+======
         "install-hooks")
             install_hooks
             ;;

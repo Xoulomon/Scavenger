@@ -168,12 +168,16 @@ pub fn validate_date_range(start: &str, end: &str) -> Vec<ValidationError> {
     errors
 }
 
-/// Validates a Stellar address: 56 chars starting with 'G'.
+/// Validates a Stellar address: 56 chars, starts with 'G', remaining 55 chars
+/// from the Stellar base32 alphabet [A-Z2-7].
 pub fn validate_stellar_address(addr: &str) -> Option<ValidationError> {
-    if addr.len() != 56 || !addr.starts_with('G') {
+    let valid = addr.len() == 56
+        && addr.starts_with('G')
+        && addr[1..].chars().all(|c| matches!(c, 'A'..='Z' | '2'..='7'));
+    if !valid {
         Some(ValidationError {
             field: "address".to_string(),
-            message: "stellar address must be 56 characters starting with 'G'".to_string(),
+            message: "stellar address must be 56 characters starting with 'G' using base32 alphabet [A-Z2-7]".to_string(),
         })
     } else {
         None
@@ -279,10 +283,20 @@ mod tests {
 
     #[test]
     fn test_validate_stellar_address() {
-        let valid = "G".repeat(1) + &"A".repeat(55);
-        assert!(validate_stellar_address(&valid).is_none());
+        // Valid: 56 chars, starts with G, remaining 55 chars all in [A-Z2-7]
+        let valid = "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN";
+        assert!(validate_stellar_address(valid).is_none(), "canonical address should pass");
+        // Too short
         assert!(validate_stellar_address("GABC").is_some());
-        assert!(validate_stellar_address(&"A".repeat(56)).is_some());
+        // Doesn't start with G
+        let bad_prefix = "A".repeat(56);
+        assert!(validate_stellar_address(&bad_prefix).is_some());
+        // Contains invalid chars (digits 0,1,8,9 are not in base32)
+        let bad_chars = "G".to_string() + &"0".repeat(55);
+        assert!(validate_stellar_address(&bad_chars).is_some());
+        // Correct length but invalid chars
+        let bad_chars2 = "G".to_string() + &"a".repeat(55); // lowercase not valid
+        assert!(validate_stellar_address(&bad_chars2).is_some());
     }
 
     #[test]

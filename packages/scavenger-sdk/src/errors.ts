@@ -125,4 +125,3 @@ export class TimeoutError extends Error {
 
 /** Union type of all SDK-specific errors. */
 export type SdkError = ContractError | TransactionError | SigningError | NetworkError | TimeoutError
-

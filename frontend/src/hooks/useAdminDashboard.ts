@@ -3,6 +3,7 @@ import { ScavengerClient } from '@/api/client'
 import { useContract } from '@/context/ContractContext'
 import { networkConfig } from '@/lib/stellar'
 import type { GlobalMetrics, Incentive } from '@/api/types'
+import { cacheKeys } from '@/lib/cacheKeys'
 
 function useAdminClient() {
   const { config } = useContract()
@@ -17,7 +18,7 @@ function useAdminClient() {
 export function useAdminMetrics() {
   const makeClient = useAdminClient()
   return useQuery<GlobalMetrics>({
-    queryKey: ['admin-metrics'],
+    queryKey: cacheKeys.adminMetrics(),
     queryFn: async () => makeClient().getMetrics(),
     staleTime: 30_000,
   })
@@ -26,7 +27,7 @@ export function useAdminMetrics() {
 export function useAdminIncentives() {
   const makeClient = useAdminClient()
   return useQuery<Incentive[]>({
-    queryKey: ['admin-incentives'],
+    queryKey: cacheKeys.adminIncentives(),
     queryFn: async () => makeClient().getActiveIncentives(),
     staleTime: 30_000,
   })
@@ -35,7 +36,7 @@ export function useAdminIncentives() {
 export function useAdminWasteLookup(wasteId: bigint | null) {
   const makeClient = useAdminClient()
   return useQuery({
-    queryKey: ['admin-waste', wasteId?.toString()],
+    queryKey: cacheKeys.adminWaste(wasteId?.toString()),
     queryFn: async () => makeClient().getWaste(wasteId!),
     enabled: wasteId !== null,
   })

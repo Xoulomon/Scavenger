@@ -30,11 +30,14 @@ module.exports = {
   },
 
   // ── Scope ───────────────────────────────────────────────────────────────────
-  // Only mutate the two critical modules. Narrowing the scope keeps each
-  // mutation run under 5 minutes on a dev laptop.
+  // Mutate the critical modules. Narrowing the scope keeps each mutation run
+  // under 5 minutes on a dev laptop.
   mutate: [
     'src/lib/wallet.ts',
     'src/api/client.ts',
+    'src/lib/validation/wasteSubmission.ts',
+    'src/features/transfers/service.ts',
+    'src/features/transfers/schemas.ts',
   ],
 
   // ── Mutators ────────────────────────────────────────────────────────────────
@@ -65,8 +68,8 @@ module.exports = {
   // `low` and `high` control the coloured HTML badge.
   thresholds: {
     high: 80,
-    low: 70,
-    break: 70,
+    low: 75,
+    break: 80,
   },
 
   // ── Reporters ────────────────────────────────────────────────────────────────

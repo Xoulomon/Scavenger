@@ -21,7 +21,7 @@ use super::errors::CryptoError;
 use super::types::{EncryptionParams, KeyMaterial, EncryptedData};
 
 // ============================================
-# Constants
+// Constants
 // ============================================
 
 /// AES-256-GCM key size in bytes
@@ -43,7 +43,7 @@ pub const DEFAULT_ALGORITHM: &str = "AES-256-GCM";
 pub const DEFAULT_HASH_ALGORITHM: &str = "Argon2id";
 
 // ============================================
-# Encryption Functions
+// Encryption Functions
 // ============================================
 
 /// Generate a cryptographically secure random key
@@ -214,7 +214,7 @@ pub fn key_material(key: [u8; KEY_SIZE]) -> KeyMaterial {
 }
 
 // ============================================
-# Test Helpers
+// Test Helpers
 // ============================================
 
 #[cfg(test)]
@@ -292,5 +292,79 @@ mod tests {
         let salt = generate_salt();
         let derived = derive_key(password, &salt, 32).unwrap();
         assert_eq!(derived.len(), 32);
+    }
+
+    // ── #1161: fail-closed / non-leaky error output ─────────────────────
+
+    #[test]
+    fn decrypt_error_does_not_leak_key_or_ciphertext() {
+        let key = generate_key();
+        let wrong_key = generate_key();
+        let secret_plaintext = b"top-secret account number 4111111111111111";
+        let encrypted = encrypt(secret_plaintext, &key).unwrap();
+
+        let result = decrypt(&encrypted, &wrong_key);
+        let err = result.unwrap_err();
+
+        let display_msg = err.to_string();
+        let external_msg = err.external_message();
+        let key_hex = hex_encode(&key);
+        let wrong_key_hex = hex_encode(&wrong_key);
+
+        for msg in [display_msg.as_str(), external_msg] {
+            assert!(!msg.contains(&key_hex));
+            assert!(!msg.contains(&wrong_key_hex));
+            assert!(!msg.to_lowercase().contains("top-secret"));
+            assert!(!msg.to_lowercase().contains("4111111111111111"));
+        }
+    }
+
+    #[test]
+    fn tampered_hmac_error_does_not_leak_data_or_key() {
+        let key = generate_key();
+        let sensitive_data = b"ssn:078-05-1120";
+        let hmac = create_hmac(sensitive_data, &key).unwrap();
+
+        let tampered = b"ssn:078-05-9999";
+        let err = verify_hmac(tampered, &hmac, &key).unwrap_err();
+
+        let msg = format!("{} {}", err, err.external_message()).to_lowercase();
+        assert!(!msg.contains("078-05"));
+        assert!(!msg.contains(&hex_encode(&key)));
+    }
+
+    #[test]
+    fn wrong_password_verification_error_does_not_leak_password_or_hash() {
+        let password = "correct horse battery staple";
+        let hash = hash_password(password).unwrap();
+
+        // A malformed hash exercises the parse-failure path.
+        let result = verify_password(password, "not-a-valid-phc-hash");
+        let err = result.unwrap_err();
+        let msg = format!("{} {}", err, err.external_message()).to_lowercase();
+
+        assert!(!msg.contains(password));
+        assert!(!msg.contains(&hash.to_lowercase()));
+    }
+
+    #[test]
+    fn invalid_key_size_error_is_generic_and_consistent() {
+        // encrypt/decrypt/verify all reject a short key the same way: a
+        // single generic external message, not one that mentions the
+        // expected/actual byte counts.
+        let bogus_key = [0u8; KEY_SIZE];
+        let ok = encrypt(b"data", &bogus_key);
+        assert!(ok.is_ok(), "correctly sized key should still work");
+
+        // Simulate the invalid-size branch directly since `encrypt` takes a
+        // fixed-size array; the guard exists for callers that build the
+        // array dynamically from untrusted input length.
+        let err = CryptoError::InvalidKeySize;
+        assert_eq!(err.external_message(), "Cryptographic operation failed");
+        assert!(!err.external_message().to_lowercase().contains("32"));
+    }
+
+    fn hex_encode(bytes: &[u8]) -> String {
+        bytes.iter().map(|b| format!("{:02x}", b)).collect()
     }
 }

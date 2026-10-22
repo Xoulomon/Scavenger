@@ -34,7 +34,7 @@ import { Button } from '@/components/ui/Button'
 import { NotificationBell } from '@/components/ui/NotificationBell'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { SearchBar } from '@/components/ui/SearchBar'
-import { OfflineIndicator } from '@/components/OfflineIndicator'
+import { OfflineStatus } from '@/components/OfflineStatus'
 import { OnboardingTutorial, useOnboardingTutorial } from '@/components/OnboardingTutorial'
 import { UserRole } from '@/hooks/useOnboarding'
 
@@ -260,7 +260,6 @@ export function AppShell({ children }: PropsWithChildren) {
                   <Wallet className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
                   <span aria-label={`Connected wallet: ${address}`}>{truncate(address)}</span>
                 </span>
-                <Button variant="ghost" size="sm" onClick={logout}>
                 <Button variant="ghost" size="sm" onClick={disconnect} aria-label="Disconnect wallet">
                   Disconnect
                 </Button>
@@ -273,7 +272,7 @@ export function AppShell({ children }: PropsWithChildren) {
           </div>
         </header>
 
-        <OfflineIndicator />
+        <OfflineStatus variant="indicator" />
         <main id="main-content" className={cn('flex-1 overflow-x-hidden p-4 pb-20 sm:p-6 sm:pb-6')}>{children}</main>
       </div>
 

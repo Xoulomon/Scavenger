@@ -12,7 +12,7 @@ pub use facets::{Facet, FacetResult, FacetedSearch};
 pub use filters::{FilterType, SearchFilter};
 pub use index::{IndexConfig, IndexMapping, SearchIndex};
 pub use pipeline::{IndexingError, IndexingPipeline};
-pub use query_builder::{SearchQuery, SearchQueryBuilder};
+pub use query_builder::{SearchField, SearchQuery, SearchQueryBuilder};
 pub use request::{build_search_query, parse_filter};
 pub use response::{format_search_response, SearchResponse};
 
@@ -55,11 +55,21 @@ pub struct SortField {
     pub order: SortOrder,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum SortOrder {
     Asc,
     Desc,
+}
+
+impl SortOrder {
+    #[must_use]
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Asc => "asc",
+            Self::Desc => "desc",
+        }
+    }
 }
 
 impl Default for SearchRequest {

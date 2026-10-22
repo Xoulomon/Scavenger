@@ -1,5 +1,8 @@
 # Feature Flags Guide
 
+> Decision record: [ADR-0011](adr/0011-feature-flags-as-typed-constants.md).
+
+
 ## Active Feature Flags
 
 | Flag | Description | Status | Default |

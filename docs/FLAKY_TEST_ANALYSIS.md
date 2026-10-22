@@ -124,3 +124,38 @@ All 10 runs should show `test result: ok`.
 - [ ] `env.mock_all_auths()` called before the first contract call
 - [ ] Assertions use counts or sorted comparisons, not raw index positions
 - [ ] No reliance on `std::time`, wall-clock, or un-seeded random
+
+---
+
+## Current Status — Issue #1524
+
+**Audit date:** 2026-10-19
+
+### Rust / Soroban contract tests
+
+All four root causes documented above have been fixed in
+`stellar-contract/tests/stable_suite.rs`:
+
+| Root cause | Fixed? | Notes |
+| :--- | :--- | :--- |
+| Missing `env.mock_all_auths()` | ✅ | `setup()` always calls this first |
+| Shared `Env` / client between tests | ✅ | Each test owns `Env::default()` |
+| Non-deterministic collection order | ✅ | Assertions use counts, not positions |
+| Wall-clock / ledger time dependence | ✅ | Ledger time set explicitly when needed |
+
+### Frontend tests
+
+No intermittently-failing (flaky) frontend tests were found in the current
+codebase. All frontend tests in `frontend/src/` avoid fixed `setTimeout` waits
+and use synchronous or MSW-mocked I/O.
+
+### Process for newly discovered flaky tests
+
+See the quarantine process in `docs/TESTING_GUIDE.md` (section **Quarantining a
+Test**). In short:
+
+1. Open a GitHub issue describing the flakiness.
+2. Replace real timers with `vi.useFakeTimers()` and `vi.advanceTimersByTime()`.
+3. Delete tests that duplicate a stronger unit test.
+4. If the test cannot be fixed immediately, annotate with a reason and issue
+   reference rather than leaving it unannotated.

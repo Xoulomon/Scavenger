@@ -11,6 +11,7 @@
  */
 
 import { WASTE_TYPE_MAP, ROLE_MAP } from '../types';
+import { DEFAULT_PARTICIPANT_ROLE, DEFAULT_WASTE_TYPE } from '../constants';
 import { ParsedEvent, TransformedEvent } from './types';
 
 // ---------------------------------------------------------------------------
@@ -35,14 +36,14 @@ export function transformEvent(parsed: ParsedEvent): TransformedEvent {
     case 'WasteRegistered':
       return {
         ...parsed,
-        wasteType: WASTE_TYPE_MAP[parsed.wasteTypeNum] ?? 'Paper',
+        wasteType: WASTE_TYPE_MAP[parsed.wasteTypeNum] ?? DEFAULT_WASTE_TYPE,
         recycler: normalizeAddress(parsed.recycler),
       };
 
     case 'ParticipantRegistered':
       return {
         ...parsed,
-        role: ROLE_MAP[parsed.roleNum] ?? 'Recycler',
+        role: ROLE_MAP[parsed.roleNum] ?? DEFAULT_PARTICIPANT_ROLE,
         address: normalizeAddress(parsed.address),
         name: parsed.name.trim(),
       };
@@ -90,7 +91,7 @@ export function transformEvent(parsed: ParsedEvent): TransformedEvent {
     case 'CarbonCreditsEarned':
       return {
         ...parsed,
-        wasteType: WASTE_TYPE_MAP[parsed.wasteTypeNum] ?? 'Paper',
+        wasteType: WASTE_TYPE_MAP[parsed.wasteTypeNum] ?? DEFAULT_WASTE_TYPE,
         participant: normalizeAddress(parsed.participant),
       };
   }

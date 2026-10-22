@@ -7,6 +7,19 @@ import { WasteMapFilters } from '@/components/map/WasteMapFilters'
 
 const WasteMap = lazy(() => import('@/components/map/WasteMap').then((m) => ({ default: m.WasteMap })))
 
+// Reserves the map's height while the Leaflet chunk loads so the page does not shift when it appears.
+function MapPlaceholder() {
+  return (
+    <div
+      role="status"
+      aria-label="Loading map"
+      className="flex h-full min-h-[320px] w-full items-center justify-center bg-muted/30 text-sm text-muted-foreground"
+    >
+      Loading map...
+    </div>
+  )
+}
+
 export function WasteMapPage() {
   useAppTitle('Waste Map')
   const [filters, setFilters] = useState<MapFilters>({ showParticipants: true, radiusKm: 25 })
@@ -41,13 +54,7 @@ export function WasteMapPage() {
             No waste locations match the current filters.
           </div>
         )}
-        <Suspense
-          fallback={
-            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-              Loading map...
-            </div>
-          }
-        >
+        <Suspense fallback={<MapPlaceholder />}>
           <WasteMap wastes={wastes} participants={participants} className="h-full w-full" />
         </Suspense>
       </div>

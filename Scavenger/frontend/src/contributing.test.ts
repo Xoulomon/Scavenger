@@ -1,3 +1,24 @@
+// =============================================================================
+// ⚠️ DEPRECATED — This file has been relocated to tests/contributing-guidelines/
+//
+// This directory is no longer used. The test file has been moved for better
+// organization and to avoid confusion with the main frontend application.
+//
+// NEW LOCATION:
+//   tests/contributing-guidelines/src/contributing.test.ts
+//
+// To run tests, use:
+//   cd tests/contributing-guidelines && npm test
+//
+// See tests/contributing-guidelines/README.md for more information.
+// =============================================================================
+
+// Note: This file is deprecated. Use the version in tests/contributing-guidelines/ instead.
+// Keeping this file only for backward compatibility during the transition period.
+//
+// The original content has been moved to avoid duplicate maintenance.
+// All tests have been migrated to the new location.
+
 /// <reference types="vitest" />
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";

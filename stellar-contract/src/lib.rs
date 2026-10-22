@@ -1,4 +1,5 @@
 #![no_std]
+//! Scavenger Stellar Contract - main contract entry point.
 
 // ── Core contract modules ─────────────────────────────────────────────────────
 // #921: errors is the single shared error module — exported publicly so that
@@ -62,6 +63,15 @@ pub mod batch_optimizer;
 /// Establishes baseline metrics and detects performance degradation over time.
 pub mod benchmark_regression;
 
+// ── Issue #1272: Storage key audit and collision detection ──────────
+/// Audited storage key constructors with naming convention enforcement.
+/// Verifies uniqueness across all storage key builders.
+pub mod storage_keys;
+
+// ── Issue #1273: Consolidated grading logic ──
+/// Single source of truth for all grading-related logic.
+pub mod grading;
+
 // ── Issues #814–#817: new utility modules ────────────────────────────────────
 /// #814 — Reusable event builder pattern, filtering, and formatting utilities.
 pub mod event_builder;
@@ -92,6 +102,9 @@ mod test_grading;
 #[path = "../../contracts/scavenger/src/test_pause.rs"]
 mod test_pause_coverage;
 mod test_transfer_path_validation;
+
+#[cfg(test)]
+mod validation_properties;
 
 pub use errors::Error;
 // Consolidated, deduplicated pub use block (fixes duplicate symbol exports)

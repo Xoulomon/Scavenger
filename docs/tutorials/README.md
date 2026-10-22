@@ -69,4 +69,4 @@ cargo test tutorial_01
 
 - Open an issue labelled `tutorial` in the GitHub repository
 - Check the [CONTRACT_API.md](../CONTRACT_API.md) for function signatures
-- See [API_DOCUMENTATION.md](../API_DOCUMENTATION.md) for REST endpoints used in tutorials
+- See [API_REFERENCE.md](../API_REFERENCE.md) for REST endpoints used in tutorials

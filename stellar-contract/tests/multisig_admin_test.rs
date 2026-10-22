@@ -55,6 +55,35 @@ fn test_default_threshold_is_one() {
     assert_eq!(client.get_multisig_threshold(), 1);
 }
 
+#[test]
+#[should_panic(expected = "Unauthorized: caller is not admin")]
+fn test_non_admin_cannot_set_threshold() {
+    let (env, client, admin) = setup_single();
+    let outsider = Address::generate(&env);
+    client.set_multisig_threshold(&outsider, &1);
+    let _ = admin;
+}
+
+#[test]
+#[should_panic(expected = "Unauthorized: caller is not admin")]
+fn test_non_admin_cannot_add_admin() {
+    let (env, client, admin) = setup_single();
+    let outsider = Address::generate(&env);
+    let new_admin = Address::generate(&env);
+    client.add_admin(&outsider, &new_admin);
+    let _ = admin;
+}
+
+#[test]
+#[should_panic(expected = "Unauthorized: caller is not admin")]
+fn test_non_admin_cannot_remove_admin() {
+    let (env, client, admin) = setup_single();
+    let outsider = Address::generate(&env);
+    let other_admin = Address::generate(&env);
+    client.add_admin(&admin, &other_admin);
+    client.remove_admin(&outsider, &other_admin);
+}
+
 // ── 2. Set threshold ─────────────────────────────────────────────────────────
 
 #[test]

@@ -5,6 +5,7 @@ import { useContract } from '@/context/ContractContext'
 import { networkConfig } from '@/lib/stellar'
 import { useToast } from '@/hooks/useToast'
 import { roleLabel } from '@/lib/helpers'
+import { cacheKeys } from '@/lib/cacheKeys'
 
 export interface RegisterParticipantParams {
   address: string
@@ -31,7 +32,7 @@ export function useRegisterParticipant() {
       return client.registerParticipant(address, role, name, lat, lon, address)
     },
     onSuccess: (participant, { address }) => {
-      queryClient.invalidateQueries({ queryKey: ['participant', address] })
+      queryClient.invalidateQueries({ queryKey: cacheKeys.participant(address) })
       toast.success(
         `Registered as ${roleLabel(participant.role)}. Welcome, ${String(participant.name)}!`
       )

@@ -87,7 +87,14 @@ All webhook payloads follow this format:
 
 ## Security
 
-Each webhook includes a secret token in the `X-Webhook-Secret` header. Verify this token to ensure the webhook is authentic.
+Each webhook subscription has its own secret. The sender uses the secret stored with that subscription to compute an HMAC-SHA256 signature over the exact JSON request body. The secret is not sent with the request. Callers that load secrets from deployment configuration can pass the value when creating a subscription; the default manager creation path generates a random secret.
+
+Requests include these headers:
+
+- `X-Webhook-Signature: sha256=<hex-digest>` - HMAC-SHA256 of the raw request body, keyed by the subscription secret.
+- `Idempotency-Key: <event-id>` - The stable event ID, matching the payload's `id`. Retries of the same event use the same key.
+
+Receivers should compute the HMAC over the raw body and compare it with the signature using a constant-time comparison before processing the event.
 
 ## Retry Policy
 
@@ -97,7 +104,7 @@ Failed webhook deliveries are retried with exponential backoff:
 - 3rd retry: 5 minutes
 - 4th retry: 30 minutes
 
-After 4 failed attempts, the webhook is marked as failed.
+The default limit is 5 total attempts: the initial delivery plus 4 retries. After all attempts fail, the delivery is recorded in the dead-letter queue with the payload, final error, timestamps, and attempt count. Each retry delay is finite and configurable.
 
 ## Testing
 
@@ -105,7 +112,8 @@ Test your webhook endpoint:
 ```bash
 curl -X POST https://example.com/webhook \
   -H "Content-Type: application/json" \
-  -H "X-Webhook-Secret: whsec_abc123" \
+  -H "X-Webhook-Signature: sha256=<computed-hmac>" \
+  -H "Idempotency-Key: evt_test" \
   -d '{
     "id": "evt_test",
     "event": "WasteRegistered",

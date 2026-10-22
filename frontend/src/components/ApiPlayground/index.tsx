@@ -5,7 +5,7 @@ import { RequestBuilder } from './RequestBuilder';
 import { ResponseViewer } from './ResponseViewer';
 import { RequestHistory } from './RequestHistory';
 import { ExampleRequests } from './ExampleRequests';
-import { createApiClient, ApiError } from '@/lib/apiClient';
+import { createApiClient, ApiError } from '@/api/httpClient';
 
 const DEFAULT_REQUEST: ApiRequest = {
   id: uuidv4(),

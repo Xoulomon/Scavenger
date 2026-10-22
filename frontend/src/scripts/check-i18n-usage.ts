@@ -85,7 +85,7 @@ function findHardcodedStrings(srcDir: string): string[] {
   for (const file of srcFiles) {
     const content = fs.readFileSync(file, 'utf-8')
     // Skip test files and i18n config
-    if (file.includes('__tests__') || file.includes('i18n')) continue
+    if (/\.test\.tsx?$/.test(file) || file.includes('i18n')) continue
 
     let match
     while ((match = commonUIStrings.exec(content)) !== null) {

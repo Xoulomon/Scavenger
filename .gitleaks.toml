@@ -1,5 +1,9 @@
 # Gitleaks configuration for the Scavenger project
 # Comprehensive secret scanning with allowlist for test fixtures
+#
+# Last reviewed: 2024-06-01 (see docs/DEPENDENCY_AUDIT.md)
+# Review cadence: re-run `gitleaks detect` before each release and after any
+# change to this file. Each allowlist entry below must have a reason.
 
 [extend]
 # Use gitleaks default rules
@@ -8,24 +12,39 @@ useDefault = true
 # Global allowlists for common false positives
 [allowlist]
 paths = [
+  # Security test fixtures intentionally contain fake tokens/credentials to
+  # exercise the scanner and auth rejection paths. These are not real secrets.
   '''.*/security-tests/tests/.*\.ts$''',
-  '''.*/docs/.*\.md$''', 
+  # Documentation may show example commands with placeholder values.
+  '''.*/docs/.*\.md$''',
   '''.*/README\.md$''',
+  # Example env files contain only placeholder values, never real secrets.
   '''.*\.env\.example$''',
+  # Local/dev compose and k8s manifests use non-production dev credentials
+  # that are documented and rotated; they are not deployed to production.
   '''.*docker-compose.*\.yml$''',
   '''.*k8s/.*\.yml$''',
   '''.*/config/.*\.md$'''
 ]
 regexes = [
+  # Explicit sentinel used by tests to assert token rejection.
   '''INVALID_JWT_TOKEN_FOR_TESTING''',
+  # Shell/env variable interpolation placeholders, e.g. ${YOUR_API_TOKEN}.
   '''\$\{YOUR_API_TOKEN\}''',
   '''\$\{[A-Z_][A-Z0-9_]*\}''',
   '''\$[A-Z_][A-Z0-9_]*''',
+  # Obvious placeholder words used in examples and fixtures.
   '''(test|demo|example|placeholder|dummy|dev|localhost)[\w-]*''',
+  # Local-only connection strings pointing at loopback/dev service names.
   '''postgresql://.*@(localhost|postgres|127\.0\.0\.1)''',
   '''redis://.*(localhost|redis|127\.0\.0\.1)''',
+  # Generic user:password@ form used only in local dev connection strings.
   '''user:pass(word)?@''',
+  # Known non-production dev credentials documented in the repo; these are
+  # local-only and never valid against production systems.
   '''scavenger_pass|scavngr_dev|dev_pass|dev_user''',
+  # Supabase anon key placeholder (public anon keys are not secrets, but the
+  # placeholder form is allowlisted to avoid noise).
   '''SBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX''',
   '''postgres:password@''',
   '''dev_user:dev_pass@''',

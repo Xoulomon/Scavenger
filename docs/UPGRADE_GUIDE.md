@@ -179,4 +179,4 @@ For upgrade issues:
 
 - [Soroban Upgrade Guide](https://developers.stellar.org/docs/learn/storing-data)
 - [Contract Testing](./TESTING_GUIDE.md)
-- [API Documentation](./API_DOCUMENTATION.md)
+- [API Documentation](./API_REFERENCE.md)

@@ -20,6 +20,7 @@ reasoning is the part that is otherwise lost when contributors move on.
 | [0005](./0005-indexer-relational-schema.md) | Project events into a normalised Postgres schema, keeping raw events | Accepted | Indexer |
 | [0006](./0006-wallet-based-authentication-flow.md) | Authenticate with wallet signatures; treat frontend session state as UI only | Accepted | Frontend / Auth |
 | [0007](./0007-multichain-backend-boundary.md) | Multichain and Contract Upgrade Boundaries in the Backend Service | Accepted | Backend / Architecture |
+| [0009](./0009-feature-folder-layout.md) | Feature-folder layout for frontend domains, imported through `index.ts` only | Accepted | Frontend |
 
 Template: [`template.md`](./template.md)
 

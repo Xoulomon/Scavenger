@@ -8,7 +8,7 @@ Comprehensive monitoring using Prometheus for metrics collection, Grafana for vi
 ### Prometheus
 - Scrapes metrics from all services every 15s
 - Stores time-series data with 30-day retention
-- Evaluates alert rules from `config/prometheus-rules.yml`
+- Evaluates alert rules from `config/prometheus/rules/*.yml` (grouped by domain)
 - Metrics endpoints: 8080 (contract), 8081 (indexer), 9100 (node-exporter)
 
 ### Grafana
@@ -48,19 +48,44 @@ Comprehensive monitoring using Prometheus for metrics collection, Grafana for vi
 
 ## Alert Rules
 
-### Critical Alerts
-- `HighErrorRate` – error rate >5% over 5 minutes
-- `DiskSpaceLow` – disk space <10%
-- `ServiceDown` – any target unreachable for 2 minutes
-- `ContractServiceDown` – contract service down for 2 minutes
-- `IndexerDown` – indexer service down for 2 minutes
+All alert definitions live in a single source of truth: `config/prometheus/rules/*.yml`, grouped by domain. The legacy `config/prometheus-rules.yml`, `config/prometheus-rules-capacity.yml`, and `config/alerting-rules.yml` files have been removed; do not add alerts anywhere else.
 
-### Warning Alerts
-- `SlowTransactions` – P95 latency >5s for 10 minutes
-- `HighMemoryUsage` – memory usage >85% for 5 minutes
-- `HighCPUUsage` – CPU usage >80% for 5 minutes
-- `LowParticipantActivity` – fewer than 1 registration/hour for 30 minutes
-- `PrometheusTargetMissing` – scrape target missing for 5 minutes
+| File | Domain |
+|------|--------|
+| `config/prometheus/rules/application.yml` | Application/service health |
+| `config/prometheus/rules/infrastructure.yml` | Host and resource metrics |
+| `config/prometheus/rules/capacity.yml` | Capacity and activity thresholds |
+
+Alert names are unique across all files — one alert, one definition.
+
+### Application Alerts
+- `HighErrorRate` – error rate >5% over 5 minutes (critical)
+- `SlowTransactions` – P95 latency >5s for 10 minutes (warning)
+- `ServiceDown` – any target unreachable for 2 minutes (critical)
+- `ContractServiceDown` – contract service down for 2 minutes (critical)
+- `IndexerDown` – indexer service down for 2 minutes (critical)
+
+### Infrastructure Alerts
+- `DiskSpaceLow` – disk space <10% (critical)
+- `HighMemoryUsage` – memory usage >85% for 5 minutes (warning)
+- `HighCPUUsage` – CPU usage >80% for 5 minutes (warning)
+- `PrometheusTargetMissing` – scrape target missing for 5 minutes (warning)
+
+### Capacity Alerts
+- `LowParticipantActivity` – fewer than 1 registration/hour for 30 minutes (warning)
+
+### Validating Rules
+Rule files are validated with `promtool check rules` as part of `scripts/verify-configs.sh`:
+
+```bash
+./scripts/verify-configs.sh
+```
+
+To validate manually:
+
+```bash
+promtool check rules config/prometheus/rules/*.yml
+```
 
 ## Grafana Dashboards
 

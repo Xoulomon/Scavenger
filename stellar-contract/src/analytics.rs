@@ -1,284 +1,572 @@
-use soroban_sdk::{contracttype, Address, String};
+//! Consolidated analytics module (issue #1514)
+//!
+//! This module consolidates on-chain analytics functionality by:
+//! 1. Providing lightweight helpers for mutating GlobalMetrics and RecyclingStats
+//! 2. Managing storage persistence of analytics snapshots
+//! 3. Implementing periodic batching to control storage write costs
+//! 4. Supporting contract upgrade migrations
+//!
+//! **Removed (issue #1514)**: Complex reporting types (ReportType, AnalyticsReport,
+//! CustomQuery, AggregationType, AnalyticsEngine) are not used on-chain and belong
+//! in the off-chain indexer instead. They were removed to reduce contract complexity.
+//!
+//! # Responsibilities
+//! - Supply-chain statistics aggregation
+//! - Global metrics updates
+//! - Per-participant stat tracking helpers
+//! - Carbon-credit and impact-score accumulation
+//! - Analytics snapshot persistence (NEW)
+//! - Periodic batching of analytics updates (NEW)
 
-/// Analytics report types
-#[contracttype]
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum ReportType {
-    /// Participant activity report
-    ParticipantActivity = 0,
-    /// Waste processing report
-    WasteProcessing = 1,
-    /// Incentive performance report
-    IncentivePerformance = 2,
-    /// Supply chain report
-    SupplyChain = 3,
-    /// Financial report
-    Financial = 4,
-    /// Environmental impact report
-    EnvironmentalImpact = 5,
-}
+use crate::types::{GlobalMetrics, RecyclingStats, WasteGrade, WasteType};
+use soroban_sdk::{Address, Env, Symbol};
 
-impl ReportType {
-    pub fn to_u32(self) -> u32 {
-        self as u32
-    }
+// ────────────────────────────────────────────────────────────────────────
+// GlobalMetrics Mutation Helpers (from contract_analytics.rs)
+// ────────────────────────────────────────────────────────────────────────
 
-    pub fn from_u32(v: u32) -> Option<Self> {
-        match v {
-            0 => Some(ReportType::ParticipantActivity),
-            1 => Some(ReportType::WasteProcessing),
-            2 => Some(ReportType::IncentivePerformance),
-            3 => Some(ReportType::SupplyChain),
-            4 => Some(ReportType::Financial),
-            5 => Some(ReportType::EnvironmentalImpact),
-            _ => None,
+impl GlobalMetrics {
+    /// Increments the counter for the given `grade`.
+    pub fn record_grade(&mut self, grade: WasteGrade) {
+        match grade {
+            WasteGrade::A => self.grade_a_count += 1,
+            WasteGrade::B => self.grade_b_count += 1,
+            WasteGrade::C => self.grade_c_count += 1,
+            WasteGrade::D => self.grade_d_count += 1,
         }
     }
 
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            ReportType::ParticipantActivity => "PARTICIPANT_ACTIVITY",
-            ReportType::WasteProcessing => "WASTE_PROCESSING",
-            ReportType::IncentivePerformance => "INCENTIVE_PERFORMANCE",
-            ReportType::SupplyChain => "SUPPLY_CHAIN",
-            ReportType::Financial => "FINANCIAL",
-            ReportType::EnvironmentalImpact => "ENVIRONMENTAL_IMPACT",
-        }
+    /// Records a new active waste item.
+    pub fn record_waste_registered(&mut self) {
+        self.total_wastes_count += 1;
+        self.active_waste_count += 1;
     }
-}
 
-/// Analytics data point
-#[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct AnalyticsDataPoint {
-    /// Timestamp of the data point
-    pub timestamp: u64,
-    /// Metric name
-    pub metric: String,
-    /// Metric value
-    pub value: u128,
-    /// Optional label/category
-    pub label: String,
-}
-
-impl AnalyticsDataPoint {
-    /// Creates a new analytics data point
-    pub fn new(env: &soroban_sdk::Env, metric: String, value: u128, label: String) -> Self {
-        Self {
-            timestamp: env.ledger().timestamp(),
-            metric,
-            value,
-            label,
-        }
-    }
-}
-
-/// Analytics report
-#[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct AnalyticsReport {
-    /// Unique report ID
-    pub report_id: u64,
-    /// Report type
-    pub report_type: ReportType,
-    /// Report title
-    pub title: String,
-    /// Report description
-    pub description: String,
-    /// Report creator
-    pub created_by: Address,
-    /// Report creation timestamp
-    pub created_at: u64,
-    /// Report period start (Unix timestamp)
-    pub period_start: u64,
-    /// Report period end (Unix timestamp)
-    pub period_end: u64,
-    /// Total data points in report
-    pub data_point_count: u64,
-    /// Summary statistics
-    pub summary: String,
-}
-
-impl AnalyticsReport {
-    /// Creates a new analytics report
-    pub fn new(
-        env: &soroban_sdk::Env,
-        report_id: u64,
-        report_type: ReportType,
-        title: String,
-        description: String,
-        created_by: Address,
-        period_start: u64,
-        period_end: u64,
-    ) -> Self {
-        Self {
-            report_id,
-            report_type,
-            title,
-            description,
-            created_by,
-            created_at: env.ledger().timestamp(),
-            period_start,
-            period_end,
-            data_point_count: 0,
-            summary: soroban_sdk::String::from_str(env, ""),
+    /// Records a waste item being deactivated.
+    pub fn record_waste_deactivated(&mut self) {
+        if self.active_waste_count > 0 {
+            self.active_waste_count -= 1;
         }
     }
 
-    /// Increments data point count
-    pub fn add_data_point(&mut self) {
-        self.data_point_count += 1;
-    }
-
-    /// Sets the summary
-    pub fn set_summary(&mut self, summary: String) {
-        self.summary = summary;
-    }
-}
-
-/// Custom analytics query
-#[contracttype]
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct CustomQuery {
-    /// Query ID
-    pub query_id: u64,
-    /// Query name
-    pub name: String,
-    /// Query description
-    pub description: String,
-    /// Query creator
-    pub created_by: Address,
-    /// Query creation timestamp
-    pub created_at: u64,
-    /// Query filters (JSON-like string)
-    pub filters: String,
-    /// Query aggregation type
-    pub aggregation: AggregationType,
-    /// Last execution timestamp
-    pub last_executed: u64,
-    /// Execution count
-    pub execution_count: u64,
-}
-
-/// Aggregation types for analytics
-#[contracttype]
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum AggregationType {
-    /// Sum aggregation
-    Sum = 0,
-    /// Average aggregation
-    Average = 1,
-    /// Count aggregation
-    Count = 2,
-    /// Min aggregation
-    Min = 3,
-    /// Max aggregation
-    Max = 4,
-    /// Percentile aggregation
-    Percentile = 5,
-}
-
-impl AggregationType {
-    pub fn to_u32(self) -> u32 {
-        self as u32
-    }
-
-    pub fn from_u32(v: u32) -> Option<Self> {
-        match v {
-            0 => Some(AggregationType::Sum),
-            1 => Some(AggregationType::Average),
-            2 => Some(AggregationType::Count),
-            3 => Some(AggregationType::Min),
-            4 => Some(AggregationType::Max),
-            5 => Some(AggregationType::Percentile),
-            _ => None,
+    /// Records a waste item as expired.
+    pub fn record_waste_expired(&mut self) {
+        self.expired_waste_count += 1;
+        if self.active_waste_count > 0 {
+            self.active_waste_count -= 1;
         }
     }
 
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            AggregationType::Sum => "SUM",
-            AggregationType::Average => "AVERAGE",
-            AggregationType::Count => "COUNT",
-            AggregationType::Min => "MIN",
-            AggregationType::Max => "MAX",
-            AggregationType::Percentile => "PERCENTILE",
-        }
+    /// Accumulates token rewards into global totals.
+    pub fn record_tokens_earned(&mut self, tokens: u128) {
+        self.total_tokens_earned = self.total_tokens_earned.saturating_add(tokens);
+    }
+
+    /// Accumulates carbon credits into global totals.
+    pub fn record_carbon_credits(&mut self, credits: u128) {
+        self.total_carbon_credits = self.total_carbon_credits.saturating_add(credits);
     }
 }
 
-impl CustomQuery {
-    /// Creates a new custom query
-    pub fn new(
-        env: &soroban_sdk::Env,
-        query_id: u64,
-        name: String,
-        description: String,
-        created_by: Address,
-        filters: String,
-        aggregation: AggregationType,
-    ) -> Self {
-        Self {
-            query_id,
-            name,
-            description,
-            created_by,
-            created_at: env.ledger().timestamp(),
-            filters,
-            aggregation,
-            last_executed: 0,
-            execution_count: 0,
-        }
-    }
+// ────────────────────────────────────────────────────────────────────────
+// RecyclingStats Mutation Helpers (from contract_analytics.rs)
+// ────────────────────────────────────────────────────────────────────────
 
-    /// Records query execution
-    pub fn execute(&mut self, env: &soroban_sdk::Env) {
-        self.last_executed = env.ledger().timestamp();
-        self.execution_count += 1;
+/// Accumulates a waste-type submission into `stats`.
+pub fn record_waste_type_submission(
+    stats: &mut RecyclingStats,
+    waste_type: WasteType,
+    weight_grams: u64,
+) {
+    stats.total_submissions += 1;
+    stats.total_weight = stats.total_weight.saturating_add(weight_grams);
+    match waste_type {
+        WasteType::Paper => stats.paper_count += 1,
+        WasteType::PetPlastic => stats.pet_plastic_count += 1,
+        WasteType::Plastic => stats.plastic_count += 1,
+        WasteType::Metal => stats.metal_count += 1,
+        WasteType::Glass => stats.glass_count += 1,
+        WasteType::Organic => stats.organic_count += 1,
+        WasteType::Electronic => stats.electronic_count += 1,
     }
 }
 
-/// Analytics engine for processing metrics
-pub struct AnalyticsEngine;
+/// Records token and carbon-credit earnings for a participant.
+pub fn record_earnings(stats: &mut RecyclingStats, tokens: u64, carbon_credits: u128) {
+    stats.total_points = stats.total_points.saturating_add(tokens);
+    stats.carbon_credits_earned = stats
+        .carbon_credits_earned
+        .saturating_add(carbon_credits);
+}
 
-impl AnalyticsEngine {
-    /// Calculates average from values
-    pub fn calculate_average(values: &[u128]) -> u128 {
-        if values.is_empty() {
-            return 0;
+/// Recalculates the recycling rate and updates `stats.recycling_rate`.
+///
+/// Rate is stored as basis points: 10 000 = 100 %.
+pub fn refresh_recycling_rate(stats: &mut RecyclingStats) {
+    stats.recycling_rate = if stats.total_weight == 0 {
+        0
+    } else {
+        ((stats.recycled_weight * 10_000) / stats.total_weight as u128) as u32
+    };
+}
+
+// ────────────────────────────────────────────────────────────────────────
+// Storage Integration (NEW — issue #1514)
+// ────────────────────────────────────────────────────────────────────────
+
+/// Storage key for global metrics snapshot
+pub const GLOBAL_METRICS_SNAPSHOT: Symbol = soroban_sdk::symbol_short!("GMTR_SNAP");
+
+/// Storage key for analytics update timestamp
+pub const ANALYTICS_LAST_UPDATE: Symbol = soroban_sdk::symbol_short!("ANAL_UPD");
+
+/// Storage key for analytics batch counter
+pub const ANALYTICS_BATCH_COUNT: Symbol = soroban_sdk::symbol_short!("ANAL_BAT");
+
+/// Number of transactions between analytics snapshots (configurable).
+/// Current setting: snapshot every 10 transactions to balance consistency vs storage costs.
+const ANALYTICS_BATCH_SIZE: u64 = 10;
+
+/// Returns the storage key for per-participant recycling stats.
+pub fn recycling_stats_key(address: &Address) -> (soroban_sdk::String, Address) {
+    (soroban_sdk::String::from_str(&Env::default(), "recycling_stats"), address.clone())
+}
+
+// ────────────────────────────────────────────────────────────────────────
+// Persistence Functions
+// ────────────────────────────────────────────────────────────────────────
+
+/// Saves the global metrics snapshot to persistent storage.
+///
+/// **Note**: Use [`try_periodic_update`] instead to leverage batching.
+pub fn save_global_metrics(env: &Env, metrics: &GlobalMetrics) -> Result<(), soroban_sdk::String> {
+    env.storage()
+        .instance()
+        .set(&GLOBAL_METRICS_SNAPSHOT, metrics);
+    Ok(())
+}
+
+/// Retrieves the latest global metrics snapshot from storage.
+///
+/// Returns `None` if no snapshot has been created yet.
+pub fn get_global_metrics(env: &Env) -> Option<GlobalMetrics> {
+    env.storage()
+        .instance()
+        .get::<_, GlobalMetrics>(&GLOBAL_METRICS_SNAPSHOT)
+}
+
+/// Saves per-participant recycling stats to persistent storage.
+///
+/// **Note**: Use [`try_periodic_update`] instead to leverage batching.
+pub fn save_recycling_stats(env: &Env, stats: &RecyclingStats) -> Result<(), soroban_sdk::String> {
+    let key = recycling_stats_key(&stats.participant);
+    env.storage().persistent().set(&key, stats);
+    Ok(())
+}
+
+/// Retrieves recycling stats for a specific participant.
+///
+/// Returns `None` if no stats have been recorded for this participant.
+pub fn get_recycling_stats(env: &Env, address: &Address) -> Option<RecyclingStats> {
+    let key = recycling_stats_key(address);
+    env.storage().persistent().get::<_, RecyclingStats>(&key)
+}
+
+/// Triggers a periodic analytics update if the batch threshold has been crossed.
+///
+/// This function tracks transaction count and persists analytics snapshots
+/// approximately every `ANALYTICS_BATCH_SIZE` transactions, rather than on
+/// every operation. This significantly reduces storage costs while maintaining
+/// a reasonable audit trail.
+///
+/// # Strategy
+/// - Increments the batch counter on each call
+/// - When counter reaches `ANALYTICS_BATCH_SIZE`, persists snapshot and resets counter
+/// - Off-chain indexer has complete event history regardless of batching
+///
+/// # Storage Impact
+/// - Saves 1 entry per ~10 transactions (vs 1 per transaction without batching)
+/// - Reduces on-chain storage write cost by ~90%
+pub fn try_periodic_update(env: &Env, metrics: &GlobalMetrics) -> Result<(), soroban_sdk::String> {
+    // Load current batch counter
+    let current_batch = env
+        .storage()
+        .instance()
+        .get::<_, u64>(&ANALYTICS_BATCH_COUNT)
+        .unwrap_or(0);
+
+    // Increment counter
+    let new_batch = current_batch + 1;
+    env.storage()
+        .instance()
+        .set(&ANALYTICS_BATCH_COUNT, &new_batch);
+
+    // Check if we've reached the batch threshold
+    if new_batch >= ANALYTICS_BATCH_SIZE {
+        // Persist the snapshot
+        save_global_metrics(env, metrics)?;
+
+        // Record the update timestamp for audit
+        let timestamp = env.ledger().timestamp();
+        env.storage()
+            .instance()
+            .set(&ANALYTICS_LAST_UPDATE, &timestamp);
+
+        // Reset the batch counter
+        env.storage().instance().set(&ANALYTICS_BATCH_COUNT, &0u64);
+    }
+
+    Ok(())
+}
+
+// ────────────────────────────────────────────────────────────────────────
+// Migration Helpers (NEW — issue #1514)
+// ────────────────────────────────────────────────────────────────────────
+
+/// Initializes analytics storage from on-chain state during contract upgrade.
+///
+/// This function should be called once during a contract upgrade to capture
+/// the current state before any new operations occur. It creates an initial
+/// snapshot that can be used as a baseline for analytics queries.
+///
+/// # Returns
+/// - `Ok(())` if initialization succeeds
+/// - `Err(msg)` if a snapshot already exists (prevents overwriting)
+pub fn initialize_analytics_on_upgrade(
+    env: &Env,
+    initial_metrics: &GlobalMetrics,
+) -> Result<(), soroban_sdk::String> {
+    // Check if snapshot already exists (migration already run)
+    if env
+        .storage()
+        .instance()
+        .has(&GLOBAL_METRICS_SNAPSHOT)
+    {
+        return Err(soroban_sdk::String::from_str(
+            env,
+            "Analytics snapshot already initialized",
+        ));
+    }
+
+    // Create initial snapshot
+    save_global_metrics(env, initial_metrics)?;
+
+    // Record initialization timestamp
+    let timestamp = env.ledger().timestamp();
+    env.storage()
+        .instance()
+        .set(&ANALYTICS_LAST_UPDATE, &timestamp);
+
+    // Initialize batch counter at 0
+    env.storage().instance().set(&ANALYTICS_BATCH_COUNT, &0u64);
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::types::WasteGrade;
+    use soroban_sdk::testutils::Address as _;
+
+    // ── Mutation Tests (from original contract_analytics.rs) ──────────────
+
+    #[test]
+    fn test_record_grade() {
+        let mut metrics = GlobalMetrics {
+            total_tokens_earned: 0,
+            total_carbon_credits: 0,
+            total_wastes_count: 0,
+            active_waste_count: 0,
+            expired_waste_count: 0,
+            grade_a_count: 0,
+            grade_b_count: 0,
+            grade_c_count: 0,
+            grade_d_count: 0,
+        };
+
+        metrics.record_grade(WasteGrade::A);
+        assert_eq!(metrics.grade_a_count, 1);
+
+        metrics.record_grade(WasteGrade::B);
+        metrics.record_grade(WasteGrade::B);
+        assert_eq!(metrics.grade_b_count, 2);
+
+        metrics.record_grade(WasteGrade::C);
+        metrics.record_grade(WasteGrade::D);
+        assert_eq!(metrics.grade_c_count, 1);
+        assert_eq!(metrics.grade_d_count, 1);
+    }
+
+    #[test]
+    fn test_record_waste_registered() {
+        let mut metrics = GlobalMetrics {
+            total_tokens_earned: 0,
+            total_carbon_credits: 0,
+            total_wastes_count: 0,
+            active_waste_count: 0,
+            expired_waste_count: 0,
+            grade_a_count: 0,
+            grade_b_count: 0,
+            grade_c_count: 0,
+            grade_d_count: 0,
+        };
+
+        metrics.record_waste_registered();
+        assert_eq!(metrics.total_wastes_count, 1);
+        assert_eq!(metrics.active_waste_count, 1);
+
+        metrics.record_waste_registered();
+        assert_eq!(metrics.total_wastes_count, 2);
+        assert_eq!(metrics.active_waste_count, 2);
+    }
+
+    #[test]
+    fn test_record_waste_deactivated() {
+        let mut metrics = GlobalMetrics {
+            total_tokens_earned: 0,
+            total_carbon_credits: 0,
+            total_wastes_count: 0,
+            active_waste_count: 3,
+            expired_waste_count: 0,
+            grade_a_count: 0,
+            grade_b_count: 0,
+            grade_c_count: 0,
+            grade_d_count: 0,
+        };
+
+        metrics.record_waste_deactivated();
+        assert_eq!(metrics.active_waste_count, 2);
+
+        metrics.record_waste_deactivated();
+        assert_eq!(metrics.active_waste_count, 1);
+
+        metrics.record_waste_deactivated();
+        assert_eq!(metrics.active_waste_count, 0);
+
+        // Should not go below 0
+        metrics.record_waste_deactivated();
+        assert_eq!(metrics.active_waste_count, 0);
+    }
+
+    #[test]
+    fn test_record_waste_expired() {
+        let mut metrics = GlobalMetrics {
+            total_tokens_earned: 0,
+            total_carbon_credits: 0,
+            total_wastes_count: 0,
+            active_waste_count: 2,
+            expired_waste_count: 0,
+            grade_a_count: 0,
+            grade_b_count: 0,
+            grade_c_count: 0,
+            grade_d_count: 0,
+        };
+
+        metrics.record_waste_expired();
+        assert_eq!(metrics.expired_waste_count, 1);
+        assert_eq!(metrics.active_waste_count, 1);
+
+        metrics.record_waste_expired();
+        assert_eq!(metrics.expired_waste_count, 2);
+        assert_eq!(metrics.active_waste_count, 0);
+
+        // Should not go below 0
+        metrics.record_waste_expired();
+        assert_eq!(metrics.expired_waste_count, 3);
+        assert_eq!(metrics.active_waste_count, 0);
+    }
+
+    #[test]
+    fn test_record_tokens_earned() {
+        let mut metrics = GlobalMetrics {
+            total_tokens_earned: 100,
+            total_carbon_credits: 0,
+            total_wastes_count: 0,
+            active_waste_count: 0,
+            expired_waste_count: 0,
+            grade_a_count: 0,
+            grade_b_count: 0,
+            grade_c_count: 0,
+            grade_d_count: 0,
+        };
+
+        metrics.record_tokens_earned(50);
+        assert_eq!(metrics.total_tokens_earned, 150);
+
+        metrics.record_tokens_earned(u128::MAX);
+        assert_eq!(metrics.total_tokens_earned, u128::MAX);
+    }
+
+    #[test]
+    fn test_record_carbon_credits() {
+        let mut metrics = GlobalMetrics {
+            total_tokens_earned: 0,
+            total_carbon_credits: 200,
+            total_wastes_count: 0,
+            active_waste_count: 0,
+            expired_waste_count: 0,
+            grade_a_count: 0,
+            grade_b_count: 0,
+            grade_c_count: 0,
+            grade_d_count: 0,
+        };
+
+        metrics.record_carbon_credits(150);
+        assert_eq!(metrics.total_carbon_credits, 350);
+
+        metrics.record_carbon_credits(u128::MAX);
+        assert_eq!(metrics.total_carbon_credits, u128::MAX);
+    }
+
+    #[test]
+    fn test_record_waste_type_submission() {
+        let env = Env::default();
+        let address = Address::generate(&env);
+        let mut stats = RecyclingStats::new(address);
+
+        record_waste_type_submission(&mut stats, WasteType::Paper, 1000);
+        assert_eq!(stats.total_submissions, 1);
+        assert_eq!(stats.total_weight, 1000);
+        assert_eq!(stats.paper_count, 1);
+
+        record_waste_type_submission(&mut stats, WasteType::Plastic, 500);
+        assert_eq!(stats.total_submissions, 2);
+        assert_eq!(stats.total_weight, 1500);
+        assert_eq!(stats.plastic_count, 1);
+    }
+
+    #[test]
+    fn test_record_earnings() {
+        let env = Env::default();
+        let address = Address::generate(&env);
+        let mut stats = RecyclingStats::new(address);
+
+        record_earnings(&mut stats, 100, 50);
+        assert_eq!(stats.total_points, 100);
+        assert_eq!(stats.carbon_credits_earned, 50);
+
+        record_earnings(&mut stats, 50, 25);
+        assert_eq!(stats.total_points, 150);
+        assert_eq!(stats.carbon_credits_earned, 75);
+    }
+
+    #[test]
+    fn test_refresh_recycling_rate_with_zero_weight() {
+        let env = Env::default();
+        let address = Address::generate(&env);
+        let mut stats = RecyclingStats::new(address);
+        stats.recycled_weight = 0;
+        stats.total_weight = 0;
+
+        refresh_recycling_rate(&mut stats);
+        assert_eq!(stats.recycling_rate, 0);
+    }
+
+    #[test]
+    fn test_refresh_recycling_rate_with_values() {
+        let env = Env::default();
+        let address = Address::generate(&env);
+        let mut stats = RecyclingStats::new(address);
+        stats.recycled_weight = 5000; // 50%
+        stats.total_weight = 10000;
+
+        refresh_recycling_rate(&mut stats);
+        assert_eq!(stats.recycling_rate, 5000); // 50% in basis points
+    }
+
+    // ── Storage Tests (NEW — issue #1514) ──────────────────────────────
+
+    #[test]
+    fn test_storage_roundtrip_global_metrics() {
+        let env = Env::default();
+        let mut metrics = GlobalMetrics {
+            total_tokens_earned: 1000,
+            total_carbon_credits: 500,
+            total_wastes_count: 10,
+            active_waste_count: 5,
+            expired_waste_count: 2,
+            grade_a_count: 3,
+            grade_b_count: 4,
+            grade_c_count: 2,
+            grade_d_count: 1,
+        };
+
+        // Save to storage
+        save_global_metrics(&env, &metrics).unwrap();
+
+        // Retrieve from storage
+        let retrieved = get_global_metrics(&env).expect("Failed to retrieve metrics");
+
+        // Verify all fields match
+        assert_eq!(retrieved.total_tokens_earned, metrics.total_tokens_earned);
+        assert_eq!(
+            retrieved.total_carbon_credits,
+            metrics.total_carbon_credits
+        );
+        assert_eq!(retrieved.total_wastes_count, metrics.total_wastes_count);
+        assert_eq!(retrieved.active_waste_count, metrics.active_waste_count);
+        assert_eq!(retrieved.expired_waste_count, metrics.expired_waste_count);
+        assert_eq!(retrieved.grade_a_count, metrics.grade_a_count);
+        assert_eq!(retrieved.grade_b_count, metrics.grade_b_count);
+        assert_eq!(retrieved.grade_c_count, metrics.grade_c_count);
+        assert_eq!(retrieved.grade_d_count, metrics.grade_d_count);
+    }
+
+    #[test]
+    fn test_periodic_update_batching() {
+        let env = Env::default();
+        let metrics = GlobalMetrics {
+            total_tokens_earned: 100,
+            total_carbon_credits: 50,
+            total_wastes_count: 1,
+            active_waste_count: 1,
+            expired_waste_count: 0,
+            grade_a_count: 0,
+            grade_b_count: 0,
+            grade_c_count: 0,
+            grade_d_count: 0,
+        };
+
+        // Call try_periodic_update multiple times
+        for i in 1..=ANALYTICS_BATCH_SIZE + 5 {
+            try_periodic_update(&env, &metrics).unwrap();
+
+            // Snapshot should only exist after ANALYTICS_BATCH_SIZE calls
+            if i >= ANALYTICS_BATCH_SIZE {
+                let stored = get_global_metrics(&env);
+                assert!(
+                    stored.is_some(),
+                    "Snapshot should exist after batch threshold"
+                );
+            }
         }
-        let sum: u128 = values.iter().sum();
-        sum / values.len() as u128
     }
 
-    /// Finds minimum value
-    pub fn find_min(values: &[u128]) -> Option<u128> {
-        values.iter().copied().min()
-    }
+    #[test]
+    fn test_initialize_analytics_on_upgrade() {
+        let env = Env::default();
+        let metrics = GlobalMetrics {
+            total_tokens_earned: 500,
+            total_carbon_credits: 250,
+            total_wastes_count: 5,
+            active_waste_count: 3,
+            expired_waste_count: 0,
+            grade_a_count: 2,
+            grade_b_count: 1,
+            grade_c_count: 1,
+            grade_d_count: 0,
+        };
 
-    /// Finds maximum value
-    pub fn find_max(values: &[u128]) -> Option<u128> {
-        values.iter().copied().max()
-    }
+        // Initialize should succeed
+        initialize_analytics_on_upgrade(&env, &metrics).unwrap();
 
-    /// Calculates sum
-    pub fn calculate_sum(values: &[u128]) -> u128 {
-        values.iter().sum()
-    }
+        // Verify snapshot was saved
+        let stored = get_global_metrics(&env).expect("Snapshot should exist");
+        assert_eq!(stored.total_tokens_earned, 500);
 
-    /// Counts values
-    pub fn count_values(values: &[u128]) -> u64 {
-        values.len() as u64
-    }
-
-    /// Calculates percentile (simplified: returns value at percentile position)
-    pub fn calculate_percentile(values: &[u128], percentile: u32) -> Option<u128> {
-        if values.is_empty() || percentile > 100 {
-            return None;
-        }
-        let mut sorted = values.to_vec();
-        sorted.sort();
-        let index = ((percentile as usize) * sorted.len()) / 100;
-        sorted.get(index).copied()
+        // Second initialize should fail
+        let result = initialize_analytics_on_upgrade(&env, &metrics);
+        assert!(result.is_err(), "Should not allow re-initialization");
     }
 }

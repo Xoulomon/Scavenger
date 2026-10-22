@@ -10,6 +10,7 @@
  */
 
 import { RawContractEvent } from '../types';
+import { CONTRACT_EVENT_TYPES } from '../constants';
 import { ParsedEvent, EventMeta } from './types';
 
 // ---------------------------------------------------------------------------
@@ -283,18 +284,18 @@ function parseCarbonCreditsEarned(event: RawContractEvent): ParsedEvent {
 type ParserFn = (event: RawContractEvent) => ParsedEvent;
 
 const PARSERS: Record<string, ParserFn> = {
-  recycled: parseWasteRegistered,
-  reg: parseParticipantRegistered,
-  transfer: parseWasteTransferred,
-  confirmed: parseWasteConfirmed,
-  rewarded: parseTokensRewarded,
-  deactive: parseWasteDeactivated,
-  graded: parseWasteGraded,
-  proc_upd: parseProcessingStatusChanged,
-  contam: parseWasteContaminated,
-  auc_cre: parseAuctionCreated,
-  auc_end: parseAuctionEnded,
-  carbon: parseCarbonCreditsEarned,
+  [CONTRACT_EVENT_TYPES.WASTE_REGISTERED]: parseWasteRegistered,
+  [CONTRACT_EVENT_TYPES.PARTICIPANT_REGISTERED]: parseParticipantRegistered,
+  [CONTRACT_EVENT_TYPES.WASTE_TRANSFERRED]: parseWasteTransferred,
+  [CONTRACT_EVENT_TYPES.WASTE_CONFIRMED]: parseWasteConfirmed,
+  [CONTRACT_EVENT_TYPES.TOKENS_REWARDED]: parseTokensRewarded,
+  [CONTRACT_EVENT_TYPES.WASTE_DEACTIVATED]: parseWasteDeactivated,
+  [CONTRACT_EVENT_TYPES.WASTE_GRADED]: parseWasteGraded,
+  [CONTRACT_EVENT_TYPES.PROCESSING_STATUS_CHANGED]: parseProcessingStatusChanged,
+  [CONTRACT_EVENT_TYPES.WASTE_CONTAMINATED]: parseWasteContaminated,
+  [CONTRACT_EVENT_TYPES.AUCTION_CREATED]: parseAuctionCreated,
+  [CONTRACT_EVENT_TYPES.AUCTION_ENDED]: parseAuctionEnded,
+  [CONTRACT_EVENT_TYPES.CARBON_CREDITS_EARNED]: parseCarbonCreditsEarned,
 };
 
 // ---------------------------------------------------------------------------

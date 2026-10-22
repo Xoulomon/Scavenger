@@ -9,7 +9,7 @@ terraform {
 
   backend "s3" {
     bucket         = "scavenger-terraform-state"
-    key            = "prod/terraform.tfstate"
+    # key is supplied at init time via -backend-config
     region         = "us-east-1"
     encrypt        = true
     dynamodb_table = "terraform-locks"

@@ -1,6 +1,4 @@
 import { useState, useEffect, useRef } from 'react'
-import { onSnapshot, collection, orderBy, limit, query } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
 import { NotificationStore, type Notification } from '@/lib/notifications'
 
 const MAX_NOTIFICATIONS = 20
@@ -18,56 +16,9 @@ export function useNotifications(walletAddress: string | null | undefined) {
       return
     }
 
-    storeRef.current = new NotificationStore(walletAddress)
-
-    let unsubscribe: (() => void) | null = null
-    let pollInterval: ReturnType<typeof setInterval> | null = null
-
-    try {
-      const col = collection(db, 'notifications', walletAddress, 'items')
-      const q = query(col, orderBy('createdAt', 'desc'), limit(MAX_NOTIFICATIONS))
-
-      unsubscribe = onSnapshot(
-        q,
-        (snapshot) => {
-          const items: Notification[] = snapshot.docs.map((d) => d.data() as Notification)
-          setNotifications(items)
-        },
-        (_err) => {
-          // Firebase unavailable — fall back to localStorage polling
-          if (unsubscribe) {
-            unsubscribe()
-            unsubscribe = null
-          }
-          startLocalStoragePolling()
-        }
-      )
-    } catch {
-      startLocalStoragePolling()
-    }
-
-    function startLocalStoragePolling() {
-      const lsKey = `scavngr_notifications_${walletAddress}`
-      const readFromLS = () => {
-        try {
-          const raw = localStorage.getItem(lsKey)
-          const items: Notification[] = raw ? (JSON.parse(raw) as Notification[]) : []
-          const sorted = [...items]
-            .sort((a, b) => b.createdAt - a.createdAt)
-            .slice(0, MAX_NOTIFICATIONS)
-          setNotifications(sorted)
-        } catch {
-          setNotifications([])
-        }
-      }
-      readFromLS()
-      pollInterval = setInterval(readFromLS, 3000)
-    }
-
-    return () => {
-      if (unsubscribe) unsubscribe()
-      if (pollInterval) clearInterval(pollInterval)
-    }
+    const store = new NotificationStore(walletAddress)
+    storeRef.current = store
+    return store.subscribe(MAX_NOTIFICATIONS, setNotifications)
   }, [walletAddress])
 
   const unreadCount = Math.min(

@@ -174,7 +174,7 @@ Scavenger/
 ├── terraform/              # Infrastructure as code (AWS)
 ├── k8s/                    # Kubernetes manifests
 ├── scripts/                # Build, deploy, and utility scripts
-├── integration-tests/      # End-to-end integration tests
+├── tests/integration/      # End-to-end integration tests
 ├── performance/            # Load testing scripts
 └── security-tests/         # Security / penetration test scripts
 ```
@@ -320,8 +320,7 @@ describe('WasteCard', () => {
 
 ```bash
 # Run integration tests (requires Docker)
-cd integration-tests
-npm test
+pnpm test:integration
 ```
 
 ---
@@ -512,7 +511,7 @@ PR
 | [`docs/SYSTEM_DESIGN.md`](./SYSTEM_DESIGN.md) | Contract state & algorithms |
 | [`docs/TESTING_AND_QA.md`](./TESTING_AND_QA.md) | Testing strategy |
 | [`docs/DEV_ENVIRONMENT.md`](./DEV_ENVIRONMENT.md) | Detailed environment setup |
-| [`docs/API_DOCUMENTATION.md`](./API_DOCUMENTATION.md) | REST API reference |
+| [`docs/API_REFERENCE.md`](./API_REFERENCE.md) | REST API reference |
 | [`QUICKSTART.txt`](../QUICKSTART.txt) | Fast-path setup |
 
 ---

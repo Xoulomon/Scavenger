@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/Select'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { useAppTitle } from '@/hooks/useAppTitle'
+import { cacheKeys } from '@/lib/cacheKeys'
 
 // ── Mock data (would come from API) ─────────────────────────────────────────
 
@@ -58,7 +59,7 @@ interface TestRun {
 
 function useTestRuns() {
   return useQuery<TestRun[]>({
-    queryKey: ['test-runs'],
+    queryKey: cacheKeys.testRuns(),
     queryFn: async () => {
       const runs: TestRun[] = [
         {

@@ -1,5 +1,7 @@
 use chrono::{DateTime, Utc};
+use hmac::{Hmac, Mac};
 use serde::{Deserialize, Serialize};
+use sha2::Sha256;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -85,6 +87,8 @@ pub struct DeadLetter {
 pub struct RetryConfig {
     /// Delays between successive attempts (length = max retries).
     pub delays: Vec<Duration>,
+    /// Maximum number of delivery attempts, including the initial attempt.
+    pub max_attempts: usize,
 }
 
 impl Default for RetryConfig {
@@ -96,6 +100,7 @@ impl Default for RetryConfig {
                 Duration::from_secs(300),
                 Duration::from_secs(1_800),
             ],
+            max_attempts: 5,
         }
     }
 }
@@ -126,6 +131,11 @@ impl WebhookManager {
     // ── CRUD ─────────────────────────────────────────────────────────────────
 
     pub fn create(&self, req: CreateWebhookRequest) -> Webhook {
+        self.create_with_secret(req, Uuid::new_v4().to_string())
+    }
+
+    /// Create a subscription using its configured per-subscription signing secret.
+    pub fn create_with_secret(&self, req: CreateWebhookRequest, secret: String) -> Webhook {
         let webhook = Webhook {
             id: Uuid::new_v4().to_string(),
             url: req.url,
@@ -133,7 +143,7 @@ impl WebhookManager {
             active: true,
             created_at: Utc::now(),
             updated_at: Utc::now(),
-            secret: Uuid::new_v4().to_string(),
+            secret,
         };
         let mut webhooks = self.webhooks.lock().unwrap();
         webhooks.insert(webhook.id.clone(), webhook.clone());
@@ -212,9 +222,10 @@ impl WebhookManager {
             let payload = payload.clone();
             let dlq = self.dlq.clone();
             let delays = self.retry_config.delays.clone();
+            let max_attempts = self.retry_config.max_attempts;
 
             tokio::spawn(async move {
-                deliver_with_retry(&webhook, &payload, &delays, dlq).await;
+                deliver_with_retry(&webhook, &payload, &delays, max_attempts, dlq).await;
             });
         }
     }
@@ -228,10 +239,11 @@ async fn deliver_with_retry(
     webhook: &Webhook,
     payload: &WebhookPayload,
     delays: &[Duration],
+    max_attempts: usize,
     dlq: Arc<Mutex<Vec<DeadLetter>>>,
 ) {
     let first_attempt_at = Utc::now();
-    let max_attempts = delays.len() + 1; // initial attempt + one per delay
+    let max_attempts = max_attempts.max(1).min(delays.len().saturating_add(1));
 
     let mut last_error = String::new();
 
@@ -247,7 +259,7 @@ async fn deliver_with_retry(
             }
             Err(e) => {
                 last_error = e.to_string();
-                if attempt < delays.len() {
+                if attempt + 1 < max_attempts {
                     let delay = delays[attempt];
                     warn!(
                         webhook_id = %webhook.id,
@@ -290,11 +302,13 @@ async fn send_webhook(
     let client = reqwest::Client::builder().timeout(Duration::from_secs(10)).build()?;
 
     let body = serde_json::to_string(payload)?;
+    let signature = sign_payload(&webhook.secret, body.as_bytes())?;
 
     let response = client
         .post(&webhook.url)
         .header("Content-Type", "application/json")
-        .header("X-Webhook-Secret", &webhook.secret)
+        .header("X-Webhook-Signature", format!("sha256={signature}"))
+        .header("Idempotency-Key", &payload.id)
         .body(body)
         .send()
         .await?;
@@ -303,5 +317,33 @@ async fn send_webhook(
         Ok(())
     } else {
         Err(format!("HTTP {}", response.status()).into())
+    }
+}
+
+fn sign_payload(
+    secret: &str,
+    body: &[u8],
+) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+    let mut mac = Hmac::<Sha256>::new_from_slice(secret.as_bytes())?;
+    mac.update(body);
+    Ok(hex::encode(mac.finalize().into_bytes()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::sign_payload;
+
+    #[test]
+    fn signs_payload_with_hmac_sha256() {
+        let signature = sign_payload(
+            "key",
+            b"The quick brown fox jumps over the lazy dog",
+        )
+        .unwrap();
+
+        assert_eq!(
+            signature,
+            "f7bc83f430538424b13298e6aa6fb143ef4d59a14946175997479dbc2d1a3cd8"
+        );
     }
 }

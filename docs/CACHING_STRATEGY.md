@@ -1,5 +1,8 @@
 # Frontend Caching Strategy
 
+> Decision record: [ADR-0010](adr/0010-frontend-caching-layers.md).
+
+
 ## Layers
 
 ### 1. React Query (In-Memory + IndexedDB Persistence)

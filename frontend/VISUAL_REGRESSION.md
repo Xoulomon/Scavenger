@@ -2,6 +2,8 @@
 
 Playwright's built-in screenshot comparison is used — no external service required. Baselines are committed to the repo under `e2e/__snapshots__/`.
 
+See also: [Snapshot Review Process](e2e/__snapshots__/SNAPSHOT_REVIEW.md) for contributor/reviewer guidelines.
+
 ## Test coverage (32 tests)
 
 | Group | Tests |
@@ -24,12 +26,57 @@ npm run visual:chromium
 # Open HTML diff report after a failure
 npm run visual:report
 
-# Update baselines after intentional UI changes
+# Update baselines — all three projects at once
 npm run visual:update
 
-# Update a single project
-./scripts/update-visual-baselines.sh chromium   # or firefox / mobile
+# Update a single project (preferred — limits scope of change)
+npm run visual:update:chromium   # or :firefox / :mobile
+./scripts/update-visual-baselines.sh chromium   # same, via shell script
 ```
+
+## Snapshot Update Policy
+
+### Who may update snapshots
+
+Snapshots may only be updated by the **author of the PR that introduces the
+intentional UI change**.  Reviewers must not regenerate snapshots on behalf of
+a contributor.
+
+### Required evidence
+
+A snapshot update PR must include in its description:
+
+1. **Reason** — which UI change caused the diff and why it is intentional.
+2. **Diff review** — confirmation that the contributor ran `npm run visual:report`
+   and inspected every changed screenshot side-by-side.
+3. **Scope** — only the affected project(s) were updated.  Use the per-project
+   scripts (`npm run visual:update:chromium`, `:firefox`, `:mobile`) instead of
+   `npm run visual:update` when only one browser is affected.
+4. **No unrelated changes** — snapshots for pages you did not modify must be
+   identical to the previous baseline.
+
+### Updating only one project
+
+Cross-browser diffs are a common source of noise.  When a change only affects
+one browser, update that project's baselines in isolation:
+
+```bash
+npm run visual:update:chromium
+git add e2e/__snapshots__/visual-chromium
+git commit -m "chore: update chromium visual baselines for <feature>"
+```
+
+Repeat for `:firefox` or `:mobile` only if those projects are also affected.
+
+### Dynamic content masking
+
+The `visual-regression.spec.ts` file masks known dynamic regions (wallet
+addresses, timestamps, transaction IDs) using the Playwright `mask` option so
+they never cause spurious diffs.  The list of masked selectors lives in the
+`DYNAMIC_SELECTORS` constant at the top of that file.
+
+If a new dynamic region causes a flaky test, add its CSS selector to
+`DYNAMIC_SELECTORS` rather than re-generating the baseline.
 
 ## Baseline workflow
 
@@ -57,6 +104,32 @@ git commit -m "chore: add visual regression baselines"
 1. Go to **Actions → Visual Regression** in GitHub.
 2. Click **Run workflow**, set `update_baselines` to `true`.
 3. The workflow regenerates snapshots and commits them back to the branch automatically.
+
+## Snapshot Review Checklist
+
+When reviewing visual regression changes in a PR:
+
+- [ ] The underlying UI change is intentional
+- [ ] The changed snapshot corresponds to an active test
+- [ ] The visual difference is expected
+- [ ] No unrelated snapshot changed
+- [ ] Removed flows do not leave orphaned snapshots
+- [ ] Browser/environment differences were considered
+- [ ] The PR description explains meaningful visual changes
+- [ ] All three browser projects (chromium, firefox, mobile) were considered
+- [ ] No screenshots show sensitive data (tokens, addresses, real user data)
+
+### When to Update Snapshots
+- Intentional UI styling, layout, or color changes
+- New or modified UI components in visual test coverage
+- Page structure changes affecting visual appearance
+
+### When to Reject Snapshot Changes
+- Snapshots changed for code you didn't modify
+- Visual regressions in unrelated components
+- New snapshots for deleted/renamed flows
+- Inconsistent changes across browser projects
+- Snapshots showing sensitive data
 
 ## CI integration
 

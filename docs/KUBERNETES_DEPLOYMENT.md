@@ -57,19 +57,51 @@ helm install cert-manager jetstack/cert-manager --set installCRDs=true
 ```
 
 ### Deploy with kubectl
+
+The base manifests live directly under `k8s/` and there is exactly one authoritative
+manifest per resource type:
+
+| Resource | Manifest |
+|----------|----------|
+| Deployment (backend + frontend) | `k8s/deployment.yml` |
+| Ingress | `k8s/ingress.yml` |
+| RBAC (ServiceAccount, Role, RoleBinding, PDB) | `k8s/rbac.yml` |
+| Persistent volumes | `k8s/persistent-volumes.yml` |
+
+Environment-specific differences (replica counts, image tags, hostnames, TLS issuers,
+resource sizing, log levels) are expressed as Kustomize overlays in
+`k8s/overlays/{dev,staging,prod}`. Do not edit the base manifests for a single
+environment — add or change a patch in the relevant overlay instead.
+
 ```bash
 # Create namespace
 kubectl create namespace scavenger
 
-# Apply manifests
-kubectl apply -f k8s/rbac.yml
-kubectl apply -f k8s/deployment.yml
-kubectl apply -f k8s/ingress.yml
+# Apply the overlay for the target environment
+kubectl apply -k k8s/overlays/dev
+# or
+kubectl apply -k k8s/overlays/staging
+# or
+kubectl apply -k k8s/overlays/prod
 
 # Verify deployment
 kubectl get pods -n scavenger
 kubectl get svc -n scavenger
 kubectl get ingress -n scavenger
+```
+
+### Validate overlays before applying
+
+```bash
+# Render each overlay to confirm it builds
+kubectl kustomize k8s/overlays/dev
+kubectl kustomize k8s/overlays/staging
+kubectl kustomize k8s/overlays/prod
+
+# Client-side dry run against the cluster
+kubectl apply -k k8s/overlays/dev --dry-run=client
+kubectl apply -k k8s/overlays/staging --dry-run=client
+kubectl apply -k k8s/overlays/prod --dry-run=client
 ```
 
 ### Deploy with Helm
@@ -174,7 +206,7 @@ spec:
   source:
     repoURL: https://github.com/xoulomon/scavenger
     targetRevision: main
-    path: k8s
+    path: k8s/overlays/prod
   destination:
     server: https://kubernetes.default.svc
     namespace: scavenger
@@ -207,11 +239,20 @@ kubectl apply -f k8s/persistent-volumes.yml
 
 ## Deployment Order
 
+Kustomize renders the base resources in dependency order, so a single `apply -k`
+is sufficient. If you need to apply the base manifests manually, use:
+
 ```bash
 kubectl apply -f k8s/rbac.yml
 kubectl apply -f k8s/persistent-volumes.yml
 kubectl apply -f k8s/deployment.yml
 kubectl apply -f k8s/ingress.yml
+```
+
+For any real environment, prefer the overlay:
+
+```bash
+kubectl apply -k k8s/overlays/<env>
 ```
 
 ## Production Checklist

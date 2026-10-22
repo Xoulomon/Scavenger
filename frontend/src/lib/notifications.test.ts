@@ -2,29 +2,11 @@
 // Feature: frontend-enhancements, Property 21: Notification batching within window
 // Validates: Requirements 14.1, 15.5
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import * as fc from 'fast-check'
 import { NotificationStore, type Notification, type NotificationType } from './notifications'
 
-// ---------------------------------------------------------------------------
-// Mock Firebase so the store always falls through to the localStorage path
-// ---------------------------------------------------------------------------
-vi.mock('./firebase', () => ({
-  db: {},
-}))
-
-vi.mock('firebase/firestore', () => ({
-  collection: vi.fn(() => ({})),
-  doc: vi.fn(() => ({})),
-  setDoc: vi.fn(() => Promise.reject(new Error('Firebase is unavailable.'))),
-  updateDoc: vi.fn(() => Promise.reject(new Error('Firebase is unavailable.'))),
-  deleteDoc: vi.fn(() => Promise.reject(new Error('Firebase is unavailable.'))),
-  getDocs: vi.fn(() => Promise.reject(new Error('Firebase is unavailable.'))),
-  query: vi.fn(() => ({})),
-  where: vi.fn(() => ({})),
-  orderBy: vi.fn(() => ({})),
-  increment: vi.fn((n: number) => n),
-}))
+// Firebase is not configured in tests, so NotificationStore uses its localStorage transport.
 
 // ---------------------------------------------------------------------------
 // Helpers

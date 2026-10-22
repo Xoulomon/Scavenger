@@ -92,3 +92,64 @@ cargo test -p stellar-scavngr-contract authz
 5. **Admin privilege revocation** — `transfer_admin` atomically replaces the
    entire admin list. The old admin loses all privileges immediately after the
    call, preventing two-admin races.
+
+---
+
+## Unauthenticated entrypoints (issue #1518)
+
+The following public functions intentionally do **not** call `require_auth` or
+perform a role/ownership check.  Each is documented with its reason and the
+risk accepted.
+
+| Function | Why unauthenticated | Risk accepted |
+|---|---|---|
+| `is_paused` | Pure read; no state mutation | None — read-only |
+| `get_admins` | Pure read | None — read-only |
+| `get_admin` | Pure read | None — read-only |
+| `get_charity_contract` | Pure read | None — read-only |
+| `get_collector_percentage` | Pure read | None — read-only |
+| `get_owner_percentage` | Pure read | None — read-only |
+| `get_token_address` | Pure read | None — read-only |
+| `get_current_multiplier` | Pure read | None — read-only |
+| `is_participant_registered` | Pure read | None — read-only |
+| `get_participant` | Pure read | None — read-only |
+| `get_participant_info` | Pure read | None — read-only |
+| `get_participant_earnings` | Pure read | None — read-only |
+| `get_all_participants` | Pure read | None — read-only |
+| `get_waste` / `get_material` | Pure read | None — read-only |
+| `get_waste_v2` | Pure read | None — read-only |
+| `get_participant_wastes` / `_v2` | Pure read | None — read-only |
+| `get_waste_transfer_history` | Pure read | None — read-only |
+| `get_stats` | Pure read | None — read-only |
+| `get_metrics` | Pure read | None — read-only |
+| `get_global_metrics` | Pure read | None — read-only |
+| `get_incentives` / `get_active_incentives` | Pure read | None — read-only |
+| `waste_exists` / `incentive_exists` | Pure read | None — read-only |
+| `calculate_carbon_credits` | Pure function (no env state) | None — pure computation |
+| `confirm_waste_details` | Any registered participant can confirm *another's* waste — deliberate public-goods design | Low — confirmer cannot forge ownership |
+
+### Adding a new mutating entrypoint
+
+When adding a new function that writes to storage:
+
+1. Add `caller.require_auth()` (or an equivalent role/ownership check).
+2. Add a `test_auth_sentinel_<name>` test to `tests/auth_audit_test.rs` that
+   strips auths and asserts the call panics.
+3. If the function is intentionally unauthenticated, add it to the table above
+   with a documented reason.
+
+---
+
+## Auth sentinel test coverage (issue #1518)
+
+The `tests/auth_audit_test.rs` file contains `test_auth_sentinel_*` tests
+that assert every known mutating entrypoint rejects calls without proper auth.
+These tests form a regression barrier: if a new mutating entrypoint is added
+without an auth check, it will be caught in code review via the requirement to
+add a sentinel test.
+
+Run the full auth suite:
+
+```bash
+cargo test -p stellar-scavngr-contract auth
+```

@@ -486,8 +486,8 @@ fn test_complete_waste_lifecycle() {
 
 ## References
 
-- Issue #557: `docs/ISSUE_557_WASTE_CONFIRMATION.md`
-- Issue #558: `docs/ISSUE_558_TRANSFER_APPROVAL.md`
-- Issue #559: `docs/ISSUE_559_WASTE_HASHING.md`
-- Issue #560: `docs/ISSUE_560_PROCESSING_STATUS.md`
+- Issue #557: `docs/archive/ISSUE_557_WASTE_CONFIRMATION.md`
+- Issue #558: `docs/archive/ISSUE_558_TRANSFER_APPROVAL.md`
+- Issue #559: `docs/archive/ISSUE_559_WASTE_HASHING.md`
+- Issue #560: `docs/archive/ISSUE_560_PROCESSING_STATUS.md`
 - Test Files: `tests/waste_*_test.rs`

@@ -24,6 +24,31 @@ frontend/src/
 
 ---
 
+## Feature Modules
+
+New domain code goes in `frontend/src/features/<domain>/`, not in `pages/`,
+`components/` or `hooks/`. Decision and alternatives: [ADR 0009](adr/0009-feature-folder-layout.md).
+
+```
+features/<domain>/
+  components/   React components owned by the domain
+  hooks/        React hooks owned by the domain
+  api/          Network calls and query keys
+  schemas/      Validation schemas and types for the domain's input
+  __tests__/    Tests for the domain
+  index.ts      The public surface. The only file other code may import.
+```
+
+Import a feature only through its `index.ts`:
+
+```ts
+import { BADGES } from '@/features/gamification'      // allowed
+import { BADGES } from '@/features/gamification/badges' // lint error (no-restricted-imports)
+```
+
+Existing `features/gamification` and `features/importWaste` are not yet in this
+layout. Migrate a domain when you next change it.
+
 ## State Management
 
 The app uses two complementary layers:

@@ -25,6 +25,13 @@ spec:
             name: scavenger-frontend
             port:
               number: 80
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: scavenger-contract
+            port:
+              number: 80
   - host: api.scavenger.app
     http:
       paths:

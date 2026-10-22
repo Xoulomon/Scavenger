@@ -2,6 +2,7 @@ import { useMemo, useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import type { Participant, Waste } from '@/api/types'
 import type { SearchFilters, SearchResult } from '@/lib/searchStorage'
+import { cacheKeys } from '@/lib/cacheKeys'
 
 // Simple debounce hook — delays the value by `delay` ms
 export function useDebounce<T>(value: T, delay: number): T {
@@ -30,7 +31,7 @@ export function useSearch(query: string, filters?: Partial<SearchFilters>): Sear
 
     // --- Search participants ---
     const participantQueries = queryClient
-      .getQueriesData<Participant | null>({ queryKey: ['participant'] })
+      .getQueriesData<Participant | null>({ queryKey: cacheKeys.participant() })
 
     for (const [, participant] of participantQueries) {
       if (!participant) continue
@@ -52,8 +53,8 @@ export function useSearch(query: string, filters?: Partial<SearchFilters>): Sear
     // --- Search wastes ---
     // Wastes are cached under ['wastes', address, filters] and ['participant-wastes', address, filters]
     const wasteQueryKeys = [
-      ...queryClient.getQueriesData<Waste[]>({ queryKey: ['wastes'] }),
-      ...queryClient.getQueriesData<Waste[]>({ queryKey: ['participant-wastes'] }),
+      ...queryClient.getQueriesData<Waste[]>({ queryKey: cacheKeys.wastes() }),
+      ...queryClient.getQueriesData<Waste[]>({ queryKey: cacheKeys.participantWastes() }),
     ]
 
     const seenWasteIds = new Set<string>()

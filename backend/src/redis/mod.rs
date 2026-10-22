@@ -1,3 +1,6 @@
+//! Redis connection and command layer, shared by the rate limiter and the cache. Connection setup
+//! belongs here; `cache/redis.rs` builds on it.
+
 //! Redis client for rate limiting and caching
 
 use anyhow::Result;

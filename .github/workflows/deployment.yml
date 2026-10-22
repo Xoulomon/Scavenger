@@ -55,4 +55,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
-      - run: cd integration-tests && npm ci && npm test
+      - run: cd tests/integration && npm ci && npm test

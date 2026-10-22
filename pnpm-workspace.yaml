@@ -1,0 +1,14 @@
+packages:
+  - 'packages/*'
+  - 'indexer'
+  - 'backend'
+  - 'frontend'
+  - 'mobile'
+  - 'tests/integration'
+allowBuilds:
+  '@firebase/util': true
+  core-js: true
+  esbuild: true
+  msw: true
+  protobufjs: true
+  unrs-resolver: true

@@ -12,8 +12,12 @@ use std::time::Duration;
 
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpListener;
+use hmac::{Hmac, Mac};
+use sha2::Sha256;
 
-use crate::services::webhook::{CreateWebhookRequest, DeadLetter, RetryConfig, WebhookEvent, WebhookManager};
+use scavenger_backend::services::webhook::{
+    CreateWebhookRequest, RetryConfig, UpdateWebhookRequest, WebhookEvent, WebhookManager,
+};
 
 // ── Test HTTP server helpers ──────────────────────────────────────────────────
 
@@ -65,6 +69,7 @@ async fn webhook_delivered_on_first_attempt() {
     // Zero-delay retries for fast tests.
     let manager = WebhookManager::with_retry_config(RetryConfig {
         delays: vec![Duration::from_millis(10)],
+        max_attempts: 2,
     });
 
     let wh = manager.create(CreateWebhookRequest {
@@ -101,6 +106,7 @@ async fn webhook_succeeds_after_retries() {
             Duration::from_millis(10),
             Duration::from_millis(10),
         ],
+        max_attempts: 4,
     });
 
     manager.create(CreateWebhookRequest {
@@ -132,9 +138,14 @@ async fn webhook_moved_to_dlq_after_all_retries_exhausted() {
     // succeed_after = usize::MAX → never succeeds
     tokio::spawn(async move { serve(listener, usize::MAX, hits).await });
 
-    // 2 delays → 3 total attempts (initial + 2 retries)
+    // The configured two-attempt cap wins even though more retry delays exist.
     let manager = WebhookManager::with_retry_config(RetryConfig {
-        delays: vec![Duration::from_millis(10), Duration::from_millis(10)],
+        delays: vec![
+            Duration::from_millis(10),
+            Duration::from_millis(10),
+            Duration::from_millis(10),
+        ],
+        max_attempts: 2,
     });
 
     manager.create(CreateWebhookRequest {
@@ -150,15 +161,15 @@ async fn webhook_moved_to_dlq_after_all_retries_exhausted() {
 
     assert_eq!(
         hit_count.load(Ordering::SeqCst),
-        3,
-        "should try initial + 2 retries = 3 total"
+        2,
+        "should stop at the configured maximum of 2 total attempts"
     );
 
     let dlq = manager.dead_letters();
     assert_eq!(dlq.len(), 1, "exactly one entry in DLQ");
     let entry = &dlq[0];
     assert_eq!(entry.url, addr);
-    assert_eq!(entry.attempts, 3);
+    assert_eq!(entry.attempts, 2);
     assert!(!entry.last_error.is_empty());
 }
 
@@ -167,6 +178,7 @@ async fn webhook_moved_to_dlq_after_all_retries_exhausted() {
 async fn webhook_unreachable_host_goes_to_dlq() {
     let manager = WebhookManager::with_retry_config(RetryConfig {
         delays: vec![Duration::from_millis(5)],
+        max_attempts: 2,
     });
 
     manager.create(CreateWebhookRequest {
@@ -193,6 +205,7 @@ async fn webhook_unreachable_host_goes_to_dlq() {
 async fn drain_dlq_clears_entries() {
     let manager = WebhookManager::with_retry_config(RetryConfig {
         delays: vec![Duration::from_millis(5)],
+        max_attempts: 2,
     });
 
     manager.create(CreateWebhookRequest {
@@ -230,6 +243,7 @@ async fn trigger_with_no_webhooks_is_noop() {
 async fn inactive_webhook_is_not_triggered() {
     let manager = WebhookManager::with_retry_config(RetryConfig {
         delays: vec![Duration::from_millis(5)],
+        max_attempts: 2,
     });
 
     let wh = manager.create(CreateWebhookRequest {
@@ -238,7 +252,7 @@ async fn inactive_webhook_is_not_triggered() {
     });
     manager.update(
         &wh.id,
-        crate::services::webhook::UpdateWebhookRequest {
+        UpdateWebhookRequest {
             url: None,
             events: None,
             active: Some(false),
@@ -256,4 +270,104 @@ async fn inactive_webhook_is_not_triggered() {
         manager.dead_letters().is_empty(),
         "inactive webhook should produce no DLQ entries"
     );
+}
+
+/// A local reference receiver validates the signature over the exact body and
+/// checks that the idempotency key remains the payload's stable event ID.
+#[tokio::test]
+async fn webhook_signature_and_idempotency_key_are_verified_by_receiver() {
+    let (addr, listener) = bind_server().await;
+    let manager = WebhookManager::with_retry_config(RetryConfig {
+        delays: vec![],
+        max_attempts: 1,
+    });
+    let secret = "configured-test-subscription-secret".to_string();
+    manager.create_with_secret(
+        CreateWebhookRequest {
+            url: addr,
+            events: vec![WebhookEvent::WasteRegistered],
+        },
+        secret.clone(),
+    );
+    let (result_tx, result_rx) = tokio::sync::oneshot::channel();
+
+    tokio::spawn(async move {
+        let Ok((mut stream, _)) = listener.accept().await else {
+            return;
+        };
+        let request = read_http_request(&mut stream).await;
+        let request = String::from_utf8_lossy(&request);
+        let (headers, body) = request.split_once("\r\n\r\n").unwrap();
+        let signature = headers
+            .lines()
+            .find_map(|line| {
+                let (name, value) = line.split_once(':')?;
+                name.eq_ignore_ascii_case("X-Webhook-Signature")
+                    .then_some(value.trim())
+            })
+            .unwrap();
+        let idempotency_key = headers
+            .lines()
+            .find_map(|line| {
+                let (name, value) = line.split_once(':')?;
+                name.eq_ignore_ascii_case("Idempotency-Key")
+                    .then_some(value.trim())
+            })
+            .unwrap();
+        let payload: serde_json::Value = serde_json::from_str(body).unwrap();
+        let mut mac = Hmac::<Sha256>::new_from_slice(secret.as_bytes()).unwrap();
+        mac.update(body.as_bytes());
+        let signature = signature.strip_prefix("sha256=").unwrap();
+        let signature = hex::decode(signature).unwrap();
+        let verified = mac.verify_slice(&signature).is_ok();
+        let event_id_matches = payload["id"].as_str() == Some(idempotency_key);
+
+        let _ = stream
+            .write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n")
+            .await;
+        let _ = result_tx.send((verified, event_id_matches));
+    });
+
+    manager
+        .trigger(WebhookEvent::WasteRegistered, serde_json::json!({"test": true}))
+        .await;
+
+    let (signature_verified, event_id_matches) = tokio::time::timeout(
+        Duration::from_secs(2),
+        result_rx,
+    )
+    .await
+    .expect("receiver should get the webhook")
+    .expect("receiver task should report its verification result");
+    assert!(signature_verified, "receiver should verify the HMAC signature");
+    assert!(event_id_matches, "idempotency key should equal the payload event ID");
+}
+
+async fn read_http_request(stream: &mut tokio::net::TcpStream) -> Vec<u8> {
+    let mut request = Vec::new();
+    let mut chunk = [0u8; 2048];
+    loop {
+        let count = stream.read(&mut chunk).await.unwrap();
+        if count == 0 {
+            break;
+        }
+        request.extend_from_slice(&chunk[..count]);
+
+        if let Some(header_end) = request.windows(4).position(|window| window == b"\r\n\r\n") {
+            let headers = String::from_utf8_lossy(&request[..header_end]);
+            let content_length = headers
+                .lines()
+                .find_map(|line| {
+                    let (name, value) = line.split_once(':')?;
+                    name.eq_ignore_ascii_case("content-length")
+                        .then(|| value.trim().parse::<usize>().ok())
+                        .flatten()
+                })
+                .unwrap_or(0);
+            if request.len() >= header_end + 4 + content_length {
+                break;
+            }
+        }
+    }
+    request
 }

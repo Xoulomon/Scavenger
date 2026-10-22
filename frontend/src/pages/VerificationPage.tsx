@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { useAppTitle } from '@/hooks/useAppTitle'
 import type { Material } from '@/api/types'
+import { cacheKeys } from '@/lib/cacheKeys'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -56,7 +57,7 @@ function usePendingMaterials() {
   const { address } = useWallet()
 
   return useQuery<Material[]>({
-    queryKey: ['pending-verifications', address],
+    queryKey: cacheKeys.pendingVerifications(address),
     queryFn: async () => {
       if (!address) return []
       const client = new ScavengerClient({
@@ -92,7 +93,7 @@ function useVerifyMaterial() {
       return client.verifyMaterial(materialId, address, address)
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['pending-verifications'] })
+      qc.invalidateQueries({ queryKey: cacheKeys.pendingVerifications() })
     },
   })
 }

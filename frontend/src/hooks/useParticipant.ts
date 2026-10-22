@@ -4,13 +4,14 @@ import { Participant } from '@/api/types'
 import { useWallet } from '@/context/WalletContext'
 import { useContract } from '@/context/ContractContext'
 import { networkConfig } from '@/lib/stellar'
+import { cacheKeys } from '@/lib/cacheKeys'
 
 export function useParticipant() {
   const { address } = useWallet()
   const { config } = useContract()
 
   const { data, isLoading, isError } = useQuery<Participant | null>({
-    queryKey: ['participant', address],
+    queryKey: cacheKeys.participant(address),
     queryFn: async () => {
       if (!address) return null
       const client = new ScavengerClient({

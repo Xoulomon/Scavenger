@@ -115,42 +115,57 @@ curl -X POST -H "Authorization: Bearer $GRAFANA_API_TOKEN" \
 
 ### Alert Rules
 
-Prometheus alert rules are defined in `config/prometheus-rules.yml`:
+Prometheus alert rules live under `config/prometheus/rules/`, grouped by domain
+(e.g. `contracts.yml`, `system.yml`, `application.yml`). This directory is the
+single source of truth for alert definitions — do not add alert rules to other
+files under `config/`. Validate changes with:
+
+```bash
+promtool check rules config/prometheus/rules/*.yml
+```
+
+The canonical alerts are:
 
 ```yaml
 groups:
-  - name: scavenger_alerts
+  - name: scavenger_contracts
     interval: 30s
     rules:
-      - alert: HighContractErrorRate
+      - alert: ScavengerContractErrorRateHigh
         expr: rate(scavenger_contract_errors_total[5m]) > 0.1
         for: 5m
         annotations:
           summary: "High contract error rate"
           description: "Error rate: {{ $value }}"
 
-      - alert: LowIncentiveCount
+      - alert: ScavengerActiveIncentivesLow
         expr: scavenger_incentives_active < 5
         for: 10m
         annotations:
           summary: "Low active incentives"
           description: "Active incentives: {{ $value }}"
 
-      - alert: HighCPUUsage
+  - name: scavenger_system
+    interval: 30s
+    rules:
+      - alert: ScavengerCPUUsageHigh
         expr: node_cpu_seconds_total > 0.8
         for: 5m
         annotations:
           summary: "High CPU usage"
           description: "CPU: {{ $value }}%"
 
-      - alert: LowDiskSpace
+      - alert: ScavengerDiskSpaceLow
         expr: node_disk_avail_bytes / node_disk_size_bytes < 0.1
         for: 5m
         annotations:
           summary: "Low disk space"
           description: "Available: {{ $value }}%"
 
-      - alert: HighLatency
+  - name: scavenger_application
+    interval: 30s
+    rules:
+      - alert: ScavengerRequestLatencyHigh
         expr: histogram_quantile(0.95, http_request_duration_seconds) > 5
         for: 5m
         annotations:

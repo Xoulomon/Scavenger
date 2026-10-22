@@ -93,7 +93,7 @@ echo ""
 
 # Check documentation
 echo "Checking documentation..."
-if [ -f "docs/PARTICIPANT_IMPLEMENTATION.md" ]; then
+if [ -f "docs/archive/PARTICIPANT_IMPLEMENTATION.md" ]; then
     echo -e "${GREEN}✓${NC} PARTICIPANT_IMPLEMENTATION.md exists"
     ((CHECKS_PASSED++))
 else
@@ -101,7 +101,7 @@ else
     ((CHECKS_FAILED++))
 fi
 
-if [ -f "docs/PARTICIPANT_CHANGES_SUMMARY.md" ]; then
+if [ -f "docs/archive/PARTICIPANT_CHANGES_SUMMARY.md" ]; then
     echo -e "${GREEN}✓${NC} PARTICIPANT_CHANGES_SUMMARY.md exists"
     ((CHECKS_PASSED++))
 else
@@ -145,7 +145,7 @@ if [ $CHECKS_FAILED -eq 0 ]; then
     echo "Next steps:"
     echo "1. Run tests: cd stellar-contract && cargo test --lib"
     echo "2. Build WASM: ./scripts/build-wasm.sh"
-    echo "3. Review documentation in docs/PARTICIPANT_IMPLEMENTATION.md"
+    echo "3. Review documentation in docs/archive/PARTICIPANT_IMPLEMENTATION.md"
     exit 0
 else
     echo -e "${RED}❌ Some verification checks failed${NC}"

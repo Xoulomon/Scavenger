@@ -1,3 +1,4 @@
+//! Blockchain explorer integration for waste tracking.
 use soroban_sdk::{contracttype, Address, String};
 
 /// Transaction tracking information for blockchain explorer integration

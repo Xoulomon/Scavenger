@@ -1,19 +1,3 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { useWallet } from '@/context/WalletContext'
-
-interface Profile {
-  role?: string
-  name?: string
-}
-
-interface User extends Profile {
-  address: string
-}
-
-interface AuthContextType {
-  user: User | null
-  isAuthenticated: boolean
-  login: (profile: Profile) => void
 /**
  * context/AuthContext.tsx
  *

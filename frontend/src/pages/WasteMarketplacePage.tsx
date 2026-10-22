@@ -99,7 +99,7 @@ export function makeOffer(
     buyer,
     offerPrice,
     status: 'pending',
-    createdAt: Math.floor(Date.now() / 1000),
+    createdAt: Date.now(),
   }
 }
 
@@ -107,7 +107,7 @@ export function respondToOffer(
   offer: MarketplaceOffer,
   decision: 'accepted' | 'rejected'
 ): MarketplaceOffer {
-  return { ...offer, status: decision }
+  return { ...offer, status: decision, respondedAt: Date.now() }
 }
 
 export function averageRating(ratings: RatingEntry[], listingId: string): number {

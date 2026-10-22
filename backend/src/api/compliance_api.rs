@@ -1,101 +1,96 @@
-use actix_web::{web, HttpResponse};
+//! Compliance API - HTTP Layer Only
+//!
+//! This file handles only HTTP request/response mapping.
+//! All business logic has been moved to the compliance/ module.
+
+use actix_web::{web, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct ChecklistRequest {
-    pub name: String,
-    pub description: Option<String>,
+// Import domain logic from compliance module
+use crate::compliance::{
+    ComplianceService,
+    ComplianceValidator,
+    CheckRequest,
+    ComplianceResult,
+    ComplianceStatus,
+    ComplianceError,
+};
+
+/// Compliance check endpoint - HTTP layer only
+pub async fn check_compliance(req: web::Json<CheckRequest>) -> impl Responder {
+    let service = ComplianceService::new();
+    let validator = ComplianceValidator::new();
+
+    // Validate the request
+    if let Err(e) = validator.validate_check(&req) {
+        return HttpResponse::BadRequest().json(serde_json::json!({
+            "error": "Validation failed",
+            "message": e.to_string()
+        }));
+    }
+
+    // Delegate to service (business logic)
+    match service.check_compliance(req.into_inner()).await {
+        Ok(result) => HttpResponse::Ok().json(result),
+        Err(e) => {
+            // HTTP layer handles response mapping only
+            match e {
+                ComplianceError::InvalidAmount(msg) => {
+                    HttpResponse::BadRequest().json(serde_json::json!({
+                        "error": "Invalid request",
+                        "message": msg
+                    }))
+                }
+                ComplianceError::ValidationError(msg) => {
+                    HttpResponse::BadRequest().json(serde_json::json!({
+                        "error": "Validation error",
+                        "message": msg
+                    }))
+                }
+                ComplianceError::CheckFailed(msg) => {
+                    HttpResponse::InternalServerError().json(serde_json::json!({
+                        "error": "Compliance check failed",
+                        "message": msg
+                    }))
+                }
+            }
+        }
+    }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct AlertRuleRequest {
-    pub name: String,
-    pub description: String,
-    pub severity: String,
-    pub metric: String,
-    pub operator: String,
-    pub threshold: f64,
-    pub window_seconds: i64,
+/// Get compliance status endpoint - HTTP layer only
+pub async fn get_compliance_status(path: web::Path<String>) -> impl Responder {
+    let id = path.into_inner();
+
+    let service = ComplianceService::new();
+
+    match service.get_status(id).await {
+        Ok(status) => {
+            HttpResponse::Ok().json(serde_json::json!({
+                "status": format!("{:?}", status)
+            }))
+        }
+        Err(e) => HttpResponse::NotFound().json(serde_json::json!({
+            "error": "Not found",
+            "message": e.to_string()
+        })),
+    }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct ComplianceCheckRequest {
-    pub requirement_id: String,
-    pub status: String,
-    pub message: Option<String>,
-}
-
-pub async fn list_checklists() -> HttpResponse {
+/// Health check endpoint
+pub async fn health_check() -> impl Responder {
     HttpResponse::Ok().json(serde_json::json!({
-        "success": true,
-        "data": [],
-        "message": "compliance checklists endpoint"
+        "status": "ok",
+        "service": "compliance"
     }))
 }
 
-pub async fn create_checklist(body: web::Json<ChecklistRequest>) -> HttpResponse {
-    HttpResponse::Ok().json(serde_json::json!({
-        "success": true,
-        "data": body.0,
-        "message": "checklist created"
-    }))
-}
-
-pub async fn run_compliance_check() -> HttpResponse {
-    HttpResponse::Ok().json(serde_json::json!({
-        "success": true,
-        "data": {
-            "compliance_score": 100.0,
-            "total_checks": 0,
-            "passed": 0,
-            "failed": 0
-        },
-        "message": "compliance check completed"
-    }))
-}
-
-pub async fn list_compliance_alerts() -> HttpResponse {
-    HttpResponse::Ok().json(serde_json::json!({
-        "success": true,
-        "data": [],
-        "message": "compliance alerts"
-    }))
-}
-
-pub async fn create_alert_rule(body: web::Json<AlertRuleRequest>) -> HttpResponse {
-    HttpResponse::Ok().json(serde_json::json!({
-        "success": true,
-        "data": body.0,
-        "message": "alert rule created"
-    }))
-}
-
-pub async fn list_alert_rules() -> HttpResponse {
-    HttpResponse::Ok().json(serde_json::json!({
-        "success": true,
-        "data": [],
-        "message": "alert rules"
-    }))
-}
-
-pub async fn get_audit_trail(query: web::Query<ComplianceCheckRequest>) -> HttpResponse {
-    HttpResponse::Ok().json(serde_json::json!({
-        "success": true,
-        "data": [],
-        "message": "compliance audit trail"
-    }))
-}
-
-pub async fn generate_compliance_report() -> HttpResponse {
-    HttpResponse::Ok().json(serde_json::json!({
-        "success": true,
-        "data": {
-            "generated_at": chrono::Utc::now().to_rfc3339(),
-            "total_requirements": 0,
-            "passed": 0,
-            "failed": 0,
-            "compliance_score": 100.0
-        },
-        "message": "compliance report generated"
-    }))
+/// Route configuration
+pub fn configure(cfg: &mut web::ServiceConfig) {
+    cfg.service(
+        web::scope("/api/compliance")
+            .route("/check", web::post().to(check_compliance))
+            .route("/status/{id}", web::get().to(get_compliance_status))
+            .route("/health", web::get().to(health_check))
+    );
 }

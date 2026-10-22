@@ -344,6 +344,62 @@ impl RegressionDetector {
     pub fn analyze_suite(&self, suite: &BenchmarkSuite) -> RegressionReport {
         suite.generate_report()
     }
+
+    /// Asserts that no benchmark exceeds its regression threshold.
+    ///
+    /// # Panics
+    /// Panics with a detailed message if any benchmark result exceeds
+    /// its configured threshold, listing all regressions found.
+    pub fn assert_no_regression(&self, suite: &BenchmarkSuite) {
+        let report = suite.generate_report();
+        if report.has_regressions() {
+            let mut msg = format!("Regression detected!\n{}", report.format_summary());
+            for r in &report.regressions {
+                msg.push_str(&format!(
+                    "\n  REGRESSION: {} measured={} baseline={} change={}% threshold={}%",
+                    r.name, r.measured, r.baseline, r.percentage_change(), r.threshold_percentage
+                ));
+            }
+            panic!("{}", msg);
+        }
+    }
+
+    /// Returns an error message if any benchmark exceeds its threshold.
+    ///
+    /// Returns `Ok(())` if all benchmarks are within thresholds,
+    /// or `Err(String)` with details about any regressions found.
+    pub fn check_regression_enforcement(&self, suite: &BenchmarkSuite) -> Result<(), String> {
+        let report = suite.generate_report();
+        if report.has_regressions() {
+            let mut details = String::new();
+            details.push_str(&format!("Benchmark regression detected!\n"));
+            details.push_str(&format!("Total benchmarks: {}\n", report.total_benchmarks));
+            details.push_str(&format!("Regressions: {}\n", report.regressions.len()));
+            for r in &report.regressions {
+                details.push_str(&format!(
+                    "  - {}: measured={} baseline={} change={}% exceeds threshold={}%\n",
+                    r.name, r.measured, r.baseline, r.percentage_change(), r.threshold_percentage
+                ));
+            }
+            Err(details)
+        } else {
+            Ok(())
+        }
+    }
+
+    /// Checks a single benchmark result and returns whether it's within thresholds.
+    ///
+    /// Returns `Ok(())` if within threshold, `Err(String)` with details if not.
+    pub fn check_within_threshold(&self, result: &BenchmarkResult) -> Result<(), String> {
+        if result.is_regression() {
+            Err(format!(
+                "Benchmark '{}' regressed: measured={} baseline={} change={}% exceeds threshold={}%",
+                result.name, result.measured, result.baseline, result.percentage_change(), result.threshold_percentage
+            ))
+        } else {
+            Ok(())
+        }
+    }
 }
 
 #[cfg(test)]
@@ -414,5 +470,92 @@ mod tests {
     fn test_benchmark_suite_creation() {
         let suite = BenchmarkSuite::new();
         assert_eq!(suite.results().len(), 0);
+    }
+
+    // ── Regression Enforcement Tests ───────────────────────────────
+
+    #[test]
+    fn test_assert_no_regression_passes_when_no_regression() {
+        let detector = RegressionDetector::new();
+        let mut suite = BenchmarkSuite::new();
+        suite.add_result(BenchmarkResult {
+            name: "normal",
+            metric_type: MetricType::Gas,
+            measured: 1050,
+            baseline: 1000,
+            threshold_percentage: 10,
+        });
+        detector.assert_no_regression(&suite);
+    }
+
+    #[test]
+    #[should_panic(expected = "Regression detected")]
+    fn test_assert_no_regression_panics_on_regression() {
+        let detector = RegressionDetector::new();
+        let mut suite = BenchmarkSuite::new();
+        suite.add_result(BenchmarkResult {
+            name: "regressed",
+            metric_type: MetricType::Gas,
+            measured: 1150,
+            baseline: 1000,
+            threshold_percentage: 10,
+        });
+        detector.assert_no_regression(&suite);
+    }
+
+    #[test]
+    fn test_check_regression_enforcement_ok() {
+        let detector = RegressionDetector::new();
+        let mut suite = BenchmarkSuite::new();
+        suite.add_result(BenchmarkResult {
+            name: "normal",
+            metric_type: MetricType::Gas,
+            measured: 1050,
+            baseline: 1000,
+            threshold_percentage: 10,
+        });
+        assert!(detector.check_regression_enforcement(&suite).is_ok());
+    }
+
+    #[test]
+    fn test_check_regression_enforcement_err() {
+        let detector = RegressionDetector::new();
+        let mut suite = BenchmarkSuite::new();
+        suite.add_result(BenchmarkResult {
+            name: "regressed",
+            metric_type: MetricType::Gas,
+            measured: 1150,
+            baseline: 1000,
+            threshold_percentage: 10,
+        });
+        let result = detector.check_regression_enforcement(&suite);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("Regression detected"));
+    }
+
+    #[test]
+    fn test_check_within_threshold_passes() {
+        let detector = RegressionDetector::new();
+        let result = BenchmarkResult {
+            name: "normal",
+            metric_type: MetricType::Gas,
+            measured: 1050,
+            baseline: 1000,
+            threshold_percentage: 10,
+        };
+        assert!(detector.check_within_threshold(&result).is_ok());
+    }
+
+    #[test]
+    fn test_check_within_threshold_fails() {
+        let detector = RegressionDetector::new();
+        let result = BenchmarkResult {
+            name: "regressed",
+            metric_type: MetricType::Gas,
+            measured: 1150,
+            baseline: 1000,
+            threshold_percentage: 10,
+        };
+        assert!(detector.check_within_threshold(&result).is_err());
     }
 }

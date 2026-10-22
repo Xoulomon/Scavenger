@@ -92,7 +92,7 @@ If a reviewer cannot meet the SLA, they should say so in a comment so another re
 - `unwrap()` / `expect()` left in contract error paths
 - `console.log` / `dbg!` debug statements not removed
 - Hardcoded addresses or test keys committed
-- New public contract function not documented in `docs/API_REFERENCE_GUIDE.md`
+- New public contract function not documented in `docs/API_REFERENCE.md`
 - Role/permission check missing on a new contract entry point
 - Test added but only tests the happy path
 - Breaking change not flagged in PR type checkboxes

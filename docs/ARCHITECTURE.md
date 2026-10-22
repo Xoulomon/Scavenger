@@ -590,7 +590,7 @@ New decisions start from [`docs/adr/template.md`](./adr/template.md).
 
 - [Architecture Decision Records](./adr/README.md)
 - [API Reference](./API_REFERENCE.md)
-- [API Documentation](./API_DOCUMENTATION.md)
+- [API Documentation](./API_REFERENCE.md)
 - [Database Schema](./DATABASE_SCHEMA.md)
 - [User Guide](./USER_GUIDE.md)
 - [Security Audit Report](./SECURITY_AUDIT.md)
