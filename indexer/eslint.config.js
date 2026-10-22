@@ -1,9 +1,11 @@
+// Canonical ESLint flat config for the indexer workspace.
+// The legacy .eslintrc.cjs has been removed; this is the single config file.
+// Rules mirror the shared rule-set used by the frontend (see eslint.config.base.js)
+// minus React-specific plugins, which the indexer does not need.
 const tsParser = require('@typescript-eslint/parser')
 const tsPlugin = require('@typescript-eslint/eslint-plugin')
 const importPlugin = require('eslint-plugin-import')
 const errorMessageFormat = require('../eslint-rules/error-message-format.js')
-
-const path = require('path')
 
 const sharedPlugins = {
   '@typescript-eslint': tsPlugin,

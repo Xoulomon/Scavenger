@@ -1,6 +1,0 @@
-This file has been consolidated into docs/getting-started.md.
-
-The consolidated guide covers prerequisites, clone, install, env vars,
-running the stack, verification, per-service commands, and troubleshooting.
-
-See: docs/getting-started.md
