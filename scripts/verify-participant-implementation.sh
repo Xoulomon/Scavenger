@@ -1,9 +1,21 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Verification script for Participant implementation
 # This script checks that all required components are in place
+#
+# Usage: ./scripts/verify-participant-implementation.sh [--help]
 
-set -e
+set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [--help]
+
+Verify that the Participant implementation in stellar-contract/src/lib.rs contains
+all required struct fields, functions, tests, and documentation.
+EOF
+  exit 0
+fi
 
 echo "🔍 Verifying Participant Implementation..."
 echo ""

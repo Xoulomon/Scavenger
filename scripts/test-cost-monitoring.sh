@@ -1,5 +1,19 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Cost monitoring test suite.
+#
+# Usage: ./scripts/test-cost-monitoring.sh [--help]
+
 set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [--help]
+
+Run cost monitoring tests — verifies that cost tracking, alerting thresholds,
+and budget configurations are correctly in place.  Exits 1 if any test fails.
+EOF
+  exit 0
+fi
 
 echo "=== Cost Monitoring Tests ==="
 echo ""

@@ -1,5 +1,19 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Region health check — verify that every configured region is healthy.
+#
+# Usage: ./scripts/region-health-check.sh [--help]
+
 set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [--help]
+
+Check the HTTP health endpoint and response time for each configured region
+endpoint.  Exits 1 if any region is unhealthy.
+EOF
+  exit 0
+fi
 
 check_region() {
   local region=$1

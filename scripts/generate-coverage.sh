@@ -13,11 +13,38 @@
 # Usage:
 #   ./scripts/generate-coverage.sh          # full HTML + summary
 #   ./scripts/generate-coverage.sh --ci     # summary only, fails if < thresholds
+#   ./scripts/generate-coverage.sh --help   # show this help
 #
 # Requirements:
 #   Rust stable toolchain, rustup, Node.js ≥ 18, pnpm
 
 set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [--ci] [--help]
+
+Generate coverage reports for all four Scavenger packages.
+
+Options:
+  --ci     Summary-only mode; exits 1 if any package is below its threshold
+  --help   Show this help message
+
+Thresholds (CI mode):
+  stellar-contract  ≥ 85% lines
+  backend           ≥ 85% lines
+  frontend          ≥ 70% lines
+  indexer           ≥ 70% lines
+
+Output (full mode):
+  stellar-contract/coverage/index.html
+  backend/coverage/index.html
+  coverage/frontend/
+  coverage/indexer/
+  coverage/summary.md
+EOF
+  exit 0
+fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
@@ -144,8 +171,6 @@ cd "${FRONTEND_DIR}"
 mkdir -p "${FRONTEND_COVERAGE_DIR}"
 
 # vitest v8 coverage: produce LCOV + JSON summary in one pass.
-# The vitest.config.ts already configures provider: 'v8' and reporters: ['text','json','html'].
-# We pass --coverage.reporter to also emit lcov for tooling interop.
 pnpm run test:coverage \
   --coverage.reportsDirectory="${FRONTEND_COVERAGE_DIR}" \
   --coverage.reporter=text \
@@ -170,7 +195,6 @@ echo "==> [4/4] Running coverage for indexer..."
 cd "${INDEXER_DIR}"
 mkdir -p "${INDEXER_COVERAGE_DIR}"
 
-# jest --coverage: produce LCOV + JSON summary.
 npx jest --runInBand --coverage \
   --coverageDirectory="${INDEXER_COVERAGE_DIR}" \
   --coverageReporters=text \

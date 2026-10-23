@@ -1,5 +1,28 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Multi-region failover automation.
+#
+# Usage: ./scripts/multi-region-failover.sh [region] [action] [--help]
+
 set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [region] [action] [--help]
+
+Perform or query multi-region Route53 failover for the Scavenger platform.
+
+Arguments:
+  region   Target region for failover (default: reads from env)
+  action   Action to perform: status | failover | failback (default: status)
+
+Environment:
+  PRIMARY_REGION     Primary AWS region    (default: us-east-1)
+  SECONDARY_REGION   Secondary AWS region  (default: us-east-2)
+  DOMAIN             Application domain    (default: scavenger.app)
+  AWS_PROFILE        AWS CLI profile       (default: default)
+EOF
+  exit 0
+fi
 
 REGION="${1:-}"
 ACTION="${2:-status}"

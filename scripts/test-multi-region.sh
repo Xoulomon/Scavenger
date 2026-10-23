@@ -1,5 +1,20 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Multi-region deployment test suite.
+#
+# Usage: ./scripts/test-multi-region.sh [--help]
+
 set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [--help]
+
+Run multi-region deployment tests — verifies that routing, failover, and
+replication configurations are functioning correctly across regions.
+Exits 1 if any test fails.
+EOF
+  exit 0
+fi
 
 echo "=== Multi-Region Deployment Tests ==="
 echo ""

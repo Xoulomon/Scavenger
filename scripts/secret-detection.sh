@@ -1,13 +1,16 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 # Secret Detection and Remediation Script
-# Implements real repository secret scanning and remediation for issue #974
+# Implements real repository secret scanning and remediation for issue #974.
+#
+# Usage: ./scripts/secret-detection.sh [command] [--help]
 
 set -euo pipefail
 
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
+# YELLOW is defined but currently only used via NC; kept for future use.
+# shellcheck disable=SC2034
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
@@ -68,7 +71,6 @@ scan_repository() {
             ;;
     esac
 }
-======
 
 # Function to process and categorize findings
 process_findings() {
@@ -76,29 +78,29 @@ process_findings() {
         log "📊 No findings to process"
         return 0
     fi
-    
+
     log "📊 Processing findings from $GITLEAKS_REPORT"
-    
+
     # Count findings by type
     local total_findings
     total_findings=$(jq '. | length' "$GITLEAKS_REPORT")
-    
+
     if [ "$total_findings" -eq 0 ]; then
         log "✅ No secrets found"
         return 0
     fi
-    
+
     log "Found $total_findings potential secrets"
-    
+
     # Group by rule ID
     jq -r '.[] | .RuleID' "$GITLEAKS_REPORT" | sort | uniq -c | while read -r count rule; do
         log "  - $rule: $count findings"
     done
-    
+
     # List high-risk findings (not in test or doc files)
     local high_risk_findings
     high_risk_findings=$(jq '[.[] | select(.File | test("^(?!.*(test|spec|example|doc/)).*$"))] | length' "$GITLEAKS_REPORT")
-    
+
     if [ "$high_risk_findings" -gt 0 ]; then
         log "⚠️ High-risk findings (outside test/doc files): $high_risk_findings"
         echo -e "${RED}High-risk secrets found:${NC}"
@@ -142,59 +144,61 @@ write_summary() {
 
     log "📋 Scan summary written to: $summary_file"
 }
-======
 
 # Function to suggest remediations
 suggest_remediations() {
     if [ ! -f "$GITLEAKS_REPORT" ] || [ "$(jq '. | length' "$GITLEAKS_REPORT")" -eq 0 ]; then
         return 0
     fi
-    
+
     log "💡 Generating remediation suggestions..."
-    
-    # Create remediation suggestions
-    cat > "$REPORT_DIR/remediation_suggestions_${TIMESTAMP}.md" << 'EOF'
+
+    local suggestions_file="$REPORT_DIR/remediation_suggestions_${TIMESTAMP}.md"
+
+    # Write the header and high-priority section together using a grouped redirect
+    {
+      cat << 'EOF'
 # Secret Detection Remediation Suggestions
 
 ## Immediate Actions Required
 
 ### High-Priority Secrets (Production Risk)
 EOF
-    
-    # Add high-risk findings
-    if jq -e '.[] | select(.File | test("^(?!.*(test|spec|example|doc/)).*$"))' "$GITLEAKS_REPORT" > /dev/null; then
-        echo "Found high-risk secrets that need immediate attention:" >> "$REPORT_DIR/remediation_suggestions_${TIMESTAMP}.md"
-        jq -r '.[] | select(.File | test("^(?!.*(test|spec|example|doc/)).*$")) | 
-        "
+
+      # Add high-risk findings
+      if jq -e '.[] | select(.File | test("^(?!.*(test|spec|example|doc/)).*$"))' "$GITLEAKS_REPORT" > /dev/null; then
+          echo "Found high-risk secrets that need immediate attention:"
+          jq -r '.[] | select(.File | test("^(?!.*(test|spec|example|doc/)).*$")) |
+          "
 ### \(.File):\(.StartLine)
 - **Rule**: \(.RuleID)
 - **Secret**: `\(.Secret[0:20])...` (truncated)
-- **Action**: 
+- **Action**:
   1. Rotate/revoke this credential immediately
   2. Remove from code and use environment variables
   3. Add to .gitignore or use secrets management
   4. Check if this secret was used in production
 
-"' "$GITLEAKS_REPORT" >> "$REPORT_DIR/remediation_suggestions_${TIMESTAMP}.md"
-    else
-        echo "✅ No high-risk secrets found in production code." >> "$REPORT_DIR/remediation_suggestions_${TIMESTAMP}.md"
-    fi
-    
-    cat >> "$REPORT_DIR/remediation_suggestions_${TIMESTAMP}.md" << 'EOF'
+"' "$GITLEAKS_REPORT"
+      else
+          echo "✅ No high-risk secrets found in production code."
+      fi
+
+      cat << 'EOF'
 
 ### Medium-Priority (Test/Documentation)
 These findings are in test or documentation files but should still be reviewed:
 
 EOF
-    
-    # Add test/doc findings
-    jq -r '.[] | select(.File | test(".*(test|spec|example|doc/).*")) | 
-    "- **\(.File):\(.StartLine)** - \(.RuleID)
+
+      # Add test/doc findings
+      jq -r '.[] | select(.File | test(".*(test|spec|example|doc/).*")) |
+      "- **\(.File):\(.StartLine)** - \(.RuleID)
   - Consider using placeholder tokens like `${YOUR_API_TOKEN}` or `EXAMPLE_TOKEN`
   - Ensure test tokens are clearly marked as non-functional
-"' "$GITLEAKS_REPORT" >> "$REPORT_DIR/remediation_suggestions_${TIMESTAMP}.md"
-    
-    cat >> "$REPORT_DIR/remediation_suggestions_${TIMESTAMP}.md" << 'EOF'
+"' "$GITLEAKS_REPORT"
+
+      cat << 'EOF'
 
 ## Recommended Security Improvements
 
@@ -233,8 +237,9 @@ EOF
 - Monitor for credential usage anomalies
 
 EOF
-    
-    log "📋 Remediation suggestions written to: $REPORT_DIR/remediation_suggestions_${TIMESTAMP}.md"
+    } > "$suggestions_file"
+
+    log "📋 Remediation suggestions written to: $suggestions_file"
 }
 
 # Function to scan specific paths for new secrets
@@ -242,14 +247,15 @@ scan_paths() {
     local paths=("$@")
     if [ ${#paths[@]} -eq 0 ]; then
         log "🔍 Scanning all tracked files..."
-        paths=($(git ls-files))
+        # Use mapfile (readarray) to avoid word-splitting on filenames
+        mapfile -t paths < <(git ls-files)
     fi
-    
+
     log "🔍 Scanning ${#paths[@]} paths for secrets..."
-    
+
     # Create temporary report for path scanning
     local path_report="$REPORT_DIR/path_scan_${TIMESTAMP}.json"
-    
+
     for path in "${paths[@]}"; do
         if [ -f "$path" ]; then
             if ! gitleaks detect --config .gitleaks.toml --source "$path" --report-format json --report-path "$path_report" --no-git 2>/dev/null; then
@@ -257,22 +263,22 @@ scan_paths() {
             fi
         fi
     done
-    
+
     # Merge results if they exist
     if [ -f "$path_report" ] && [ "$(jq '. | length' "$path_report" 2>/dev/null || echo 0)" -gt 0 ]; then
         log "📊 Path scan found $(jq '. | length' "$path_report") secrets"
         jq -s 'add' "$GITLEAKS_REPORT" "$path_report" > "${GITLEAKS_REPORT}.tmp" 2>/dev/null && mv "${GITLEAKS_REPORT}.tmp" "$GITLEAKS_REPORT" || true
     fi
-    
+
     rm -f "$path_report"
 }
 
 # Function to install pre-commit hook
 install_hooks() {
     log "🪝 Installing git hooks for secret detection..."
-    
+
     # Create pre-commit hook
-    cat > .git/hooks/pre-commit << 'EOF'
+    cat > .git/hooks/pre-commit << 'HOOK'
 #!/bin/bash
 # Git pre-commit hook for secret detection
 # Generated by secret-detection.sh
@@ -292,13 +298,13 @@ if ! gitleaks protect --config .gitleaks.toml --staged --verbose; then
 fi
 
 echo "✅ No secrets detected in staged files"
-EOF
-    
+HOOK
+
     chmod +x .git/hooks/pre-commit
     log "✅ Pre-commit hook installed"
-    
+
     # Create commit-msg hook for commit message scanning
-    cat > .git/hooks/commit-msg << 'EOF'
+    cat > .git/hooks/commit-msg << 'HOOK'
 #!/bin/bash
 # Git commit-msg hook for secret detection in commit messages
 
@@ -310,8 +316,8 @@ if grep -qE "(password|secret|key|token).*[:=]" "$commit_msg"; then
     echo "Please avoid including sensitive information in commit messages."
     exit 1
 fi
-EOF
-    
+HOOK
+
     chmod +x .git/hooks/commit-msg
     log "✅ Commit-msg hook installed"
 }
@@ -319,7 +325,7 @@ EOF
 # Main execution
 main() {
     check_gitleaks
-    
+
     # Parse command line arguments
     case "${1:-scan}" in
         "scan")
@@ -348,7 +354,6 @@ main() {
                 exit 1
             fi
             ;;
-======
         "install-hooks")
             install_hooks
             ;;

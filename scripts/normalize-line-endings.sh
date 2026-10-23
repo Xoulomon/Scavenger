@@ -1,7 +1,19 @@
-#!/bin/bash
-# Normalize line endings to LF for all files in the repository
+#!/usr/bin/env bash
+# Normalize line endings to LF for all text files in the repository.
+#
+# Usage: ./scripts/normalize-line-endings.sh [--help]
 
-set -e
+set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [--help]
+
+Convert all CRLF line endings to LF in tracked text files (excluding binaries
+and generated artifacts).  Use check-line-endings.sh to detect violations first.
+EOF
+  exit 0
+fi
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'

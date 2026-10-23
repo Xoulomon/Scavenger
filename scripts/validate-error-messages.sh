@@ -1,5 +1,20 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+# Validate that all JavaScript/TypeScript Error messages follow the project convention.
+#
+# Usage: ./scripts/validate-error-messages.sh [--help]
+
+set -euo pipefail
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [--help]
+
+Scan TypeScript, JavaScript, and JSX source files for Error constructor calls
+and verify that every error message starts with an uppercase letter and ends
+with a period.
+EOF
+  exit 0
+fi
 
 GREEN='\033[0;32m'
 RED='\033[0;31m'

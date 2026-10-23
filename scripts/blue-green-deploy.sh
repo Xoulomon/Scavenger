@@ -1,5 +1,31 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Blue-green deployment script for Kubernetes.
+#
+# Usage: ./scripts/blue-green-deploy.sh [image] [--help]
+
 set -euo pipefail
+
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") [image] [--help]
+
+Perform a blue-green deployment on Kubernetes.
+
+Arguments:
+  image   Docker image to deploy (default: scavenger:latest)
+
+Environment:
+  NAMESPACE         Kubernetes namespace           (default: scavenger-prod)
+  SMOKE_TEST_URL    URL for smoke tests            (default: http://localhost/health)
+  MONITOR_DURATION  Seconds to monitor after shift (default: 120)
+  ERROR_THRESHOLD   Error count to trigger rollback (default: 10)
+EOF
+  exit 0
+}
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  usage
+fi
 
 NAMESPACE="${NAMESPACE:-scavenger-prod}"
 BLUE_DEPLOYMENT="scavenger-blue"
@@ -31,22 +57,22 @@ echo ""
 
 # Step 1: Update green deployment with new image
 echo "Step 1: Updating green deployment with new image..."
-kubectl set image deployment/$GREEN_DEPLOYMENT \
-  scavenger=$IMAGE \
-  -n $NAMESPACE
+kubectl set image "deployment/${GREEN_DEPLOYMENT}" \
+  "scavenger=${IMAGE}" \
+  -n "$NAMESPACE"
 
 # Step 2: Scale up green deployment to match blue
 BLUE_REPLICAS=$(kubectl get deployment "$BLUE_DEPLOYMENT" -n "$NAMESPACE" \
   -o jsonpath='{.spec.replicas}' 2>/dev/null || echo "3")
 echo "Step 2: Scaling green to $BLUE_REPLICAS replicas..."
-kubectl scale deployment $GREEN_DEPLOYMENT \
+kubectl scale deployment "$GREEN_DEPLOYMENT" \
   --replicas="$BLUE_REPLICAS" \
-  -n $NAMESPACE
+  -n "$NAMESPACE"
 
 # Step 3: Wait for green deployment to be ready
 echo "Step 3: Waiting for green deployment to be ready..."
-kubectl rollout status deployment/$GREEN_DEPLOYMENT \
-  -n $NAMESPACE \
+kubectl rollout status "deployment/${GREEN_DEPLOYMENT}" \
+  -n "$NAMESPACE" \
   --timeout=5m
 
 # Step 4: Run smoke tests against green
@@ -56,7 +82,7 @@ for i in $(seq 1 30); do
   if kubectl run "smoke-test-${i}-$$" \
     --image=curlimages/curl:latest \
     --rm -i --restart=Never \
-    -n $NAMESPACE \
+    -n "$NAMESPACE" \
     -- curl -sf "$SMOKE_TEST_URL" > /dev/null 2>&1; then
     echo "Smoke test passed!"
     SMOKE_PASSED=1
@@ -73,8 +99,8 @@ fi
 
 # Step 5: Switch traffic to green
 echo "Step 5: Switching traffic to green deployment..."
-kubectl patch service $SERVICE \
-  -n $NAMESPACE \
+kubectl patch service "$SERVICE" \
+  -n "$NAMESPACE" \
   -p '{"spec":{"selector":{"slot":"green"}}}'
 
 echo "Traffic switched to green. Waiting 15s for connections to stabilize..."
@@ -90,9 +116,9 @@ fi
 
 # Step 7: Scale down blue deployment
 echo "Step 7: Scaling down blue deployment (keeping 0 replicas for quick rollback)..."
-kubectl scale deployment $BLUE_DEPLOYMENT \
+kubectl scale deployment "$BLUE_DEPLOYMENT" \
   --replicas=0 \
-  -n $NAMESPACE
+  -n "$NAMESPACE"
 
 echo ""
 echo "Blue-green deployment completed successfully!"

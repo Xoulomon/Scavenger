@@ -1,7 +1,28 @@
-#!/bin/bash
-# Database backup script with verification
+#!/usr/bin/env bash
+# Database backup script with verification.
+#
+# Usage: ./scripts/backup-database.sh [--help]
 
 set -euo pipefail
+
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") [--help]
+
+Create a compressed database backup, verify it, upload to S3, and prune old backups.
+
+Environment:
+  BACKUP_DIR       Local directory for backups   (default: /backups)
+  RETENTION_DAYS   Days of backups to keep        (default: 30)
+  DB_HOST          PostgreSQL host                (default: localhost)
+  DB_NAME          Database name                  (default: scavenger)
+EOF
+  exit 0
+}
+
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  usage
+fi
 
 BACKUP_DIR="${BACKUP_DIR:-/backups}"
 RETENTION_DAYS="${RETENTION_DAYS:-30}"
@@ -36,6 +57,6 @@ aws s3 cp "$BACKUP_FILE" "s3://scavenger-backups/database/$TIMESTAMP/" \
 
 # Cleanup old backups
 echo "Cleaning up old backups..."
-find "$BACKUP_DIR" -name "db_backup_*.sql.gz" -mtime +$RETENTION_DAYS -delete
+find "$BACKUP_DIR" -name "db_backup_*.sql.gz" -mtime +"$RETENTION_DAYS" -delete
 
 echo "Backup completed successfully"

@@ -1,11 +1,22 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Generate a capacity utilisation report.
+#
+# Usage: ./scripts/capacity-report.sh [--help]
+
 set -euo pipefail
 
-ENVIRONMENT="${ENVIRONMENT:-prod}"
-REPORT_DIR="${REPORT_DIR:-/tmp/capacity-reports}"
-REPORT_DATE=$(date +%Y-%m-%d)
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: $(basename "$0") [--help]
 
-mkdir -p "$REPORT_DIR"
+Query current resource utilisation and write a Markdown report.
+
+Environment:
+  ENVIRONMENT  Environment label       (default: prod)
+  REPORT_DIR   Report output directory (default: /tmp/capacity-reports)
+EOF
+  exit 0
+fi
 
 echo "=== Scavenger Capacity Report ==="
 echo "Date: $REPORT_DATE"
