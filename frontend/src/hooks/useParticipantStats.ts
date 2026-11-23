@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import '@tanstack/react-query'
 import { useContractQuery } from '@/hooks/useContractQuery'
 import { cacheKeys } from '@/lib/cacheKeys'
 
@@ -24,6 +24,6 @@ export function useParticipantStats(address: string | undefined) {
     queryKey: cacheKeys.participantStats(address ?? ''),
     queryFn: (client) => client.getStats(address!),
     enabled: !!address,
-    staleTime: 60_000,
+    staleTime: 60_000
   })
 }

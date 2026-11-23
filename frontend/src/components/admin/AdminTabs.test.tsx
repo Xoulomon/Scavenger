@@ -12,16 +12,16 @@ import { addAuditEntry } from './auditLog'
 vi.mock('@/hooks/useAdminDashboard', () => ({
   useAdminMetrics: () => ({
     data: { total_wastes_count: 42, total_tokens_earned: 1000n },
-    isLoading: false,
+    isLoading: false
   }),
   useAdminIncentives: () => ({
     data: [],
-    isLoading: false,
+    isLoading: false
   }),
   useAdminWasteLookup: () => ({
     data: null,
-    isLoading: false,
-  }),
+    isLoading: false
+  })
 }))
 
 describe('Admin Tab Components', () => {

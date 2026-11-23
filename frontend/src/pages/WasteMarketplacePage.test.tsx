@@ -10,7 +10,7 @@ import {
   respondToOffer,
   averageRating,
   type MarketplaceListing,
-  type RatingEntry,
+  type RatingEntry
 } from './WasteMarketplacePage'
 
 const listings: MarketplaceListing[] = [
@@ -22,7 +22,7 @@ const listings: MarketplaceListing[] = [
     pricePerKg: 0.5,
     description: 'clean paper',
     listedAt: 1000,
-    rating: 4.0,
+    rating: 4.0
   },
   {
     id: 'l2',
@@ -32,7 +32,7 @@ const listings: MarketplaceListing[] = [
     pricePerKg: 2.0,
     description: 'scrap metal',
     listedAt: 2000,
-    rating: 3.0,
+    rating: 3.0
   },
   {
     id: 'l3',
@@ -42,8 +42,8 @@ const listings: MarketplaceListing[] = [
     pricePerKg: 1.0,
     description: 'newspaper',
     listedAt: 3000,
-    rating: 5.0,
-  },
+    rating: 5.0
+  }
 ]
 
 describe('WasteMarketplacePage — filterListings', () => {
@@ -150,7 +150,7 @@ describe('WasteMarketplacePage — averageRating', () => {
   const ratings: RatingEntry[] = [
     { listingId: 'l1', rater: 'G1', score: 4, comment: '' },
     { listingId: 'l1', rater: 'G2', score: 2, comment: '' },
-    { listingId: 'l2', rater: 'G3', score: 5, comment: '' },
+    { listingId: 'l2', rater: 'G3', score: 5, comment: '' }
   ]
 
   it('calculates average for a listing', () => {
@@ -169,7 +169,7 @@ describe('WasteMarketplacePage — averageRating', () => {
     const multiRatings: RatingEntry[] = [
       { listingId: 'l1', rater: 'G1', score: 5, comment: '' },
       { listingId: 'l1', rater: 'G2', score: 5, comment: '' },
-      { listingId: 'l1', rater: 'G3', score: 5, comment: '' },
+      { listingId: 'l1', rater: 'G3', score: 5, comment: '' }
     ]
     expect(averageRating(multiRatings, 'l1')).toBe(5)
   })
@@ -177,7 +177,7 @@ describe('WasteMarketplacePage — averageRating', () => {
   it('rounds average correctly', () => {
     const roundRatings: RatingEntry[] = [
       { listingId: 'l1', rater: 'G1', score: 3, comment: '' },
-      { listingId: 'l1', rater: 'G2', score: 4, comment: '' },
+      { listingId: 'l1', rater: 'G2', score: 4, comment: '' }
     ]
     expect(averageRating(roundRatings, 'l1')).toBe(3.5)
   })
@@ -186,7 +186,7 @@ describe('WasteMarketplacePage — averageRating', () => {
     const multiListingRatings: RatingEntry[] = [
       { listingId: 'l1', rater: 'G1', score: 1, comment: '' },
       { listingId: 'l2', rater: 'G2', score: 5, comment: '' },
-      { listingId: 'l2', rater: 'G3', score: 5, comment: '' },
+      { listingId: 'l2', rater: 'G3', score: 5, comment: '' }
     ]
     expect(averageRating(multiListingRatings, 'l1')).toBe(1)
     expect(averageRating(multiListingRatings, 'l2')).toBe(5)
@@ -205,7 +205,7 @@ describe('WasteMarketplacePage — listing operations', () => {
       pricePerKg: 0,
       description: 'empty',
       listedAt: 1000,
-      rating: 0,
+      rating: 0
     }
     const result = filterListings([zeroWeightListing], '', 'all')
     expect(result).toHaveLength(1)
@@ -220,7 +220,7 @@ describe('WasteMarketplacePage — listing operations', () => {
       pricePerKg: 10000,
       description: 'premium',
       listedAt: 1000,
-      rating: 5.0,
+      rating: 5.0
     }
     const result = sortListings([expensiveListing, listings[0]], 'price_desc')
     expect(result[0].pricePerKg).toBe(10000)
@@ -301,7 +301,7 @@ describe('WasteMarketplacePage — complex filters', () => {
     const allTypes = [
       { ...listings[0], wasteType: WasteType.Paper },
       { ...listings[1], wasteType: WasteType.Metal },
-      { ...listings[2], wasteType: WasteType.Glass },
+      { ...listings[2], wasteType: WasteType.Glass }
     ]
     const result = filterListings(allTypes, '', WasteType.Metal)
     expect(result).toHaveLength(1)
@@ -322,7 +322,7 @@ describe('WasteMarketplacePage — complex filters', () => {
   it('handles filters with special characters', () => {
     const specialListing: MarketplaceListing = {
       ...listings[0],
-      description: 'test-paper_clean (recyclable)',
+      description: 'test-paper_clean (recyclable)'
     }
     const result = filterListings([specialListing], 'test-paper', 'all')
     expect(result).toHaveLength(1)

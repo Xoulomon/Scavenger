@@ -22,13 +22,13 @@ Comprehensive guide for deploying and operating Scavngr across all environments.
 
 ### Prerequisites
 
-| Requirement | Version | Install |
-|---|---|---|
-| Rust | 1.70+ | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
-| wasm32 target | — | `rustup target add wasm32-unknown-unknown` |
-| Soroban CLI | latest | `cargo install --locked soroban-cli` |
-| Node.js | 18+ | https://nodejs.org |
-| Docker | 24+ | https://docker.com |
+| Requirement   | Version | Install                                                           |
+| ------------- | ------- | ----------------------------------------------------------------- |
+| Rust          | 1.70+   | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
+| wasm32 target | —       | `rustup target add wasm32-unknown-unknown`                        |
+| Soroban CLI   | latest  | `cargo install --locked soroban-cli`                              |
+| Node.js       | 18+     | https://nodejs.org                                                |
+| Docker        | 24+     | https://docker.com                                                |
 
 ### Step 1 — Generate and Fund a Keypair
 
@@ -234,13 +234,13 @@ echo "https://stellar.expert/explorer/public/contract/$MAINNET_CONTRACT_ID"
 
 ### Key Metrics to Watch
 
-| Metric | Source | Alert Threshold |
-|---|---|---|
-| Contract invocation success rate | Stellar Horizon | < 99% |
-| RPC endpoint latency | Prometheus | > 2 000 ms p95 |
-| Frontend error rate | Browser console / Sentry | > 1% |
-| Active participants | Contract `get_metrics()` | Drop > 20% in 1h |
-| Total waste submitted | Contract `get_metrics()` | No new submissions > 4h |
+| Metric                           | Source                   | Alert Threshold         |
+| -------------------------------- | ------------------------ | ----------------------- |
+| Contract invocation success rate | Stellar Horizon          | < 99%                   |
+| RPC endpoint latency             | Prometheus               | > 2 000 ms p95          |
+| Frontend error rate              | Browser console / Sentry | > 1%                    |
+| Active participants              | Contract `get_metrics()` | Drop > 20% in 1h        |
+| Total waste submitted            | Contract `get_metrics()` | No new submissions > 4h |
 
 ### Prometheus Setup
 
@@ -299,21 +299,21 @@ groups:
 
 ### Contract Issues
 
-| Symptom | Likely Cause | Resolution |
-|---|---|---|
-| "insufficient balance" on deploy | Account XLM too low | Fund account; minimum 20 XLM for fees |
-| "contract not found" | Wrong network or contract ID | Verify `VITE_CONTRACT_ID` matches deployed network |
-| Transaction stuck pending | Network congestion | Retry with higher fee: `--fee 1000` |
-| "already initialized" | `initialize_admin` called twice | Contract is already set up — skip init |
+| Symptom                          | Likely Cause                    | Resolution                                         |
+| -------------------------------- | ------------------------------- | -------------------------------------------------- |
+| "insufficient balance" on deploy | Account XLM too low             | Fund account; minimum 20 XLM for fees              |
+| "contract not found"             | Wrong network or contract ID    | Verify `VITE_CONTRACT_ID` matches deployed network |
+| Transaction stuck pending        | Network congestion              | Retry with higher fee: `--fee 1000`                |
+| "already initialized"            | `initialize_admin` called twice | Contract is already set up — skip init             |
 
 ### Frontend Issues
 
-| Symptom | Likely Cause | Resolution |
-|---|---|---|
-| "Wallet not connected" after refresh | Session not persisted | Reconnect wallet; check `localStorage` |
-| CORS errors in console | RPC URL mismatch | Verify `VITE_RPC_URL` is correct and accessible |
-| Contract calls timeout | Slow RPC endpoint | Try alternative RPC; increase timeout |
-| Firebase auth fails | Missing env vars | Check all `VITE_FIREBASE_*` are set |
+| Symptom                              | Likely Cause          | Resolution                                      |
+| ------------------------------------ | --------------------- | ----------------------------------------------- |
+| "Wallet not connected" after refresh | Session not persisted | Reconnect wallet; check `localStorage`          |
+| CORS errors in console               | RPC URL mismatch      | Verify `VITE_RPC_URL` is correct and accessible |
+| Contract calls timeout               | Slow RPC endpoint     | Try alternative RPC; increase timeout           |
+| Firebase auth fails                  | Missing env vars      | Check all `VITE_FIREBASE_*` are set             |
 
 ### Debug Commands
 
@@ -427,12 +427,12 @@ Steps:
 
 ### Recovery Time Objectives
 
-| Incident | RTO | RPO |
-|---|---|---|
-| Frontend outage | 30 min | N/A (no data loss) |
-| RPC outage | 15 min | N/A |
-| Indexer crash | 1 hour | Last ledger sync |
-| Database corruption | 4 hours | Last backup |
+| Incident            | RTO     | RPO                |
+| ------------------- | ------- | ------------------ |
+| Frontend outage     | 30 min  | N/A (no data loss) |
+| RPC outage          | 15 min  | N/A                |
+| Indexer crash       | 1 hour  | Last ledger sync   |
+| Database corruption | 4 hours | Last backup        |
 
 ### Backup Verification
 
@@ -452,21 +452,21 @@ Steps:
 
 ### Current Limits
 
-| Resource | Limit | Notes |
-|---|---|---|
+| Resource         | Limit                                 | Notes                         |
+| ---------------- | ------------------------------------- | ----------------------------- |
 | Contract storage | ~64 KB instance, unlimited persistent | Cost scales with storage used |
-| WASM size | 64 KB optimised | Currently ~45 KB |
-| Batch size | 25 participants / tx | Hard limit in contract |
-| RPC calls/second | ~100 (shared testnet) | Dedicated node for mainnet |
+| WASM size        | 64 KB optimised                       | Currently ~45 KB              |
+| Batch size       | 25 participants / tx                  | Hard limit in contract        |
+| RPC calls/second | ~100 (shared testnet)                 | Dedicated node for mainnet    |
 
 ### Scaling Triggers
 
-| Metric | Action |
-|---|---|
-| > 1 000 active participants/day | Add dedicated RPC node |
-| > 10 000 waste submissions/day | Optimise indexer query patterns |
-| > 5 MB/day indexer DB growth | Review data retention policy |
-| p95 RPC latency > 1 500 ms | Scale horizontally or cache layer |
+| Metric                          | Action                            |
+| ------------------------------- | --------------------------------- |
+| > 1 000 active participants/day | Add dedicated RPC node            |
+| > 10 000 waste submissions/day  | Optimise indexer query patterns   |
+| > 5 MB/day indexer DB growth    | Review data retention policy      |
+| p95 RPC latency > 1 500 ms      | Scale horizontally or cache layer |
 
 ---
 
@@ -536,4 +536,4 @@ echo "Platform resumed at $(date -u)" >> ops-log.txt
 
 ---
 
-*Last updated: June 2026 | Maintained by: Scavngr Core Team*
+_Last updated: June 2026 | Maintained by: Scavngr Core Team_

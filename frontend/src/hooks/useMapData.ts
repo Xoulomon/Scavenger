@@ -38,9 +38,12 @@ export function decodeCoord(raw: bigint): number {
 
 export function isValidCoord(lat: number, lng: number): boolean {
   return (
-    isFinite(lat) && isFinite(lng) &&
-    lat >= -90 && lat <= 90 &&
-    lng >= -180 && lng <= 180 &&
+    isFinite(lat) &&
+    isFinite(lng) &&
+    lat >= -90 &&
+    lat <= 90 &&
+    lng >= -180 &&
+    lng <= 180 &&
     !(lat === 0 && lng === 0)
   )
 }
@@ -64,9 +67,7 @@ export function distanceKm(a: [number, number], b: [number, number]): number {
   const dLng = toRad(b[1] - a[1])
   const lat1 = toRad(a[0])
   const lat2 = toRad(b[0])
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2
 
   return 2 * earthRadiusKm * Math.asin(Math.sqrt(h))
 }
@@ -89,13 +90,18 @@ export function wasteMatchesLocationSearch(point: WasteMapPoint, filters?: MapFi
     String(point.waste.waste_id),
     point.waste.current_owner,
     point.lat.toFixed(4),
-    point.lng.toFixed(4),
-  ].join(' ').toLowerCase()
+    point.lng.toFixed(4)
+  ]
+    .join(' ')
+    .toLowerCase()
 
   return haystack.includes(query)
 }
 
-export function participantMatchesLocationSearch(point: ParticipantMapPoint, filters?: MapFilters): boolean {
+export function participantMatchesLocationSearch(
+  point: ParticipantMapPoint,
+  filters?: MapFilters
+): boolean {
   const query = normalizeSearch(filters?.locationQuery)
   if (!query) return true
 
@@ -110,8 +116,10 @@ export function participantMatchesLocationSearch(point: ParticipantMapPoint, fil
     point.participant.name,
     point.participant.role,
     point.lat.toFixed(4),
-    point.lng.toFixed(4),
-  ].join(' ').toLowerCase()
+    point.lng.toFixed(4)
+  ]
+    .join(' ')
+    .toLowerCase()
 
   return haystack.includes(query)
 }
@@ -127,7 +135,7 @@ export function useMapData(filters?: MapFilters) {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       const ids = await client.getParticipantWastes(address)
       const results = await Promise.all(ids.map((id) => client.getWaste(id)))
@@ -140,7 +148,8 @@ export function useMapData(filters?: MapFilters) {
       if (filters?.status && filters.status !== 'all') {
         if (filters.status === 'active') items = items.filter((w) => w.is_active)
         if (filters.status === 'confirmed') items = items.filter((w) => w.is_confirmed)
-        if (filters.status === 'pending') items = items.filter((w) => w.is_active && !w.is_confirmed)
+        if (filters.status === 'pending')
+          items = items.filter((w) => w.is_active && !w.is_confirmed)
       }
       if (filters?.dateFrom) {
         items = items.filter((w) => w.recycled_timestamp >= (filters.dateFrom ?? 0))
@@ -159,17 +168,19 @@ export function useMapData(filters?: MapFilters) {
         .filter((p) => wasteMatchesLocationSearch(p, filters))
     },
     enabled: !!address,
-    staleTime: 2 * 60 * 1000,
+    staleTime: 2 * 60 * 1000
   })
 
-  const { data: participants = [], isLoading: participantsLoading } = useQuery<ParticipantMapPoint[]>({
+  const { data: participants = [], isLoading: participantsLoading } = useQuery<
+    ParticipantMapPoint[]
+  >({
     queryKey: cacheKeys.mapParticipant(address, filters),
     queryFn: async () => {
       if (!address) return []
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       const p = await client.getParticipant(address)
       if (!p) return []
@@ -180,12 +191,12 @@ export function useMapData(filters?: MapFilters) {
       return participantMatchesLocationSearch(point, filters) ? [point] : []
     },
     enabled: !!address && (filters?.showParticipants ?? true),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 5 * 60 * 1000
   })
 
   return {
     wastes,
     participants,
-    isLoading: wastesLoading || participantsLoading,
+    isLoading: wastesLoading || participantsLoading
   }
 }

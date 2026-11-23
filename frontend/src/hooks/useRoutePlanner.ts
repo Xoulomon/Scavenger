@@ -47,14 +47,20 @@ export function optimizeRoute(stops: RouteStop[]): RouteStop[] {
     let nearestDist = Infinity
     remaining.forEach((s, i) => {
       const d = haversineKm(last.lat, last.lng, s.lat, s.lng)
-      if (d < nearestDist) { nearestDist = d; nearestIdx = i }
+      if (d < nearestDist) {
+        nearestDist = d
+        nearestIdx = i
+      }
     })
     ordered.push(remaining.splice(nearestIdx, 1)[0])
   }
   return ordered
 }
 
-export function computeRouteStats(stops: RouteStop[]): { totalDistanceKm: number; estimatedMinutes: number } {
+export function computeRouteStats(stops: RouteStop[]): {
+  totalDistanceKm: number
+  estimatedMinutes: number
+} {
   let totalDistanceKm = 0
   for (let i = 1; i < stops.length; i++) {
     totalDistanceKm += haversineKm(stops[i - 1].lat, stops[i - 1].lng, stops[i].lat, stops[i].lng)
@@ -117,23 +123,26 @@ export function useRoutePlanner() {
     setRouteResult({ orderedStops, totalDistanceKm, estimatedMinutes, directions })
   }, [selectedStops])
 
-  const saveRoute = useCallback((name: string) => {
-    if (!routeResult) return
-    const route: SavedRoute = {
-      id: `route_${Date.now()}`,
-      name,
-      stops: routeResult.orderedStops,
-      totalDistanceKm: routeResult.totalDistanceKm,
-      estimatedMinutes: routeResult.estimatedMinutes,
-      createdAt: Date.now(),
-    }
-    setSavedRoutes((prev) => {
-      const updated = [route, ...prev]
-      persistRoutes(updated)
-      return updated
-    })
-    return route
-  }, [routeResult])
+  const saveRoute = useCallback(
+    (name: string) => {
+      if (!routeResult) return
+      const route: SavedRoute = {
+        id: `route_${Date.now()}`,
+        name,
+        stops: routeResult.orderedStops,
+        totalDistanceKm: routeResult.totalDistanceKm,
+        estimatedMinutes: routeResult.estimatedMinutes,
+        createdAt: Date.now()
+      }
+      setSavedRoutes((prev) => {
+        const updated = [route, ...prev]
+        persistRoutes(updated)
+        return updated
+      })
+      return route
+    },
+    [routeResult]
+  )
 
   const loadRoute = useCallback((route: SavedRoute) => {
     setSelectedStops(route.stops)
@@ -142,7 +151,7 @@ export function useRoutePlanner() {
       orderedStops: route.stops,
       totalDistanceKm: route.totalDistanceKm,
       estimatedMinutes: route.estimatedMinutes,
-      directions,
+      directions
     })
   }, [])
 
@@ -156,7 +165,9 @@ export function useRoutePlanner() {
 
   const shareRoute = useCallback((route: SavedRoute | RouteResult) => {
     const stops = 'orderedStops' in route ? route.orderedStops : (route as SavedRoute).stops
-    const text = stops.map((s, i) => `${i + 1}. ${s.label} (${s.lat.toFixed(4)}, ${s.lng.toFixed(4)})`).join('\n')
+    const text = stops
+      .map((s, i) => `${i + 1}. ${s.label} (${s.lat.toFixed(4)}, ${s.lng.toFixed(4)})`)
+      .join('\n')
     return `Scavngr Route:\n${text}`
   }, [])
 
@@ -171,6 +182,6 @@ export function useRoutePlanner() {
     saveRoute,
     loadRoute,
     deleteRoute,
-    shareRoute,
+    shareRoute
   }
 }

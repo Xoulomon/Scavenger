@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import axios from 'axios';
+import { describe, it, expect } from 'vitest'
+import axios from 'axios'
 
-const API_URL = process.env.API_URL || 'http://localhost:3000/api';
+const API_URL = process.env.API_URL || 'http://localhost:3000/api'
 
 /**
  * Integer Overflow / Underflow Security Tests
@@ -31,14 +31,14 @@ describe('Integer Overflow: Weight Values', () => {
         weight: Number.MAX_SAFE_INTEGER,
         submitter: 'RECYCLER_OVERFLOW_1',
         latitude: 40000000,
-        longitude: -74000000,
-      });
+        longitude: -74000000
+      })
       // Should not succeed - weight far exceeds max allowed
-      expect(false).toBe(true);
+      expect(false).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).toBe(400);
+      expect(error.response?.status).toBe(400)
     }
-  });
+  })
 
   /**
    * Submitting waste with Number.MAX_VALUE should be rejected.
@@ -51,13 +51,13 @@ describe('Integer Overflow: Weight Values', () => {
         weight: Number.MAX_VALUE,
         submitter: 'RECYCLER_OVERFLOW_2',
         latitude: 51000000,
-        longitude: -1000000,
-      });
-      expect(false).toBe(true);
+        longitude: -1000000
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).toBe(400);
+      expect(error.response?.status).toBe(400)
     }
-  });
+  })
 
   /**
    * Submitting waste with zero weight should be rejected since the
@@ -70,13 +70,13 @@ describe('Integer Overflow: Weight Values', () => {
         weight: 0,
         submitter: 'RECYCLER_OVERFLOW_3',
         latitude: 48000000,
-        longitude: 2000000,
-      });
-      expect(false).toBe(true);
+        longitude: 2000000
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).toBe(400);
+      expect(error.response?.status).toBe(400)
     }
-  });
+  })
 
   /**
    * Negative weight values should be categorically rejected to prevent
@@ -89,13 +89,13 @@ describe('Integer Overflow: Weight Values', () => {
         weight: -1,
         submitter: 'RECYCLER_OVERFLOW_4',
         latitude: 35000000,
-        longitude: 139000000,
-      });
-      expect(false).toBe(true);
+        longitude: 139000000
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).toBe(400);
+      expect(error.response?.status).toBe(400)
     }
-  });
+  })
 
   /**
    * Weight at exactly MAX_WASTE_WEIGHT (1_000_000_000) should be accepted
@@ -105,18 +105,18 @@ describe('Integer Overflow: Weight Values', () => {
     try {
       const response = await axios.post(`${API_URL}/waste/submit`, {
         waste_type: 'plastic',
-        weight: 1000000000,  // MAX_WASTE_WEIGHT = 1_000_000_000 grams
+        weight: 1000000000, // MAX_WASTE_WEIGHT = 1_000_000_000 grams
         submitter: 'RECYCLER_OVERFLOW_5',
         latitude: 52000000,
-        longitude: 13000000,
-      });
+        longitude: 13000000
+      })
       // Should succeed at the boundary
-      expect(response.status).toBeLessThan(500);
+      expect(response.status).toBeLessThan(500)
     } catch (error: any) {
       // Acceptable: 400 if max weight validation rejects boundary, or auth error
-      expect(error.response?.status).not.toBe(500);
+      expect(error.response?.status).not.toBe(500)
     }
-  });
+  })
 
   /**
    * Weight just above MAX_WASTE_WEIGHT should be rejected.
@@ -125,17 +125,17 @@ describe('Integer Overflow: Weight Values', () => {
     try {
       await axios.post(`${API_URL}/waste/submit`, {
         waste_type: 'plastic',
-        weight: 1000000001,  // MAX_WASTE_WEIGHT + 1
+        weight: 1000000001, // MAX_WASTE_WEIGHT + 1
         submitter: 'RECYCLER_OVERFLOW_6',
         latitude: 52000000,
-        longitude: 13000000,
-      });
-      expect(false).toBe(true);
+        longitude: 13000000
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).toBe(400);
+      expect(error.response?.status).toBe(400)
     }
-  });
-});
+  })
+})
 
 describe('Integer Overflow: Reward Points', () => {
   /**
@@ -148,14 +148,14 @@ describe('Integer Overflow: Reward Points', () => {
         rewarder: 'ADMIN_ADDRESS',
         recipient: 'RECYCLER_OVERFLOW_7',
         amount: Number.MAX_SAFE_INTEGER,
-        waste_id: 1,
-      });
-      expect(false).toBe(true);
+        waste_id: 1
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
       // Should reject due to overflow protection or validation
-      expect(error.response?.status).toBeGreaterThanOrEqual(400);
+      expect(error.response?.status).toBeGreaterThanOrEqual(400)
     }
-  });
+  })
 
   /**
    * Reward amount of zero should be rejected per the contract's
@@ -167,13 +167,13 @@ describe('Integer Overflow: Reward Points', () => {
         rewarder: 'ADMIN_ADDRESS',
         recipient: 'RECYCLER_OVERFLOW_8',
         amount: 0,
-        waste_id: 2,
-      });
-      expect(false).toBe(true);
+        waste_id: 2
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).toBeGreaterThanOrEqual(400);
+      expect(error.response?.status).toBeGreaterThanOrEqual(400)
     }
-  });
+  })
 
   /**
    * Negative reward amount should be rejected to prevent underflow in
@@ -185,13 +185,13 @@ describe('Integer Overflow: Reward Points', () => {
         rewarder: 'ADMIN_ADDRESS',
         recipient: 'RECYCLER_OVERFLOW_9',
         amount: -100,
-        waste_id: 3,
-      });
-      expect(false).toBe(true);
+        waste_id: 3
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).toBeGreaterThanOrEqual(400);
+      expect(error.response?.status).toBeGreaterThanOrEqual(400)
     }
-  });
+  })
 
   /**
    * Reward amounts exceeding u128 max (as a string) should not crash the
@@ -202,15 +202,15 @@ describe('Integer Overflow: Reward Points', () => {
       await axios.post(`${API_URL}/tokens/reward`, {
         rewarder: 'ADMIN_ADDRESS',
         recipient: 'RECYCLER_OVERFLOW_10',
-        amount: '340282366920938463463374607431768211456',  // u128::MAX + 1
-        waste_id: 4,
-      });
-      expect(false).toBe(true);
+        amount: '340282366920938463463374607431768211456', // u128::MAX + 1
+        waste_id: 4
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).toBeGreaterThanOrEqual(400);
+      expect(error.response?.status).toBeGreaterThanOrEqual(400)
     }
-  });
-});
+  })
+})
 
 describe('Integer Overflow: Budget Calculations', () => {
   /**
@@ -223,14 +223,14 @@ describe('Integer Overflow: Budget Calculations', () => {
         rewarder: 'MANUFACTURER_OVERFLOW_1',
         waste_type: 'plastic',
         reward_points: 100,
-        total_budget: '18446744073709551615',  // u64::MAX
-      });
+        total_budget: '18446744073709551615' // u64::MAX
+      })
       // May succeed or fail, but should not crash
-      expect(true).toBe(true);
+      expect(true).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).not.toBe(500);
+      expect(error.response?.status).not.toBe(500)
     }
-  });
+  })
 
   /**
    * Updating an incentive so that the new budget is less than the amount
@@ -241,14 +241,14 @@ describe('Integer Overflow: Budget Calculations', () => {
       await axios.put(`${API_URL}/incentive/update`, {
         incentive_id: 1,
         new_reward_points: 100,
-        new_total_budget: 0,  // Less than any budget already used
-      });
-      expect(false).toBe(true);
+        new_total_budget: 0 // Less than any budget already used
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
       // Zero budget should be rejected ("Total budget must be greater than zero")
-      expect(error.response?.status).toBeGreaterThanOrEqual(400);
+      expect(error.response?.status).toBeGreaterThanOrEqual(400)
     }
-  });
+  })
 
   /**
    * Percentages that sum to over 100 should be rejected by the contract's
@@ -259,13 +259,13 @@ describe('Integer Overflow: Budget Calculations', () => {
       await axios.post(`${API_URL}/admin/set-percentages`, {
         admin: 'ADMIN_ADDRESS',
         collector_percentage: 60,
-        owner_percentage: 50,  // 60 + 50 = 110 > 100
-      });
-      expect(false).toBe(true);
+        owner_percentage: 50 // 60 + 50 = 110 > 100
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).toBeGreaterThanOrEqual(400);
+      expect(error.response?.status).toBeGreaterThanOrEqual(400)
     }
-  });
+  })
 
   /**
    * Individual percentage values at u32 max should be rejected.
@@ -274,15 +274,15 @@ describe('Integer Overflow: Budget Calculations', () => {
     try {
       await axios.post(`${API_URL}/admin/set-percentages`, {
         admin: 'ADMIN_ADDRESS',
-        collector_percentage: 4294967295,  // u32::MAX
-        owner_percentage: 0,
-      });
-      expect(false).toBe(true);
+        collector_percentage: 4294967295, // u32::MAX
+        owner_percentage: 0
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).toBeGreaterThanOrEqual(400);
+      expect(error.response?.status).toBeGreaterThanOrEqual(400)
     }
-  });
-});
+  })
+})
 
 describe('Integer Overflow: Waste ID Wraparound', () => {
   /**
@@ -291,13 +291,13 @@ describe('Integer Overflow: Waste ID Wraparound', () => {
    */
   it('should handle max u128 waste ID without wraparound', async () => {
     try {
-      const response = await axios.get(`${API_URL}/waste/340282366920938463463374607431768211455`);
+      const response = await axios.get(`${API_URL}/waste/340282366920938463463374607431768211455`)
       // Should return 404 for non-existent waste
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(404)
     } catch (error: any) {
-      expect([400, 404]).toContain(error.response?.status);
+      expect([400, 404]).toContain(error.response?.status)
     }
-  });
+  })
 
   /**
    * Requesting a waste item with an ID beyond u128 max (overflow) should be
@@ -305,25 +305,25 @@ describe('Integer Overflow: Waste ID Wraparound', () => {
    */
   it('should reject waste ID exceeding u128 max', async () => {
     try {
-      const response = await axios.get(`${API_URL}/waste/340282366920938463463374607431768211456`);
-      expect(response.status).toBe(400);
+      const response = await axios.get(`${API_URL}/waste/340282366920938463463374607431768211456`)
+      expect(response.status).toBe(400)
     } catch (error: any) {
-      expect([400, 404, 422]).toContain(error.response?.status);
+      expect([400, 404, 422]).toContain(error.response?.status)
     }
-  });
+  })
 
   /**
    * Negative waste IDs should be rejected.
    */
   it('should reject negative waste ID', async () => {
     try {
-      const response = await axios.get(`${API_URL}/waste/-1`);
-      expect(response.status).toBe(400);
+      const response = await axios.get(`${API_URL}/waste/-1`)
+      expect(response.status).toBe(400)
     } catch (error: any) {
-      expect([400, 404, 422]).toContain(error.response?.status);
+      expect([400, 404, 422]).toContain(error.response?.status)
     }
-  });
-});
+  })
+})
 
 describe('Integer Overflow: Coordinate Extremes', () => {
   /**
@@ -336,14 +336,14 @@ describe('Integer Overflow: Coordinate Extremes', () => {
         address: 'OVERFLOW_COORD_1',
         role: 'recycler',
         name: 'CoordTest1',
-        latitude: 90000001,  // Just above max valid latitude
-        longitude: 0,
-      });
-      expect(false).toBe(true);
+        latitude: 90000001, // Just above max valid latitude
+        longitude: 0
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).toBeGreaterThanOrEqual(400);
+      expect(error.response?.status).toBeGreaterThanOrEqual(400)
     }
-  });
+  })
 
   /**
    * Latitude below -90 degrees should be rejected.
@@ -355,13 +355,13 @@ describe('Integer Overflow: Coordinate Extremes', () => {
         role: 'recycler',
         name: 'CoordTest2',
         latitude: -90000001,
-        longitude: 0,
-      });
-      expect(false).toBe(true);
+        longitude: 0
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).toBeGreaterThanOrEqual(400);
+      expect(error.response?.status).toBeGreaterThanOrEqual(400)
     }
-  });
+  })
 
   /**
    * Longitude must be within [-180_000_000, 180_000_000] microdegrees.
@@ -373,13 +373,13 @@ describe('Integer Overflow: Coordinate Extremes', () => {
         role: 'collector',
         name: 'CoordTest3',
         latitude: 0,
-        longitude: 180000001,
-      });
-      expect(false).toBe(true);
+        longitude: 180000001
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).toBeGreaterThanOrEqual(400);
+      expect(error.response?.status).toBeGreaterThanOrEqual(400)
     }
-  });
+  })
 
   /**
    * Longitude below -180 degrees should be rejected.
@@ -391,13 +391,13 @@ describe('Integer Overflow: Coordinate Extremes', () => {
         role: 'collector',
         name: 'CoordTest4',
         latitude: 0,
-        longitude: -180000001,
-      });
-      expect(false).toBe(true);
+        longitude: -180000001
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).toBeGreaterThanOrEqual(400);
+      expect(error.response?.status).toBeGreaterThanOrEqual(400)
     }
-  });
+  })
 
   /**
    * Coordinates at i128 max should be rejected since they vastly exceed
@@ -409,14 +409,14 @@ describe('Integer Overflow: Coordinate Extremes', () => {
         address: 'OVERFLOW_COORD_5',
         role: 'recycler',
         name: 'CoordTest5',
-        latitude: '170141183460469231731687303715884105727',   // i128::MAX
-        longitude: '-170141183460469231731687303715884105728',  // i128::MIN
-      });
-      expect(false).toBe(true);
+        latitude: '170141183460469231731687303715884105727', // i128::MAX
+        longitude: '-170141183460469231731687303715884105728' // i128::MIN
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).toBeGreaterThanOrEqual(400);
+      expect(error.response?.status).toBeGreaterThanOrEqual(400)
     }
-  });
+  })
 
   /**
    * Valid boundary coordinates should be accepted.
@@ -427,16 +427,16 @@ describe('Integer Overflow: Coordinate Extremes', () => {
         address: 'OVERFLOW_COORD_6',
         role: 'recycler',
         name: 'CoordTest6',
-        latitude: 90000000,   // Exactly 90 degrees N
-        longitude: -180000000,  // Exactly 180 degrees W
-      });
-      expect(response.status).toBeLessThan(500);
+        latitude: 90000000, // Exactly 90 degrees N
+        longitude: -180000000 // Exactly 180 degrees W
+      })
+      expect(response.status).toBeLessThan(500)
     } catch (error: any) {
       // May fail due to auth, but should not be a 500
-      expect(error.response?.status).not.toBe(500);
+      expect(error.response?.status).not.toBe(500)
     }
-  });
-});
+  })
+})
 
 describe('Integer Overflow: Batch Submission Weight Summing', () => {
   /**
@@ -445,7 +445,7 @@ describe('Integer Overflow: Batch Submission Weight Summing', () => {
    * checked_add for total_weight.
    */
   it('should handle batch with individual valid weights that sum to overflow', async () => {
-    const nearMaxWeight = 999999999;  // Just under MAX_WASTE_WEIGHT
+    const nearMaxWeight = 999999999 // Just under MAX_WASTE_WEIGHT
     try {
       // Submit multiple wastes whose cumulative weight could overflow u64
       const submissions = Array(5)
@@ -457,23 +457,23 @@ describe('Integer Overflow: Batch Submission Weight Summing', () => {
               weight: nearMaxWeight,
               submitter: `RECYCLER_BATCH_OVERFLOW_${i}`,
               latitude: 40000000,
-              longitude: -74000000,
+              longitude: -74000000
             })
             .catch((e) => e.response)
-        );
+        )
 
-      const results = await Promise.all(submissions);
+      const results = await Promise.all(submissions)
 
       // Each individual submission should not cause a 500 error
       for (const result of results) {
         if (result) {
-          expect(result.status).not.toBe(500);
+          expect(result.status).not.toBe(500)
         }
       }
     } catch (error: any) {
-      expect(error.response?.status).not.toBe(500);
+      expect(error.response?.status).not.toBe(500)
     }
-  });
+  })
 
   /**
    * A donation amount that would underflow the donor's balance should be
@@ -483,13 +483,13 @@ describe('Integer Overflow: Batch Submission Weight Summing', () => {
     try {
       await axios.post(`${API_URL}/charity/donate`, {
         donor: 'RECYCLER_OVERFLOW_DONATE',
-        amount: Number.MAX_SAFE_INTEGER,
-      });
-      expect(false).toBe(true);
+        amount: Number.MAX_SAFE_INTEGER
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).toBeGreaterThanOrEqual(400);
+      expect(error.response?.status).toBeGreaterThanOrEqual(400)
     }
-  });
+  })
 
   /**
    * Seasonal multiplier at the boundary (500 = 5x) should be accepted;
@@ -499,15 +499,15 @@ describe('Integer Overflow: Batch Submission Weight Summing', () => {
     try {
       await axios.post(`${API_URL}/admin/seasonal-multiplier`, {
         admin: 'ADMIN_ADDRESS',
-        multiplier: 501,  // Above max allowed 500
+        multiplier: 501, // Above max allowed 500
         start: 1700000000,
-        end: 1700100000,
-      });
-      expect(false).toBe(true);
+        end: 1700100000
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).toBeGreaterThanOrEqual(400);
+      expect(error.response?.status).toBeGreaterThanOrEqual(400)
     }
-  });
+  })
 
   /**
    * Seasonal multiplier below minimum (100 = 1x) should be rejected.
@@ -516,13 +516,13 @@ describe('Integer Overflow: Batch Submission Weight Summing', () => {
     try {
       await axios.post(`${API_URL}/admin/seasonal-multiplier`, {
         admin: 'ADMIN_ADDRESS',
-        multiplier: 99,  // Below min allowed 100
+        multiplier: 99, // Below min allowed 100
         start: 1700000000,
-        end: 1700100000,
-      });
-      expect(false).toBe(true);
+        end: 1700100000
+      })
+      expect(false).toBe(true)
     } catch (error: any) {
-      expect(error.response?.status).toBeGreaterThanOrEqual(400);
+      expect(error.response?.status).toBeGreaterThanOrEqual(400)
     }
-  });
-});
+  })
+})

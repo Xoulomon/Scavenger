@@ -22,7 +22,7 @@ export interface Proposal {
   votingEndsAt: number
   votes: Vote[]
   vetoes: Veto[]
-  quorum: number       // minimum votes required
+  quorum: number // minimum votes required
   passingThreshold: number // fraction (0–1) of non-abstain votes needed
 }
 
@@ -96,7 +96,7 @@ export function createProposal(params: {
     votes: [],
     vetoes: [],
     quorum: params.quorum ?? 5,
-    passingThreshold: params.passingThreshold ?? 0.5,
+    passingThreshold: params.passingThreshold ?? 0.5
   }
   const proposals = loadProposals()
   proposals.push(proposal)
@@ -115,7 +115,12 @@ export function getProposal(id: string): Proposal | undefined {
 
 // ── Voting ────────────────────────────────────────────────────────────────────
 
-export function castVote(proposalId: string, voterAddress: string, choice: VoteChoice, weight = 1): Vote {
+export function castVote(
+  proposalId: string,
+  voterAddress: string,
+  choice: VoteChoice,
+  weight = 1
+): Vote {
   const proposals = loadProposals()
   const idx = proposals.findIndex((p) => p.id === proposalId)
   if (idx === -1) throw new Error(`Proposal ${proposalId} not found`)
@@ -133,7 +138,7 @@ export function castVote(proposalId: string, voterAddress: string, choice: VoteC
     voterAddress,
     choice,
     weight,
-    timestamp: Date.now(),
+    timestamp: Date.now()
   }
   proposal.votes.push(vote)
   proposals[idx] = proposal
@@ -156,7 +161,7 @@ export function vetoProposal(proposalId: string, vetoerAddress: string, reason: 
     proposalId,
     vetoerAddress,
     reason,
-    timestamp: Date.now(),
+    timestamp: Date.now()
   }
   proposal.vetoes.push(veto)
   proposal.status = 'vetoed'
@@ -177,9 +182,15 @@ export interface VoteTally {
 }
 
 export function tallyVotes(proposal: Proposal): VoteTally {
-  const forVotes = proposal.votes.filter((v) => v.choice === 'for').reduce((s, v) => s + v.weight, 0)
-  const againstVotes = proposal.votes.filter((v) => v.choice === 'against').reduce((s, v) => s + v.weight, 0)
-  const abstainVotes = proposal.votes.filter((v) => v.choice === 'abstain').reduce((s, v) => s + v.weight, 0)
+  const forVotes = proposal.votes
+    .filter((v) => v.choice === 'for')
+    .reduce((s, v) => s + v.weight, 0)
+  const againstVotes = proposal.votes
+    .filter((v) => v.choice === 'against')
+    .reduce((s, v) => s + v.weight, 0)
+  const abstainVotes = proposal.votes
+    .filter((v) => v.choice === 'abstain')
+    .reduce((s, v) => s + v.weight, 0)
   const total = forVotes + againstVotes + abstainVotes
   const decisive = forVotes + againstVotes
   const quorumMet = total >= proposal.quorum
@@ -216,7 +227,7 @@ export function getGovernanceStats(knownParticipants = 100): GovernanceStats {
     passedProposals: proposals.filter((p) => p.status === 'passed').length,
     rejectedProposals: proposals.filter((p) => p.status === 'rejected').length,
     totalVotesCast,
-    participationRate: knownParticipants > 0 ? Math.min(1, uniqueVoters / knownParticipants) : 0,
+    participationRate: knownParticipants > 0 ? Math.min(1, uniqueVoters / knownParticipants) : 0
   }
 }
 

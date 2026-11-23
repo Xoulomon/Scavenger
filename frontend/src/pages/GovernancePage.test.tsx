@@ -5,7 +5,7 @@ import { GovernancePage } from './GovernancePage'
 vi.mock('@/hooks/useAppTitle', () => ({ useAppTitle: vi.fn() }))
 
 vi.mock('@/design-system', () => ({
-  StatusBadge: ({ status }: { status: string }) => <span>{status}</span>,
+  StatusBadge: ({ status }: { status: string }) => <span>{status}</span>
 }))
 
 vi.mock('@/lib/governance', () => ({
@@ -19,8 +19,8 @@ vi.mock('@/lib/governance', () => ({
     activeProposals: 0,
     passedProposals: 0,
     rejectedProposals: 0,
-    participationRate: 0,
-  })),
+    participationRate: 0
+  }))
 }))
 
 describe('GovernancePage', () => {

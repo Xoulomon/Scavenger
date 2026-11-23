@@ -12,7 +12,7 @@ import {
   ChevronRight,
   Search,
   TrendingUp,
-  Activity,
+  Activity
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { StatCard } from '@/components/ui/StatCard'
@@ -25,7 +25,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/Select'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { useAppTitle } from '@/hooks/useAppTitle'
@@ -78,8 +78,8 @@ function useTestRuns() {
             status: i < 3 ? 'failed' : i === 3 ? 'skipped' : 'passed',
             duration: Math.floor(Math.random() * 5000 + 100),
             error: i < 3 ? `AssertionError: Expected ${i + 1} to equal ${i}` : undefined,
-            timestamp: '2026-06-25T10:30:00Z',
-          })),
+            timestamp: '2026-06-25T10:30:00Z'
+          }))
         },
         {
           id: 'run-002',
@@ -90,7 +90,7 @@ function useTestRuns() {
           skipped: 2,
           duration: 32100,
           timestamp: '2026-06-25T09:00:00Z',
-          results: [],
+          results: []
         },
         {
           id: 'run-003',
@@ -101,7 +101,7 @@ function useTestRuns() {
           skipped: 1,
           duration: 184500,
           timestamp: '2026-06-25T08:00:00Z',
-          results: [],
+          results: []
         },
         {
           id: 'run-004',
@@ -112,22 +112,33 @@ function useTestRuns() {
           skipped: 0,
           duration: 8900,
           timestamp: '2026-06-24T22:00:00Z',
-          results: [],
-        },
+          results: []
+        }
       ]
       return runs
     },
-    staleTime: 60_000,
+    staleTime: 60_000
   })
 }
 
 type Tab = 'overview' | 'history' | 'details'
 
-const STATUS_CONFIG: Record<TestStatus, { label: string; color: string; icon: typeof CheckCircle2 }> = {
-  passed: { label: 'Passed', color: 'text-green-500 bg-green-500/10 border-green-500/20', icon: CheckCircle2 },
+const STATUS_CONFIG: Record<
+  TestStatus,
+  { label: string; color: string; icon: typeof CheckCircle2 }
+> = {
+  passed: {
+    label: 'Passed',
+    color: 'text-green-500 bg-green-500/10 border-green-500/20',
+    icon: CheckCircle2
+  },
   failed: { label: 'Failed', color: 'text-red-500 bg-red-500/10 border-red-500/20', icon: XCircle },
-  skipped: { label: 'Skipped', color: 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20', icon: AlertCircle },
-  pending: { label: 'Pending', color: 'text-muted-foreground bg-muted border-border', icon: Clock },
+  skipped: {
+    label: 'Skipped',
+    color: 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20',
+    icon: AlertCircle
+  },
+  pending: { label: 'Pending', color: 'text-muted-foreground bg-muted border-border', icon: Clock }
 }
 
 function StatusBadge({ status }: { status: TestStatus }) {
@@ -154,7 +165,7 @@ function OverviewTab() {
         passed: acc.passed + r.passed,
         failed: acc.failed + r.failed,
         skipped: acc.skipped + r.skipped,
-        duration: acc.duration + r.duration,
+        duration: acc.duration + r.duration
       }),
       { total: 0, passed: 0, failed: 0, skipped: 0, duration: 0 }
     )
@@ -208,23 +219,38 @@ function OverviewTab() {
               const passedWidth = (run.passed / run.total) * totalWidth
               const failedWidth = (run.failed / run.total) * totalWidth
               return (
-                <div key={run.id} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <div
+                  key={run.id}
+                  className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                >
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-sm">{run.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {run.total} tests · {Math.round(run.duration / 1000)}s · {new Date(run.timestamp).toLocaleString()}
+                      {run.total} tests · {Math.round(run.duration / 1000)}s ·{' '}
+                      {new Date(run.timestamp).toLocaleString()}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="flex h-2 w-32 overflow-hidden rounded-full bg-muted sm:w-40">
-                      <div className="bg-green-500 transition-all" style={{ width: `${passedWidth}%` }} />
-                      <div className="bg-red-500 transition-all" style={{ width: `${failedWidth}%` }} />
+                      <div
+                        className="bg-green-500 transition-all"
+                        style={{ width: `${passedWidth}%` }}
+                      />
+                      <div
+                        className="bg-red-500 transition-all"
+                        style={{ width: `${failedWidth}%` }}
+                      />
                     </div>
-                    <span className={`text-sm font-medium tabular-nums ${Number(runPassRate) >= 90 ? 'text-green-600' : Number(runPassRate) >= 80 ? 'text-yellow-600' : 'text-red-600'}`}>
+                    <span
+                      className={`text-sm font-medium tabular-nums ${Number(runPassRate) >= 90 ? 'text-green-600' : Number(runPassRate) >= 80 ? 'text-yellow-600' : 'text-red-600'}`}
+                    >
                       {runPassRate}%
                     </span>
                     <div className="flex gap-1">
-                      <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
+                      <Badge
+                        variant="outline"
+                        className="text-green-600 border-green-200 bg-green-50"
+                      >
                         {run.passed}
                       </Badge>
                       {run.failed > 0 && (
@@ -265,12 +291,12 @@ function HistoryTab() {
         total,
         passed,
         failed: total - passed,
-        passRate: ((passed / total) * 100).toFixed(1),
+        passRate: ((passed / total) * 100).toFixed(1)
       }
     })
   }, [])
 
-  const maxTotal = Math.max(...data.map(d => d.total))
+  const maxTotal = Math.max(...data.map((d) => d.total))
 
   return (
     <div className="space-y-6">
@@ -280,7 +306,9 @@ function HistoryTab() {
             <TrendingUp className="h-4 w-4" />
             Test Pass Rate Trend (30 days)
           </CardTitle>
-          <CardDescription>Historical view of test pass rates across all test suites</CardDescription>
+          <CardDescription>
+            Historical view of test pass rates across all test suites
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="relative h-48">
@@ -295,8 +323,14 @@ function HistoryTab() {
                     className="flex flex-1 flex-col justify-end"
                     title={`${d.date}: ${d.passRate}% pass rate`}
                   >
-                    <div className="w-full rounded-t-sm bg-red-400 transition-all" style={{ height: `${redHeight}%` }} />
-                    <div className="w-full rounded-t-sm bg-green-400 transition-all" style={{ height: `${greenHeight}%` }} />
+                    <div
+                      className="w-full rounded-t-sm bg-red-400 transition-all"
+                      style={{ height: `${redHeight}%` }}
+                    />
+                    <div
+                      className="w-full rounded-t-sm bg-green-400 transition-all"
+                      style={{ height: `${greenHeight}%` }}
+                    />
                   </div>
                 )
               })}
@@ -320,10 +354,14 @@ function HistoryTab() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-green-600">
-              {Math.max(...data.map(d => Number(d.passRate)))}%
+              {Math.max(...data.map((d) => Number(d.passRate)))}%
             </p>
             <p className="text-xs text-muted-foreground">
-              {data.find(d => Number(d.passRate) === Math.max(...data.map(x => Number(x.passRate))))?.date}
+              {
+                data.find(
+                  (d) => Number(d.passRate) === Math.max(...data.map((x) => Number(x.passRate)))
+                )?.date
+              }
             </p>
           </CardContent>
         </Card>
@@ -336,10 +374,14 @@ function HistoryTab() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-red-600">
-              {Math.min(...data.map(d => Number(d.passRate)))}%
+              {Math.min(...data.map((d) => Number(d.passRate)))}%
             </p>
             <p className="text-xs text-muted-foreground">
-              {data.find(d => Number(d.passRate) === Math.min(...data.map(x => Number(x.passRate))))?.date}
+              {
+                data.find(
+                  (d) => Number(d.passRate) === Math.min(...data.map((x) => Number(x.passRate)))
+                )?.date
+              }
             </p>
           </CardContent>
         </Card>
@@ -384,15 +426,15 @@ function DetailsTab() {
 
   const allResults = useMemo(() => {
     if (!runs) return []
-    return runs.flatMap(run => run.results.map(r => ({ ...r, runName: run.name })))
+    return runs.flatMap((run) => run.results.map((r) => ({ ...r, runName: run.name })))
   }, [runs]) as (TestResult & { runName: string })[]
 
   const suites = useMemo(() => {
-    return [...new Set(allResults.map(r => r.suite))]
+    return [...new Set(allResults.map((r) => r.suite))]
   }, [allResults])
 
   const filtered = useMemo(() => {
-    return allResults.filter(r => {
+    return allResults.filter((r) => {
       if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false
       if (statusFilter !== 'all' && r.status !== statusFilter) return false
       if (suiteFilter !== 'all' && r.suite !== suiteFilter) return false
@@ -401,7 +443,7 @@ function DetailsTab() {
   }, [allResults, search, statusFilter, suiteFilter])
 
   const toggleExpand = useCallback((id: string) => {
-    setExpandedTest(prev => prev === id ? null : id)
+    setExpandedTest((prev) => (prev === id ? null : id))
   }, [])
 
   return (
@@ -434,12 +476,22 @@ function DetailsTab() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Suites</SelectItem>
-            {suites.map(s => (
-              <SelectItem key={s} value={s}>{s}</SelectItem>
+            {suites.map((s) => (
+              <SelectItem key={s} value={s}>
+                {s}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
-        <Button variant="outline" size="sm" onClick={() => { setSearch(''); setStatusFilter('all'); setSuiteFilter('all') }}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setSearch('')
+            setStatusFilter('all')
+            setSuiteFilter('all')
+          }}
+        >
           <Filter className="h-4 w-4 mr-1" />
           Clear
         </Button>
@@ -471,7 +523,9 @@ function DetailsTab() {
                 <StatusBadge status={test.status} />
                 <span className="flex-1 truncate font-medium">{test.name}</span>
                 <span className="text-xs text-muted-foreground">{test.suite}</span>
-                <span className="text-xs tabular-nums text-muted-foreground">{test.duration}ms</span>
+                <span className="text-xs tabular-nums text-muted-foreground">
+                  {test.duration}ms
+                </span>
               </button>
               {expandedTest === test.id && test.error && (
                 <div className="border-t bg-muted/30 px-4 py-3">
@@ -498,7 +552,7 @@ export function TestReportsPage() {
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     { id: 'overview', label: 'Overview', icon: <BarChart3 className="h-4 w-4" /> },
     { id: 'history', label: 'History', icon: <TrendingUp className="h-4 w-4" /> },
-    { id: 'details', label: 'Details', icon: <FileText className="h-4 w-4" /> },
+    { id: 'details', label: 'Details', icon: <FileText className="h-4 w-4" /> }
   ]
 
   return (

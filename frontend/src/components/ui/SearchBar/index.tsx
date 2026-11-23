@@ -140,13 +140,7 @@ export function SearchBar() {
   )
 }
 
-function SearchResultItem({
-  result,
-  onSelect,
-}: {
-  result: SearchResult
-  onSelect: () => void
-}) {
+function SearchResultItem({ result, onSelect }: { result: SearchResult; onSelect: () => void }) {
   const Icon = result.type === 'waste' ? Package : User
 
   return (

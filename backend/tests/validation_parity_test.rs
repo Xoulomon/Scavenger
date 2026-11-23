@@ -4,9 +4,7 @@
 //! `packages/shared/src/validation-fixtures.ts`.  Any change to a rule must
 //! update both files simultaneously.
 
-use scavenger_backend::validation::{
-    validate_stellar_address, validate_waste_weight, validate_coordinates,
-};
+use scavenger_backend::validation::{validate_coordinates, validate_stellar_address, validate_waste_weight};
 
 // ── Stellar address ─────────────────────────────────────────────────────────
 
@@ -18,11 +16,27 @@ struct AddressFixture {
 
 const ADDRESS_FIXTURES: &[AddressFixture] = &[
     // Valid
-    AddressFixture { address: "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN", valid: true, reason: "canonical 56-char base32 address" },
-    AddressFixture { address: "GBSZ2TDIPF35RKRN7JDFBXJBF63EETXLYNUFU7P7KWZFRLPZORVBGQ3", valid: true, reason: "another valid address" },
+    AddressFixture {
+        address: "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN",
+        valid: true,
+        reason: "canonical 56-char base32 address",
+    },
+    AddressFixture {
+        address: "GBSZ2TDIPF35RKRN7JDFBXJBF63EETXLYNUFU7P7KWZFRLPZORVBGQ3",
+        valid: true,
+        reason: "another valid address",
+    },
     // Invalid – length
-    AddressFixture { address: "GABC", valid: false, reason: "too short" },
-    AddressFixture { address: "", valid: false, reason: "empty string" },
+    AddressFixture {
+        address: "GABC",
+        valid: false,
+        reason: "too short",
+    },
+    AddressFixture {
+        address: "",
+        valid: false,
+        reason: "empty string",
+    },
     // Invalid – charset
     // Note: Rust test builds these inline because const fn limitations
 ];
@@ -80,20 +94,54 @@ fn stellar_address_parity_charset() {
 
 #[test]
 fn waste_weight_parity() {
-    struct WeightFixture { weight: u64, valid: bool, reason: &'static str }
+    struct WeightFixture {
+        weight: u64,
+        valid: bool,
+        reason: &'static str,
+    }
     let fixtures = [
-        WeightFixture { weight: 1, valid: true, reason: "minimum valid weight" },
-        WeightFixture { weight: 500, valid: true, reason: "typical weight" },
-        WeightFixture { weight: 1_000_000_000, valid: true, reason: "maximum valid weight" },
-        WeightFixture { weight: 0, valid: false, reason: "zero is not allowed" },
-        WeightFixture { weight: 1_000_000_001, valid: false, reason: "exceeds maximum" },
+        WeightFixture {
+            weight: 1,
+            valid: true,
+            reason: "minimum valid weight",
+        },
+        WeightFixture {
+            weight: 500,
+            valid: true,
+            reason: "typical weight",
+        },
+        WeightFixture {
+            weight: 1_000_000_000,
+            valid: true,
+            reason: "maximum valid weight",
+        },
+        WeightFixture {
+            weight: 0,
+            valid: false,
+            reason: "zero is not allowed",
+        },
+        WeightFixture {
+            weight: 1_000_000_001,
+            valid: false,
+            reason: "exceeds maximum",
+        },
     ];
     for f in &fixtures {
         let result = validate_waste_weight(f.weight);
         if f.valid {
-            assert!(result.is_none(), "expected valid for weight {} ({})", f.weight, f.reason);
+            assert!(
+                result.is_none(),
+                "expected valid for weight {} ({})",
+                f.weight,
+                f.reason
+            );
         } else {
-            assert!(result.is_some(), "expected invalid for weight {} ({})", f.weight, f.reason);
+            assert!(
+                result.is_some(),
+                "expected invalid for weight {} ({})",
+                f.weight,
+                f.reason
+            );
         }
     }
 }
@@ -102,23 +150,80 @@ fn waste_weight_parity() {
 
 #[test]
 fn coordinate_parity() {
-    struct CoordFixture { lat: f64, lon: f64, valid: bool, reason: &'static str }
+    struct CoordFixture {
+        lat: f64,
+        lon: f64,
+        valid: bool,
+        reason: &'static str,
+    }
     let fixtures = [
-        CoordFixture { lat: 0.0, lon: 0.0, valid: true, reason: "origin" },
-        CoordFixture { lat: 90.0, lon: 180.0, valid: true, reason: "max boundary" },
-        CoordFixture { lat: -90.0, lon: -180.0, valid: true, reason: "min boundary" },
-        CoordFixture { lat: 91.0, lon: 0.0, valid: false, reason: "latitude above 90" },
-        CoordFixture { lat: -91.0, lon: 0.0, valid: false, reason: "latitude below -90" },
-        CoordFixture { lat: 0.0, lon: 181.0, valid: false, reason: "longitude above 180" },
-        CoordFixture { lat: 0.0, lon: -181.0, valid: false, reason: "longitude below -180" },
-        CoordFixture { lat: 91.0, lon: 181.0, valid: false, reason: "both out of range" },
+        CoordFixture {
+            lat: 0.0,
+            lon: 0.0,
+            valid: true,
+            reason: "origin",
+        },
+        CoordFixture {
+            lat: 90.0,
+            lon: 180.0,
+            valid: true,
+            reason: "max boundary",
+        },
+        CoordFixture {
+            lat: -90.0,
+            lon: -180.0,
+            valid: true,
+            reason: "min boundary",
+        },
+        CoordFixture {
+            lat: 91.0,
+            lon: 0.0,
+            valid: false,
+            reason: "latitude above 90",
+        },
+        CoordFixture {
+            lat: -91.0,
+            lon: 0.0,
+            valid: false,
+            reason: "latitude below -90",
+        },
+        CoordFixture {
+            lat: 0.0,
+            lon: 181.0,
+            valid: false,
+            reason: "longitude above 180",
+        },
+        CoordFixture {
+            lat: 0.0,
+            lon: -181.0,
+            valid: false,
+            reason: "longitude below -180",
+        },
+        CoordFixture {
+            lat: 91.0,
+            lon: 181.0,
+            valid: false,
+            reason: "both out of range",
+        },
     ];
     for f in &fixtures {
         let errors = validate_coordinates(f.lat, f.lon);
         if f.valid {
-            assert!(errors.is_empty(), "expected valid for ({}, {}) ({})", f.lat, f.lon, f.reason);
+            assert!(
+                errors.is_empty(),
+                "expected valid for ({}, {}) ({})",
+                f.lat,
+                f.lon,
+                f.reason
+            );
         } else {
-            assert!(!errors.is_empty(), "expected invalid for ({}, {}) ({})", f.lat, f.lon, f.reason);
+            assert!(
+                !errors.is_empty(),
+                "expected invalid for ({}, {}) ({})",
+                f.lat,
+                f.lon,
+                f.reason
+            );
         }
     }
 }

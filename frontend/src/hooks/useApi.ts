@@ -68,7 +68,7 @@ export function useApi(): ScavengerClient {
       new ScavengerClient({
         rpcUrl,
         networkPassphrase,
-        contractId,
+        contractId
       }),
     [rpcUrl, contractId, networkPassphrase]
   )
@@ -91,7 +91,7 @@ export function useApiClient(): ApiClient {
       createApiClient({
         baseUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       }),
     [config.rpcUrl, config.contractId]
   )

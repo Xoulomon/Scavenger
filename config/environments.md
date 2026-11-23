@@ -1,13 +1,15 @@
 # Environment Configuration
 
 ## Environments
+
 - dev: Development
-- staging: Staging/QA  
+- staging: Staging/QA
 - prod: Production
 
 ## Environment-Specific Variables
 
 ### Development
+
 ```
 ENVIRONMENT=dev
 SOROBAN_NETWORK=standalone
@@ -19,6 +21,7 @@ CONTRACT_ID=local_contract_dev
 ```
 
 ### Staging
+
 ```
 ENVIRONMENT=staging
 SOROBAN_NETWORK=testnet
@@ -32,6 +35,7 @@ BACKUP_RETENTION_DAYS=7
 ```
 
 ### Production
+
 ```
 ENVIRONMENT=prod
 SOROBAN_NETWORK=mainnet
@@ -48,6 +52,7 @@ DATABASE_MAX_CONNECTIONS=50
 ## Secrets Management
 
 All sensitive values (passwords, API keys) are stored in:
+
 - **Dev**: .env.local (git-ignored)
 - **Staging**: AWS Secrets Manager / HashiCorp Vault
 - **Production**: HashiCorp Vault with automated rotation

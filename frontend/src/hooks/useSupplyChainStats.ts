@@ -6,7 +6,7 @@ import { networkConfig } from '@/lib/stellar'
 const client = new ScavengerClient({
   rpcUrl: networkConfig.rpcUrl,
   networkPassphrase: networkConfig.networkPassphrase,
-  contractId: config.contractId,
+  contractId: config.contractId
 })
 
 export function useSupplyChainStats() {

@@ -1,11 +1,8 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { renderHook } from '@testing-library/react'
 import React from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import {
-  getSearchHistory,
-  addSearchHistory,
-} from '@/lib/searchStorage'
+import { getSearchHistory, addSearchHistory } from '@/lib/searchStorage'
 import { countActiveFilters, DEFAULT_FILTERS } from '@/components/ui/SearchPanel'
 import { WasteType } from '@/api/types'
 import type { Waste, Participant } from '@/api/types'
@@ -84,7 +81,7 @@ describe('useSearch filter logic', () => {
         status: 'confirmed',
         dateFrom: '2024-01-01',
         dateTo: '2024-12-31',
-        location: 'Nairobi',
+        location: 'Nairobi'
       })
     ).toBe(5)
   })
@@ -108,7 +105,7 @@ function makeWaste(overrides: Partial<Waste> = {}): Waste {
     is_active: true,
     is_confirmed: false,
     confirmer: '',
-    ...overrides,
+    ...overrides
   }
 }
 
@@ -120,7 +117,7 @@ function makeParticipant(overrides: Partial<Participant> = {}): Participant {
     latitude: 0,
     longitude: 0,
     registered_at: 0,
-    ...overrides,
+    ...overrides
   }
 }
 
@@ -200,10 +197,9 @@ describe('useSearch — filtering logic', () => {
     const inactive = makeWaste({ waste_id: BigInt(2), is_active: false, current_owner: 'GOWNER' })
     qc.setQueryData(['wastes', 'test'], [active, inactive])
 
-    const { result } = renderHook(
-      () => useSearch('owner', { status: 'active' }),
-      { wrapper: makeWrapper(qc) }
-    )
+    const { result } = renderHook(() => useSearch('owner', { status: 'active' }), {
+      wrapper: makeWrapper(qc)
+    })
     const ids = result.current.map((r) => r.id)
     expect(ids).toContain('1')
     expect(ids).not.toContain('2')
@@ -214,10 +210,9 @@ describe('useSearch — filtering logic', () => {
     const inactive = makeWaste({ waste_id: BigInt(2), is_active: false, current_owner: 'GOWNER' })
     qc.setQueryData(['wastes', 'test'], [active, inactive])
 
-    const { result } = renderHook(
-      () => useSearch('owner', { status: 'inactive' }),
-      { wrapper: makeWrapper(qc) }
-    )
+    const { result } = renderHook(() => useSearch('owner', { status: 'inactive' }), {
+      wrapper: makeWrapper(qc)
+    })
     const ids = result.current.map((r) => r.id)
     expect(ids).not.toContain('1')
     expect(ids).toContain('2')
@@ -225,13 +220,16 @@ describe('useSearch — filtering logic', () => {
 
   it('status filter "confirmed" excludes unconfirmed wastes', () => {
     const confirmed = makeWaste({ waste_id: BigInt(1), is_confirmed: true })
-    const unconfirmed = makeWaste({ waste_id: BigInt(2), is_confirmed: false, current_owner: 'GOWNER' })
+    const unconfirmed = makeWaste({
+      waste_id: BigInt(2),
+      is_confirmed: false,
+      current_owner: 'GOWNER'
+    })
     qc.setQueryData(['wastes', 'test'], [confirmed, unconfirmed])
 
-    const { result } = renderHook(
-      () => useSearch('owner', { status: 'confirmed' }),
-      { wrapper: makeWrapper(qc) }
-    )
+    const { result } = renderHook(() => useSearch('owner', { status: 'confirmed' }), {
+      wrapper: makeWrapper(qc)
+    })
     const ids = result.current.map((r) => r.id)
     expect(ids).toContain('1')
     expect(ids).not.toContain('2')
@@ -242,22 +240,24 @@ describe('useSearch — filtering logic', () => {
     const inactive = makeWaste({ waste_id: BigInt(2), is_active: false, current_owner: 'GOWNER' })
     qc.setQueryData(['wastes', 'test'], [active, inactive])
 
-    const { result } = renderHook(
-      () => useSearch('owner', { status: 'all' }),
-      { wrapper: makeWrapper(qc) }
-    )
+    const { result } = renderHook(() => useSearch('owner', { status: 'all' }), {
+      wrapper: makeWrapper(qc)
+    })
     expect(result.current).toHaveLength(2)
   })
 
   it('wasteType filter excludes non-matching waste types', () => {
     const paper = makeWaste({ waste_id: BigInt(1), waste_type: WasteType.Paper })
-    const metal = makeWaste({ waste_id: BigInt(2), waste_type: WasteType.Metal, current_owner: 'GOWNER' })
+    const metal = makeWaste({
+      waste_id: BigInt(2),
+      waste_type: WasteType.Metal,
+      current_owner: 'GOWNER'
+    })
     qc.setQueryData(['wastes', 'test'], [paper, metal])
 
-    const { result } = renderHook(
-      () => useSearch('owner', { wasteTypes: [WasteType.Metal] }),
-      { wrapper: makeWrapper(qc) }
-    )
+    const { result } = renderHook(() => useSearch('owner', { wasteTypes: [WasteType.Metal] }), {
+      wrapper: makeWrapper(qc)
+    })
     const ids = result.current.map((r) => r.id)
     expect(ids).not.toContain('1')
     expect(ids).toContain('2')
@@ -265,8 +265,16 @@ describe('useSearch — filtering logic', () => {
 
   it('wasteType filter with multiple types includes all matching', () => {
     const paper = makeWaste({ waste_id: BigInt(1), waste_type: WasteType.Paper })
-    const metal = makeWaste({ waste_id: BigInt(2), waste_type: WasteType.Metal, current_owner: 'GOWNER' })
-    const glass = makeWaste({ waste_id: BigInt(3), waste_type: WasteType.Glass, current_owner: 'GOWNER' })
+    const metal = makeWaste({
+      waste_id: BigInt(2),
+      waste_type: WasteType.Metal,
+      current_owner: 'GOWNER'
+    })
+    const glass = makeWaste({
+      waste_id: BigInt(3),
+      waste_type: WasteType.Glass,
+      current_owner: 'GOWNER'
+    })
     qc.setQueryData(['wastes', 'test'], [paper, metal, glass])
 
     const { result } = renderHook(
@@ -281,20 +289,37 @@ describe('useSearch — filtering logic', () => {
 
   it('empty wasteTypes array does not filter by type', () => {
     const paper = makeWaste({ waste_id: BigInt(1), waste_type: WasteType.Paper })
-    const metal = makeWaste({ waste_id: BigInt(2), waste_type: WasteType.Metal, current_owner: 'GOWNER' })
+    const metal = makeWaste({
+      waste_id: BigInt(2),
+      waste_type: WasteType.Metal,
+      current_owner: 'GOWNER'
+    })
     qc.setQueryData(['wastes', 'test'], [paper, metal])
 
-    const { result } = renderHook(
-      () => useSearch('owner', { wasteTypes: [] }),
-      { wrapper: makeWrapper(qc) }
-    )
+    const { result } = renderHook(() => useSearch('owner', { wasteTypes: [] }), {
+      wrapper: makeWrapper(qc)
+    })
     expect(result.current).toHaveLength(2)
   })
 
   it('combined status + wasteType filters both apply', () => {
-    const activeMetalWaste = makeWaste({ waste_id: BigInt(1), waste_type: WasteType.Metal, is_active: true })
-    const inactiveMetalWaste = makeWaste({ waste_id: BigInt(2), waste_type: WasteType.Metal, is_active: false, current_owner: 'GOWNER' })
-    const activePaperWaste = makeWaste({ waste_id: BigInt(3), waste_type: WasteType.Paper, is_active: true, current_owner: 'GOWNER' })
+    const activeMetalWaste = makeWaste({
+      waste_id: BigInt(1),
+      waste_type: WasteType.Metal,
+      is_active: true
+    })
+    const inactiveMetalWaste = makeWaste({
+      waste_id: BigInt(2),
+      waste_type: WasteType.Metal,
+      is_active: false,
+      current_owner: 'GOWNER'
+    })
+    const activePaperWaste = makeWaste({
+      waste_id: BigInt(3),
+      waste_type: WasteType.Paper,
+      is_active: true,
+      current_owner: 'GOWNER'
+    })
     qc.setQueryData(['wastes', 'test'], [activeMetalWaste, inactiveMetalWaste, activePaperWaste])
 
     const { result } = renderHook(

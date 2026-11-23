@@ -1,7 +1,7 @@
 // Feature: AdminDashboardPage
 // Validates: tab navigation, config validation, incentive filtering, audit log, waste lookup
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { WasteType } from '@/api/types'
 import type { Incentive } from '@/api/types'
@@ -34,7 +34,7 @@ const mockIncentives: Incentive[] = [
     total_budget: 1000,
     remaining_budget: 800,
     active: true,
-    created_at: 1700000000,
+    created_at: 1700000000
   },
   {
     id: 2,
@@ -44,8 +44,8 @@ const mockIncentives: Incentive[] = [
     total_budget: 2000,
     remaining_budget: 1500,
     active: true,
-    created_at: 1700001000,
-  },
+    created_at: 1700001000
+  }
 ]
 
 describe('AdminDashboardPage — incentive filtering', () => {
@@ -155,7 +155,12 @@ describe('AdminDashboardPage — tab navigation', () => {
 
 // ── Audit log ─────────────────────────────────────────────────────────────────
 
-interface AuditEntry { id: number; action: string; target: string; timestamp: number }
+interface AuditEntry {
+  id: number
+  action: string
+  target: string
+  timestamp: number
+}
 
 function buildAuditLog(actions: { action: string; target: string }[]): AuditEntry[] {
   return actions.map((a, i) => ({ id: i + 1, ...a, timestamp: 1700000000 + i }))
@@ -171,7 +176,7 @@ describe('AdminDashboardPage — audit log', () => {
   it('most recent entry is first', () => {
     const log = buildAuditLog([
       { action: 'action_a', target: '1' },
-      { action: 'action_b', target: '2' },
+      { action: 'action_b', target: '2' }
     ])
     // buildAuditLog preserves insertion order; in real code we unshift
     expect(log[0].action).toBe('action_a')

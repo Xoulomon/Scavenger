@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo,useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 
 import { useAuth } from '@/context/AuthContext'
@@ -9,7 +9,7 @@ import { roleLabel } from '@/lib/helpers'
 import { ACCEPTED_DOC_TYPES, ACCEPTED_SELFIE_TYPES, MAX_FILE_SIZE, TOTAL_STEPS } from './constants'
 import { formatFileSize } from './format'
 import { validateParticipantStep } from './schemas'
-import { clearDraft,loadDraft, saveDraft } from './storage'
+import { clearDraft, loadDraft, saveDraft } from './storage'
 import type { FormDraft, ValidationErrors } from './types'
 
 /**
@@ -18,7 +18,13 @@ import type { FormDraft, ValidationErrors } from './types'
  * file dropzones and submission. The page renders this and nothing else.
  */
 export function useRegistrationForm() {
-  const { address, isConnected, connect, isLoading: walletLoading, error: walletError } = useWallet()
+  const {
+    address,
+    isConnected,
+    connect,
+    isLoading: walletLoading,
+    error: walletError
+  } = useWallet()
   const { login } = useAuth()
   const registerMutation = useRegisterParticipant()
 
@@ -67,7 +73,7 @@ export function useRegistrationForm() {
         setDraft((prev) => ({
           ...prev,
           latitude: String(Math.round(pos.coords.latitude * 1e6)),
-          longitude: String(Math.round(pos.coords.longitude * 1e6)),
+          longitude: String(Math.round(pos.coords.longitude * 1e6))
         }))
         setGeoLoading(false)
       },
@@ -99,7 +105,7 @@ export function useRegistrationForm() {
       if (file.size > MAX_FILE_SIZE) {
         setValidationErrors((prev) => ({
           ...prev,
-          identityDoc: `File exceeds ${formatFileSize(MAX_FILE_SIZE)} limit.`,
+          identityDoc: `File exceeds ${formatFileSize(MAX_FILE_SIZE)} limit.`
         }))
         return
       }
@@ -113,7 +119,7 @@ export function useRegistrationForm() {
     onDrop: onDocDrop,
     accept: ACCEPTED_DOC_TYPES,
     maxFiles: 1,
-    multiple: false,
+    multiple: false
   })
 
   const onSelfieDrop = useCallback(
@@ -123,7 +129,7 @@ export function useRegistrationForm() {
       if (file.size > MAX_FILE_SIZE) {
         setValidationErrors((prev) => ({
           ...prev,
-          selfiePhoto: `File exceeds ${formatFileSize(MAX_FILE_SIZE)} limit.`,
+          selfiePhoto: `File exceeds ${formatFileSize(MAX_FILE_SIZE)} limit.`
         }))
         return
       }
@@ -137,7 +143,7 @@ export function useRegistrationForm() {
     onDrop: onSelfieDrop,
     accept: ACCEPTED_SELFIE_TYPES,
     maxFiles: 1,
-    multiple: false,
+    multiple: false
   })
 
   const removeIdentityDoc = useCallback(() => {
@@ -179,14 +185,14 @@ export function useRegistrationForm() {
         role: draft.role,
         name: draft.displayName.trim(),
         lat,
-        lon,
+        lon
       },
       {
         onSuccess: (participant) => {
           clearDraft()
           login({ address, role: participant.role, name: participant.name })
           setIsSuccess(true)
-        },
+        }
       }
     )
   }, [address, draft, login, registerMutation])
@@ -200,7 +206,7 @@ export function useRegistrationForm() {
       { label: 'Phone', value: draft.phone || 'Not provided' },
       { label: 'Bio', value: draft.bio || 'Not provided' },
       { label: 'ID Document', value: draft.identityDoc?.name || '-' },
-      { label: 'Selfie', value: draft.selfiePhoto?.name || 'Not provided' },
+      { label: 'Selfie', value: draft.selfiePhoto?.name || 'Not provided' }
     ],
     [draft]
   )
@@ -236,7 +242,7 @@ export function useRegistrationForm() {
     // geolocation
     geoLoading,
     geoError,
-    requestGeolocation,
+    requestGeolocation
   }
 }
 

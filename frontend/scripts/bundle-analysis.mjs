@@ -24,8 +24,8 @@ const distDir = join(__dirname, '..', 'dist', 'assets')
 
 // ── Thresholds ────────────────────────────────────────────────────────────────
 // Adjust if the budget changes.  Values in KB (uncompressed).
-const INITIAL_BUNDLE_WARN_KB = 200  // warn if initial JS > 200 KB
-const INITIAL_BUNDLE_FAIL_KB = 350  // fail CI if initial JS > 350 KB
+const INITIAL_BUNDLE_WARN_KB = 200 // warn if initial JS > 200 KB
+const INITIAL_BUNDLE_FAIL_KB = 350 // fail CI if initial JS > 350 KB
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function toKB(bytes) {

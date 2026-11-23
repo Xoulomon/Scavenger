@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useCallback, useMemo,useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { ScavengerClient } from '@/api/client'
-import type { Material, WasteTransfer,WasteType } from '@/api/types'
+import type { Material, WasteTransfer, WasteType } from '@/api/types'
 import { useContract } from '@/context/ContractContext'
 import { useWallet } from '@/context/WalletContext'
 import { exportVerificationCsv } from '@/features/verification/format'
@@ -12,7 +12,7 @@ import type {
   SortField,
   StatusFilter,
   VerificationFormData,
-  VerificationRecord,
+  VerificationRecord
 } from '@/features/verification/types'
 import { networkConfig } from '@/lib/stellar'
 
@@ -27,7 +27,7 @@ export function useAllMaterials() {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       const ids = await client.getParticipantWastes(address)
       const results = await Promise.all(
@@ -36,7 +36,7 @@ export function useAllMaterials() {
       return results.filter((m): m is Material => m !== null)
     },
     enabled: !!address,
-    staleTime: 30_000,
+    staleTime: 30_000
   })
 }
 
@@ -51,13 +51,13 @@ export function useVerifyMaterial() {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       return client.verifyMaterial(materialId, address, address)
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['dashboard-materials'] })
-    },
+    }
   })
 }
 
@@ -71,12 +71,12 @@ export function useMaterialTransfers(materialId: number | null) {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       return client.getWasteTransferHistory(BigInt(materialId))
     },
     enabled: materialId !== null,
-    staleTime: 60_000,
+    staleTime: 60_000
   })
 }
 
@@ -159,7 +159,16 @@ export function useVerificationDashboard() {
     })
 
     return result
-  }, [allMaterials, searchQuery, statusFilter, wasteTypeFilter, dateFrom, dateTo, sortField, sortDir])
+  }, [
+    allMaterials,
+    searchQuery,
+    statusFilter,
+    wasteTypeFilter,
+    dateFrom,
+    dateTo,
+    sortField,
+    sortDir
+  ])
 
   const selectedMaterial = filteredMaterials.find((m) => m.id === selectedId) ?? null
   const hasActiveFilters = !!(
@@ -183,7 +192,7 @@ export function useVerificationDashboard() {
         contaminated: form.contaminated,
         grade: form.grade,
         verifiedAt: Math.floor(Date.now() / 1000),
-        verifier: address ?? '',
+        verifier: address ?? ''
       }
       addRecord(record)
     },
@@ -277,6 +286,6 @@ export function useVerificationDashboard() {
     filteredMaterials,
     handleVerify,
     handleBulkAction,
-    handleExport,
+    handleExport
   }
 }

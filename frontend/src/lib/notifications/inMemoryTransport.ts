@@ -28,19 +28,31 @@ export class InMemoryNotificationTransport implements NotificationTransport {
   }
 
   async incrementCount(address: string, id: string) {
-    this.set(address, this.list(address).map((n) => (n.id === id ? { ...n, count: n.count + 1 } : n)))
+    this.set(
+      address,
+      this.list(address).map((n) => (n.id === id ? { ...n, count: n.count + 1 } : n))
+    )
   }
 
   async markRead(address: string, id: string) {
-    this.set(address, this.list(address).map((n) => (n.id === id ? { ...n, read: true } : n)))
+    this.set(
+      address,
+      this.list(address).map((n) => (n.id === id ? { ...n, read: true } : n))
+    )
   }
 
   async markAllRead(address: string) {
-    this.set(address, this.list(address).map((n) => ({ ...n, read: true })))
+    this.set(
+      address,
+      this.list(address).map((n) => ({ ...n, read: true }))
+    )
   }
 
   async remove(address: string, id: string) {
-    this.set(address, this.list(address).filter((n) => n.id !== id))
+    this.set(
+      address,
+      this.list(address).filter((n) => n.id !== id)
+    )
   }
 
   subscribe(address: string, limit: number, onItems: Listener) {

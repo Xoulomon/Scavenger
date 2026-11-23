@@ -4,8 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 const HEALTH_METRICS = [
   { label: 'RPC Node', icon: <Wifi className="h-4 w-4" />, status: 'healthy', latency: '42ms' },
   { label: 'Contract', icon: <Cpu className="h-4 w-4" />, status: 'healthy', latency: '—' },
-  { label: 'Firebase DB', icon: <Database className="h-4 w-4" />, status: 'healthy', latency: '18ms' },
-  { label: 'Indexer', icon: <Activity className="h-4 w-4" />, status: 'degraded', latency: '320ms' },
+  {
+    label: 'Firebase DB',
+    icon: <Database className="h-4 w-4" />,
+    status: 'healthy',
+    latency: '18ms'
+  },
+  { label: 'Indexer', icon: <Activity className="h-4 w-4" />, status: 'degraded', latency: '320ms' }
 ]
 
 export function SystemHealthTab() {

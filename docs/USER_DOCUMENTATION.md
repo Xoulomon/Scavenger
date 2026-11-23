@@ -32,12 +32,12 @@ Every action — registration, submission, transfer, reward — is recorded on-c
 
 ### What You Need
 
-| Requirement | Details |
-|---|---|
-| Stellar wallet | [Freighter](https://www.freighter.app) (browser extension, free) |
-| XLM balance | ~5 XLM for transaction fees. Get testnet XLM free from [Friendbot](https://friendbot.stellar.org) |
-| Web browser | Chrome, Firefox, Brave, or Edge (latest) |
-| Internet | Stable connection required for blockchain transactions |
+| Requirement    | Details                                                                                           |
+| -------------- | ------------------------------------------------------------------------------------------------- |
+| Stellar wallet | [Freighter](https://www.freighter.app) (browser extension, free)                                  |
+| XLM balance    | ~5 XLM for transaction fees. Get testnet XLM free from [Friendbot](https://friendbot.stellar.org) |
+| Web browser    | Chrome, Firefox, Brave, or Edge (latest)                                                          |
+| Internet       | Stable connection required for blockchain transactions                                            |
 
 ### Quick Start (5 minutes)
 
@@ -55,35 +55,38 @@ You must register before using any platform features. Registration records your 
 
 ### Choosing Your Role
 
-| Role | Who it's for | What you can do |
-|---|---|---|
-| **Recycler** | Individuals, households, small businesses | Submit waste, transfer to collectors, earn rewards |
-| **Collector** | Waste collection services, sorting facilities | Receive waste, verify materials, transfer to manufacturers |
-| **Manufacturer** | Processing plants, factories | Create incentives, receive materials, distribute rewards |
+| Role             | Who it's for                                  | What you can do                                            |
+| ---------------- | --------------------------------------------- | ---------------------------------------------------------- |
+| **Recycler**     | Individuals, households, small businesses     | Submit waste, transfer to collectors, earn rewards         |
+| **Collector**    | Waste collection services, sorting facilities | Receive waste, verify materials, transfer to manufacturers |
+| **Manufacturer** | Processing plants, factories                  | Create incentives, receive materials, distribute rewards   |
 
 > You can only register once per Stellar address. Choose your role carefully.
 
 ### How to Register
 
 **Step 1 — Connect your wallet**
+
 - Click **Connect Wallet** in the top navigation
 - Approve the connection in Freighter
 - Your address appears in the navigation bar
 
 **Step 2 — Open the registration form**
+
 - Click **Register** or navigate to **Account → Register**
 - Select your role from the dropdown
 
 **Step 3 — Enter your details**
 
-| Field | Required | Notes |
-|---|---|---|
-| Display Name | ✅ | Your business or personal name (max 64 characters) |
-| Role | ✅ | Recycler, Collector, or Manufacturer |
-| Latitude | ✅ | Your location in decimal degrees (e.g. 52.52 for Berlin) |
-| Longitude | ✅ | Your location in decimal degrees (e.g. 13.40 for Berlin) |
+| Field        | Required | Notes                                                    |
+| ------------ | -------- | -------------------------------------------------------- |
+| Display Name | ✅       | Your business or personal name (max 64 characters)       |
+| Role         | ✅       | Recycler, Collector, or Manufacturer                     |
+| Latitude     | ✅       | Your location in decimal degrees (e.g. 52.52 for Berlin) |
+| Longitude    | ✅       | Your location in decimal degrees (e.g. 13.40 for Berlin) |
 
 **Step 4 — Submit and approve**
+
 - Click **Register**
 - Freighter will open — review the transaction details
 - Click **Approve** in Freighter
@@ -105,14 +108,14 @@ Recyclers submit waste items to start the supply chain. Each submission records 
 
 ### Accepted Waste Types
 
-| Type | Examples | Points per kg (base) |
-|---|---|---|
-| 🧴 **Plastic** | Bottles, containers, packaging | 2 |
-| 📰 **Paper** | Cardboard, newspapers, office paper | 1 |
-| 🔩 **Metal** | Aluminium cans, steel, copper wire | 5 |
-| 🍶 **Glass** | Bottles, jars, containers | 2 |
-| 🌿 **Organic** | Food scraps, garden waste | 1 |
-| 💻 **Electronic** | Phones, computers, batteries | 6 |
+| Type              | Examples                            | Points per kg (base) |
+| ----------------- | ----------------------------------- | -------------------- |
+| 🧴 **Plastic**    | Bottles, containers, packaging      | 2                    |
+| 📰 **Paper**      | Cardboard, newspapers, office paper | 1                    |
+| 🔩 **Metal**      | Aluminium cans, steel, copper wire  | 5                    |
+| 🍶 **Glass**      | Bottles, jars, containers           | 2                    |
+| 🌿 **Organic**    | Food scraps, garden waste           | 1                    |
+| 💻 **Electronic** | Phones, computers, batteries        | 6                    |
 
 ### Single Waste Submission
 
@@ -141,15 +144,16 @@ Submit multiple waste items in a single transaction (more efficient, lower fees)
 ### Tracking Your Submissions
 
 After submitting:
+
 - View all your waste in **My Waste** dashboard
 - Each item shows current status:
 
-| Status | Meaning |
-|---|---|
-| **Pending** | Awaiting verification by a collector |
-| **Verified** | Confirmed by a collector |
-| **Transferred** | Moved to another participant |
-| **Deactivated** | Removed from active circulation |
+| Status          | Meaning                              |
+| --------------- | ------------------------------------ |
+| **Pending**     | Awaiting verification by a collector |
+| **Verified**    | Confirmed by a collector             |
+| **Transferred** | Moved to another participant         |
+| **Deactivated** | Removed from active circulation      |
 
 ### Transferring Waste to a Collector
 
@@ -173,6 +177,7 @@ Collectors verify waste to confirm its quality and type before it moves further 
 ### Why Verification Matters
 
 Verification is the quality gate of the supply chain:
+
 - Ensures reported weights and types are accurate
 - Triggers reward eligibility
 - Creates an auditable chain of custody
@@ -193,6 +198,7 @@ Verification is the quality gate of the supply chain:
 ### Confirming Waste Details
 
 After verification, use **Confirm Details** to formally attest:
+
 - Waste type matches submission
 - Weight is within acceptable tolerance
 - Material is not contaminated
@@ -200,6 +206,7 @@ After verification, use **Confirm Details** to formally attest:
 ### Resetting Confirmation
 
 If you need to correct a confirmation:
+
 1. Go to the waste item in **My Inventory**
 2. Click **Reset Confirmation**
 3. Approve in Freighter (only the waste owner can do this)
@@ -229,11 +236,11 @@ Budget remaining: 9,500 points
 1. Navigate to **Incentives → Create Incentive**
 2. Fill in the form:
 
-| Field | Description |
-|---|---|
-| Waste Type | Which material you want to incentivise |
-| Reward Points | Points per kilogram |
-| Total Budget | Maximum total points available |
+| Field         | Description                            |
+| ------------- | -------------------------------------- |
+| Waste Type    | Which material you want to incentivise |
+| Reward Points | Points per kilogram                    |
+| Total Budget  | Maximum total points available         |
 
 3. Click **Create** and approve in Freighter
 
@@ -267,10 +274,10 @@ The reward points are immediately credited to each participant's account.
 Some incentives offer higher rates for larger quantities:
 
 | Weight Range | Points per kg |
-|---|---|
-| 0–10 kg | 50 |
-| 10–100 kg | 75 |
-| 100+ kg | 100 |
+| ------------ | ------------- |
+| 0–10 kg      | 50            |
+| 10–100 kg    | 75            |
+| 100+ kg      | 100           |
 
 Check the incentive details page to see if tiers apply.
 
@@ -284,23 +291,23 @@ Track your environmental impact and platform activity from your personal dashboa
 
 Access your dashboard at **Account → Dashboard**. It shows:
 
-| Metric | Description |
-|---|---|
-| **Total Waste Processed** | Cumulative grams you've submitted or handled |
-| **Total Tokens Earned** | Lifetime reward points accumulated |
-| **Active Groups** | Number of supply chain groups you're part of |
-| **Certification Level** | Your tier based on activity (Beginner → Expert) |
+| Metric                    | Description                                     |
+| ------------------------- | ----------------------------------------------- |
+| **Total Waste Processed** | Cumulative grams you've submitted or handled    |
+| **Total Tokens Earned**   | Lifetime reward points accumulated              |
+| **Active Groups**         | Number of supply chain groups you're part of    |
+| **Certification Level**   | Your tier based on activity (Beginner → Expert) |
 
 ### Certification Levels
 
 Your certification level upgrades automatically as you process more waste:
 
-| Level | Waste Processed | Reward Multiplier |
-|---|---|---|
-| 🌱 Beginner | 0–10 items | 1.0× |
-| 🌿 Intermediate | 11–50 items | 1.1× |
-| 🌳 Advanced | 51–200 items | 1.25× |
-| ⭐ Expert | 201+ items | 1.5× |
+| Level           | Waste Processed | Reward Multiplier |
+| --------------- | --------------- | ----------------- |
+| 🌱 Beginner     | 0–10 items      | 1.0×              |
+| 🌿 Intermediate | 11–50 items     | 1.1×              |
+| 🌳 Advanced     | 51–200 items    | 1.25×             |
+| ⭐ Expert       | 201+ items      | 1.5×              |
 
 ### Supply Chain Statistics
 
@@ -315,13 +322,13 @@ The **Analytics** page shows platform-wide data:
 
 Each waste type has a CO₂ offset rate. The platform calculates your total carbon impact:
 
-| Waste Type | CO₂ offset rate |
-|---|---|
-| Plastic | 2.5 g CO₂e per gram |
-| Paper | 1.8 g CO₂e per gram |
-| Metal | 3.2 g CO₂e per gram |
-| Glass | 0.8 g CO₂e per gram |
-| Organic | 0.5 g CO₂e per gram |
+| Waste Type | CO₂ offset rate     |
+| ---------- | ------------------- |
+| Plastic    | 2.5 g CO₂e per gram |
+| Paper      | 1.8 g CO₂e per gram |
+| Metal      | 3.2 g CO₂e per gram |
+| Glass      | 0.8 g CO₂e per gram |
+| Organic    | 0.5 g CO₂e per gram |
 | Electronic | 4.0 g CO₂e per gram |
 
 Your total CO₂ offset is displayed on your profile and certificate.
@@ -398,29 +405,29 @@ A: The manufacturer's budget ran out. They need to create a new incentive or add
 
 ## Glossary of Terms
 
-| Term | Definition |
-|---|---|
-| **Waste** | A recyclable material recorded on the blockchain with a unique ID |
-| **Participant** | A registered user with a role (Recycler, Collector, or Manufacturer) |
-| **Incentive** | A reward programme created by a Manufacturer for a specific waste type |
-| **Reward Points** | On-chain tokens earned for recycling activity |
-| **Budget** | Total reward points a Manufacturer allocates to an incentive |
-| **Verification** | A Collector's on-chain confirmation of waste quality and type |
-| **Transfer** | Moving ownership of a waste item to another participant |
-| **Supply Chain** | The full path a waste item travels: Recycler → Collector → Manufacturer |
-| **Certification Level** | Your tier (Beginner/Intermediate/Advanced/Expert) based on activity |
-| **Carbon Credits** | CO₂ offset calculated from your recycling activity |
-| **Collector %** | The percentage of rewards that go to collectors (default: 30%) |
-| **Owner %** | The percentage of rewards that go to the waste owner (default: 50%) |
-| **Ledger** | A block in the Stellar blockchain; new ledger every ~5 seconds |
-| **Stroop** | The smallest unit of XLM: 1 XLM = 10,000,000 stroops |
-| **Freighter** | The recommended Stellar browser wallet extension |
-| **Soroban** | Stellar's smart contract platform, which powers Scavngr |
-| **Contract ID** | The on-chain address of the Scavngr smart contract |
-| **Transaction Hash** | A unique identifier for each blockchain transaction |
-| **Gas / Fee** | Transaction fee paid in XLM to process actions on Stellar |
-| **Deactivated** | A waste item removed from circulation (cannot be transferred or verified) |
-| **Contaminated** | Waste marked as containing non-recyclable materials |
+| Term                    | Definition                                                                |
+| ----------------------- | ------------------------------------------------------------------------- |
+| **Waste**               | A recyclable material recorded on the blockchain with a unique ID         |
+| **Participant**         | A registered user with a role (Recycler, Collector, or Manufacturer)      |
+| **Incentive**           | A reward programme created by a Manufacturer for a specific waste type    |
+| **Reward Points**       | On-chain tokens earned for recycling activity                             |
+| **Budget**              | Total reward points a Manufacturer allocates to an incentive              |
+| **Verification**        | A Collector's on-chain confirmation of waste quality and type             |
+| **Transfer**            | Moving ownership of a waste item to another participant                   |
+| **Supply Chain**        | The full path a waste item travels: Recycler → Collector → Manufacturer   |
+| **Certification Level** | Your tier (Beginner/Intermediate/Advanced/Expert) based on activity       |
+| **Carbon Credits**      | CO₂ offset calculated from your recycling activity                        |
+| **Collector %**         | The percentage of rewards that go to collectors (default: 30%)            |
+| **Owner %**             | The percentage of rewards that go to the waste owner (default: 50%)       |
+| **Ledger**              | A block in the Stellar blockchain; new ledger every ~5 seconds            |
+| **Stroop**              | The smallest unit of XLM: 1 XLM = 10,000,000 stroops                      |
+| **Freighter**           | The recommended Stellar browser wallet extension                          |
+| **Soroban**             | Stellar's smart contract platform, which powers Scavngr                   |
+| **Contract ID**         | The on-chain address of the Scavngr smart contract                        |
+| **Transaction Hash**    | A unique identifier for each blockchain transaction                       |
+| **Gas / Fee**           | Transaction fee paid in XLM to process actions on Stellar                 |
+| **Deactivated**         | A waste item removed from circulation (cannot be transferred or verified) |
+| **Contaminated**        | Waste marked as containing non-recyclable materials                       |
 
 ---
 
@@ -430,46 +437,46 @@ The following video tutorials are planned or available for the Scavngr platform.
 
 ### Getting Started
 
-| # | Title | Duration | Topics |
-|---|---|---|---|
-| 1 | Setting Up Your Stellar Wallet | 5 min | Install Freighter, create account, fund on testnet |
-| 2 | Connecting to Scavngr for the First Time | 3 min | Connect wallet, navigate the UI |
-| 3 | Registering as a Recycler | 4 min | Registration form, approving in Freighter |
+| #   | Title                                    | Duration | Topics                                             |
+| --- | ---------------------------------------- | -------- | -------------------------------------------------- |
+| 1   | Setting Up Your Stellar Wallet           | 5 min    | Install Freighter, create account, fund on testnet |
+| 2   | Connecting to Scavngr for the First Time | 3 min    | Connect wallet, navigate the UI                    |
+| 3   | Registering as a Recycler                | 4 min    | Registration form, approving in Freighter          |
 
 ### Recycler Tutorials
 
-| # | Title | Duration | Topics |
-|---|---|---|---|
-| 4 | Submitting Your First Waste Item | 6 min | Single submission, waste types, location |
-| 5 | Batch Submission for Efficiency | 5 min | Batch form, multiple items, fee saving |
-| 6 | Transferring Waste to a Collector | 4 min | Finding collectors, transfer flow |
-| 7 | Tracking Your Submissions | 3 min | Status dashboard, transaction history |
+| #   | Title                             | Duration | Topics                                   |
+| --- | --------------------------------- | -------- | ---------------------------------------- |
+| 4   | Submitting Your First Waste Item  | 6 min    | Single submission, waste types, location |
+| 5   | Batch Submission for Efficiency   | 5 min    | Batch form, multiple items, fee saving   |
+| 6   | Transferring Waste to a Collector | 4 min    | Finding collectors, transfer flow        |
+| 7   | Tracking Your Submissions         | 3 min    | Status dashboard, transaction history    |
 
 ### Collector Tutorials
 
-| # | Title | Duration | Topics |
-|---|---|---|---|
-| 8 | Verifying Received Materials | 7 min | Inspection process, verification flow |
-| 9 | Managing Your Inventory | 4 min | Inventory dashboard, sorting, transfers |
+| #   | Title                        | Duration | Topics                                  |
+| --- | ---------------------------- | -------- | --------------------------------------- |
+| 8   | Verifying Received Materials | 7 min    | Inspection process, verification flow   |
+| 9   | Managing Your Inventory      | 4 min    | Inventory dashboard, sorting, transfers |
 
 ### Manufacturer Tutorials
 
-| # | Title | Duration | Topics |
-|---|---|---|---|
-| 10 | Creating Your First Incentive | 6 min | Incentive form, budget, waste types |
-| 11 | Managing and Updating Incentives | 4 min | Edit, deactivate, monitor budget |
-| 12 | Distributing Rewards to the Supply Chain | 5 min | Reward distribution flow, percentages |
+| #   | Title                                    | Duration | Topics                                |
+| --- | ---------------------------------------- | -------- | ------------------------------------- |
+| 10  | Creating Your First Incentive            | 6 min    | Incentive form, budget, waste types   |
+| 11  | Managing and Updating Incentives         | 4 min    | Edit, deactivate, monitor budget      |
+| 12  | Distributing Rewards to the Supply Chain | 5 min    | Reward distribution flow, percentages |
 
 ### Advanced
 
-| # | Title | Duration | Topics |
-|---|---|---|---|
-| 13 | Understanding Your Analytics Dashboard | 5 min | Metrics, charts, certification levels |
-| 14 | Carbon Credit Calculation Explained | 4 min | CO₂ rates, how credits are calculated |
-| 15 | Security Best Practices | 6 min | Key management, avoiding scams |
+| #   | Title                                  | Duration | Topics                                |
+| --- | -------------------------------------- | -------- | ------------------------------------- |
+| 13  | Understanding Your Analytics Dashboard | 5 min    | Metrics, charts, certification levels |
+| 14  | Carbon Credit Calculation Explained    | 4 min    | CO₂ rates, how credits are calculated |
+| 15  | Security Best Practices                | 6 min    | Key management, avoiding scams        |
 
 > 📹 Videos are hosted on the [Scavngr YouTube channel](https://youtube.com/@scavngr). Community-contributed tutorials are welcome — see CONTRIBUTING.md.
 
 ---
 
-*Last updated: June 2026*
+_Last updated: June 2026_

@@ -11,7 +11,11 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { LoadingState } from '@/components/ui/LoadingState'
-import { wasteSubmissionSchema, toWeightInGrams, type WeightUnit } from '@/lib/validation/wasteSubmission'
+import {
+  wasteSubmissionSchema,
+  toWeightInGrams,
+  type WeightUnit
+} from '@/lib/validation/wasteSubmission'
 import { STATUSES, type Status } from '@/lib/constants'
 import { getSubmitErrorMessage, getPhotoError } from '@/lib/format'
 import { WasteSubmissionFields, type WasteFormValues } from './WasteSubmissionFields'
@@ -57,13 +61,20 @@ export function WasteSubmissionForm({
   onCancel,
   isAuthenticated: _isAuthenticatedProp,
   isOnline: _isOnlineProp,
-  theme: _themeProp,
+  theme: _themeProp
 }: WasteSubmissionFormProps) {
   const { isAuthenticated } = useAuth()
   const { isOnline } = useNetwork()
   const { theme } = useTheme()
   const { t } = useTranslation()
-  const { images, addImages, removeImage, uploadIds, isUploading, validationError: imageValidationError } = useImageUpload()
+  const {
+    images,
+    addImages,
+    removeImage,
+    uploadIds,
+    isUploading,
+    validationError: imageValidationError
+  } = useImageUpload()
   const [weightUnit, setWeightUnit] = useState<WeightUnit>('grams')
   const [submitState, setSubmitState] = useState<Status>(STATUSES.IDLE)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -71,9 +82,16 @@ export function WasteSubmissionForm({
 
   const schema = useMemo(() => wasteSubmissionSchema(weightUnit), [weightUnit])
 
-  const { register, handleSubmit, control, setValue, watch, formState: { errors } } = useForm<WasteFormValues>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    watch,
+    formState: { errors }
+  } = useForm<WasteFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { wasteType: '', weight: '', latitude: '', longitude: '', notes: '' },
+    defaultValues: { wasteType: '', weight: '', latitude: '', longitude: '', notes: '' }
   })
 
   const onFormSubmit = handleSubmit(async (data) => {
@@ -99,7 +117,7 @@ export function WasteSubmissionForm({
         latitude: data.latitude,
         longitude: data.longitude,
         notes: data.notes,
-        photoCids: uploadIds,
+        photoCids: uploadIds
       })
       setSubmitState(STATUSES.SUCCESS)
     } catch (e) {
@@ -114,7 +132,7 @@ export function WasteSubmissionForm({
     submitState,
     hasFieldErrors: Object.keys(errors).length > 0,
     uploadCount: uploadIds.length,
-    imageCount: images.length,
+    imageCount: images.length
   })
 
   if (submitState === STATUSES.SUCCESS) {
@@ -151,7 +169,9 @@ export function WasteSubmissionForm({
             photoError={photoError}
           />
           {submitError && (
-            <p className="text-sm text-destructive" role="alert" aria-live="assertive">{submitError}</p>
+            <p className="text-sm text-destructive" role="alert" aria-live="assertive">
+              {submitError}
+            </p>
           )}
           <div className="flex flex-col gap-2 pt-2 xs:flex-row xs:gap-3 tablet:gap-4">
             <Button type="button" variant="outline" onClick={onCancel} className="w-full xs:flex-1">
@@ -163,9 +183,15 @@ export function WasteSubmissionForm({
               disabled={submitState === STATUSES.LOADING || isUploading}
             >
               {submitState === STATUSES.LOADING ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />Submitting...</>
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                  Submitting...
+                </>
               ) : isUploading ? (
-                <LoadingState variant="inline" label={t('wasteSubmission.actions.uploadingPhotos')} />
+                <LoadingState
+                  variant="inline"
+                  label={t('wasteSubmission.actions.uploadingPhotos')}
+                />
               ) : (
                 t('wasteSubmission.actions.submit')
               )}

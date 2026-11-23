@@ -52,64 +52,64 @@ const BADGE_DEFS: BadgeDef[] = [
     name: 'First Step',
     description: 'Submit your first waste item',
     icon: '🌱',
-    check: (s) => s.materialsSubmitted >= 1,
+    check: (s) => s.materialsSubmitted >= 1
   },
   {
     id: 'ten_submits',
     name: 'Getting Started',
     description: 'Submit 10 waste items',
     icon: '♻️',
-    check: (s) => s.materialsSubmitted >= 10,
+    check: (s) => s.materialsSubmitted >= 10
   },
   {
     id: 'fifty_submits',
     name: 'Recycling Pro',
     description: 'Submit 50 waste items',
     icon: '🏅',
-    check: (s) => s.materialsSubmitted >= 50,
+    check: (s) => s.materialsSubmitted >= 50
   },
   {
     id: 'hundred_submits',
     name: 'Century Club',
     description: 'Submit 100 waste items',
     icon: '💯',
-    check: (s) => s.materialsSubmitted >= 100,
+    check: (s) => s.materialsSubmitted >= 100
   },
   {
     id: 'first_transfer',
     name: 'On the Move',
     description: 'Complete your first transfer',
     icon: '🚚',
-    check: (s) => s.transfersCount >= 1,
+    check: (s) => s.transfersCount >= 1
   },
   {
     id: 'ten_transfers',
     name: 'Supply Chain Hero',
     description: 'Complete 10 transfers',
     icon: '⛓️',
-    check: (s) => s.transfersCount >= 10,
+    check: (s) => s.transfersCount >= 10
   },
   {
     id: 'earner',
     name: 'Token Earner',
     description: 'Earn your first tokens',
     icon: '🪙',
-    check: (s) => s.totalEarned > 0n,
+    check: (s) => s.totalEarned > 0n
   },
   {
     id: 'big_earner',
     name: 'Token Hoarder',
     description: 'Earn 10,000 tokens',
     icon: '💰',
-    check: (s) => s.totalEarned >= 10_000n,
+    check: (s) => s.totalEarned >= 10_000n
   },
   {
     id: 'overachiever',
     name: 'Overachiever',
     description: 'Submit 50 items AND complete 10 transfers',
     icon: '🏆',
-    check: (s) => s.materialsSubmitted >= 50 && s.transfersCount >= 10,
-  },
+    check: (s) => s.materialsSubmitted >= 50 && s.transfersCount >= 10
+  }
 ]
 
 export function evaluateBadges(stats: UserStats): Badge[] {
@@ -118,7 +118,7 @@ export function evaluateBadges(stats: UserStats): Badge[] {
     name,
     description,
     icon,
-    earned: check(stats),
+    earned: check(stats)
   }))
 }
 
@@ -145,15 +145,30 @@ export function computeLevel(stats: UserStats): Level {
   const xp = computeXP(stats)
   let level = 1
   for (let i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
-    if (xp >= LEVEL_THRESHOLDS[i]) { level = i + 1; break }
+    if (xp >= LEVEL_THRESHOLDS[i]) {
+      level = i + 1
+      break
+    }
   }
   const xpForCurrent = LEVEL_THRESHOLDS[level - 1] ?? 0
   const xpForNext = LEVEL_THRESHOLDS[level] ?? LEVEL_THRESHOLDS[LEVEL_THRESHOLDS.length - 1]
   const range = xpForNext - xpForCurrent
-  const progressPct = range > 0 ? Math.min(100, Math.round(((xp - xpForCurrent) / range) * 100)) : 100
+  const progressPct =
+    range > 0 ? Math.min(100, Math.round(((xp - xpForCurrent) / range) * 100)) : 100
 
-  const TITLES = ['Newcomer', 'Collector', 'Recycler', 'Eco Warrior', 'Green Champion',
-    'Sustainability Hero', 'Planet Guardian', 'Eco Legend', 'Master Recycler', 'Grand Eco Master', 'Immortal']
+  const TITLES = [
+    'Newcomer',
+    'Collector',
+    'Recycler',
+    'Eco Warrior',
+    'Green Champion',
+    'Sustainability Hero',
+    'Planet Guardian',
+    'Eco Legend',
+    'Master Recycler',
+    'Grand Eco Master',
+    'Immortal'
+  ]
   return { level, title: TITLES[level - 1] ?? 'Immortal', xp, xpForNext, progressPct }
 }
 
@@ -178,14 +193,49 @@ export function generateChallenges(stats: UserStats, now = Date.now()): Challeng
   const weekStart = startOfWeek(now)
 
   const daily: Omit<Challenge, 'current' | 'progressPct' | 'completed'>[] = [
-    { id: 'daily_submit_3', title: 'Daily Submitter', description: 'Submit 3 waste items today', target: 3, type: 'daily', expiresAt: dayStart + 86_400_000 },
-    { id: 'daily_transfer_1', title: 'Daily Mover', description: 'Complete 1 transfer today', target: 1, type: 'daily', expiresAt: dayStart + 86_400_000 },
+    {
+      id: 'daily_submit_3',
+      title: 'Daily Submitter',
+      description: 'Submit 3 waste items today',
+      target: 3,
+      type: 'daily',
+      expiresAt: dayStart + 86_400_000
+    },
+    {
+      id: 'daily_transfer_1',
+      title: 'Daily Mover',
+      description: 'Complete 1 transfer today',
+      target: 1,
+      type: 'daily',
+      expiresAt: dayStart + 86_400_000
+    }
   ]
 
   const weekly: Omit<Challenge, 'current' | 'progressPct' | 'completed'>[] = [
-    { id: 'weekly_submit_15', title: 'Weekly Recycler', description: 'Submit 15 waste items this week', target: 15, type: 'weekly', expiresAt: weekStart + 7 * 86_400_000 },
-    { id: 'weekly_transfer_5', title: 'Weekly Mover', description: 'Complete 5 transfers this week', target: 5, type: 'weekly', expiresAt: weekStart + 7 * 86_400_000 },
-    { id: 'weekly_earn_500', title: 'Token Grinder', description: 'Earn 500 tokens this week', target: 500, type: 'weekly', expiresAt: weekStart + 7 * 86_400_000 },
+    {
+      id: 'weekly_submit_15',
+      title: 'Weekly Recycler',
+      description: 'Submit 15 waste items this week',
+      target: 15,
+      type: 'weekly',
+      expiresAt: weekStart + 7 * 86_400_000
+    },
+    {
+      id: 'weekly_transfer_5',
+      title: 'Weekly Mover',
+      description: 'Complete 5 transfers this week',
+      target: 5,
+      type: 'weekly',
+      expiresAt: weekStart + 7 * 86_400_000
+    },
+    {
+      id: 'weekly_earn_500',
+      title: 'Token Grinder',
+      description: 'Earn 500 tokens this week',
+      target: 500,
+      type: 'weekly',
+      expiresAt: weekStart + 7 * 86_400_000
+    }
   ]
 
   // For simplicity, current progress uses cumulative stats (no per-period tracking)
@@ -218,9 +268,10 @@ export function buildLeaderboard(
   return entries
     .map(({ address, stats }) => ({
       address,
-      displayName: address === currentAddress ? 'You' : `${address.slice(0, 4)}…${address.slice(-4)}`,
+      displayName:
+        address === currentAddress ? 'You' : `${address.slice(0, 4)}…${address.slice(-4)}`,
       xp: computeXP(stats),
-      level: computeLevel(stats).level,
+      level: computeLevel(stats).level
     }))
     .sort((a, b) => b.xp - a.xp)
     .map((e, i) => ({ ...e, rank: i + 1 }))

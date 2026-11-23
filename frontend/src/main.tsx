@@ -32,12 +32,15 @@ initWebVitals((metric) => {
   // Optionally send to analytics endpoint in production
   if (!env.DEV) {
     try {
-      navigator.sendBeacon('/api/metrics', JSON.stringify({
-        metric: metric.name,
-        value: metric.value,
-        rating: metric.rating,
-        timestamp: new Date().toISOString(),
-      }))
+      navigator.sendBeacon(
+        '/api/metrics',
+        JSON.stringify({
+          metric: metric.name,
+          value: metric.value,
+          rating: metric.rating,
+          timestamp: new Date().toISOString()
+        })
+      )
     } catch (error) {
       // Metrics reporting must never break the app; surface via the unified
       // error reporter (toast in dev, beacon/log in production) instead of
@@ -57,7 +60,7 @@ const queryClient = new QueryClient({
   }),
   defaultOptions: {
     queries: {
-      ...queryCachePolicy,
+      ...queryCachePolicy
     }
   }
 })
@@ -69,7 +72,7 @@ persistQueryClient({
     persistClient: async (client) => {
       const _db = await getDB()
       const queries = client.getQueryCache().getAll()
-      
+
       for (const query of queries) {
         if (query.state.status === 'success' && query.state.data) {
           await setQueryData(
@@ -84,22 +87,22 @@ persistQueryClient({
       const _db = await getDB()
       const tx = _db.transaction('queries', 'readonly')
       const store = tx.objectStore('queries')
-      
+
       const queries: Record<string, unknown> = {}
-      
+
       for await (const cursor of store) {
         queries[cursor.key] = cursor.value
       }
-      
+
       await tx.done
       return queries
     },
     removeClient: async () => {
       const db = await getDB()
       await db.clear('queries')
-    },
+    }
   },
-  maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
 })
 
 function ThemedToaster() {
@@ -126,7 +129,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <NetworkProvider>
               <WalletProvider>
                 <AuthProvider>
-                  <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading…</div>}>
+                  <Suspense
+                    fallback={
+                      <div className="flex min-h-screen items-center justify-center">Loading…</div>
+                    }
+                  >
                     <App />
                   </Suspense>
                   <ThemedToaster />

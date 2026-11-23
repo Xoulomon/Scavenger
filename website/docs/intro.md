@@ -20,12 +20,12 @@ sidebar_position: 1
 
 ## Quick Links
 
-| Resource | Link |
-|----------|------|
-| GitHub Repository | [Xoulomon/Scavenger](https://github.com/Xoulomon/Scavenger) |
-| Architecture Diagram | [Architecture Overview](/docs/architecture/overview) |
-| API Reference | [API Overview](/docs/api/overview) |
-| Contributing Guide | [Contributing](/docs/contributing/index) |
+| Resource             | Link                                                        |
+| -------------------- | ----------------------------------------------------------- |
+| GitHub Repository    | [Xoulomon/Scavenger](https://github.com/Xoulomon/Scavenger) |
+| Architecture Diagram | [Architecture Overview](/docs/architecture/overview)        |
+| API Reference        | [API Overview](/docs/api/overview)                          |
+| Contributing Guide   | [Contributing](/docs/contributing/index)                    |
 
 ## Platform Roles
 
@@ -37,10 +37,10 @@ Scavngr uses three participant roles:
 
 ## Technology Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Smart Contract | Rust + Soroban (Stellar) |
-| Frontend | React + TypeScript + Vite |
-| Indexer | TypeScript + Node.js |
-| Backend | Rust + Axum |
-| Database | PostgreSQL |
+| Layer          | Technology                |
+| -------------- | ------------------------- |
+| Smart Contract | Rust + Soroban (Stellar)  |
+| Frontend       | React + TypeScript + Vite |
+| Indexer        | TypeScript + Node.js      |
+| Backend        | Rust + Axum               |
+| Database       | PostgreSQL                |

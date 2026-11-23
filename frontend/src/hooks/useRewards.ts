@@ -27,11 +27,11 @@ export function useRewards(): RewardsData {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       const [stats, wasteIds] = await Promise.all([
         client.getStats(address),
-        client.getParticipantWastes(address),
+        client.getParticipantWastes(address)
       ])
       // Fetch last 20 wastes for the transaction history
       const recent = wasteIds.slice(-20).reverse()
@@ -40,7 +40,7 @@ export function useRewards(): RewardsData {
       return { stats, wastes }
     },
     enabled: !!address,
-    staleTime: 30_000,
+    staleTime: 30_000
   })
 
   return {
@@ -48,6 +48,6 @@ export function useRewards(): RewardsData {
     wastes: data?.wastes ?? [],
     role: participant?.role ?? null,
     isLoading,
-    isError,
+    isError
   }
 }

@@ -4,11 +4,11 @@ This directory contains Kubernetes manifests that are **actively applied** by CI
 
 ## Manifests in use
 
-| File | Purpose | Applied by |
-|------|---------|-----------|
+| File             | Purpose                                            | Applied by                                                             |
+| ---------------- | -------------------------------------------------- | ---------------------------------------------------------------------- |
 | `deployment.yml` | Backend + frontend Deployments, Services, HPA, PDB | `deployment.yml` CI workflow via `kubectl apply -f k8s/deployment.yml` |
-| `ingress.yml` | Ingress rules, ConfigMap, Secrets template | Applied manually per environment |
-| `rbac.yml` | Namespace, ServiceAccount, Role, ClusterRole | Applied manually on cluster bootstrap |
+| `ingress.yml`    | Ingress rules, ConfigMap, Secrets template         | Applied manually per environment                                       |
+| `rbac.yml`       | Namespace, ServiceAccount, Role, ClusterRole       | Applied manually on cluster bootstrap                                  |
 
 ## Guard: do not add new manifests without CI coverage
 

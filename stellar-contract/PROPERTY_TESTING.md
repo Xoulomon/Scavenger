@@ -18,6 +18,7 @@ PROPTEST_CASES=1000 cargo test --package stellar-scavngr-contract --test propert
 ## Invariants Tested
 
 ### Type system properties (256 cases each)
+
 - **WasteType roundtrip**: `from_u32(to_u32(wt)) == wt` for all valid types
 - **WasteType rejection**: `from_u32(v)` returns `None` for v >= 7
 - **ParticipantRole roundtrip**: same roundtrip for roles
@@ -28,6 +29,7 @@ PROPTEST_CASES=1000 cargo test --package stellar-scavngr-contract --test propert
 - **Carbon credits zero**: zero weight yields zero credits
 
 ### Contract invariants (64 cases each)
+
 - **Waste count consistency**: after N submissions, `get_participant_wastes` returns exactly N items
 - **Waste property preservation**: submitted waste retains its type, weight, and submitter
 - **Transfer integrity**: transferred waste keeps type and weight, owner changes to recipient

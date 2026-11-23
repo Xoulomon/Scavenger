@@ -5,19 +5,19 @@ _Issue #817 — Scavngr Soroban Contract_
 ## Overview
 
 The `key_rotation` module provides versioned on-chain storage for cryptographic
-key hashes.  The actual key material is **never stored on-chain**; only its
+key hashes. The actual key material is **never stored on-chain**; only its
 SHA-256 hash is stored, enabling integrity verification.
 
 ---
 
 ## Key purposes
 
-| Variant | Usage |
-|---------|-------|
-| `WebhookSigning` | HMAC-SHA256 key for off-chain webhook signatures |
-| `ApiKeyHash` | Hash of the backend API key for authentication |
+| Variant           | Usage                                               |
+| ----------------- | --------------------------------------------------- |
+| `WebhookSigning`  | HMAC-SHA256 key for off-chain webhook signatures    |
+| `ApiKeyHash`      | Hash of the backend API key for authentication      |
 | `ZkpVerification` | Public key hash used to verify off-chain ZKP proofs |
-| `PiiEncryption` | Encryption key hash for participant PII export |
+| `PiiEncryption`   | Encryption key hash for participant PII export      |
 
 ---
 
@@ -88,38 +88,38 @@ key_rotation::purge_key_version(env, &admin, KeyPurpose::WebhookSigning, 1)?;
 
 ## KeyRecord fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `purpose` | `KeyPurpose` | Slot this key belongs to |
-| `version` | `u32` | Monotonically increasing from 1 |
-| `key_hash` | `BytesN<32>` | SHA-256 of the actual secret |
-| `installed_by` | `Address` | Admin who installed this version |
-| `installed_at` | `u64` | Ledger timestamp at installation |
-| `archived_at` | `u64` | Timestamp when superseded (0 if active) |
-| `status` | `KeyStatus` | `Active`, `Archived`, or `Revoked` |
+| Field          | Type         | Description                             |
+| -------------- | ------------ | --------------------------------------- |
+| `purpose`      | `KeyPurpose` | Slot this key belongs to                |
+| `version`      | `u32`        | Monotonically increasing from 1         |
+| `key_hash`     | `BytesN<32>` | SHA-256 of the actual secret            |
+| `installed_by` | `Address`    | Admin who installed this version        |
+| `installed_at` | `u64`        | Ledger timestamp at installation        |
+| `archived_at`  | `u64`        | Timestamp when superseded (0 if active) |
+| `status`       | `KeyStatus`  | `Active`, `Archived`, or `Revoked`      |
 
 ---
 
 ## Events
 
-| Symbol | Trigger | Data |
-|--------|---------|------|
-| `key_ins` | `install_key` | `(purpose_u32, version)` |
-| `key_rot` | `rotate_key` | `(purpose_u32, new_version)` |
-| `key_rev` | `revoke_key_version` | `(purpose_u32, version)` |
-| `key_prg` | `purge_key_version` | `(purpose_u32, version)` |
+| Symbol    | Trigger              | Data                         |
+| --------- | -------------------- | ---------------------------- |
+| `key_ins` | `install_key`        | `(purpose_u32, version)`     |
+| `key_rot` | `rotate_key`         | `(purpose_u32, new_version)` |
+| `key_rev` | `revoke_key_version` | `(purpose_u32, version)`     |
+| `key_prg` | `purge_key_version`  | `(purpose_u32, version)`     |
 
 ---
 
 ## Error codes
 
-| Error | Meaning |
-|-------|---------|
-| `NoActiveKey` | No key installed for this purpose |
-| `VersionNotFound` | (purpose, version) does not exist |
-| `Unauthorized` | Caller is not the admin |
+| Error               | Meaning                                   |
+| ------------------- | ----------------------------------------- |
+| `NoActiveKey`       | No key installed for this purpose         |
+| `VersionNotFound`   | (purpose, version) does not exist         |
+| `Unauthorized`      | Caller is not the admin                   |
 | `CannotPurgeActive` | Tried to purge the current active version |
-| `ZeroKeyHash` | Supplied hash is all zeros |
+| `ZeroKeyHash`       | Supplied hash is all zeros                |
 
 ---
 
@@ -140,17 +140,17 @@ key_rotation::purge_key_version(env, &admin, KeyPurpose::WebhookSigning, 1)?;
 
 ## Rotation schedule (recommended)
 
-| Purpose | Rotation interval |
-|---------|-------------------|
-| `WebhookSigning` | 90 days |
-| `ApiKeyHash` | 30 days |
+| Purpose           | Rotation interval            |
+| ----------------- | ---------------------------- |
+| `WebhookSigning`  | 90 days                      |
+| `ApiKeyHash`      | 30 days                      |
 | `ZkpVerification` | On each ZKP protocol upgrade |
-| `PiiEncryption` | 180 days |
+| `PiiEncryption`   | 180 days                     |
 
 ---
 
 ## Monitoring
 
 Subscribe to `key_rot` and `key_rev` events in the indexer to trigger
-rotation alerts.  A `key_rev` event should immediately trigger an incident
+rotation alerts. A `key_rev` event should immediately trigger an incident
 response procedure.

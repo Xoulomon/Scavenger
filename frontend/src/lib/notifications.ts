@@ -2,7 +2,12 @@ import type { Notification, NewNotification, NotificationPreferences } from './n
 import type { NotificationTransport } from './notifications/transport'
 import { LocalStorageNotificationTransport } from './notifications/localStorageTransport'
 
-export type { Notification, NotificationType, NotificationPreferences, NewNotification } from './notifications/types'
+export type {
+  Notification,
+  NotificationType,
+  NotificationPreferences,
+  NewNotification
+} from './notifications/types'
 export type { NotificationTransport } from './notifications/transport'
 export { InMemoryNotificationTransport } from './notifications/inMemoryTransport'
 export { LocalStorageNotificationTransport } from './notifications/localStorageTransport'
@@ -11,7 +16,7 @@ export const DEFAULT_PREFS: NotificationPreferences = {
   transfer: true,
   confirmation: true,
   reward: true,
-  system: true,
+  system: true
 }
 
 const PREFS_KEY = 'scavngr_notif_prefs'
@@ -88,7 +93,12 @@ export class NotificationStore {
         await t.incrementCount(address, recent.id)
         return
       }
-      await t.insert(address, { ...notification, id: `${notification.type}_${now}`, read: false, count: 1 })
+      await t.insert(address, {
+        ...notification,
+        id: `${notification.type}_${now}`,
+        read: false,
+        count: 1
+      })
     })
   }
 

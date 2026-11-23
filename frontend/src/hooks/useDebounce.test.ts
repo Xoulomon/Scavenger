@@ -18,10 +18,9 @@ describe('useDebounce hook', () => {
   })
 
   it('delays updates by specified delay time', () => {
-    const { result, rerender } = renderHook(
-      ({ value, delay }) => useDebounce(value, delay),
-      { initialProps: { value: 'initial', delay: 500 } }
-    )
+    const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+      initialProps: { value: 'initial', delay: 500 }
+    })
 
     expect(result.current).toBe('initial')
 
@@ -36,10 +35,9 @@ describe('useDebounce hook', () => {
   })
 
   it('resets timer when value changes before delay completes', () => {
-    const { result, rerender } = renderHook(
-      ({ value, delay }) => useDebounce(value, delay),
-      { initialProps: { value: 'first', delay: 500 } }
-    )
+    const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+      initialProps: { value: 'first', delay: 500 }
+    })
 
     rerender({ value: 'second', delay: 500 })
     vi.advanceTimersByTime(300)
@@ -54,10 +52,9 @@ describe('useDebounce hook', () => {
   })
 
   it('works with different delay times', () => {
-    const { result, rerender } = renderHook(
-      ({ value, delay }) => useDebounce(value, delay),
-      { initialProps: { value: 'initial', delay: 1000 } }
-    )
+    const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+      initialProps: { value: 'initial', delay: 1000 }
+    })
 
     rerender({ value: 'updated', delay: 1000 })
     vi.advanceTimersByTime(1000)
@@ -69,10 +66,9 @@ describe('useDebounce hook', () => {
   })
 
   it('debounces multiple rapid changes', () => {
-    const { result, rerender } = renderHook(
-      ({ value, delay }) => useDebounce(value, delay),
-      { initialProps: { value: '', delay: 500 } }
-    )
+    const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+      initialProps: { value: '', delay: 500 }
+    })
 
     rerender({ value: 'a', delay: 500 })
     rerender({ value: 'ab', delay: 500 })
@@ -85,10 +81,9 @@ describe('useDebounce hook', () => {
   })
 
   it('works with string values', () => {
-    const { result, rerender } = renderHook(
-      ({ value, delay }) => useDebounce(value, delay),
-      { initialProps: { value: 'search term', delay: 300 } }
-    )
+    const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+      initialProps: { value: 'search term', delay: 300 }
+    })
 
     expect(result.current).toBe('search term')
 
@@ -98,10 +93,9 @@ describe('useDebounce hook', () => {
   })
 
   it('works with number values', () => {
-    const { result, rerender } = renderHook(
-      ({ value, delay }) => useDebounce(value, delay),
-      { initialProps: { value: 0, delay: 200 } }
-    )
+    const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+      initialProps: { value: 0, delay: 200 }
+    })
 
     expect(result.current).toBe(0)
 
@@ -111,10 +105,9 @@ describe('useDebounce hook', () => {
   })
 
   it('works with boolean values', () => {
-    const { result, rerender } = renderHook(
-      ({ value, delay }) => useDebounce(value, delay),
-      { initialProps: { value: false, delay: 250 } }
-    )
+    const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+      initialProps: { value: false, delay: 250 }
+    })
 
     expect(result.current).toBe(false)
 
@@ -127,10 +120,9 @@ describe('useDebounce hook', () => {
     const obj1 = { query: 'test' }
     const obj2 = { query: 'updated' }
 
-    const { result, rerender } = renderHook(
-      ({ value, delay }) => useDebounce(value, delay),
-      { initialProps: { value: obj1, delay: 400 } }
-    )
+    const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+      initialProps: { value: obj1, delay: 400 }
+    })
 
     expect(result.current).toBe(obj1)
 
@@ -143,10 +135,9 @@ describe('useDebounce hook', () => {
     const arr1 = ['a', 'b']
     const arr2 = ['x', 'y', 'z']
 
-    const { result, rerender } = renderHook(
-      ({ value, delay }) => useDebounce(value, delay),
-      { initialProps: { value: arr1, delay: 350 } }
-    )
+    const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+      initialProps: { value: arr1, delay: 350 }
+    })
 
     expect(result.current).toBe(arr1)
 
@@ -156,10 +147,9 @@ describe('useDebounce hook', () => {
   })
 
   it('handles zero delay', () => {
-    const { result, rerender } = renderHook(
-      ({ value, delay }) => useDebounce(value, delay),
-      { initialProps: { value: 'initial', delay: 0 } }
-    )
+    const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+      initialProps: { value: 'initial', delay: 0 }
+    })
 
     rerender({ value: 'updated', delay: 0 })
     vi.advanceTimersByTime(0)
@@ -167,10 +157,9 @@ describe('useDebounce hook', () => {
   })
 
   it('cleans up timer on unmount', () => {
-    const { unmount, rerender } = renderHook(
-      ({ value, delay }) => useDebounce(value, delay),
-      { initialProps: { value: 'test', delay: 500 } }
-    )
+    const { unmount, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+      initialProps: { value: 'test', delay: 500 }
+    })
 
     rerender({ value: 'updated', delay: 500 })
     unmount()
@@ -179,10 +168,9 @@ describe('useDebounce hook', () => {
   })
 
   it('maintains debounce across multiple re-renders', () => {
-    const { result, rerender } = renderHook(
-      ({ value, delay }) => useDebounce(value, delay),
-      { initialProps: { value: 'a', delay: 200 } }
-    )
+    const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+      initialProps: { value: 'a', delay: 200 }
+    })
 
     for (let i = 0; i < 5; i++) {
       rerender({ value: `value${i}`, delay: 200 })
@@ -195,10 +183,9 @@ describe('useDebounce hook', () => {
   })
 
   it('handles null values', () => {
-    const { result, rerender } = renderHook(
-      ({ value, delay }) => useDebounce(value, delay),
-      { initialProps: { value: null, delay: 300 } }
-    )
+    const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+      initialProps: { value: null, delay: 300 }
+    })
 
     expect(result.current).toBe(null)
 
@@ -208,10 +195,9 @@ describe('useDebounce hook', () => {
   })
 
   it('handles undefined values', () => {
-    const { result, rerender } = renderHook(
-      ({ value, delay }) => useDebounce(value, delay),
-      { initialProps: { value: undefined, delay: 250 } }
-    )
+    const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+      initialProps: { value: undefined, delay: 250 }
+    })
 
     expect(result.current).toBe(undefined)
 
@@ -221,10 +207,9 @@ describe('useDebounce hook', () => {
   })
 
   it('supports changing delay time between renders', () => {
-    const { result, rerender } = renderHook(
-      ({ value, delay }) => useDebounce(value, delay),
-      { initialProps: { value: 'test', delay: 500 } }
-    )
+    const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+      initialProps: { value: 'test', delay: 500 }
+    })
 
     rerender({ value: 'updated', delay: 1000 })
     vi.advanceTimersByTime(500)
@@ -235,10 +220,9 @@ describe('useDebounce hook', () => {
   })
 
   it('debounces search input efficiently', () => {
-    const { result, rerender } = renderHook(
-      ({ value, delay }) => useDebounce(value, delay),
-      { initialProps: { value: '', delay: 300 } }
-    )
+    const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+      initialProps: { value: '', delay: 300 }
+    })
 
     const searchTerms = ['p', 'py', 'pyt', 'pyth', 'pytho', 'python']
     for (const term of searchTerms) {
@@ -256,10 +240,9 @@ describe('useDebounce hook', () => {
     const filter2 = { type: 'paper', status: 'active' }
     const filter3 = { type: 'paper', status: 'completed' }
 
-    const { result, rerender } = renderHook(
-      ({ value, delay }) => useDebounce(value, delay),
-      { initialProps: { value: filter1, delay: 500 } }
-    )
+    const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+      initialProps: { value: filter1, delay: 500 }
+    })
 
     rerender({ value: filter2, delay: 500 })
     vi.advanceTimersByTime(250)

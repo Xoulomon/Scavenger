@@ -6,7 +6,7 @@ import {
   nativeToScVal,
   Address,
   TransactionBuilder,
-  BASE_FEE,
+  BASE_FEE
 } from '@stellar/stellar-sdk'
 import {
   Role,
@@ -20,13 +20,9 @@ import {
   GlobalMetrics,
   SupplyChainStats,
   ClientOptions,
-  MaterialBatchItem,
+  MaterialBatchItem
 } from './types'
-import {
-  ContractError,
-  TransactionError,
-  TimeoutError,
-} from './errors'
+import { ContractError, TransactionError, TimeoutError } from './errors'
 import { SigningStrategy } from './signing'
 
 function defaultPollTimeoutMs(): number {
@@ -107,19 +103,13 @@ export class ScavengerClient {
    * @param signer - Optional signer address. If omitted, performs a read-only simulation.
    * @returns The decoded return value of type T.
    */
-  private async invoke<T>(
-    method: string,
-    args: xdr.ScVal[],
-    signer?: string
-  ): Promise<T> {
+  private async invoke<T>(method: string, args: xdr.ScVal[], signer?: string): Promise<T> {
     const operation = this.contract.call(method, ...args)
 
     if (!signer) {
       const sim = await this.server.simulateTransaction(
         new TransactionBuilder(
-          await this.server.getAccount(
-            'GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN'
-          ),
+          await this.server.getAccount('GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN'),
           { fee: BASE_FEE, networkPassphrase: this.networkPassphrase }
         )
           .addOperation(operation)
@@ -132,7 +122,7 @@ export class ScavengerClient {
     const account = await this.server.getAccount(signer)
     const tx = new TransactionBuilder(account, {
       fee: BASE_FEE,
-      networkPassphrase: this.networkPassphrase,
+      networkPassphrase: this.networkPassphrase
     })
       .addOperation(operation)
       .setTimeout(30)
@@ -147,20 +137,14 @@ export class ScavengerClient {
 
     let signedTxXdr: string
     if (this.signingStrategy) {
-      signedTxXdr = await this.signingStrategy.sign(
-        assembled.toXDR(),
-        this.networkPassphrase
-      )
+      signedTxXdr = await this.signingStrategy.sign(assembled.toXDR(), this.networkPassphrase)
     } else {
       throw new Error(
         'No signing strategy configured. Call setSigningStrategy() or pass a signer address.'
       )
     }
 
-    const signed = TransactionBuilder.fromXDR(
-      signedTxXdr,
-      this.networkPassphrase
-    )
+    const signed = TransactionBuilder.fromXDR(signedTxXdr, this.networkPassphrase)
     const sendResult = await this.server.sendTransaction(signed)
 
     if (sendResult.status === 'ERROR') {
@@ -176,38 +160,26 @@ export class ScavengerClient {
     while (Date.now() < deadline) {
       await new Promise((r) => setTimeout(r, this.pollIntervalMs))
       const status = await this.server.getTransaction(hash)
-      if (
-        status.status === SorobanRpc.Api.GetTransactionStatus.SUCCESS
-      ) {
-        const retval = (
-          status as SorobanRpc.Api.GetSuccessfulTransactionResponse
-        ).returnValue
+      if (status.status === SorobanRpc.Api.GetTransactionStatus.SUCCESS) {
+        const retval = (status as SorobanRpc.Api.GetSuccessfulTransactionResponse).returnValue
         if (!retval) return undefined as T
         return scValToNative(retval) as T
       }
-      if (
-        status.status === SorobanRpc.Api.GetTransactionStatus.FAILED
-      ) {
+      if (status.status === SorobanRpc.Api.GetTransactionStatus.FAILED) {
         throw new TransactionError('Transaction failed on-chain', hash)
       }
     }
-    throw new TimeoutError(
-      `Transaction confirmation timeout after ${this.pollTimeoutMs}ms`
-    )
+    throw new TimeoutError(`Transaction confirmation timeout after ${this.pollTimeoutMs}ms`)
   }
 
   /**
    * Extract result from a simulation response.
    */
-  private _extractSimResult<T>(
-    sim: SorobanRpc.Api.SimulateTransactionResponse
-  ): T {
+  private _extractSimResult<T>(sim: SorobanRpc.Api.SimulateTransactionResponse): T {
     if (SorobanRpc.Api.isSimulationError(sim)) {
       throw this._parseError(sim.error)
     }
-    const result = (
-      sim as SorobanRpc.Api.SimulateTransactionSuccessResponse
-    ).result
+    const result = (sim as SorobanRpc.Api.SimulateTransactionSuccessResponse).result
     if (!result?.retval) return undefined as T
     return scValToNative(result.retval) as T
   }
@@ -217,8 +189,7 @@ export class ScavengerClient {
    */
   private _parseError(raw: string): ContractError {
     const match = raw.match(/Error\(Contract, #(\d+)\)/)
-    if (match)
-      return new ContractError(`Contract error #${match[1]}`, Number(match[1]))
+    if (match) return new ContractError(`Contract error #${match[1]}`, Number(match[1]))
     return new ContractError(raw)
   }
 
@@ -231,9 +202,7 @@ export class ScavengerClient {
    * @param admin - Admin Stellar address.
    */
   async initializeAdmin(admin: string): Promise<void> {
-    return this.invoke<void>('initialize_admin', [
-      new Address(admin).toScVal(),
-    ], admin)
+    return this.invoke<void>('initialize_admin', [new Address(admin).toScVal()], admin)
   }
 
   /**
@@ -252,10 +221,7 @@ export class ScavengerClient {
   async transferAdmin(currentAdmin: string, newAdmin: string): Promise<void> {
     return this.invoke<void>(
       'transfer_admin',
-      [
-        new Address(currentAdmin).toScVal(),
-        new Address(newAdmin).toScVal(),
-      ],
+      [new Address(currentAdmin).toScVal(), new Address(newAdmin).toScVal()],
       currentAdmin
     )
   }
@@ -268,10 +234,7 @@ export class ScavengerClient {
   async setCharityContract(admin: string, charityAddress: string): Promise<void> {
     return this.invoke<void>(
       'set_charity_contract',
-      [
-        new Address(admin).toScVal(),
-        new Address(charityAddress).toScVal(),
-      ],
+      [new Address(admin).toScVal(), new Address(charityAddress).toScVal()],
       admin
     )
   }
@@ -284,10 +247,7 @@ export class ScavengerClient {
   async setTokenAddress(admin: string, tokenAddress: string): Promise<void> {
     return this.invoke<void>(
       'set_token_address',
-      [
-        new Address(admin).toScVal(),
-        new Address(tokenAddress).toScVal(),
-      ],
+      [new Address(admin).toScVal(), new Address(tokenAddress).toScVal()],
       admin
     )
   }
@@ -298,17 +258,13 @@ export class ScavengerClient {
    * @param collectorPct - Percentage for collectors (0-100).
    * @param ownerPct - Percentage for owners (0-100).
    */
-  async setPercentages(
-    admin: string,
-    collectorPct: number,
-    ownerPct: number
-  ): Promise<void> {
+  async setPercentages(admin: string, collectorPct: number, ownerPct: number): Promise<void> {
     return this.invoke<void>(
       'set_percentages',
       [
         new Address(admin).toScVal(),
         nativeToScVal(collectorPct, { type: 'u32' }),
-        nativeToScVal(ownerPct, { type: 'u32' }),
+        nativeToScVal(ownerPct, { type: 'u32' })
       ],
       admin
     )
@@ -343,7 +299,7 @@ export class ScavengerClient {
         nativeToScVal(role),
         nativeToScVal(name, { type: 'string' }),
         nativeToScVal(lat, { type: 'i128' }),
-        nativeToScVal(lon, { type: 'i128' }),
+        nativeToScVal(lon, { type: 'i128' })
       ],
       signer
     )
@@ -355,9 +311,7 @@ export class ScavengerClient {
    * @returns Participant or null if not found.
    */
   async getParticipant(address: string): Promise<Participant | null> {
-    return this.invoke<Participant | null>('get_participant', [
-      new Address(address).toScVal(),
-    ])
+    return this.invoke<Participant | null>('get_participant', [new Address(address).toScVal()])
   }
 
   /**
@@ -380,11 +334,7 @@ export class ScavengerClient {
    * @param newRole - New role.
    * @param signer - Signer address.
    */
-  async updateRole(
-    address: string,
-    newRole: Role,
-    signer: string
-  ): Promise<void> {
+  async updateRole(address: string, newRole: Role, signer: string): Promise<void> {
     return this.invoke<void>(
       'update_role',
       [new Address(address).toScVal(), nativeToScVal(newRole)],
@@ -397,13 +347,8 @@ export class ScavengerClient {
    * @param address - Participant address.
    * @param signer - Signer address.
    */
-  async deregisterParticipant(
-    address: string,
-    signer: string
-  ): Promise<void> {
-    return this.invoke<void>('deregister_participant', [
-      new Address(address).toScVal(),
-    ], signer)
+  async deregisterParticipant(address: string, signer: string): Promise<void> {
+    return this.invoke<void>('deregister_participant', [new Address(address).toScVal()], signer)
   }
 
   /**
@@ -412,9 +357,7 @@ export class ScavengerClient {
    * @returns `true` if registered.
    */
   async isParticipantRegistered(address: string): Promise<boolean> {
-    return this.invoke<boolean>('is_participant_registered', [
-      new Address(address).toScVal(),
-    ])
+    return this.invoke<boolean>('is_participant_registered', [new Address(address).toScVal()])
   }
 
   // =======================================================
@@ -446,7 +389,7 @@ export class ScavengerClient {
         nativeToScVal(wasteType, { type: 'u32' }),
         nativeToScVal(weight, { type: 'u128' }),
         nativeToScVal(lat, { type: 'i128' }),
-        nativeToScVal(lon, { type: 'i128' }),
+        nativeToScVal(lon, { type: 'i128' })
       ],
       signer
     )
@@ -467,7 +410,7 @@ export class ScavengerClient {
     const vec = nativeToScVal(
       materials.map((m) => ({
         waste_type: nativeToScVal(m.wasteType, { type: 'u32' }),
-        weight: nativeToScVal(m.weight, { type: 'u128' }),
+        weight: nativeToScVal(m.weight, { type: 'u128' })
       }))
     )
     return this.invoke<Material[]>(
@@ -483,17 +426,10 @@ export class ScavengerClient {
    * @param verifier - Verifier address.
    * @param signer - Signer address.
    */
-  async verifyMaterial(
-    materialId: bigint,
-    verifier: string,
-    signer: string
-  ): Promise<void> {
+  async verifyMaterial(materialId: bigint, verifier: string, signer: string): Promise<void> {
     return this.invoke<void>(
       'verify_material',
-      [
-        nativeToScVal(materialId, { type: 'u64' }),
-        new Address(verifier).toScVal(),
-      ],
+      [nativeToScVal(materialId, { type: 'u64' }), new Address(verifier).toScVal()],
       signer
     )
   }
@@ -525,7 +461,7 @@ export class ScavengerClient {
         new Address(to).toScVal(),
         nativeToScVal(lat, { type: 'i128' }),
         nativeToScVal(lon, { type: 'i128' }),
-        nativeToScVal(note, { type: 'string' }),
+        nativeToScVal(note, { type: 'string' })
       ],
       signer
     )
@@ -537,17 +473,10 @@ export class ScavengerClient {
    * @param confirmer - Confirmer address.
    * @param signer - Signer address.
    */
-  async confirmWasteDetails(
-    wasteId: bigint,
-    confirmer: string,
-    signer: string
-  ): Promise<void> {
+  async confirmWasteDetails(wasteId: bigint, confirmer: string, signer: string): Promise<void> {
     return this.invoke<void>(
       'confirm_waste_details',
-      [
-        nativeToScVal(wasteId, { type: 'u128' }),
-        new Address(confirmer).toScVal(),
-      ],
+      [nativeToScVal(wasteId, { type: 'u128' }), new Address(confirmer).toScVal()],
       signer
     )
   }
@@ -558,17 +487,10 @@ export class ScavengerClient {
    * @param owner - Owner address.
    * @param signer - Signer address.
    */
-  async resetWasteConfirmation(
-    wasteId: bigint,
-    owner: string,
-    signer: string
-  ): Promise<void> {
+  async resetWasteConfirmation(wasteId: bigint, owner: string, signer: string): Promise<void> {
     return this.invoke<void>(
       'reset_waste_confirmation',
-      [
-        nativeToScVal(wasteId, { type: 'u128' }),
-        new Address(owner).toScVal(),
-      ],
+      [nativeToScVal(wasteId, { type: 'u128' }), new Address(owner).toScVal()],
       signer
     )
   }
@@ -579,17 +501,10 @@ export class ScavengerClient {
    * @param wasteId - Waste ID.
    * @param signer - Signer address.
    */
-  async deactivateWaste(
-    admin: string,
-    wasteId: bigint,
-    signer: string
-  ): Promise<void> {
+  async deactivateWaste(admin: string, wasteId: bigint, signer: string): Promise<void> {
     return this.invoke<void>(
       'deactivate_waste',
-      [
-        new Address(admin).toScVal(),
-        nativeToScVal(wasteId, { type: 'u128' }),
-      ],
+      [new Address(admin).toScVal(), nativeToScVal(wasteId, { type: 'u128' })],
       signer
     )
   }
@@ -600,9 +515,7 @@ export class ScavengerClient {
    * @returns Waste or null if not found.
    */
   async getWaste(wasteId: bigint): Promise<Waste | null> {
-    return this.invoke<Waste | null>('get_waste', [
-      nativeToScVal(wasteId, { type: 'u128' }),
-    ])
+    return this.invoke<Waste | null>('get_waste', [nativeToScVal(wasteId, { type: 'u128' })])
   }
 
   /**
@@ -612,7 +525,7 @@ export class ScavengerClient {
    */
   async getMaterial(materialId: bigint): Promise<Material | null> {
     return this.invoke<Material | null>('get_material', [
-      nativeToScVal(materialId, { type: 'u64' }),
+      nativeToScVal(materialId, { type: 'u64' })
     ])
   }
 
@@ -622,9 +535,7 @@ export class ScavengerClient {
    * @returns Array of waste IDs.
    */
   async getParticipantWastes(address: string): Promise<bigint[]> {
-    return this.invoke<bigint[]>('get_participant_wastes', [
-      new Address(address).toScVal(),
-    ])
+    return this.invoke<bigint[]>('get_participant_wastes', [new Address(address).toScVal()])
   }
 
   /**
@@ -632,13 +543,10 @@ export class ScavengerClient {
    * @param wasteId - Waste ID.
    * @returns Array of waste transfers.
    */
-  async getWasteTransferHistory(
-    wasteId: bigint
-  ): Promise<WasteTransfer[]> {
-    return this.invoke<WasteTransfer[]>(
-      'get_waste_transfer_history',
-      [nativeToScVal(wasteId, { type: 'u128' })]
-    )
+  async getWasteTransferHistory(wasteId: bigint): Promise<WasteTransfer[]> {
+    return this.invoke<WasteTransfer[]>('get_waste_transfer_history', [
+      nativeToScVal(wasteId, { type: 'u128' })
+    ])
   }
 
   // =======================================================
@@ -667,7 +575,7 @@ export class ScavengerClient {
         new Address(rewarder).toScVal(),
         nativeToScVal(wasteType, { type: 'u32' }),
         nativeToScVal(rewardPoints, { type: 'u64' }),
-        nativeToScVal(budget, { type: 'u64' }),
+        nativeToScVal(budget, { type: 'u64' })
       ],
       signer
     )
@@ -695,7 +603,7 @@ export class ScavengerClient {
         nativeToScVal(incentiveId, { type: 'u64' }),
         new Address(rewarder).toScVal(),
         nativeToScVal(rewardPoints, { type: 'u64' }),
-        nativeToScVal(budget, { type: 'u64' }),
+        nativeToScVal(budget, { type: 'u64' })
       ],
       signer
     )
@@ -707,17 +615,10 @@ export class ScavengerClient {
    * @param rewarder - Rewarder address (signer).
    * @param signer - Signer address.
    */
-  async deactivateIncentive(
-    incentiveId: bigint,
-    rewarder: string,
-    signer: string
-  ): Promise<void> {
+  async deactivateIncentive(incentiveId: bigint, rewarder: string, signer: string): Promise<void> {
     return this.invoke<void>(
       'deactivate_incentive',
-      [
-        nativeToScVal(incentiveId, { type: 'u64' }),
-        new Address(rewarder).toScVal(),
-      ],
+      [nativeToScVal(incentiveId, { type: 'u64' }), new Address(rewarder).toScVal()],
       signer
     )
   }
@@ -727,11 +628,9 @@ export class ScavengerClient {
    * @param incentiveId - Incentive ID.
    * @returns Incentive or null.
    */
-  async getIncentiveById(
-    incentiveId: bigint
-  ): Promise<Incentive | null> {
+  async getIncentiveById(incentiveId: bigint): Promise<Incentive | null> {
     return this.invoke<Incentive | null>('get_incentive_by_id', [
-      nativeToScVal(incentiveId, { type: 'u64' }),
+      nativeToScVal(incentiveId, { type: 'u64' })
     ])
   }
 
@@ -741,9 +640,7 @@ export class ScavengerClient {
    * @returns Array of incentives.
    */
   async getIncentives(wasteType: WasteType): Promise<Incentive[]> {
-    return this.invoke<Incentive[]>('get_incentives', [
-      nativeToScVal(wasteType, { type: 'u32' }),
-    ])
+    return this.invoke<Incentive[]>('get_incentives', [nativeToScVal(wasteType, { type: 'u32' })])
   }
 
   /**
@@ -766,7 +663,7 @@ export class ScavengerClient {
   ): Promise<Incentive | null> {
     return this.invoke<Incentive | null>('get_active_mfr_incentive', [
       new Address(manufacturer).toScVal(),
-      nativeToScVal(wasteType, { type: 'u32' }),
+      nativeToScVal(wasteType, { type: 'u32' })
     ])
   }
 
@@ -776,17 +673,10 @@ export class ScavengerClient {
    * @param amount - Amount to donate.
    * @param signer - Signer address.
    */
-  async donateToCharity(
-    donor: string,
-    amount: bigint,
-    signer: string
-  ): Promise<void> {
+  async donateToCharity(donor: string, amount: bigint, signer: string): Promise<void> {
     return this.invoke<void>(
       'donate_to_charity',
-      [
-        new Address(donor).toScVal(),
-        nativeToScVal(amount, { type: 'i128' }),
-      ],
+      [new Address(donor).toScVal(), nativeToScVal(amount, { type: 'i128' })],
       signer
     )
   }
@@ -810,7 +700,7 @@ export class ScavengerClient {
       [
         nativeToScVal(wasteId, { type: 'u128' }),
         nativeToScVal(incentiveId, { type: 'u64' }),
-        new Address(manufacturer).toScVal(),
+        new Address(manufacturer).toScVal()
       ],
       signer
     )
@@ -834,9 +724,7 @@ export class ScavengerClient {
    * @returns ParticipantStats object.
    */
   async getStats(participant: string): Promise<ParticipantStats> {
-    return this.invoke<ParticipantStats>('get_stats', [
-      new Address(participant).toScVal(),
-    ])
+    return this.invoke<ParticipantStats>('get_stats', [new Address(participant).toScVal()])
   }
 
   /**

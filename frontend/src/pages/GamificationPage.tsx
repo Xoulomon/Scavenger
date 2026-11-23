@@ -28,7 +28,7 @@ function useConfetti(trigger: boolean) {
       r: Math.random() * 6 + 3,
       d: Math.random() * 4 + 1,
       color: `hsl(${Math.random() * 360},80%,60%)`,
-      tilt: Math.random() * 10 - 5,
+      tilt: Math.random() * 10 - 5
     }))
 
     let frame: number
@@ -43,7 +43,10 @@ function useConfetti(trigger: boolean) {
         ctx.fill()
         p.y += p.d
         p.x += p.tilt * 0.3
-        if (p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width }
+        if (p.y > canvas.height) {
+          p.y = -10
+          p.x = Math.random() * canvas.width
+        }
       })
       elapsed += 16
       if (elapsed < 3000) frame = requestAnimationFrame(draw)
@@ -135,14 +138,17 @@ function ChallengeRow({ challenge }: { challenge: Challenge }) {
             ? t('gamification.challenges.done')
             : t('gamification.challenges.progress', {
                 current: challenge.current,
-                target: challenge.target,
+                target: challenge.target
               })}
         </Badge>
       </div>
       <p className="text-xs text-muted-foreground">{challenge.description}</p>
       <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
         <div
-          className={cn('h-full rounded-full transition-all', challenge.completed ? 'bg-success' : 'bg-primary')}
+          className={cn(
+            'h-full rounded-full transition-all',
+            challenge.completed ? 'bg-success' : 'bg-primary'
+          )}
           style={{ width: `${challenge.progressPct}%` }}
         />
       </div>
@@ -259,7 +265,9 @@ export function GamificationPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          {daily.map((c) => <ChallengeRow key={c.id} challenge={c} />)}
+          {daily.map((c) => (
+            <ChallengeRow key={c.id} challenge={c} />
+          ))}
         </CardContent>
       </Card>
 
@@ -270,7 +278,9 @@ export function GamificationPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          {weekly.map((c) => <ChallengeRow key={c.id} challenge={c} />)}
+          {weekly.map((c) => (
+            <ChallengeRow key={c.id} challenge={c} />
+          ))}
         </CardContent>
       </Card>
 

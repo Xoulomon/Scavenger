@@ -105,10 +105,7 @@ impl InMemoryArchivalStorage {
 
 impl ArchivalStorage for InMemoryArchivalStorage {
     fn store(&self, record: &ArchiveRecord) -> Result<(), String> {
-        self.records
-            .lock()
-            .unwrap()
-            .insert(record.id.clone(), record.clone());
+        self.records.lock().unwrap().insert(record.id.clone(), record.clone());
         Ok(())
     }
 
@@ -198,18 +195,11 @@ impl InMemoryArchivalRepository {
 impl ArchivalRepository for InMemoryArchivalRepository {
     fn find_eligible(&self, query: &ArchiveQuery) -> Result<Vec<ArchiveRecord>, String> {
         let records = self.records.lock().unwrap();
-        Ok(records
-            .iter()
-            .filter(|r| r.tier == query.tier)
-            .cloned()
-            .collect())
+        Ok(records.iter().filter(|r| r.tier == query.tier).cloned().collect())
     }
 
     fn save_job(&self, job: &ArchiveJob) -> Result<(), String> {
-        self.jobs
-            .lock()
-            .unwrap()
-            .insert(job.id.clone(), job.clone());
+        self.jobs.lock().unwrap().insert(job.id.clone(), job.clone());
         Ok(())
     }
 
@@ -231,11 +221,7 @@ pub struct ArchivalService {
 
 impl ArchivalService {
     pub fn new(storage: Arc<dyn ArchivalStorage>, contract: Arc<dyn ContractState>) -> Self {
-        Self::with_repository(
-            storage,
-            contract,
-            Arc::new(InMemoryArchivalRepository::new()),
-        )
+        Self::with_repository(storage, contract, Arc::new(InMemoryArchivalRepository::new()))
     }
 
     pub fn with_repository(
@@ -413,14 +399,8 @@ mod tests {
         let contract = Arc::new(InMemoryContractState::new());
         let service = ArchivalService::new(storage.clone(), contract.clone());
 
-        assert_eq!(
-            service.archive_record(&record("r4")).unwrap(),
-            ArchiveStatus::Completed
-        );
-        assert_eq!(
-            service.archive_record(&record("r4")).unwrap(),
-            ArchiveStatus::Completed
-        );
+        assert_eq!(service.archive_record(&record("r4")).unwrap(), ArchiveStatus::Completed);
+        assert_eq!(service.archive_record(&record("r4")).unwrap(), ArchiveStatus::Completed);
         // No duplication or corruption of state.
         assert_eq!(storage.len(), 1);
         assert_eq!(contract.len(), 1);
@@ -478,13 +458,7 @@ mod tests {
         }
 
         fn find_job(&self, job_id: &str) -> Result<Option<ArchiveJob>, String> {
-            Ok(self
-                .saved
-                .lock()
-                .unwrap()
-                .iter()
-                .find(|j| j.id == job_id)
-                .cloned())
+            Ok(self.saved.lock().unwrap().iter().find(|j| j.id == job_id).cloned())
         }
     }
 
@@ -493,8 +467,7 @@ mod tests {
         let storage = Arc::new(InMemoryArchivalStorage::new());
         let contract = Arc::new(InMemoryContractState::new());
         let repo = Arc::new(MockRepository::new(vec![record("m1"), record("m2")]));
-        let service =
-            ArchivalService::with_repository(storage.clone(), contract.clone(), repo.clone());
+        let service = ArchivalService::with_repository(storage.clone(), contract.clone(), repo.clone());
 
         let query = ArchiveQuery {
             older_than_days: 30,

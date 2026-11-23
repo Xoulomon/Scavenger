@@ -1,7 +1,7 @@
 // Feature: WasteJourneyTimeline component
 // Validates: horizontal/vertical layout, zoom, export, event building
 
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { WasteJourneyTimeline } from './WasteJourneyTimeline'
 import { WasteType } from '@/api/types'
@@ -17,7 +17,7 @@ const mockWaste: Waste = {
   recycled_timestamp: 1700000000,
   is_active: true,
   is_confirmed: false,
-  confirmer: '',
+  confirmer: ''
 }
 
 const mockTransfers: WasteTransfer[] = [
@@ -25,8 +25,8 @@ const mockTransfers: WasteTransfer[] = [
     waste_id: 42,
     from: 'GABCDEFGHIJKLMNOPQRSTUVWXYZ012345678901234567890123456789',
     to: 'GZYXWVUTSRQPONMLKJIHGFEDCBA987654321098765432109876543210',
-    transferred_at: 1700001000,
-  },
+    transferred_at: 1700001000
+  }
 ]
 
 describe('WasteJourneyTimeline', () => {
@@ -77,7 +77,7 @@ describe('WasteJourneyTimeline', () => {
     const confirmedWaste: Waste = {
       ...mockWaste,
       is_confirmed: true,
-      confirmer: 'GABCDEFGHIJKLMNOPQRSTUVWXYZ012345678901234567890123456789',
+      confirmer: 'GABCDEFGHIJKLMNOPQRSTUVWXYZ012345678901234567890123456789'
     }
     render(<WasteJourneyTimeline waste={confirmedWaste} transfers={[]} />)
     expect(screen.getByText('Confirmed')).toBeInTheDocument()

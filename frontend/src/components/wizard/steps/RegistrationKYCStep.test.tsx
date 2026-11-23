@@ -28,9 +28,9 @@ const RegistrationKYCStep = ({
   verificationDocs,
   selfiPhoto,
   onLocationUpdate,
-  onDocumentAdd,
-  onSelfieAdd,
-  errors,
+  _onDocumentAdd,
+  _onSelfieAdd,
+  errors
 }: RegistrationKYCStepProps) => {
   return (
     <div data-testid="kyc-form">
@@ -86,7 +86,7 @@ describe('RegistrationKYCStep', () => {
     onLocationUpdate: vi.fn(),
     onDocumentAdd: vi.fn(),
     onSelfieAdd: vi.fn(),
-    errors: {},
+    errors: {}
   }
 
   it('should render location fields', () => {
@@ -126,7 +126,7 @@ describe('RegistrationKYCStep', () => {
   it('should display location validation errors', () => {
     const errors = {
       latitude: 'Invalid latitude',
-      longitude: 'Invalid longitude',
+      longitude: 'Invalid longitude'
     }
     render(<RegistrationKYCStep {...mockProps} errors={errors} />)
 
@@ -179,7 +179,7 @@ describe('RegistrationKYCStep', () => {
   it('should display multiple verification documents', () => {
     const docs = [
       { name: 'id.pdf', size: 1024, type: 'application/pdf' },
-      { name: 'passport.jpg', size: 2048, type: 'image/jpeg' },
+      { name: 'passport.jpg', size: 2048, type: 'image/jpeg' }
     ]
     render(<RegistrationKYCStep {...mockProps} verificationDocs={docs} />)
 

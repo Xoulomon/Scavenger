@@ -22,8 +22,7 @@ fn calc_reward(
     // Cap total collector pool so it cannot exceed what remains after the owner
     // share, matching the contract's saturating behaviour.
     let total_collector_pool = collector_share * num_collectors as i128;
-    let total_distributed =
-        total_collector_pool.min(total_reward - owner_share) + owner_share;
+    let total_distributed = total_collector_pool.min(total_reward - owner_share) + owner_share;
     let recycler_amount = total_reward - total_distributed;
 
     (total_distributed, recycler_amount)

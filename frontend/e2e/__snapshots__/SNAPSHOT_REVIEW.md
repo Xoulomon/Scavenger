@@ -48,12 +48,14 @@ npm run visual:report
 ## When to Update Snapshots
 
 ### Update snapshots when:
+
 - You intentionally changed UI styling, layout, typography, or colors
 - You added or modified UI components that appear in visual tests
 - You changed page structure that affects the visual appearance
 - A cross-browser rendering difference needs to be accepted
 
 ### Do NOT update snapshots when:
+
 - You want to make failing tests pass without understanding why
 - The diff shows unintended visual changes
 - You are unsure whether the change is correct
@@ -64,11 +66,13 @@ npm run visual:report
 ### For Authors
 
 1. **Run visual tests locally** before pushing:
+
    ```bash
    npm run visual
    ```
 
 2. **If tests fail**, inspect the diffs:
+
    ```bash
    npm run visual:report
    ```
@@ -80,11 +84,13 @@ npm run visual:report
    - Are mobile viewports affected correctly?
 
 4. **If changes are intentional**, update baselines:
+
    ```bash
    npm run visual:update
    ```
 
 5. **Commit only the snapshot changes** with a descriptive message:
+
    ```bash
    git add e2e/__snapshots__
    git commit -m "chore: update visual baselines for <feature description>"
@@ -155,12 +161,14 @@ Each browser project produces its own baselines. If a visual change looks differ
 ## Environment Considerations
 
 Visual snapshots can vary across:
+
 - **Operating systems**: macOS, Linux, Windows render fonts differently
 - **GPU acceleration**: Hardware vs software rendering affects anti-aliasing
 - **Browser versions**: Different browser versions may have rendering changes
 - **Screen density**: Retina vs standard displays
 
 For consistent baselines:
+
 - Generate baselines in the same environment as CI (ubuntu-latest)
 - Use the CI workflow's "Update Baselines" action for production baselines
 - Document any known environment-specific differences
@@ -168,6 +176,7 @@ For consistent baselines:
 ## CI Integration
 
 The `visual-regression.yml` workflow:
+
 - Runs on PRs touching `frontend/src/**`
 - Compares snapshots in parallel across 3 browser projects
 - Uploads diff reports as artifacts (retained 30 days)
@@ -177,6 +186,7 @@ The `visual-regression.yml` workflow:
 ### CI Baseline Update
 
 To update baselines via CI (no local Playwright install needed):
+
 1. Go to **Actions → Visual Regression**
 2. Click **Run workflow**, set `update_baselines` to `true`
 3. The workflow regenerates snapshots and commits them back to the branch
@@ -184,16 +194,19 @@ To update baselines via CI (no local Playwright install needed):
 ## Troubleshooting
 
 ### Tests pass locally but fail in CI
+
 - Ensure you're generating baselines on the same OS as CI (ubuntu-latest)
 - Check for font rendering differences between macOS and Linux
 - Use `npm run visual:update` in a CI-like environment
 
 ### Flaky snapshot tests
+
 - Check that animations are properly disabled
 - Ensure no async operations change the page after `waitForStable()`
 - Verify no external resources (fonts, images) are loading inconsistently
 
 ### Large number of snapshot changes
+
 - Review each change individually
 - If changes are expected, batch them in a single commit
 - If unexpected, investigate the root cause before updating

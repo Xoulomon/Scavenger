@@ -17,11 +17,11 @@ We will define every flag in one `FEATURE_FLAGS` object, read flags only through
 
 ## Alternatives Considered
 
-| Alternative | Why it was rejected |
-|-------------|---------------------|
+| Alternative                                   | Why it was rejected                                                             |
+| --------------------------------------------- | ------------------------------------------------------------------------------- |
 | Remote flag service (LaunchDarkly or similar) | Adds a paid dependency and a network call on first render for a team this size. |
-| Environment variables read at build time | Cannot change per user or per test without a rebuild. |
-| String literals at each call site | Typos fail silently, and there is no single list to audit. |
+| Environment variables read at build time      | Cannot change per user or per test without a rebuild.                           |
+| String literals at each call site             | Typos fail silently, and there is no single list to audit.                      |
 
 ## Consequences
 

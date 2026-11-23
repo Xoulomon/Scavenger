@@ -15,11 +15,11 @@ export function useTransferHistory(wasteId: number | bigint | undefined) {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       return client.getWasteTransferHistory(BigInt(wasteId as number))
     },
-    enabled: wasteId !== undefined,
+    enabled: wasteId !== undefined
   })
 
   const history = useMemo<WasteTransfer[]>(() => data ?? [], [data])
@@ -28,8 +28,8 @@ export function useTransferHistory(wasteId: number | bigint | undefined) {
     () => ({
       history,
       isLoading,
-      isError,
+      isError
     }),
-    [history, isLoading, isError],
+    [history, isLoading, isError]
   )
 }

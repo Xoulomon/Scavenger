@@ -54,6 +54,7 @@ This section maps each contract panic message to its root cause and resolution.
 **Cause:** `initialize_admin` was called on a contract that already has an admin set. This function is one-time only.
 
 **Fix:**
+
 ```bash
 # Verify admin state before calling
 soroban contract invoke \
@@ -71,6 +72,7 @@ soroban contract invoke \
 **Cause:** An admin-only function was called before `initialize_admin`.
 
 **Fix:**
+
 ```bash
 # Call initialize_admin once
 soroban contract invoke \
@@ -88,6 +90,7 @@ soroban contract invoke \
 **Cause:** The transaction signer is not in the admin list.
 
 **Diagnosis:**
+
 ```bash
 # Check who the current admins are
 soroban contract invoke \
@@ -101,6 +104,7 @@ soroban keys address <your-key-name>
 ```
 
 **Fix:**
+
 - Use a key that is in the admin list, OR
 - Ask an existing admin to call `add_admin` to add your address.
 
@@ -111,6 +115,7 @@ soroban keys address <your-key-name>
 **Cause:** `register_participant` was called twice for the same address.
 
 **Diagnosis:**
+
 ```bash
 soroban contract invoke \
   --id $CONTRACT_ID \
@@ -130,6 +135,7 @@ soroban contract invoke \
 **Cause:** The address has not called `register_participant`, or the address was deregistered.
 
 **Fix:**
+
 ```bash
 soroban contract invoke \
   --id $CONTRACT_ID \
@@ -150,6 +156,7 @@ soroban contract invoke \
 **Cause:** A participant with Recycler or Collector role tried to call a manufacturer-only function (e.g. `create_incentive`, `distribute_rewards`).
 
 **Fix:**
+
 1. Use an account registered with `ParticipantRole::Manufacturer` (role = 2), OR
 2. Call `update_role(address, Manufacturer)` on the current account (requires self-signature).
 
@@ -160,6 +167,7 @@ soroban contract invoke \
 **Cause:** The transfer violates the allowed supply-chain path.
 
 **Allowed paths:**
+
 ```
 Recycler   → Collector    ✓
 Recycler   → Manufacturer ✓
@@ -171,6 +179,7 @@ Same role  → Same role    ✗
 ```
 
 **Diagnosis:**
+
 ```bash
 soroban contract invoke \
   --id $CONTRACT_ID \
@@ -214,6 +223,7 @@ soroban contract invoke \
 **Cause:** `reward_tokens` or `distribute_rewards` was called before the admin set the token contract address.
 
 **Fix:**
+
 ```bash
 soroban contract invoke \
   --id $CONTRACT_ID \
@@ -231,6 +241,7 @@ soroban contract invoke \
 **Cause:** Invalid incentive ID or the incentive was deactivated.
 
 **Diagnosis:**
+
 ```bash
 soroban contract invoke \
   --id $CONTRACT_ID \
@@ -242,6 +253,7 @@ soroban contract invoke \
 ```
 
 **Fix:**
+
 - Use `get_active_incentives()` to list valid IDs.
 - If budget is exhausted, create a new incentive.
 
@@ -252,6 +264,7 @@ soroban contract invoke \
 **Cause:** Donation amount exceeds `total_tokens_earned` for the donor.
 
 **Diagnosis:**
+
 ```bash
 soroban contract invoke \
   --id $CONTRACT_ID \
@@ -287,6 +300,7 @@ soroban contract invoke \
 **Cause:** `collector_percentage + owner_percentage > 100`.
 
 **Fix:**
+
 ```bash
 # Default safe values: collector=5, owner=50 → sum=55 ✓
 soroban contract invoke \
@@ -312,14 +326,14 @@ VITE_DEBUG=true
 
 ```typescript
 // src/utils/debug.ts
-export const debug = import.meta.env.VITE_DEBUG === 'true'
-  ? console.log.bind(console, '[scavngr]')
-  : () => {};
+export const debug =
+  import.meta.env.VITE_DEBUG === 'true' ? console.log.bind(console, '[scavngr]') : () => {}
 ```
 
 ### Check Environment Variables at Runtime
 
 Open the browser console (F12 → Console):
+
 ```javascript
 console.log(import.meta.env)
 // Verify VITE_CONTRACT_ID, VITE_NETWORK, VITE_RPC_URL are set correctly
@@ -328,14 +342,14 @@ console.log(import.meta.env)
 ### Contract Invocation Debugging
 
 ```typescript
-import { SorobanRpc } from '@stellar/stellar-sdk';
+import { SorobanRpc } from '@stellar/stellar-sdk'
 
-const server = new SorobanRpc.Server(import.meta.env.VITE_RPC_URL);
+const server = new SorobanRpc.Server(import.meta.env.VITE_RPC_URL)
 
 // Simulate before submitting
-const simResult = await server.simulateTransaction(tx);
+const simResult = await server.simulateTransaction(tx)
 if (SorobanRpc.Api.isSimulationError(simResult)) {
-  console.error('Simulation error:', simResult.error);
+  console.error('Simulation error:', simResult.error)
   // Parse simResult.error.message for the panic string
 }
 ```
@@ -344,36 +358,34 @@ if (SorobanRpc.Api.isSimulationError(simResult)) {
 
 ```javascript
 // Check wallet availability
-console.log('Freighter available:', typeof window.freighter !== 'undefined');
-console.log('Freighter connected:', await window.freighter.isConnected());
+console.log('Freighter available:', typeof window.freighter !== 'undefined')
+console.log('Freighter connected:', await window.freighter.isConnected())
 
 // Check network
-const network = await window.freighter.getNetwork();
-console.log('Wallet network:', network); // Should match VITE_NETWORK
+const network = await window.freighter.getNetwork()
+console.log('Wallet network:', network) // Should match VITE_NETWORK
 ```
 
 ### Common Frontend Errors
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `"Contract ID invalid"` | Wrong or malformed `VITE_CONTRACT_ID` | Verify 56-char contract ID in `.env` |
-| `"Wallet not detected"` | Extension not installed | Install Freighter |
-| `"User declined"` | User rejected wallet popup | Re-initiate transaction |
-| `"Network mismatch"` | Wallet on testnet but app on mainnet | Switch wallet network |
-| `"Transaction simulation failed"` | Contract will panic | See contract error in sim result |
-| `"Insufficient XLM for fees"` | Account balance too low | Fund account via Friendbot (testnet) |
-| White screen on load | Missing env variable | Run `npm run build` and check console |
+| Error                             | Cause                                 | Fix                                   |
+| --------------------------------- | ------------------------------------- | ------------------------------------- |
+| `"Contract ID invalid"`           | Wrong or malformed `VITE_CONTRACT_ID` | Verify 56-char contract ID in `.env`  |
+| `"Wallet not detected"`           | Extension not installed               | Install Freighter                     |
+| `"User declined"`                 | User rejected wallet popup            | Re-initiate transaction               |
+| `"Network mismatch"`              | Wallet on testnet but app on mainnet  | Switch wallet network                 |
+| `"Transaction simulation failed"` | Contract will panic                   | See contract error in sim result      |
+| `"Insufficient XLM for fees"`     | Account balance too low               | Fund account via Friendbot (testnet)  |
+| White screen on load              | Missing env variable                  | Run `npm run build` and check console |
 
 ### Inspecting Failed Transactions
 
 ```javascript
 // After a failed transaction, inspect Horizon
-const txId = '<transaction_hash>';
-const response = await fetch(
-  `https://horizon-testnet.stellar.org/transactions/${txId}`
-);
-const tx = await response.json();
-console.log('Result XDR:', tx.result_xdr);
+const txId = '<transaction_hash>'
+const response = await fetch(`https://horizon-testnet.stellar.org/transactions/${txId}`)
+const tx = await response.json()
+console.log('Result XDR:', tx.result_xdr)
 // Decode with @stellar/stellar-sdk:
 // const result = xdr.TransactionResult.fromXDR(tx.result_xdr, 'base64');
 ```
@@ -406,6 +418,7 @@ npx tsc --noEmit
 ### Service Won't Start
 
 **Diagnosis:**
+
 ```bash
 # Check Docker container status
 docker-compose ps
@@ -418,6 +431,7 @@ ss -tlnp | grep 8080
 ```
 
 **Common causes:**
+
 - Missing environment variable → check `docker-compose.yml` and `.env`
 - Port 8080 already in use → stop conflicting process or change port
 - Database unreachable → see [Database section](#database-issues) below
@@ -500,6 +514,7 @@ docker exec scavngr-db psql -U scavngr -d scavngr \
 **Symptoms:** Indexer dashboard shows stale data; `last_synced_ledger` is far behind current ledger.
 
 **Diagnosis:**
+
 ```bash
 # Check indexer logs
 docker-compose logs indexer --tail=100
@@ -512,6 +527,7 @@ docker-compose logs indexer | grep "queue depth"
 ```
 
 **Fix:**
+
 ```bash
 # Restart indexer (clears in-memory state, re-syncs from last checkpointed ledger)
 docker-compose restart indexer
@@ -545,6 +561,7 @@ docker-compose up -d indexer
 **Cause:** Indexer missed events during a restart or RPC outage.
 
 **Fix:**
+
 ```bash
 # Replay events from a specific ledger number
 # Edit indexer/.env:
@@ -592,6 +609,7 @@ docker-compose logs indexer | grep analytics
 **Cause:** Indexer was restarted without advancing the cursor.
 
 **Fix:**
+
 ```bash
 # Remove duplicates (idempotent upsert should prevent this, but if it occurs):
 docker exec scavngr-db psql -U scavngr -d scavngr << 'SQL'
@@ -609,6 +627,7 @@ SQL
 ### Contract Performance
 
 **1. Use batch operations where available**
+
 ```bash
 # Instead of submitting one waste at a time:
 soroban contract invoke -- submit_materials_batch --materials '[...]'
@@ -621,16 +640,18 @@ v2 APIs (e.g. `recycle_waste`, `transfer_waste_v2`) use optimized storage layout
 
 **3. Simulate before submit**
 Always simulate transactions before submitting to avoid wasted fees on failing calls:
+
 ```typescript
-const simResult = await server.simulateTransaction(tx);
+const simResult = await server.simulateTransaction(tx)
 if (SorobanRpc.Api.isSimulationError(simResult)) {
-  throw new Error(`Simulation failed: ${simResult.error}`);
+  throw new Error(`Simulation failed: ${simResult.error}`)
 }
-const preparedTx = SorobanRpc.assembleTransaction(tx, simResult).build();
+const preparedTx = SorobanRpc.assembleTransaction(tx, simResult).build()
 ```
 
 **4. Batch reads off-chain**
 Use the indexer/backend API for paginated reads rather than calling the contract directly for every query:
+
 ```
 GET /api/participants?offset=0&limit=50
 GET /api/wastes?participant=<address>&page=1
@@ -641,33 +662,38 @@ GET /api/wastes?participant=<address>&page=1
 ### Frontend Performance
 
 **1. Enable production builds for benchmarking**
+
 ```bash
 npm run build && npm run preview
 # Dev server is significantly slower than production build
 ```
 
 **2. Use React Query / SWR for data caching**
+
 ```typescript
 // Cache participant data for 5 minutes
 const { data } = useQuery({
   queryKey: ['participant', address],
   queryFn: () => fetchParticipant(address),
-  staleTime: 5 * 60 * 1000,
-});
+  staleTime: 5 * 60 * 1000
+})
 ```
 
 **3. Lazy-load heavy components**
+
 ```typescript
-const WasteMap = React.lazy(() => import('./components/WasteMap'));
+const WasteMap = React.lazy(() => import('./components/WasteMap'))
 ```
 
 **4. Bundle analysis**
+
 ```bash
 npm run build -- --report
 # Open dist/report.html to identify large dependencies
 ```
 
 **5. Check Lighthouse scores**
+
 ```bash
 npm run lighthouse
 # Target: Performance > 80, Accessibility > 90
@@ -680,6 +706,7 @@ npm run lighthouse
 **1. Enable Redis caching for hot queries**
 
 Frequently read endpoints (e.g. global metrics, participant lists) should cache results:
+
 ```
 Cache TTL recommendations:
   GET /metrics          → 30 seconds
@@ -689,6 +716,7 @@ Cache TTL recommendations:
 ```
 
 **2. Add database indexes for common query patterns**
+
 ```sql
 -- Speed up participant lookups
 CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_wastes_owner
@@ -705,6 +733,7 @@ CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_transfer_history_waste
 ```
 
 **3. Use connection pooling**
+
 ```
 # docker-compose.yml or .env
 DATABASE_MAX_CONNECTIONS=20
@@ -712,6 +741,7 @@ DATABASE_MIN_CONNECTIONS=2
 ```
 
 **4. Enable Gzip compression on API responses**
+
 ```rust
 // actix-web
 use actix_web::middleware::Compress;
@@ -725,6 +755,7 @@ App::new().wrap(Compress::default())
 **1. Tune polling interval**
 
 The indexer polls the Soroban RPC for new events. Set the interval based on network conditions:
+
 ```
 # indexer/.env
 POLL_INTERVAL_MS=5000    # 5 s is a good default (matches ~Stellar ledger time)
@@ -732,6 +763,7 @@ POLL_INTERVAL_MS=5000    # 5 s is a good default (matches ~Stellar ledger time)
 ```
 
 **2. Job queue concurrency**
+
 ```
 # indexer/.env
 JOB_CONCURRENCY=4        # Process 4 jobs simultaneously
@@ -740,6 +772,7 @@ JOB_RETRY_DELAY_MS=1000
 ```
 
 **3. Redis cache TTLs for indexer queries**
+
 ```
 # indexer/.env
 CACHE_TTL_SEARCH_RESULTS=60    # seconds
@@ -750,10 +783,11 @@ CACHE_TTL_PARTICIPANT=30
 **4. Batch database writes**
 
 Indexer should accumulate multiple events and write them in a single transaction:
+
 ```typescript
 // Flush every 100 events or every 2 seconds, whichever comes first
-const BATCH_SIZE = 100;
-const FLUSH_INTERVAL_MS = 2000;
+const BATCH_SIZE = 100
+const FLUSH_INTERVAL_MS = 2000
 ```
 
 ---
@@ -788,10 +822,11 @@ VACUUM ANALYZE transfer_history;
 
 ```javascript
 // In browser console
-console.log('Freighter:', window.freighter);
+console.log('Freighter:', window.freighter)
 ```
 
 **Solutions:**
+
 1. Install [Freighter](https://www.freighter.app/) browser extension
 2. Reload page after installation
 3. Check extension is enabled for the current site (extension icon → gear → Allow on this site)
@@ -801,12 +836,14 @@ console.log('Freighter:', window.freighter);
 ### Transaction Timeout (> 30 s)
 
 **Check:**
+
 ```bash
 # Query Horizon for tx status
 curl "https://horizon-testnet.stellar.org/transactions/<TX_HASH>" | jq '.status'
 ```
 
 **Solutions:**
+
 - If not found: transaction dropped — resubmit
 - If `failed`: see `result_xdr` for error details
 - Increase fee: standard 100 stroops may be insufficient during network congestion
@@ -906,6 +943,7 @@ docker-compose logs db --tail=50
 ### Reporting Bugs
 
 When filing a GitHub issue, include:
+
 1. Exact error message / panic string
 2. Function name and parameters called
 3. Network (testnet / mainnet)
@@ -915,6 +953,6 @@ When filing a GitHub issue, include:
 
 ### Contact
 
-- **Email:** support@scavenger.app  
-- **GitHub:** [Issues](https://github.com/Xoulomon/Scavenger/issues)  
+- **Email:** support@scavenger.app
+- **GitHub:** [Issues](https://github.com/Xoulomon/Scavenger/issues)
 - **Discord:** [Stellar Community](https://discord.gg/stellar)

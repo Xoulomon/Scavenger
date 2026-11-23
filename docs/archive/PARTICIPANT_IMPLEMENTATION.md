@@ -48,18 +48,21 @@ pub enum ParticipantRole {
 ### 2. Role-Based Access Control
 
 **Recycler Permissions:**
+
 - Can collect materials
 - Can process recyclables
 - Can verify material submissions
 - Cannot manufacture products
 
 **Collector Permissions:**
+
 - Can collect materials
 - Cannot process recyclables
 - Cannot verify materials
 - Cannot manufacture products
 
 **Manufacturer Permissions:**
+
 - Cannot collect materials
 - Cannot process recyclables
 - Cannot verify materials
@@ -68,12 +71,14 @@ pub enum ParticipantRole {
 ### 3. Statistics Tracking
 
 **Overflow Protection:**
+
 - Uses `checked_add()` for all arithmetic operations
 - Prevents overflow in `total_waste_processed`
 - Prevents overflow in `total_tokens_earned`
 - Panics with clear error messages on overflow
 
 **Automatic Updates:**
+
 - `total_waste_processed` increments on material submission
 - `total_tokens_earned` increments on material verification
 - Batch operations update stats efficiently
@@ -82,12 +87,14 @@ pub enum ParticipantRole {
 ### 4. Registration Management
 
 **Registration Flow:**
+
 1. User calls `register_participant()` with required data
 2. Contract creates Participant with `is_registered = true`
 3. Participant stored in persistent storage
 4. Initial stats set to zero
 
 **Deregistration:**
+
 - Sets `is_registered = false`
 - Preserves historical data
 - Prevents further restricted actions
@@ -96,12 +103,14 @@ pub enum ParticipantRole {
 ### 5. Location Tracking
 
 **Coordinate Format:**
+
 - Latitude and longitude stored as `i128`
 - Typically scaled by 1e6 for precision
 - Example: 40.748817° → 40_748_817
 - Supports negative coordinates for southern/western hemispheres
 
 **Update Capability:**
+
 - Participants can update their location
 - Requires authentication
 - Only registered participants can update
@@ -112,6 +121,7 @@ pub enum ParticipantRole {
 ### Registration Functions
 
 #### `register_participant`
+
 ```rust
 pub fn register_participant(
     env: Env,
@@ -122,18 +132,21 @@ pub fn register_participant(
     longitude: i128,
 ) -> Participant
 ```
+
 - Registers a new participant or updates existing
 - Requires address authentication
 - Initializes stats to zero
 - Sets `is_registered = true`
 
 #### `deregister_participant`
+
 ```rust
 pub fn deregister_participant(
     env: Env,
     address: Address,
 ) -> Participant
 ```
+
 - Deactivates a participant
 - Requires address authentication
 - Sets `is_registered = false`
@@ -142,34 +155,40 @@ pub fn deregister_participant(
 ### Query Functions
 
 #### `get_participant`
+
 ```rust
 pub fn get_participant(
     env: Env,
     address: Address,
 ) -> Option<Participant>
 ```
+
 - Retrieves participant data
 - Returns `None` if not found
 - No authentication required
 
 #### `can_collect`
+
 ```rust
 pub fn can_collect(
     env: Env,
     address: Address,
 ) -> bool
 ```
+
 - Checks if participant can collect materials
 - Validates registration status
 - Validates role permissions
 
 #### `can_manufacture`
+
 ```rust
 pub fn can_manufacture(
     env: Env,
     address: Address,
 ) -> bool
 ```
+
 - Checks if participant can manufacture
 - Validates registration status
 - Validates role permissions
@@ -177,6 +196,7 @@ pub fn can_manufacture(
 ### Update Functions
 
 #### `update_role`
+
 ```rust
 pub fn update_role(
     env: Env,
@@ -184,12 +204,14 @@ pub fn update_role(
     new_role: ParticipantRole,
 ) -> Participant
 ```
+
 - Updates participant role
 - Requires address authentication
 - Validates registration status
 - Preserves other participant data
 
 #### `update_location`
+
 ```rust
 pub fn update_location(
     env: Env,
@@ -198,6 +220,7 @@ pub fn update_location(
     longitude: i128,
 ) -> Participant
 ```
+
 - Updates participant location
 - Requires address authentication
 - Validates registration status
@@ -206,6 +229,7 @@ pub fn update_location(
 ### Internal Functions
 
 #### `update_participant_stats`
+
 ```rust
 fn update_participant_stats(
     env: &Env,
@@ -214,18 +238,21 @@ fn update_participant_stats(
     tokens_earned: u64,
 )
 ```
+
 - Internal helper for stats updates
 - Uses checked arithmetic
 - Updates both waste and tokens
 - Called automatically by material operations
 
 #### `require_registered`
+
 ```rust
 fn require_registered(
     env: &Env,
     address: &Address,
 )
 ```
+
 - Validates participant registration
 - Panics if not found or not registered
 - Used by restricted operations
@@ -234,6 +261,7 @@ fn require_registered(
 ## Integration with Material Operations
 
 ### Material Submission
+
 1. User calls `submit_material()`
 2. Contract validates user is registered via `require_registered()`
 3. Material is created and stored
@@ -241,6 +269,7 @@ fn require_registered(
 5. RecyclingStats updated separately
 
 ### Material Verification
+
 1. Recycler calls `verify_material()`
 2. Contract validates recycler is registered and has correct role
 3. Material is marked as verified
@@ -249,6 +278,7 @@ fn require_registered(
 6. RecyclingStats updated separately
 
 ### Batch Operations
+
 - Batch submissions accumulate weight before single stats update
 - Batch verifications process all materials then update stats
 - Overflow protection applies to accumulated totals
@@ -257,23 +287,27 @@ fn require_registered(
 ## Security Considerations
 
 ### Authentication
+
 - All write operations require `address.require_auth()`
 - Participants can only modify their own data
 - Role-based permissions enforced at function level
 
 ### Overflow Protection
+
 - All arithmetic uses `checked_add()`
 - Panics with descriptive error on overflow
 - Prevents silent wraparound bugs
 - Maintains data integrity
 
 ### State Validation
+
 - Registration status checked before restricted actions
 - Role permissions validated for sensitive operations
 - Invalid state transitions prevented
 - Clear panic messages for debugging
 
 ### Storage Integrity
+
 - Deterministic serialization via `#[contracttype]`
 - Consistent storage keys
 - No data corruption from concurrent access
@@ -331,6 +365,7 @@ All tests pass with no regressions to existing functionality.
 ### Breaking Changes
 
 The Participant struct has been expanded with new fields:
+
 - `name: Symbol`
 - `latitude: i128`
 - `longitude: i128`
@@ -341,6 +376,7 @@ The Participant struct has been expanded with new fields:
 ### Backward Compatibility
 
 Existing contracts will need to:
+
 1. Update `register_participant()` calls to include new parameters
 2. Handle the new fields in client code
 3. Re-register existing participants with complete data
@@ -348,6 +384,7 @@ Existing contracts will need to:
 ### Storage Migration
 
 If migrating from an older version:
+
 1. Export existing participant data
 2. Deploy new contract version
 3. Re-register participants with complete information
@@ -372,6 +409,7 @@ If migrating from an older version:
 ## Future Enhancements
 
 Potential improvements:
+
 1. Reputation scoring system
 2. Geographic proximity queries
 3. Historical stats tracking

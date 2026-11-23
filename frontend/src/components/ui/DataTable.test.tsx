@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { DataTable, Column, DataTableProps } from './DataTable'
+import { DataTable, Column } from './DataTable'
 
 interface TestData {
   id: string | number
@@ -18,7 +18,7 @@ const mockData: TestData[] = [
     email: 'alice@example.com',
     status: 'active',
     amount: 150.5,
-    createdAt: '2024-01-15',
+    createdAt: '2024-01-15'
   },
   {
     id: '2',
@@ -26,7 +26,7 @@ const mockData: TestData[] = [
     email: 'bob@example.com',
     status: 'inactive',
     amount: 200.0,
-    createdAt: '2024-02-20',
+    createdAt: '2024-02-20'
   },
   {
     id: '3',
@@ -34,7 +34,7 @@ const mockData: TestData[] = [
     email: 'charlie@example.com',
     status: 'active',
     amount: 175.25,
-    createdAt: '2024-03-10',
+    createdAt: '2024-03-10'
   },
   {
     id: '4',
@@ -42,7 +42,7 @@ const mockData: TestData[] = [
     email: 'diana@example.com',
     status: 'pending',
     amount: 125.0,
-    createdAt: '2024-04-05',
+    createdAt: '2024-04-05'
   },
   {
     id: '5',
@@ -50,15 +50,15 @@ const mockData: TestData[] = [
     email: 'edward@example.com',
     status: 'active',
     amount: 300.75,
-    createdAt: '2024-05-12',
-  },
+    createdAt: '2024-05-12'
+  }
 ]
 
 const mockColumns: Column<TestData>[] = [
   { key: 'name', label: 'Name', sortable: true },
   { key: 'email', label: 'Email', sortable: true },
   { key: 'status', label: 'Status', sortable: false },
-  { key: 'amount', label: 'Amount', sortable: true },
+  { key: 'amount', label: 'Amount', sortable: true }
 ]
 
 describe('DataTable Component', () => {
@@ -76,7 +76,7 @@ describe('DataTable Component', () => {
     it('should render all rows from data array', () => {
       render(<DataTable data={mockData} columns={mockColumns} />)
 
-      mockData.forEach(row => {
+      mockData.forEach((row) => {
         expect(screen.getByText(row.name)).toBeInTheDocument()
         expect(screen.getByText(row.email)).toBeInTheDocument()
       })
@@ -99,13 +99,7 @@ describe('DataTable Component', () => {
 
     it('should render custom empty state message', () => {
       const customMessage = 'No items found'
-      render(
-        <DataTable
-          data={[]}
-          columns={mockColumns}
-          emptyStateMessage={customMessage}
-        />
-      )
+      render(<DataTable data={[]} columns={mockColumns} emptyStateMessage={customMessage} />)
 
       expect(screen.getByText(customMessage)).toBeInTheDocument()
     })
@@ -196,7 +190,7 @@ describe('DataTable Component', () => {
       const largeData = Array.from({ length: 25 }, (_, i) => ({
         ...mockData[0],
         id: String(i),
-        name: String.fromCharCode(65 + (i % 26)).repeat(3 + (i % 3)),
+        name: String.fromCharCode(65 + (i % 26)).repeat(3 + (i % 3))
       }))
 
       render(<DataTable data={largeData} columns={mockColumns} pageSize={10} />)
@@ -219,7 +213,7 @@ describe('DataTable Component', () => {
     const paginationData = Array.from({ length: 25 }, (_, i) => ({
       ...mockData[0],
       id: String(i),
-      name: `User ${i}`,
+      name: `User ${i}`
     }))
 
     it('should render pagination controls when data exceeds page size', () => {
@@ -320,8 +314,8 @@ describe('DataTable Component', () => {
         {
           key: 'status',
           label: 'Status',
-          render: (value) => <span className="badge">{value.toUpperCase()}</span>,
-        },
+          render: (value) => <span className="badge">{value.toUpperCase()}</span>
+        }
       ]
 
       render(<DataTable data={mockData} columns={customColumns} />)
@@ -335,8 +329,8 @@ describe('DataTable Component', () => {
         {
           key: 'name',
           label: 'Name',
-          render: (value, row) => `${value} (${row.email})`,
-        },
+          render: (value, row) => `${value} (${row.email})`
+        }
       ]
 
       render(<DataTable data={mockData} columns={customColumns} />)
@@ -371,7 +365,7 @@ describe('DataTable Component', () => {
     it('should apply custom column width', () => {
       const customColumns: Column<TestData>[] = [
         { key: 'name', label: 'Name', sortable: true, width: '30%' },
-        { key: 'email', label: 'Email', sortable: true, width: '70%' },
+        { key: 'email', label: 'Email', sortable: true, width: '70%' }
       ]
 
       const { container } = render(<DataTable data={mockData} columns={customColumns} />)
@@ -400,7 +394,7 @@ describe('DataTable Component', () => {
 
   describe('CSS Classes', () => {
     it('should apply custom className', () => {
-      const { container } = render(
+      const { _container } = render(
         <DataTable data={mockData} columns={mockColumns} className="custom-class" />
       )
 
@@ -418,16 +412,18 @@ describe('DataTable Component', () => {
           email: 'alice@example.com',
           status: 'active',
           amount: 150.5,
-          createdAt: '2024-01-15',
+          createdAt: '2024-01-15'
         },
         {
           id: '2',
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test fixture uses null sentinel for nullable column
           name: null as any,
           email: 'bob@example.com',
           status: 'inactive',
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test fixture uses null sentinel for nullable column
           amount: null as any,
-          createdAt: '2024-02-20',
-        },
+          createdAt: '2024-02-20'
+        }
       ]
 
       render(<DataTable data={dataWithNull} columns={mockColumns} />)
@@ -439,8 +435,9 @@ describe('DataTable Component', () => {
     it('should handle sorting with null values', async () => {
       const dataWithNull: TestData[] = [
         { ...mockData[0], amount: 100 },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- test fixture uses null sentinel for nullable column
         { ...mockData[1], amount: null as any },
-        { ...mockData[2], amount: 200 },
+        { ...mockData[2], amount: 200 }
       ]
 
       render(<DataTable data={dataWithNull} columns={mockColumns} pageSize={5} />)

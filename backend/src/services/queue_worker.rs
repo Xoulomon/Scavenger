@@ -193,7 +193,12 @@ mod tests {
         let worker: QueueWorker<CounterJob> = QueueWorker::new(2, 16);
 
         for _ in 0..5 {
-            worker.submit(CounterJob { counter: counter.clone() }).await.unwrap();
+            worker
+                .submit(CounterJob {
+                    counter: counter.clone(),
+                })
+                .await
+                .unwrap();
         }
 
         // Allow time for workers to process.
@@ -215,7 +220,12 @@ mod tests {
         assert!(result.is_ok());
 
         // Counter jobs should work normally
-        worker.submit(CounterJob { counter: counter.clone() }).await.unwrap();
+        worker
+            .submit(CounterJob {
+                counter: counter.clone(),
+            })
+            .await
+            .unwrap();
         sleep(Duration::from_millis(50)).await;
         assert_eq!(*counter.lock().unwrap(), 1);
     }

@@ -51,11 +51,13 @@ pub enum WasteType {
 ### 2. Access Control
 
 **Manufacturer-Only Creation:**
+
 - Only registered manufacturers can create incentives
 - Validates participant role before allowing creation
 - Requires authentication from the rewarder address
 
 **Rewarder-Only Updates:**
+
 - Only the incentive creator can update its status
 - Authentication required for status changes
 - Prevents unauthorized modifications
@@ -63,12 +65,14 @@ pub enum WasteType {
 ### 3. Input Validation
 
 **Creation Validation:**
+
 - Reward must be greater than zero
 - Max waste amount must be greater than zero
 - Rewarder must be a registered manufacturer
 - All validations with clear error messages
 
 **Prevents Invalid Configurations:**
+
 - No zero-reward incentives
 - No zero-capacity incentives
 - No incentives from non-manufacturers
@@ -76,18 +80,21 @@ pub enum WasteType {
 ### 4. Reward Calculation
 
 **Deterministic Calculation:**
+
 ```rust
 // Formula: (eligible_amount * reward) / 1000
 // Where eligible_amount is capped at max_waste_amount
 ```
 
 **Features:**
+
 - Caps waste amount at `max_waste_amount`
 - Returns 0 for inactive incentives
 - Uses checked arithmetic to prevent overflow
 - Consistent results across all invocations
 
 **Overflow Protection:**
+
 - Uses `checked_mul()` for multiplication
 - Uses `checked_div()` for division
 - Panics with clear error on overflow
@@ -96,11 +103,13 @@ pub enum WasteType {
 ### 5. Active/Inactive State Management
 
 **Active Incentives:**
+
 - Can distribute rewards
 - Included in active incentive queries
 - Default state for new incentives
 
 **Inactive Incentives:**
+
 - Return 0 rewards
 - Excluded from active incentive queries
 - Preserved in storage for historical records
@@ -111,6 +120,7 @@ pub enum WasteType {
 ### Creation Functions
 
 #### `create_incentive`
+
 ```rust
 pub fn create_incentive(
     env: Env,
@@ -120,6 +130,7 @@ pub fn create_incentive(
     rewarder: Address,
 ) -> Incentive
 ```
+
 - Creates a new manufacturer incentive program
 - Validates rewarder is a registered manufacturer
 - Validates reward and max_waste_amount are non-zero
@@ -129,44 +140,52 @@ pub fn create_incentive(
 ### Query Functions
 
 #### `get_incentive_by_id`
+
 ```rust
 pub fn get_incentive_by_id(
     env: Env,
     incentive_id: u64,
 ) -> Option<Incentive>
 ```
+
 - Retrieves incentive by ID
 - Returns `None` if not found
 - No authentication required
 
 #### `incentive_exists`
+
 ```rust
 pub fn incentive_exists(
     env: Env,
     incentive_id: u64,
 ) -> bool
 ```
+
 - Checks if incentive exists
 - Returns boolean
 - No authentication required
 
 #### `get_incentives_by_waste_type`
+
 ```rust
 pub fn get_incentives_by_waste_type(
     env: Env,
     waste_type: WasteType,
 ) -> Vec<Incentive>
 ```
+
 - Returns all incentives for a specific waste type
 - Includes both active and inactive incentives
 - Returns empty vector if none found
 
 #### `get_active_incentives`
+
 ```rust
 pub fn get_active_incentives(
     env: Env,
 ) -> Vec<Incentive>
 ```
+
 - Returns all currently active incentives
 - Filters out inactive incentives
 - Returns empty vector if none active
@@ -174,6 +193,7 @@ pub fn get_active_incentives(
 ### Update Functions
 
 #### `update_incentive_status`
+
 ```rust
 pub fn update_incentive_status(
     env: Env,
@@ -181,6 +201,7 @@ pub fn update_incentive_status(
     is_active: bool,
 ) -> Incentive
 ```
+
 - Updates incentive active status
 - Requires rewarder authentication
 - Can activate or deactivate
@@ -189,6 +210,7 @@ pub fn update_incentive_status(
 ### Calculation Functions
 
 #### `calculate_incentive_reward`
+
 ```rust
 pub fn calculate_incentive_reward(
     env: Env,
@@ -196,6 +218,7 @@ pub fn calculate_incentive_reward(
     waste_amount: u64,
 ) -> u128
 ```
+
 - Calculates reward for given waste amount
 - Caps amount at max_waste_amount
 - Returns 0 for inactive incentives
@@ -205,6 +228,7 @@ pub fn calculate_incentive_reward(
 ### Internal Functions
 
 #### `set_incentive`
+
 ```rust
 fn set_incentive(
     env: &Env,
@@ -212,17 +236,20 @@ fn set_incentive(
     incentive: &Incentive,
 )
 ```
+
 - Internal helper for storing incentives
 - Uses stable storage key format
 - Ensures deterministic serialization
 
 #### `get_incentive`
+
 ```rust
 fn get_incentive(
     env: &Env,
     incentive_id: u64,
 ) -> Option<Incentive>
 ```
+
 - Internal helper for retrieving incentives
 - Returns None if not found
 - Consistent with storage format
@@ -258,22 +285,26 @@ reward = (eligible_amount * reward_per_kg) / 1000
 ### Examples
 
 **Example 1: Normal Case**
+
 - Incentive: 100 tokens/kg, max 10kg
 - Waste: 5kg (5000g)
 - Calculation: (5000 * 100) / 1000 = 500 tokens
 
 **Example 2: Capped Amount**
+
 - Incentive: 100 tokens/kg, max 10kg
 - Waste: 15kg (15000g)
 - Eligible: 10kg (capped)
 - Calculation: (10000 * 100) / 1000 = 1000 tokens
 
 **Example 3: Inactive Incentive**
+
 - Incentive: 200 tokens/kg, max 5kg (inactive)
 - Waste: 3kg (3000g)
 - Result: 0 tokens (inactive)
 
 **Example 4: Small Amount**
+
 - Incentive: 100 tokens/kg, max 10kg
 - Waste: 1g
 - Calculation: (1 * 100) / 1000 = 0 tokens (integer division)
@@ -517,6 +548,7 @@ panic!("Overflow in reward calculation")
 ### No Breaking Changes
 
 The Incentive implementation:
+
 - Uses separate storage namespace
 - Does not modify existing structures
 - Maintains backward compatibility
@@ -532,6 +564,7 @@ The Incentive implementation:
 ## Future Enhancements
 
 Potential improvements:
+
 1. Time-limited incentives (expiration dates)
 2. Tiered reward structures
 3. Incentive budgets and caps

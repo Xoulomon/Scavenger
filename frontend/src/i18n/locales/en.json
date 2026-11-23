@@ -1,35 +1,35 @@
 {
-  "common": {
-    "loading": "Loading...",
-    "error": "Error",
-    "success": "Success",
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "save": "Save",
-    "delete": "Delete",
-    "edit": "Edit",
-    "close": "Close",
-    "search": "Search",
-    "filter": "Filter",
-    "export": "Export",
-    "submit": "Submit",
-    "back": "Back",
-    "noData": "No data available"
-  },
-  "nav": {
-    "dashboard": "Dashboard",
-    "settings": "Settings",
-    "profile": "Profile"
-  },
-  "errors": {
-    "network": "Network error occurred",
-    "unauthorized": "Unauthorized access",
-    "notFound": "Resource not found",
-    "unknown": "An unknown error occurred",
-    "walletNotFound": "Wallet not found. Please install Freighter."
-  },
-  "settings": {
-    "language": "Language",
-    "theme": "Theme"
-  }
+    "common": {
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "save": "Save",
+        "delete": "Delete",
+        "edit": "Edit",
+        "close": "Close",
+        "search": "Search",
+        "filter": "Filter",
+        "export": "Export",
+        "submit": "Submit",
+        "back": "Back",
+        "noData": "No data available"
+    },
+    "nav": {
+        "dashboard": "Dashboard",
+        "settings": "Settings",
+        "profile": "Profile"
+    },
+    "errors": {
+        "network": "Network error occurred",
+        "unauthorized": "Unauthorized access",
+        "notFound": "Resource not found",
+        "unknown": "An unknown error occurred",
+        "walletNotFound": "Wallet not found. Please install Freighter."
+    },
+    "settings": {
+        "language": "Language",
+        "theme": "Theme"
+    }
 }

@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { validateProfileImage, getStoredProfileName, setStoredProfileName, PROFILE_NAME_KEY } from '@/lib/profile'
+import {
+  validateProfileImage,
+  getStoredProfileName,
+  setStoredProfileName,
+  PROFILE_NAME_KEY
+} from '@/lib/profile'
 import { WasteTimeline } from '@/pages/ProfilePage'
 import { WasteType } from '@/api/types'
 import type { Waste } from '@/api/types'
@@ -17,7 +22,7 @@ function makeWaste(id: string, recycled_timestamp: number): Waste {
     weight: 1,
     recycled_timestamp,
     is_active: true,
-    is_confirmed: true,
+    is_confirmed: true
   } as unknown as Waste
 }
 

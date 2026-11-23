@@ -11,10 +11,10 @@ Scavenger uses blue-green deployment for zero-downtime updates with automatic ro
 
 ## Scripts
 
-| Script | Purpose |
-|--------|---------|
-| `scripts/blue-green-deploy.sh` | Full deployment pipeline with auto-rollback |
-| `scripts/monitor-deployment.sh` | Standalone deployment health monitor |
+| Script                          | Purpose                                     |
+| ------------------------------- | ------------------------------------------- |
+| `scripts/blue-green-deploy.sh`  | Full deployment pipeline with auto-rollback |
+| `scripts/monitor-deployment.sh` | Standalone deployment health monitor        |
 
 ## Deployment Flow
 
@@ -30,30 +30,35 @@ Scavenger uses blue-green deployment for zero-downtime updates with automatic ro
 ## Usage
 
 ### Manual Deployment
+
 ```bash
 ./scripts/blue-green-deploy.sh scavenger:v1.2.3
 ```
 
 ### Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `NAMESPACE` | `scavenger-prod` | Target namespace |
-| `SMOKE_TEST_URL` | `http://localhost/health` | URL for smoke tests |
-| `MONITOR_DURATION` | `120` | Seconds to monitor after traffic switch |
-| `ERROR_THRESHOLD` | `10` | Max errors in tail-100 logs before rollback |
+| Variable           | Default                   | Description                                 |
+| ------------------ | ------------------------- | ------------------------------------------- |
+| `NAMESPACE`        | `scavenger-prod`          | Target namespace                            |
+| `SMOKE_TEST_URL`   | `http://localhost/health` | URL for smoke tests                         |
+| `MONITOR_DURATION` | `120`                     | Seconds to monitor after traffic switch     |
+| `ERROR_THRESHOLD`  | `10`                      | Max errors in tail-100 logs before rollback |
 
 ### Automated Deployment
+
 Trigger via GitHub Actions by passing `IMAGE_TAG` and `ENVIRONMENT` inputs.
 
 ## Rollback
 
 ### Automatic Rollback
+
 The deploy script traps errors via `trap rollback ERR`. Rollback is triggered when:
+
 - Smoke tests fail after 30 attempts
 - `monitor-deployment.sh` detects error count above threshold
 
 ### Manual Rollback (instant — blue already has 0 replicas but config is intact)
+
 ```bash
 # Switch traffic back to blue
 kubectl patch service scavenger \
@@ -67,7 +72,9 @@ kubectl scale deployment scavenger-blue --replicas=3 -n scavenger-prod
 ## Deployment Monitoring
 
 ### During Deployment
+
 `monitor-deployment.sh` runs in-loop after traffic switch and reports:
+
 - Pod readiness count
 - Error count from recent logs
 - Restart count
@@ -79,6 +86,7 @@ NAMESPACE=scavenger-prod DURATION=180 ./scripts/monitor-deployment.sh green
 ```
 
 ### After Deployment
+
 ```bash
 # Check rollout status
 kubectl rollout status deployment/scavenger-green -n scavenger-prod

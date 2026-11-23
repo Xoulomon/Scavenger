@@ -20,7 +20,7 @@
 //! Call [`bump_instance`] at the start of **every** externally-callable function.
 //! Call [`bump_persistent`] whenever a persistent entry is created or updated.
 
-use soroban_sdk::{Env};
+use soroban_sdk::Env;
 
 // ── Instance storage TTL ──────────────────────────────────────────────────────
 
@@ -44,10 +44,7 @@ pub fn bump_instance(env: &Env) {
 ///
 /// # Parameters
 /// - `key`: The storage key (same value you pass to `env.storage().persistent().set`).
-pub fn bump_persistent<K: soroban_sdk::TryIntoVal<Env, soroban_sdk::Val>>(
-    env: &Env,
-    key: &K,
-) {
+pub fn bump_persistent<K: soroban_sdk::TryIntoVal<Env, soroban_sdk::Val>>(env: &Env, key: &K) {
     // ~90 days at 5 s/ledger
     const PERSISTENT_LIFETIME_THRESHOLD: u32 = 1_555_200;
     const PERSISTENT_BUMP_AMOUNT: u32 = 1_555_200;

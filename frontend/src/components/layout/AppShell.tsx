@@ -25,7 +25,7 @@ import {
   Trophy,
   WifiOff,
   Bell,
-  Upload,
+  Upload
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useWallet } from '@/context/WalletContext'
@@ -173,17 +173,19 @@ function getOnboardingDataAttribute(href: string): string | undefined {
     '/achievements': 'achievements',
     '/notifications': 'notifications',
     '/batch-upload': 'batch-upload',
-    '/offline': 'offline',
+    '/offline': 'offline'
   }
   return attributeMap[href]
 }
 
 export function AppShell({ children }: PropsWithChildren) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [_sidebarOpen, _setSidebarOpen] = useState(false)
   const { address, isConnected, connect, isLoading } = useWallet()
   const { address, isConnected, connect, disconnect, isLoading } = useWallet()
   const { user, logout } = useAuth()
-  const { isVisible, hideTutorial } = useOnboardingTutorial((user?.role as UserRole | undefined) ?? null)
+  const { isVisible, hideTutorial } = useOnboardingTutorial(
+    (user?.role as UserRole | undefined) ?? null
+  )
 
   const role = user?.role ?? ''
   const links = NAV_LINKS.filter((l) => !role || l.roles.includes(role))
@@ -260,7 +262,12 @@ export function AppShell({ children }: PropsWithChildren) {
                   <Wallet className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
                   <span aria-label={`Connected wallet: ${address}`}>{truncate(address)}</span>
                 </span>
-                <Button variant="ghost" size="sm" onClick={disconnect} aria-label="Disconnect wallet">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={disconnect}
+                  aria-label="Disconnect wallet"
+                >
                   Disconnect
                 </Button>
               </div>
@@ -273,7 +280,9 @@ export function AppShell({ children }: PropsWithChildren) {
         </header>
 
         <OfflineStatus variant="indicator" />
-        <main id="main-content" className={cn('flex-1 overflow-x-hidden p-4 pb-20 sm:p-6 sm:pb-6')}>{children}</main>
+        <main id="main-content" className={cn('flex-1 overflow-x-hidden p-4 pb-20 sm:p-6 sm:pb-6')}>
+          {children}
+        </main>
       </div>
 
       {/* Mobile bottom navigation */}
@@ -282,24 +291,27 @@ export function AppShell({ children }: PropsWithChildren) {
         aria-label="Mobile navigation"
       >
         <div className="flex min-h-16 items-center justify-around gap-1 px-2 py-1">
-          {links.filter((l) => l.href !== '/profile').slice(0, 4).map((link) => {
-            const Icon = link.icon
-            return (
-              <NavLink
-                key={link.href}
-                to={link.href}
-                className={({ isActive }) =>
-                  cn(
-                    'flex min-h-12 min-w-[3.5rem] flex-1 flex-col items-center justify-center rounded-md px-2 py-1 text-[10px] font-medium transition-colors',
-                    isActive ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'
-                  )
-                }
-              >
-                <Icon className="mb-0.5 h-5 w-5" aria-hidden="true" />
-                <span className="truncate">{link.label}</span>
-              </NavLink>
-            )
-          })}
+          {links
+            .filter((l) => l.href !== '/profile')
+            .slice(0, 4)
+            .map((link) => {
+              const Icon = link.icon
+              return (
+                <NavLink
+                  key={link.href}
+                  to={link.href}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex min-h-12 min-w-[3.5rem] flex-1 flex-col items-center justify-center rounded-md px-2 py-1 text-[10px] font-medium transition-colors',
+                      isActive ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'
+                    )
+                  }
+                >
+                  <Icon className="mb-0.5 h-5 w-5" aria-hidden="true" />
+                  <span className="truncate">{link.label}</span>
+                </NavLink>
+              )
+            })}
           <NavLink
             to="/profile"
             className={({ isActive }) =>

@@ -16,7 +16,7 @@ export function useOnboarding() {
     completed: false,
     skipped: false,
     currentStep: 0,
-    role: null,
+    role: null
   })
 
   // Load onboarding state from localStorage on mount
@@ -38,35 +38,35 @@ export function useOnboarding() {
   }, [state])
 
   const startOnboarding = (role: UserRole) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       role,
       completed: false,
       skipped: false,
-      currentStep: 0,
+      currentStep: 0
     }))
   }
 
   const completeOnboarding = () => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       completed: true,
-      currentStep: 0,
+      currentStep: 0
     }))
   }
 
   const skipOnboarding = () => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
       skipped: true,
-      currentStep: 0,
+      currentStep: 0
     }))
   }
 
   const updateStep = (step: number) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      currentStep: step,
+      currentStep: step
     }))
   }
 
@@ -75,7 +75,7 @@ export function useOnboarding() {
       completed: false,
       skipped: false,
       currentStep: 0,
-      role: null,
+      role: null
     })
     localStorage.removeItem(ONBOARDING_STORAGE_KEY)
   }
@@ -94,6 +94,6 @@ export function useOnboarding() {
     skipOnboarding,
     updateStep,
     resetOnboarding,
-    shouldShowOnboarding,
+    shouldShowOnboarding
   }
 }

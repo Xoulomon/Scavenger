@@ -26,19 +26,19 @@ const sharedPlugins = {
   import: importPlugin,
   'simple-import-sort': simpleImportSortPlugin,
   'error-message-format': {
-    rules: { 'error-message-format': errorMessageFormat },
+    rules: { 'error-message-format': errorMessageFormat }
   },
   'no-only-tests': {
-    rules: { 'no-only-tests': noOnlyTests },
-  },
+    rules: { 'no-only-tests': noOnlyTests }
+  }
 }
 
 const sharedSettings = {
   react: { version: 'detect' },
   'import/resolver': {
     typescript: {},
-    node: { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
-  },
+    node: { extensions: ['.js', '.jsx', '.ts', '.tsx'] }
+  }
 }
 
 const sharedRules = {
@@ -60,7 +60,7 @@ const sharedRules = {
   'no-debugger': 'error',
   'no-warning-comments': [
     'error',
-    { terms: ['todo', 'fixme', 'xxx', 'hack'], location: 'anywhere' },
+    { terms: ['todo', 'fixme', 'xxx', 'hack'], location: 'anywhere' }
   ],
   'spaced-comment': ['error', 'always', { markers: ['/'] }],
   'prefer-const': 'error',
@@ -69,14 +69,23 @@ const sharedRules = {
   'require-jsdoc': 'off',
   'valid-jsdoc': 'off',
   'error-message-format/error-message-format': 'error',
-  'no-only-tests/no-only-tests': 'error',
+  'no-only-tests/no-only-tests': 'error'
 }
 
 export default [
   // Production source files
   {
     files: ['**/*.{ts,tsx}'],
-    ignores: ['dist', 'node_modules', '**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', '*.stories.tsx', '*.stories.ts'],
+    ignores: [
+      'dist',
+      'node_modules',
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/*.spec.ts',
+      '**/*.spec.tsx',
+      '*.stories.tsx',
+      '*.stories.ts'
+    ],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -84,8 +93,8 @@ export default [
         tsconfigRootDir: __dirname,
         ecmaVersion: 'latest',
         sourceType: 'module',
-        ecmaFeatures: { jsx: true },
-      },
+        ecmaFeatures: { jsx: true }
+      }
     },
     plugins: sharedPlugins,
     settings: sharedSettings,
@@ -94,9 +103,9 @@ export default [
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
-      ],
-    },
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
+      ]
+    }
   },
   // src/lib utilities: prefer `undefined` over `null` for absent values
   {
@@ -112,10 +121,10 @@ export default [
           message:
             'Prefer returning `undefined` for absent values in lib utilities. ' +
             'If this wraps an external API that returns null, add an ' +
-            'eslint-disable-next-line comment explaining why.',
-        },
-      ],
-    },
+            'eslint-disable-next-line comment explaining why.'
+        }
+      ]
+    }
   },
   // Feature modules: import from another feature only through its index.ts
   {
@@ -127,16 +136,21 @@ export default [
         {
           patterns: [
             {
-              group: ['**/features/*/*', '!**/features/*/index', '!**/features/*/index.ts', '!**/features/*/index.tsx'],
+              group: [
+                '**/features/*/*',
+                '!**/features/*/index',
+                '!**/features/*/index.ts',
+                '!**/features/*/index.tsx'
+              ],
               message:
-                'Import feature modules through their index.ts only (see docs/adr/0009-feature-folder-layout.md).',
-            },
-          ],
-        },
-      ],
-    },
+                'Import feature modules through their index.ts only (see docs/adr/0009-feature-folder-layout.md).'
+            }
+          ]
+        }
+      ]
+    }
   },
-  // Test files: relax no-explicit-any and no-unused-vars
+  // Test files: no-explicit-any and no-unused-vars stay enforced (issue #1767)
   {
     files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx'],
     languageOptions: {
@@ -146,16 +160,19 @@ export default [
         tsconfigRootDir: __dirname,
         ecmaVersion: 'latest',
         sourceType: 'module',
-        ecmaFeatures: { jsx: true },
-      },
+        ecmaFeatures: { jsx: true }
+      }
     },
     plugins: sharedPlugins,
     settings: sharedSettings,
     rules: {
       ...sharedRules,
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
-    },
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
+      ]
+    }
   },
   // Storybook stories: allow console.log
   {
@@ -167,8 +184,8 @@ export default [
         tsconfigRootDir: __dirname,
         ecmaVersion: 'latest',
         sourceType: 'module',
-        ecmaFeatures: { jsx: true },
-      },
+        ecmaFeatures: { jsx: true }
+      }
     },
     plugins: sharedPlugins,
     settings: sharedSettings,
@@ -177,22 +194,29 @@ export default [
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
       ],
-      'no-console': 'off',
-    },
+      'no-console': 'off'
+    }
   },
   // Disallow commented-out code blocks in production source
   {
     files: ['src/**/*.{ts,tsx}'],
-    ignores: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', '**/*.stories.tsx', '**/*.stories.ts'],
+    ignores: [
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/*.spec.ts',
+      '**/*.spec.tsx',
+      '**/*.stories.tsx',
+      '**/*.stories.ts'
+    ],
     rules: {
       'no-inline-comments': 'off',
       'no-warning-comments': [
         'error',
-        { terms: ['todo', 'fixme', 'xxx', 'hack'], location: 'anywhere' },
-      ],
-    },
+        { terms: ['todo', 'fixme', 'xxx', 'hack'], location: 'anywhere' }
+      ]
+    }
   },
-  prettierConfig,
+  prettierConfig
 ]

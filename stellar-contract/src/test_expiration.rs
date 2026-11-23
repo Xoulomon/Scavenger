@@ -32,25 +32,13 @@ fn setup_with_admin() -> (Env, ScavengerContractClient<'static>, Address) {
 
 fn register_recycler(client: &ScavengerContractClient, env: &Env) -> Address {
     let addr = Address::generate(env);
-    client.register_participant(
-        &addr,
-        &ParticipantRole::Recycler,
-        &symbol_short!("recycler"),
-        &0,
-        &0,
-    );
+    client.register_participant(&addr, &ParticipantRole::Recycler, &symbol_short!("recycler"), &0, &0);
     addr
 }
 
 fn register_collector(client: &ScavengerContractClient, env: &Env) -> Address {
     let addr = Address::generate(env);
-    client.register_participant(
-        &addr,
-        &ParticipantRole::Collector,
-        &symbol_short!("collector"),
-        &0,
-        &0,
-    );
+    client.register_participant(&addr, &ParticipantRole::Collector, &symbol_short!("collector"), &0, &0);
     addr
 }
 
@@ -371,8 +359,7 @@ fn test_different_waste_types_have_independent_ttls() {
     client.set_waste_ttl(&admin, &WasteType::Electronic, &10_000u64);
 
     let paper_id = client.recycle_waste(&WasteType::Paper, &1_000u128, &recycler, &0, &0);
-    let electronic_id =
-        client.recycle_waste(&WasteType::Electronic, &1_000u128, &recycler, &0, &0);
+    let electronic_id = client.recycle_waste(&WasteType::Electronic, &1_000u128, &recycler, &0, &0);
 
     // At ts 1400, only Paper has expired.
     env.ledger().with_mut(|li| li.timestamp = 1_400);
@@ -507,7 +494,6 @@ fn test_get_metrics_has_expiration_and_grading_counts() {
     assert_eq!(metrics.expired_waste_count, 0);
 }
 
-
 // ─── Edge-case expiration tests ─────────────────────────────────────
 // Issue #1269: Add expiration edge-case tests beyond test_expiration.rs coverage
 
@@ -531,16 +517,22 @@ fn test_expiration_timestamp_never_goes_backwards() {
     let (env, client, admin, _, _) = setup_with_admin();
     let recycler = register_recycler(&client, &env);
 
-    env.ledger().with_mut(|li| { li.timestamp = 1_000; });
+    env.ledger().with_mut(|li| {
+        li.timestamp = 1_000;
+    });
     client.set_waste_ttl(&admin, &WasteType::Plastic, &100);
     let waste_id = client.recycle_waste(&WasteType::Plastic, &1_000u128, &recycler, &0, &0);
 
     // Move forward past expiry
-    env.ledger().with_mut(|li| { li.timestamp = 1_200; });
+    env.ledger().with_mut(|li| {
+        li.timestamp = 1_200;
+    });
     assert!(client.check_waste_expiration(&waste_id));
 
     // Move backward (simulating clock skew)
-    env.ledger().with_mut(|li| { li.timestamp = 1_050; });
+    env.ledger().with_mut(|li| {
+        li.timestamp = 1_050;
+    });
     // Still expired because the stored expires_at was based on the original timestamp
     assert!(client.check_waste_expiration(&waste_id));
 }
@@ -571,7 +563,9 @@ fn test_minimal_ttl_boundary() {
     assert!(!client.check_waste_expiration(&waste_id));
 
     // Move past TTL boundary
-    env.ledger().with_mut(|li| { li.timestamp = 1_002; });
+    env.ledger().with_mut(|li| {
+        li.timestamp = 1_002;
+    });
     assert!(client.check_waste_expiration(&waste_id));
 }
 
@@ -588,7 +582,9 @@ fn test_cleanup_mixed_expired_and_active() {
     let metal_id = client.recycle_waste(&WasteType::Metal, &2_000u128, &recycler, &0, &0);
 
     // Move past plastic expiry
-    env.ledger().with_mut(|li| { li.timestamp = 1_200; });
+    env.ledger().with_mut(|li| {
+        li.timestamp = 1_200;
+    });
 
     let before_count = client.get_metrics().active_waste_count;
     let deactivated = client.cleanup_expired_wastes(&admin);

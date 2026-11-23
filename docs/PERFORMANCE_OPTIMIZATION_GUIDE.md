@@ -66,40 +66,35 @@ npm run build -- --analyze
 
 ```typescript
 // Service Worker caching
-const CACHE_VERSION = 'v1';
-const CACHE_URLS = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/app.js',
-];
+const CACHE_VERSION = 'v1'
+const CACHE_URLS = ['/', '/index.html', '/styles.css', '/app.js']
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_VERSION).then((cache) => {
-      return cache.addAll(CACHE_URLS);
+      return cache.addAll(CACHE_URLS)
     })
-  );
-});
+  )
+})
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+      return response || fetch(event.request)
     })
-  );
-});
+  )
+})
 ```
 
 ### Performance Metrics
 
-| Metric | Target | Tool |
-|--------|--------|------|
-| First Contentful Paint (FCP) | < 1.8s | Lighthouse |
+| Metric                         | Target | Tool       |
+| ------------------------------ | ------ | ---------- |
+| First Contentful Paint (FCP)   | < 1.8s | Lighthouse |
 | Largest Contentful Paint (LCP) | < 2.5s | Lighthouse |
-| Cumulative Layout Shift (CLS) | < 0.1 | Lighthouse |
-| Time to Interactive (TTI) | < 3.8s | Lighthouse |
-| Lighthouse Score | > 90 | Lighthouse |
+| Cumulative Layout Shift (CLS)  | < 0.1  | Lighthouse |
+| Time to Interactive (TTI)      | < 3.8s | Lighthouse |
+| Lighthouse Score               | > 90   | Lighthouse |
 
 ### Lighthouse Testing
 
@@ -183,18 +178,18 @@ pub async fn get_participant_cached(
     participant_id: &str,
 ) -> Result<Participant> {
     let cache_key = format!("participant:{}", participant_id);
-    
+
     // Try cache first
     if let Ok(cached) = redis.get::<_, String>(&cache_key) {
         return Ok(serde_json::from_str(&cached)?);
     }
-    
+
     // Fetch from DB
     let participant = fetch_from_db(participant_id).await?;
-    
+
     // Cache for 1 hour
     redis.set_ex(&cache_key, serde_json::to_string(&participant)?, 3600)?;
-    
+
     Ok(participant)
 }
 ```
@@ -209,10 +204,10 @@ pub async fn update_participant(
 ) -> Result<()> {
     // Update database
     update_in_db(participant_id, &data).await?;
-    
+
     // Invalidate cache
     redis.del(format!("participant:{}", participant_id))?;
-    
+
     Ok(())
 }
 ```
@@ -245,12 +240,12 @@ pub async fn rate_limit_middleware(
     srv: &mut dyn Service<ServiceRequest, Response = ServiceResponse, Error = Error>,
 ) -> Result<ServiceResponse, Error> {
     let key = req.connection_info().peer_addr().unwrap_or("unknown");
-    
+
     // Check rate limit (e.g., 100 requests per minute)
     if !check_rate_limit(key, 100, 60) {
         return Err(error::ErrorTooManyRequests("Rate limit exceeded"));
     }
-    
+
     srv.call(req).await
 }
 ```
@@ -267,11 +262,11 @@ pub fn submit_waste(env: &Env, waste: Waste) -> Result<u64, Error> {
     let mut counter = get_waste_counter(&env)?;
     counter += 1;
     set_waste_counter(&env, counter)?;  // Write 1
-    
+
     let mut wastes = get_all_wastes(&env)?;
     wastes.push(waste);
     set_all_wastes(&env, wastes)?;  // Write 2
-    
+
     Ok(counter)
 }
 
@@ -279,11 +274,11 @@ pub fn submit_waste(env: &Env, waste: Waste) -> Result<u64, Error> {
 pub fn submit_waste(env: &Env, waste: Waste) -> Result<u64, Error> {
     let counter = get_waste_counter(&env)?;
     let new_counter = counter + 1;
-    
+
     // Single storage write with both updates
     env.storage().persistent().set(&DataKey::WasteCounter, &new_counter);
     env.storage().persistent().set(&DataKey::Waste(new_counter), &waste);
-    
+
     Ok(new_counter)
 }
 ```
@@ -315,14 +310,14 @@ pub fn submit_materials_batch(
 ) -> Result<Vec<u64>, Error> {
     let mut ids = Vec::new();
     let mut counter = get_waste_counter(&env)?;
-    
+
     for material in materials {
         counter += 1;
         let waste = Waste::from(material);
         env.storage().persistent().set(&DataKey::Waste(counter), &waste);
         ids.push(counter);
     }
-    
+
     env.storage().persistent().set(&DataKey::WasteCounter, &counter);
     Ok(ids)
 }
@@ -330,13 +325,13 @@ pub fn submit_materials_batch(
 
 ### Gas Benchmarks
 
-| Operation | Gas Used | Optimization |
-|-----------|----------|--------------|
-| Register Participant | ~5,000 | Batch if possible |
-| Submit Waste | ~3,000 | Use batch submit |
-| Verify Material | ~2,500 | Cache results |
-| Transfer Waste | ~4,000 | Optimize path |
-| Create Incentive | ~6,000 | Reuse incentives |
+| Operation            | Gas Used | Optimization      |
+| -------------------- | -------- | ----------------- |
+| Register Participant | ~5,000   | Batch if possible |
+| Submit Waste         | ~3,000   | Use batch submit  |
+| Verify Material      | ~2,500   | Cache results     |
+| Transfer Waste       | ~4,000   | Optimize path     |
+| Create Incentive     | ~6,000   | Reuse incentives  |
 
 ### Before/After Metrics
 
@@ -576,36 +571,36 @@ async fn main() -> std::io::Result<()> {
 
 Key metrics to expose:
 
-| Metric | Type | Description |
-|---|---|---|
-| `api_request_duration_seconds` | Histogram | Request latency by endpoint |
-| `api_request_total` | Counter | Total requests by status code |
-| `db_query_duration_seconds` | Histogram | Database query latency |
-| `cache_hit_total` | Counter | Redis cache hits |
-| `cache_miss_total` | Counter | Redis cache misses |
-| `waste_submitted_total` | Counter | Waste items submitted |
-| `rewards_distributed_total` | Counter | Tokens distributed |
+| Metric                         | Type      | Description                   |
+| ------------------------------ | --------- | ----------------------------- |
+| `api_request_duration_seconds` | Histogram | Request latency by endpoint   |
+| `api_request_total`            | Counter   | Total requests by status code |
+| `db_query_duration_seconds`    | Histogram | Database query latency        |
+| `cache_hit_total`              | Counter   | Redis cache hits              |
+| `cache_miss_total`             | Counter   | Redis cache misses            |
+| `waste_submitted_total`        | Counter   | Waste items submitted         |
+| `rewards_distributed_total`    | Counter   | Tokens distributed            |
 
 #### Frontend
 
 Use the **Web Vitals** library to send Core Web Vitals to your analytics endpoint:
 
 ```typescript
-import { onFCP, onLCP, onCLS, onTTFB, onINP } from 'web-vitals';
+import { onFCP, onLCP, onCLS, onTTFB, onINP } from 'web-vitals'
 
 function sendToAnalytics(metric: Metric) {
   fetch('/api/vitals', {
     method: 'POST',
     body: JSON.stringify(metric),
-    headers: { 'Content-Type': 'application/json' },
-  });
+    headers: { 'Content-Type': 'application/json' }
+  })
 }
 
-onFCP(sendToAnalytics);
-onLCP(sendToAnalytics);
-onCLS(sendToAnalytics);
-onTTFB(sendToAnalytics);
-onINP(sendToAnalytics);
+onFCP(sendToAnalytics)
+onLCP(sendToAnalytics)
+onCLS(sendToAnalytics)
+onTTFB(sendToAnalytics)
+onINP(sendToAnalytics)
 ```
 
 #### Contract / Indexer
@@ -618,9 +613,9 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     lastIndexedLedger: indexer.lastLedger,
-    eventLag: Date.now() - indexer.lastEventTimestamp,
-  });
-});
+    eventLag: Date.now() - indexer.lastEventTimestamp
+  })
+})
 ```
 
 ### Dashboards
@@ -632,12 +627,14 @@ docker compose -f docker-compose.monitoring.yml up -d
 ```
 
 This starts:
+
 - **Prometheus** on `http://localhost:9090`
 - **Grafana** on `http://localhost:3000` (admin / admin)
 
 #### Recommended Dashboard Panels
 
 **API Performance Panel**
+
 ```yaml
 # Prometheus query examples
 # P95 latency
@@ -651,6 +648,7 @@ rate(api_request_total[1m])
 ```
 
 **Contract Activity Panel**
+
 ```yaml
 # Waste submission rate
 rate(waste_submitted_total[1m])
@@ -660,6 +658,7 @@ increase(rewards_distributed_total[1h])
 ```
 
 **Infrastructure Panel**
+
 ```yaml
 # Memory usage
 process_resident_memory_bytes
@@ -686,7 +685,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "API error rate above 5%"
+          summary: 'API error rate above 5%'
 
       - alert: HighLatency
         expr: histogram_quantile(0.95, rate(api_request_duration_seconds_bucket[5m])) > 0.5
@@ -694,7 +693,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "P95 latency above 500ms"
+          summary: 'P95 latency above 500ms'
 
       - alert: IndexerLag
         expr: indexer_event_lag_seconds > 60
@@ -702,7 +701,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Indexer is more than 60s behind the chain"
+          summary: 'Indexer is more than 60s behind the chain'
 
       - alert: CacheHitRateDropped
         expr: rate(cache_hit_total[5m]) / (rate(cache_hit_total[5m]) + rate(cache_miss_total[5m])) < 0.7
@@ -710,7 +709,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Cache hit rate below 70%"
+          summary: 'Cache hit rate below 70%'
 ```
 
 ### Structured Logging
@@ -738,22 +737,24 @@ info!(
 
 ```typescript
 // TypeScript indexer — structured log
-console.log(JSON.stringify({
-  level: 'info',
-  event: 'waste_indexed',
-  waste_id: wasteId,
-  ledger: ledgerSeq,
-  timestamp: new Date().toISOString(),
-}));
+console.log(
+  JSON.stringify({
+    level: 'info',
+    event: 'waste_indexed',
+    waste_id: wasteId,
+    ledger: ledgerSeq,
+    timestamp: new Date().toISOString()
+  })
+)
 ```
 
 ### Health Check Endpoints
 
-| Service | Endpoint | Expected Response |
-|---|---|---|
-| Backend API | `GET /health` | `{"status":"ok"}` |
-| Indexer | `GET /health` | `{"status":"ok","lastIndexedLedger":N}` |
-| Frontend | Lighthouse score | Performance ≥ 90 |
+| Service     | Endpoint         | Expected Response                       |
+| ----------- | ---------------- | --------------------------------------- |
+| Backend API | `GET /health`    | `{"status":"ok"}`                       |
+| Indexer     | `GET /health`    | `{"status":"ok","lastIndexedLedger":N}` |
+| Frontend    | Lighthouse score | Performance ≥ 90                        |
 
 ### On-Call Runbook
 

@@ -10,26 +10,27 @@ import { GradeSelector } from './GradeSelector'
 export function VerificationForm({
   material,
   onComplete,
-  isPending,
+  isPending
 }: {
   material: Material
-  onComplete: (materialId: number, decision: 'approved' | 'rejected', form: VerificationFormData) => void
+  onComplete: (
+    materialId: number,
+    decision: 'approved' | 'rejected',
+    form: VerificationFormData
+  ) => void
   isPending: boolean
 }) {
   const [form, setForm] = useState<VerificationFormData>({
     grade: 'B',
     contaminated: false,
-    notes: '',
+    notes: ''
   })
 
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
         <label className="text-sm font-medium">Quality Grade</label>
-        <GradeSelector
-          value={form.grade}
-          onChange={(grade) => setForm((f) => ({ ...f, grade }))}
-        />
+        <GradeSelector value={form.grade} onChange={(grade) => setForm((f) => ({ ...f, grade }))} />
       </div>
 
       <div className="flex items-center gap-2">
@@ -41,7 +42,10 @@ export function VerificationForm({
           className="h-4 w-4 rounded border"
           aria-label="Mark as contaminated"
         />
-        <label htmlFor={`contaminated-${material.id}`} className="flex items-center gap-1.5 text-sm">
+        <label
+          htmlFor={`contaminated-${material.id}`}
+          className="flex items-center gap-1.5 text-sm"
+        >
           <AlertTriangle className="h-3.5 w-3.5 text-yellow-500" />
           Mark as contaminated
         </label>

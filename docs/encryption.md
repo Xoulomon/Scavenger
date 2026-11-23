@@ -9,6 +9,7 @@ Scavenger implements data encryption at rest and in transit to protect sensitive
 ### At-Rest Encryption
 
 Uses AES-256-GCM via the `DataEncryptionService` with:
+
 - Automatic nonce generation
 - Per-record unique nonces
 - Key rotation support

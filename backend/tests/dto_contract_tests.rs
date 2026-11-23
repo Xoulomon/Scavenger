@@ -33,9 +33,7 @@
 use scavenger_backend::services::verification::{
     Document, ParticipantVerification, VerificationChecklist, VerificationStatus,
 };
-use scavenger_backend::services::{
-    ArchivalService, ArchiveRecord, ArchiveStatus, RetentionPolicy, StorageTier,
-};
+use scavenger_backend::services::{ArchivalService, ArchiveRecord, ArchiveStatus, RetentionPolicy, StorageTier};
 use std::collections::HashMap;
 
 // ── helpers ───────────────────────────────────────────────────────────────────

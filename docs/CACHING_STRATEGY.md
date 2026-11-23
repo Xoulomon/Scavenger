@@ -2,21 +2,20 @@
 
 > Decision record: [ADR-0010](adr/0010-frontend-caching-layers.md).
 
-
 ## Layers
 
 ### 1. React Query (In-Memory + IndexedDB Persistence)
 
 Configured in `frontend/src/main.tsx` with `persistQueryClient`. Stale times per data type:
 
-| Data | Hook | Stale Time | Notes |
-|---|---|---|---|
-| Participant | `useParticipant` | 60s | Changes infrequently |
-| Participant stats | `useParticipantStats` | 60s | Updated on transactions |
-| Waste item | `useWaste` | 30s | May change on transfer |
-| Global metrics | `useMetrics` | 2min | Aggregates, low churn |
-| Incentives | `useIncentives` | 5min | Rarely change |
-| Supply chain stats | `useSupplyChainStats` | 2min | Aggregates |
+| Data               | Hook                  | Stale Time | Notes                   |
+| ------------------ | --------------------- | ---------- | ----------------------- |
+| Participant        | `useParticipant`      | 60s        | Changes infrequently    |
+| Participant stats  | `useParticipantStats` | 60s        | Updated on transactions |
+| Waste item         | `useWaste`            | 30s        | May change on transfer  |
+| Global metrics     | `useMetrics`          | 2min       | Aggregates, low churn   |
+| Incentives         | `useIncentives`       | 5min       | Rarely change           |
+| Supply chain stats | `useSupplyChainStats` | 2min       | Aggregates              |
 
 All queries persist to IndexedDB with a 24h `gcTime`, so data survives page refreshes and is available offline.
 

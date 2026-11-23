@@ -46,14 +46,9 @@ async fn test_sync_status_wrong_table_returns_error() {
     let env = TestEnv::start().await;
     let client = env.pg_client().await;
 
-    let result = client
-        .query("SELECT 1 FROM does_not_exist_table", &[])
-        .await;
+    let result = client.query("SELECT 1 FROM does_not_exist_table", &[]).await;
 
-    assert!(
-        result.is_err(),
-        "Expected query against missing table to fail"
-    );
+    assert!(result.is_err(), "Expected query against missing table to fail");
 }
 
 // =============================================================================
@@ -123,10 +118,7 @@ async fn test_raw_events_duplicate_is_idempotent() {
         &serde_json::json!([0]),
     ];
 
-    client
-        .execute(insert, params)
-        .await
-        .expect("first insert failed");
+    client.execute(insert, params).await.expect("first insert failed");
 
     // Second insert with same key — must not error.
     client
@@ -209,14 +201,7 @@ async fn test_participants_upsert_on_duplicate_address() {
     client
         .execute(
             upsert,
-            &[
-                &"GADDR_DUP",
-                &"Recycler",
-                &"Original",
-                &(0_i64),
-                &(0_i64),
-                &(1001_i64),
-            ],
+            &[&"GADDR_DUP", &"Recycler", &"Original", &(0_i64), &(0_i64), &(1001_i64)],
         )
         .await
         .expect("first upsert failed");
@@ -225,14 +210,7 @@ async fn test_participants_upsert_on_duplicate_address() {
     client
         .execute(
             upsert,
-            &[
-                &"GADDR_DUP",
-                &"Collector",
-                &"Updated",
-                &(0_i64),
-                &(0_i64),
-                &(1002_i64),
-            ],
+            &[&"GADDR_DUP", &"Collector", &"Updated", &(0_i64), &(0_i64), &(1002_i64)],
         )
         .await
         .expect("second upsert failed");
@@ -283,14 +261,7 @@ async fn test_wastes_insert_and_read() {
             VALUES ($1, $2, $3, 500, $4, $5, $6, NOW())
             ON CONFLICT (id) DO NOTHING
             "#,
-            &[
-                &(42_i64),
-                &"GADDR_P",
-                &"Plastic",
-                &(0_i64),
-                &(0_i64),
-                &(1001_i64),
-            ],
+            &[&(42_i64), &"GADDR_P", &"Plastic", &(0_i64), &(0_i64), &(1001_i64)],
         )
         .await
         .expect("INSERT waste failed");
@@ -319,14 +290,7 @@ async fn test_wastes_fk_violation_returns_error() {
                registered_at_ledger, registered_at)
             VALUES ($1, $2, $3, 100, $4, $5, $6, NOW())
             "#,
-            &[
-                &(99_i64),
-                &"NONEXISTENT_ADDR",
-                &"Metal",
-                &(0_i64),
-                &(0_i64),
-                &(999_i64),
-            ],
+            &[&(99_i64), &"NONEXISTENT_ADDR", &"Metal", &(0_i64), &(0_i64), &(999_i64)],
         )
         .await;
 
@@ -370,7 +334,10 @@ async fn test_auctions_lifecycle_happy_path() {
         .expect("UPDATE auction failed");
 
     let row = client
-        .query_one("SELECT is_ended, winner_address FROM auctions WHERE id = $1", &[&(1_i64)])
+        .query_one(
+            "SELECT is_ended, winner_address FROM auctions WHERE id = $1",
+            &[&(1_i64)],
+        )
         .await
         .expect("SELECT auction failed");
 
@@ -387,10 +354,7 @@ async fn test_auctions_end_nonexistent_affects_zero_rows() {
     let client = env.pg_client().await;
 
     let n = client
-        .execute(
-            "UPDATE auctions SET is_ended = true WHERE id = $1",
-            &[&(99999_i64)],
-        )
+        .execute("UPDATE auctions SET is_ended = true WHERE id = $1", &[&(99999_i64)])
         .await
         .expect("UPDATE on non-existent auction must not error");
 
@@ -438,9 +402,7 @@ async fn test_token_rewards_bad_column_query_fails() {
     let env = TestEnv::start().await;
     let client = env.pg_client().await;
 
-    let result = client
-        .query("SELECT nonexistent_col FROM token_rewards", &[])
-        .await;
+    let result = client.query("SELECT nonexistent_col FROM token_rewards", &[]).await;
 
     assert!(result.is_err(), "Query with bad column name must fail");
 }
@@ -459,9 +421,7 @@ async fn test_redis_set_get_happy_path() {
     let url = env.redis_url();
 
     // Parse host:port from redis://host:port
-    let addr = url
-        .trim_start_matches("redis://")
-        .to_string();
+    let addr = url.trim_start_matches("redis://").to_string();
 
     let mut stream = tokio::net::TcpStream::connect(&addr)
         .await

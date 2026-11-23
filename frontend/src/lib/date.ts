@@ -48,7 +48,7 @@ export function getMonthGrid(year: number, month: number, today: Date = new Date
       date,
       day,
       isCurrentMonth: false,
-      isToday: isSameDay(date, today),
+      isToday: isSameDay(date, today)
     })
   }
 
@@ -59,7 +59,7 @@ export function getMonthGrid(year: number, month: number, today: Date = new Date
       date,
       day,
       isCurrentMonth: true,
-      isToday: isSameDay(date, today),
+      isToday: isSameDay(date, today)
     })
   }
 
@@ -71,7 +71,7 @@ export function getMonthGrid(year: number, month: number, today: Date = new Date
       date,
       day,
       isCurrentMonth: false,
-      isToday: isSameDay(date, today),
+      isToday: isSameDay(date, today)
     })
   }
 

@@ -16,7 +16,9 @@ export function StatusTimeline({ status }: { status: TransferStatus }) {
             <div className="flex flex-col items-center gap-1">
               <div
                 className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                  isCompleted ? `${config.bgColor} ${config.color}` : 'bg-muted text-muted-foreground'
+                  isCompleted
+                    ? `${config.bgColor} ${config.color}`
+                    : 'bg-muted text-muted-foreground'
                 } ${isCurrent ? 'ring-2 ring-offset-1 ring-primary' : ''}`}
                 aria-label={`${config.label}${isCurrent ? ' (current)' : isCompleted ? ' (completed)' : ''}`}
               >

@@ -62,11 +62,11 @@ stateDiagram-v2
 
 ## Alternatives Considered
 
-| Alternative | Why it was rejected |
-|-------------|---------------------|
-| **Multichain orchestration inside the Indexer** | Violates the Indexer's core design as a unidirectional, read-only event projection service. Mixing outbound active transaction dispatch into the indexer would create bi-directional dependencies, complicate error recovery, and increase the indexer's failure domain. |
-| **Purely On-Chain Cross-Chain Relaying** | Soroban smart contracts cannot make outbound HTTP/RPC requests directly. While on-chain light clients exist, cross-chain verification on-chain for multiple EVM networks incurs prohibitive gas and storage rent costs compared to backend-coordinated relayer transactions. |
-| **Unorchestrated / Manual Contract CLI Upgrades** | Manual deployment via CLI lacks automated pre-flight validation, does not execute structured storage transformations, and provides no reproducible, automated rollback mechanism during incidents. |
+| Alternative                                       | Why it was rejected                                                                                                                                                                                                                                                          |
+| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Multichain orchestration inside the Indexer**   | Violates the Indexer's core design as a unidirectional, read-only event projection service. Mixing outbound active transaction dispatch into the indexer would create bi-directional dependencies, complicate error recovery, and increase the indexer's failure domain.     |
+| **Purely On-Chain Cross-Chain Relaying**          | Soroban smart contracts cannot make outbound HTTP/RPC requests directly. While on-chain light clients exist, cross-chain verification on-chain for multiple EVM networks incurs prohibitive gas and storage rent costs compared to backend-coordinated relayer transactions. |
+| **Unorchestrated / Manual Contract CLI Upgrades** | Manual deployment via CLI lacks automated pre-flight validation, does not execute structured storage transformations, and provides no reproducible, automated rollback mechanism during incidents.                                                                           |
 
 ---
 

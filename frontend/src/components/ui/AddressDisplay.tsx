@@ -7,7 +7,7 @@ const EXPLORER_ROOTS: Record<string, string> = {
   TESTNET: 'https://stellar.expert/explorer/testnet/account',
   MAINNET: 'https://stellar.expert/explorer/public/account',
   FUTURENET: 'https://stellar.expert/explorer/futurenet/account',
-  STANDALONE: '',
+  STANDALONE: ''
 }
 
 interface AddressDisplayProps {
@@ -19,7 +19,12 @@ interface AddressDisplayProps {
   className?: string
 }
 
-export function AddressDisplay({ address, chars = 4, showExplorer = false, className }: AddressDisplayProps) {
+export function AddressDisplay({
+  address,
+  chars = 4,
+  showExplorer = false,
+  className
+}: AddressDisplayProps) {
   const [copied, setCopied] = useState(false)
 
   const truncated = `${address.slice(0, chars)}…${address.slice(-chars)}`
@@ -34,11 +39,7 @@ export function AddressDisplay({ address, chars = 4, showExplorer = false, class
 
   return (
     <span className={cn('inline-flex items-center gap-1', className)}>
-      <span
-        className="font-mono text-xs"
-        title={address}
-        aria-label={address}
-      >
+      <span className="font-mono text-xs" title={address} aria-label={address}>
         {truncated}
       </span>
 
@@ -49,9 +50,7 @@ export function AddressDisplay({ address, chars = 4, showExplorer = false, class
         aria-label="Copy address"
         className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       >
-        {copied
-          ? <Check className="h-3 w-3 text-green-500" />
-          : <Copy className="h-3 w-3" />}
+        {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
       </button>
       <span role="status" aria-live="polite" className="sr-only">
         {copied ? 'Address copied to clipboard.' : ''}

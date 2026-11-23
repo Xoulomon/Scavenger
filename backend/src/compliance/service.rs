@@ -25,14 +25,12 @@ impl ComplianceService {
         // Validation logic moved from compliance_api.rs
         if request.amount <= 0 {
             return Err(ComplianceError::InvalidAmount(
-                "Amount must be greater than zero".to_string()
+                "Amount must be greater than zero".to_string(),
             ));
         }
 
         if request.user_id.is_empty() {
-            return Err(ComplianceError::ValidationError(
-                "User ID cannot be empty".to_string()
-            ));
+            return Err(ComplianceError::ValidationError("User ID cannot be empty".to_string()));
         }
 
         Ok(())
@@ -47,15 +45,12 @@ impl ComplianceService {
 
         // Business logic: determine compliance status based on amount
         let status = if request.amount > 10000 {
-            ComplianceStatus::Pending  // Large amounts need review
+            ComplianceStatus::Pending // Large amounts need review
         } else {
             ComplianceStatus::Approved // Small amounts auto-approved
         };
 
-        let timestamp = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
+        let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
 
         Ok(ComplianceResult {
             id: format!("comp_{}_{}", timestamp, request.user_id),

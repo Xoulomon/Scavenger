@@ -1,19 +1,17 @@
-import { UseFormRegister, FieldErrors } from 'react-hook-form';
-import { Input } from '../../ui/Input';
-import { WasteSubmissionFormData } from '../types';
+import { UseFormRegister, FieldErrors } from 'react-hook-form'
+import { Input } from '../../ui/Input'
+import { WasteSubmissionFormData } from '../types'
 
 interface WasteDetailsStepProps {
-  register: UseFormRegister<WasteSubmissionFormData>;
-  errors: FieldErrors<WasteSubmissionFormData>;
+  register: UseFormRegister<WasteSubmissionFormData>
+  errors: FieldErrors<WasteSubmissionFormData>
 }
 
 export function WasteDetailsStep({ register, errors }: WasteDetailsStepProps) {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Waste Details</h2>
-      <p className="text-sm text-muted-foreground">
-        Provide weight and any additional notes
-      </p>
+      <p className="text-sm text-muted-foreground">Provide weight and any additional notes</p>
 
       <div>
         <label className="block text-sm font-medium mb-2">
@@ -40,5 +38,5 @@ export function WasteDetailsStep({ register, errors }: WasteDetailsStepProps) {
         />
       </div>
     </div>
-  );
+  )
 }

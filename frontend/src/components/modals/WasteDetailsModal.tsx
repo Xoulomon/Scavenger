@@ -3,7 +3,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
+  DialogDescription
 } from '@/components/ui/Dialog'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -22,7 +22,7 @@ import { CheckCircle2, Clock, XCircle, ArrowRightLeft, BadgeCheck } from 'lucide
 type WasteStatus = 'confirmed' | 'pending' | 'inactive'
 
 function resolveStatus(waste: Waste): WasteStatus {
-  if (!waste.is_active)   return 'inactive'
+  if (!waste.is_active) return 'inactive'
   if (waste.is_confirmed) return 'confirmed'
   return 'pending'
 }
@@ -35,19 +35,19 @@ const STATUS_CONFIG: Record<
     label: 'Confirmed',
     icon: <CheckCircle2 className="h-3.5 w-3.5" />,
     className:
-      'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800',
+      'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
   },
   pending: {
     label: 'Pending',
     icon: <Clock className="h-3.5 w-3.5" />,
     className:
-      'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800',
+      'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800'
   },
   inactive: {
     label: 'Inactive',
     icon: <XCircle className="h-3.5 w-3.5" />,
-    className: 'bg-muted text-muted-foreground border-border',
-  },
+    className: 'bg-muted text-muted-foreground border-border'
+  }
 }
 
 // ── Field row ─────────────────────────────────────────────────────────────────
@@ -76,7 +76,7 @@ export function WasteDetailsModal({
   open,
   onClose,
   onTransfer,
-  onConfirm,
+  onConfirm
 }: WasteDetailsModalProps) {
   const { address } = useWallet()
   const { participant } = useParticipant()
@@ -86,17 +86,16 @@ export function WasteDetailsModal({
 
   if (!waste) return null
 
-  const status    = resolveStatus(waste)
+  const status = resolveStatus(waste)
   const statusCfg = STATUS_CONFIG[status]
   const weightNum = Number(waste.weight)
-  const weightStr = weightNum >= 1000
-    ? `${(weightNum / 1000).toFixed(2)} kg`
-    : `${weightNum} g`
+  const weightStr = weightNum >= 1000 ? `${(weightNum / 1000).toFixed(2)} kg` : `${weightNum} g`
 
-  const isOwner      = address === waste.current_owner
-  const role         = participant?.role
-  const canTransfer  = isOwner && waste.is_active && (role === Role.Collector || role === Role.Recycler)
-  const canConfirm   = isOwner && waste.is_active && !waste.is_confirmed && role === Role.Collector
+  const isOwner = address === waste.current_owner
+  const role = participant?.role
+  const canTransfer =
+    isOwner && waste.is_active && (role === Role.Collector || role === Role.Recycler)
+  const canConfirm = isOwner && waste.is_active && !waste.is_confirmed && role === Role.Collector
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
@@ -134,8 +133,7 @@ export function WasteDetailsModal({
                 </Field>
               )}
               <Field label="Location">
-                {Number(waste.latitude) / 1_000_000}°,{' '}
-                {Number(waste.longitude) / 1_000_000}°
+                {Number(waste.latitude) / 1_000_000}°, {Number(waste.longitude) / 1_000_000}°
               </Field>
             </div>
           </section>
@@ -155,20 +153,13 @@ export function WasteDetailsModal({
         {(canTransfer || canConfirm) && (
           <div className="flex gap-2 border-t pt-4">
             {canTransfer && (
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => onTransfer?.(waste)}
-              >
+              <Button variant="outline" className="flex-1" onClick={() => onTransfer?.(waste)}>
                 <ArrowRightLeft className="mr-1.5 h-4 w-4" />
                 Transfer
               </Button>
             )}
             {canConfirm && (
-              <Button
-                className="flex-1"
-                onClick={() => onConfirm?.(waste)}
-              >
+              <Button className="flex-1" onClick={() => onConfirm?.(waste)}>
                 <BadgeCheck className="mr-1.5 h-4 w-4" />
                 Confirm
               </Button>

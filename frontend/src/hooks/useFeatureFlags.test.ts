@@ -2,16 +2,17 @@
  * Issue #1299: Unit tests for useFeatureFlag, useFlag, and useFeatureFlags hooks.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 
 // ── Mock the featureFlags lib ──────────────────────────────────────────────
 
 const flagValues: Record<string, boolean | string | number> = {
   healthDashboard: true,
-  newWasteFlow: false,
+  newWasteFlow: false
 }
-const flagOverrides: Array<{ key: string; value: boolean | string | number; expiresAt?: number }> = []
+const flagOverrides: Array<{ key: string; value: boolean | string | number; expiresAt?: number }> =
+  []
 
 const flagsMock = {
   evaluateFlag: vi.fn((key: string) => flagValues[key] ?? false),
@@ -23,14 +24,16 @@ const flagsMock = {
   clearFlagOverride: vi.fn((key: string) => {
     delete flagValues[key]
     const idx = flagOverrides.findIndex((o) => o.key === key)
-    if (idx >= 0) { flagOverrides.splice(idx, 1) }
+    if (idx >= 0) {
+      flagOverrides.splice(idx, 1)
+    }
   }),
   clearAllOverrides: vi.fn(() => {
     flagOverrides.length = 0
   }),
   getAllFlagValues: vi.fn(() => ({ ...flagValues })),
   getAllFlagOverrides: vi.fn(() => [...flagOverrides]),
-  FLAGS: { healthDashboard: { key: 'healthDashboard' }, newWasteFlow: { key: 'newWasteFlow' } },
+  FLAGS: { healthDashboard: { key: 'healthDashboard' }, newWasteFlow: { key: 'newWasteFlow' } }
 }
 
 vi.mock('@/lib/featureFlags', () => flagsMock)
@@ -80,7 +83,9 @@ describe('useFeatureFlag', () => {
     const { result } = renderHook(() => useFeatureFlag('healthDashboard'))
     expect(result.current).toBe(false)
 
-    act(() => { window.dispatchEvent(new Event('storage')) })
+    act(() => {
+      window.dispatchEvent(new Event('storage'))
+    })
 
     expect(result.current).toBe(true)
   })

@@ -9,41 +9,41 @@ const meta: Meta<typeof Button> = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['primary', 'secondary', 'outline', 'ghost', 'destructive', 'link'],
+      options: ['primary', 'secondary', 'outline', 'ghost', 'destructive', 'link']
     },
     size: { control: 'select', options: ['default', 'sm', 'lg', 'icon'] },
-    disabled: { control: 'boolean' },
-  },
+    disabled: { control: 'boolean' }
+  }
 }
 export default meta
 type Story = StoryObj<typeof Button>
 
 export const Primary: Story = {
-  args: { children: 'Submit Waste', variant: 'primary' },
+  args: { children: 'Submit Waste', variant: 'primary' }
 }
 
 export const Secondary: Story = {
-  args: { children: 'View Details', variant: 'secondary' },
+  args: { children: 'View Details', variant: 'secondary' }
 }
 
 export const Outline: Story = {
-  args: { children: 'Cancel', variant: 'outline' },
+  args: { children: 'Cancel', variant: 'outline' }
 }
 
 export const Ghost: Story = {
-  args: { children: 'Learn More', variant: 'ghost' },
+  args: { children: 'Learn More', variant: 'ghost' }
 }
 
 export const Destructive: Story = {
-  args: { children: 'Delete', variant: 'destructive' },
+  args: { children: 'Delete', variant: 'destructive' }
 }
 
 export const Link: Story = {
-  args: { children: 'View on chain', variant: 'link' },
+  args: { children: 'View on chain', variant: 'link' }
 }
 
 export const Disabled: Story = {
-  args: { children: 'Unavailable', disabled: true },
+  args: { children: 'Unavailable', disabled: true }
 }
 
 export const WithIcon: Story = {
@@ -53,8 +53,8 @@ export const WithIcon: Story = {
         <Recycle className="mr-2 h-4 w-4" />
         Recycle Now
       </>
-    ),
-  },
+    )
+  }
 }
 
 export const Loading: Story = {
@@ -65,8 +65,8 @@ export const Loading: Story = {
         Processing…
       </>
     ),
-    disabled: true,
-  },
+    disabled: true
+  }
 }
 
 export const Sizes: Story = {
@@ -76,7 +76,7 @@ export const Sizes: Story = {
       <Button size="default">Default</Button>
       <Button size="lg">Large</Button>
     </div>
-  ),
+  )
 }
 
 export const AllVariants: Story = {
@@ -88,5 +88,5 @@ export const AllVariants: Story = {
         </Button>
       ))}
     </div>
-  ),
+  )
 }

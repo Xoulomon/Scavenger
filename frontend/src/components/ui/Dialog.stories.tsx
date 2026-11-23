@@ -7,12 +7,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from './Dialog'
 
 const meta: Meta = {
   title: 'Design System/Dialog',
-  tags: ['autodocs'],
+  tags: ['autodocs']
 }
 export default meta
 type Story = StoryObj
@@ -27,8 +27,8 @@ export const Default: Story = {
         <DialogHeader>
           <DialogTitle>Confirm Waste Transfer</DialogTitle>
           <DialogDescription>
-            You are about to transfer 5.2 kg of plastic to Collector 0xABCD…1234. This action
-            cannot be undone.
+            You are about to transfer 5.2 kg of plastic to Collector 0xABCD…1234. This action cannot
+            be undone.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -37,7 +37,7 @@ export const Default: Story = {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  ),
+  )
 }
 
 export const Destructive: Story = {
@@ -60,5 +60,5 @@ export const Destructive: Story = {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  ),
+  )
 }

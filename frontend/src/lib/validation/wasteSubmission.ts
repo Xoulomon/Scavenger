@@ -19,7 +19,10 @@ export function weightFieldSchema(unit: WeightUnit = 'grams') {
     }
     if (unit === 'kilograms') {
       if (isNaN(num) || num < 0.001) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Minimum weight is 0.001 kg (1 gram)' })
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Minimum weight is 0.001 kg (1 gram)'
+        })
       }
     } else if (isNaN(num) || num < 1) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Minimum weight is 1 gram' })
@@ -43,7 +46,10 @@ export const longitudeFieldSchema = z
   .superRefine((value, ctx) => {
     const num = parseFloat(value)
     if (isNaN(num) || num < -180 || num > 180) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Longitude must be between -180 and 180' })
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Longitude must be between -180 and 180'
+      })
     }
   })
 
@@ -54,7 +60,7 @@ export function wasteSubmissionSchema(weightUnit: WeightUnit = 'grams') {
     weight: weightFieldSchema(weightUnit),
     latitude: latitudeFieldSchema,
     longitude: longitudeFieldSchema,
-    notes: z.string().optional().default(''),
+    notes: z.string().optional().default('')
   })
 }
 

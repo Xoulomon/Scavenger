@@ -65,7 +65,7 @@ mod tests {
         // Arrange
         let env = Env::default();
         let address = Address::random(&env);
-        
+
         // Act
         let result = register_participant(
             &env,
@@ -75,7 +75,7 @@ mod tests {
             0,
             0,
         );
-        
+
         // Assert
         assert!(result.is_ok());
     }
@@ -117,12 +117,13 @@ cargo test -- --test-threads=1
 #### Common Patterns
 
 **Testing Success Cases:**
+
 ```rust
 #[test]
 fn test_submit_material_success() {
     let env = Env::default();
     let submitter = Address::random(&env);
-    
+
     let result = submit_material(
         &env,
         submitter,
@@ -131,7 +132,7 @@ fn test_submit_material_success() {
         0,
         0,
     );
-    
+
     assert!(result.is_ok());
     let waste_id = result.unwrap();
     assert_eq!(waste_id, 1);
@@ -139,12 +140,13 @@ fn test_submit_material_success() {
 ```
 
 **Testing Error Cases:**
+
 ```rust
 #[test]
 fn test_submit_material_unregistered_user() {
     let env = Env::default();
     let unregistered = Address::random(&env);
-    
+
     let result = submit_material(
         &env,
         unregistered,
@@ -153,25 +155,26 @@ fn test_submit_material_unregistered_user() {
         0,
         0,
     );
-    
+
     assert!(result.is_err());
     assert_eq!(result.unwrap_err(), Error::UnregisteredParticipant);
 }
 ```
 
 **Testing State Changes:**
+
 ```rust
 #[test]
 fn test_participant_stats_update() {
     let env = Env::default();
     let participant = Address::random(&env);
-    
+
     // Register participant
     register_participant(&env, participant.clone(), ParticipantRole::Recycler, "Test", 0, 0).unwrap();
-    
+
     // Submit material
     submit_material(&env, participant.clone(), WasteType::Plastic, 100, 0, 0).unwrap();
-    
+
     // Verify stats updated
     let stats = get_stats(&env, participant);
     assert_eq!(stats.total_waste_submitted, 100);
@@ -214,7 +217,7 @@ describe('ParticipantForm', () => {
 
   it('should render form fields', () => {
     render(<ParticipantForm onSubmit={mockOnSubmit} />);
-    
+
     expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/role/i)).toBeInTheDocument();
   });
@@ -222,10 +225,10 @@ describe('ParticipantForm', () => {
   it('should call onSubmit with form data', async () => {
     const user = userEvent.setup();
     render(<ParticipantForm onSubmit={mockOnSubmit} />);
-    
+
     await user.type(screen.getByLabelText(/name/i), 'John Doe');
     await user.click(screen.getByRole('button', { name: /submit/i }));
-    
+
     expect(mockOnSubmit).toHaveBeenCalledWith(
       expect.objectContaining({ name: 'John Doe' })
     );
@@ -234,9 +237,9 @@ describe('ParticipantForm', () => {
   it('should display validation errors', async () => {
     const user = userEvent.setup();
     render(<ParticipantForm onSubmit={mockOnSubmit} />);
-    
+
     await user.click(screen.getByRole('button', { name: /submit/i }));
-    
+
     expect(screen.getByText(/name is required/i)).toBeInTheDocument();
   });
 });
@@ -264,29 +267,31 @@ npm test -- -t "should render form fields"
 #### Test Utilities
 
 **Setup and Teardown:**
+
 ```typescript
 beforeEach(() => {
   // Setup before each test
-  vi.clearAllMocks();
-});
+  vi.clearAllMocks()
+})
 
 afterEach(() => {
   // Cleanup after each test
-  vi.restoreAllMocks();
-});
+  vi.restoreAllMocks()
+})
 ```
 
 **Mocking API Calls:**
-```typescript
-import { vi } from 'vitest';
 
-const mockFetch = vi.fn();
-global.fetch = mockFetch;
+```typescript
+import { vi } from 'vitest'
+
+const mockFetch = vi.fn()
+global.fetch = mockFetch
 
 mockFetch.mockResolvedValueOnce({
   ok: true,
-  json: async () => ({ id: 1, name: 'Test' }),
-});
+  json: async () => ({ id: 1, name: 'Test' })
+})
 ```
 
 ---
@@ -303,20 +308,20 @@ fn test_complete_waste_flow() {
     let env = Env::default();
     let recycler = Address::random(&env);
     let collector = Address::random(&env);
-    
+
     // Register participants
     register_participant(&env, recycler.clone(), ParticipantRole::Recycler, "Recycler", 0, 0).unwrap();
     register_participant(&env, collector.clone(), ParticipantRole::Collector, "Collector", 0, 0).unwrap();
-    
+
     // Submit material
     let waste_id = submit_material(&env, recycler.clone(), WasteType::Plastic, 100, 0, 0).unwrap();
-    
+
     // Verify material
     verify_material(&env, waste_id, collector.clone()).unwrap();
-    
+
     // Transfer waste
     transfer_waste(&env, waste_id, recycler.clone(), collector.clone(), 0, 0, "Transfer".to_string()).unwrap();
-    
+
     // Verify final state
     let waste = get_waste(&env, waste_id).unwrap();
     assert_eq!(waste.owner, collector);
@@ -332,18 +337,18 @@ describe('Participant Registration Flow', () => {
   it('should complete full registration flow', async () => {
     const user = userEvent.setup();
     const mockSubmit = vi.fn().mockResolvedValue({ id: 1 });
-    
+
     render(
       <RegistrationFlow onSuccess={mockSubmit} />
     );
-    
+
     // Fill form
     await user.type(screen.getByLabelText(/name/i), 'John Doe');
     await user.selectOption(screen.getByLabelText(/role/i), 'Recycler');
-    
+
     // Submit
     await user.click(screen.getByRole('button', { name: /register/i }));
-    
+
     // Verify success
     await waitFor(() => {
       expect(screen.getByText(/registration successful/i)).toBeInTheDocument();
@@ -361,51 +366,51 @@ describe('Participant Registration Flow', () => {
 E2E tests simulate real user workflows:
 
 ```typescript
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
 
 test.describe('Participant Registration E2E', () => {
   test('should register new participant', async ({ page }) => {
     // Navigate to app
-    await page.goto('http://localhost:5173');
-    
+    await page.goto('http://localhost:5173')
+
     // Click register button
-    await page.click('text=Register');
-    
+    await page.click('text=Register')
+
     // Fill form
-    await page.fill('input[name="name"]', 'John Doe');
-    await page.selectOption('select[name="role"]', 'Recycler');
-    await page.fill('input[name="latitude"]', '0');
-    await page.fill('input[name="longitude"]', '0');
-    
+    await page.fill('input[name="name"]', 'John Doe')
+    await page.selectOption('select[name="role"]', 'Recycler')
+    await page.fill('input[name="latitude"]', '0')
+    await page.fill('input[name="longitude"]', '0')
+
     // Submit
-    await page.click('button:has-text("Register")');
-    
+    await page.click('button:has-text("Register")')
+
     // Verify success
-    await expect(page).toHaveURL(/.*dashboard/);
-    await expect(page.locator('text=Welcome, John')).toBeVisible();
-  });
+    await expect(page).toHaveURL(/.*dashboard/)
+    await expect(page.locator('text=Welcome, John')).toBeVisible()
+  })
 
   test('should submit waste material', async ({ page }) => {
     // Login
-    await page.goto('http://localhost:5173/login');
-    await page.fill('input[name="email"]', 'test@example.com');
-    await page.fill('input[name="password"]', 'password');
-    await page.click('button:has-text("Login")');
-    
+    await page.goto('http://localhost:5173/login')
+    await page.fill('input[name="email"]', 'test@example.com')
+    await page.fill('input[name="password"]', 'password')
+    await page.click('button:has-text("Login")')
+
     // Navigate to submit
-    await page.click('text=Submit Material');
-    
+    await page.click('text=Submit Material')
+
     // Fill form
-    await page.selectOption('select[name="wasteType"]', 'Plastic');
-    await page.fill('input[name="weight"]', '100');
-    
+    await page.selectOption('select[name="wasteType"]', 'Plastic')
+    await page.fill('input[name="weight"]', '100')
+
     // Submit
-    await page.click('button:has-text("Submit")');
-    
+    await page.click('button:has-text("Submit")')
+
     // Verify success
-    await expect(page.locator('text=Material submitted')).toBeVisible();
-  });
-});
+    await expect(page.locator('text=Material submitted')).toBeVisible()
+  })
+})
 ```
 
 ### Running E2E Tests
@@ -434,6 +439,7 @@ npx playwright test --debug
 ### Measuring Coverage
 
 **Rust:**
+
 ```bash
 # Install tarpaulin
 cargo install cargo-tarpaulin
@@ -446,6 +452,7 @@ open coverage/index.html
 ```
 
 **TypeScript:**
+
 ```bash
 # Generate coverage report
 npm test -- --coverage
@@ -464,16 +471,18 @@ open coverage/index.html
 ### Improving Coverage
 
 1. **Identify uncovered lines:**
+
    ```bash
    # View coverage report
    npm test -- --coverage
    ```
 
 2. **Add tests for uncovered code:**
+
    ```typescript
    it('should handle edge case', () => {
      // Test uncovered scenario
-   });
+   })
    ```
 
 3. **Verify coverage increased:**
@@ -488,6 +497,7 @@ open coverage/index.html
 ### Rust Fixtures
 
 **Create reusable test data:**
+
 ```rust
 mod fixtures {
     use super::*;
@@ -511,7 +521,7 @@ fn test_with_fixtures() {
     let env = fixtures::create_test_env();
     let participant = fixtures::create_test_participant(&env);
     let (waste_type, weight, lat, lon) = fixtures::create_test_waste_data();
-    
+
     // Test implementation
 }
 ```
@@ -519,60 +529,63 @@ fn test_with_fixtures() {
 ### TypeScript Fixtures
 
 **Create reusable test data:**
+
 ```typescript
 export const mockParticipant = {
   id: '1',
   name: 'Test Participant',
   role: 'Recycler',
   address: '0x123...',
-  registeredAt: new Date('2024-01-01'),
-};
+  registeredAt: new Date('2024-01-01')
+}
 
 export const mockWaste = {
   id: '1',
   type: 'Plastic',
   weight: 100,
   submittedBy: mockParticipant.id,
-  submittedAt: new Date('2024-01-02'),
-};
+  submittedAt: new Date('2024-01-02')
+}
 
 export const createMockParticipant = (overrides = {}) => ({
   ...mockParticipant,
-  ...overrides,
-});
+  ...overrides
+})
 ```
 
 ### Mocking API Calls
 
 **Rust:**
+
 ```rust
 #[test]
 fn test_with_mock_storage() {
     let env = Env::default();
-    
+
     // Mock storage operations
     let storage = env.storage().persistent();
     storage.set(&DataKey::Participant(address.clone()), &participant);
-    
+
     // Test implementation
 }
 ```
 
 **TypeScript:**
+
 ```typescript
-import { vi } from 'vitest';
+import { vi } from 'vitest'
 
 const mockApi = {
   registerParticipant: vi.fn().mockResolvedValue({ id: '1' }),
-  submitWaste: vi.fn().mockResolvedValue({ id: '1' }),
-};
+  submitWaste: vi.fn().mockResolvedValue({ id: '1' })
+}
 
-vi.mock('./api', () => ({ default: mockApi }));
+vi.mock('./api', () => ({ default: mockApi }))
 
 it('should call API on submit', async () => {
   // Test implementation
-  expect(mockApi.registerParticipant).toHaveBeenCalled();
-});
+  expect(mockApi.registerParticipant).toHaveBeenCalled()
+})
 ```
 
 ---
@@ -678,25 +691,27 @@ pre-commit run --all-files
 ### Load Testing
 
 **Using k6:**
+
 ```javascript
-import http from 'k6/http';
-import { check } from 'k6';
+import http from 'k6/http'
+import { check } from 'k6'
 
 export const options = {
   vus: 10,
-  duration: '30s',
-};
+  duration: '30s'
+}
 
 export default function () {
-  const res = http.get('http://localhost:8000/api/participants');
+  const res = http.get('http://localhost:8000/api/participants')
   check(res, {
     'status is 200': (r) => r.status === 200,
-    'response time < 200ms': (r) => r.timings.duration < 200,
-  });
+    'response time < 200ms': (r) => r.timings.duration < 200
+  })
 }
 ```
 
 **Run load test:**
+
 ```bash
 # Install k6
 brew install k6
@@ -708,6 +723,7 @@ k6 run performance/k6-load-test.js
 ### Benchmarking
 
 **Rust benchmarks:**
+
 ```rust
 #![feature(test)]
 extern crate test;
@@ -718,7 +734,7 @@ use test::Bencher;
 fn bench_register_participant(b: &mut Bencher) {
     let env = Env::default();
     let address = Address::random(&env);
-    
+
     b.iter(|| {
         register_participant(
             &env,
@@ -733,6 +749,7 @@ fn bench_register_participant(b: &mut Bencher) {
 ```
 
 **Run benchmarks:**
+
 ```bash
 cargo bench
 ```
@@ -759,18 +776,21 @@ cargo bench
 ### Common Issues
 
 **Tests fail locally but pass in CI:**
+
 - Check environment variables
 - Verify test data setup
 - Check for timing issues
 - Run tests in same order as CI
 
 **Flaky tests:**
+
 - Avoid hardcoded timeouts
 - Use proper wait mechanisms
 - Mock time-dependent code
 - Check for race conditions
 
 **Coverage not updating:**
+
 - Clear coverage cache: `rm -rf coverage/`
 - Rebuild: `cargo clean && cargo build`
 - Regenerate: `npm test -- --coverage`

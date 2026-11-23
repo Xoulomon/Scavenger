@@ -6,10 +6,10 @@ call sites and keeps type signatures easier to read.
 
 ## The Rule
 
-| Value | Use when |
-|-------|----------|
-| `undefined` | A value is **absent** — optional, not yet provided, not yet loaded, or a function has no meaningful result to return |
-| `null` | A value was **explicitly set to nothing** by an API response, a contract call, or by the user deliberately clearing a field |
+| Value       | Use when                                                                                                                    |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `undefined` | A value is **absent** — optional, not yet provided, not yet loaded, or a function has no meaningful result to return        |
+| `null`      | A value was **explicitly set to nothing** by an API response, a contract call, or by the user deliberately clearing a field |
 
 ## Rationale
 
@@ -24,6 +24,7 @@ call sites and keeps type signatures easier to read.
 ## Scope
 
 This convention applies to:
+
 - All utilities in `frontend/src/lib/`
 - All utilities in `packages/shared/src/`
 - All types in `packages/types/src/`
@@ -43,7 +44,7 @@ instead of `undefined`. See `eslint.config.js` for the rule definition.
 ```ts
 // ✅ Correct — function returns undefined for "not found"
 function findUser(id: string): User | undefined {
-  return users.find(u => u.id === id)
+  return users.find((u) => u.id === id)
 }
 
 // ✅ Correct — API wrapper preserves null from the backend

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 
 // Design tokens definition
 interface DesignTokens {
@@ -28,7 +28,7 @@ const designTokens: DesignTokens = {
     gray800: '#1F2937',
     gray900: '#111827',
     white: '#FFFFFF',
-    black: '#000000',
+    black: '#000000'
   },
   spacing: {
     xs: '0.25rem',
@@ -37,7 +37,7 @@ const designTokens: DesignTokens = {
     lg: '1.5rem',
     xl: '2rem',
     '2xl': '2.5rem',
-    '3xl': '3rem',
+    '3xl': '3rem'
   },
   typography: {
     h1: { fontSize: '2rem', fontWeight: '700', lineHeight: '2.5rem' },
@@ -45,21 +45,21 @@ const designTokens: DesignTokens = {
     h3: { fontSize: '1.25rem', fontWeight: '600', lineHeight: '1.75rem' },
     body: { fontSize: '1rem', fontWeight: '400', lineHeight: '1.5rem' },
     small: { fontSize: '0.875rem', fontWeight: '400', lineHeight: '1.25rem' },
-    caption: { fontSize: '0.75rem', fontWeight: '400', lineHeight: '1rem' },
+    caption: { fontSize: '0.75rem', fontWeight: '400', lineHeight: '1rem' }
   },
   shadows: {
     sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
     md: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
     lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-    xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+    xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
   },
   borderRadius: {
     sm: '0.25rem',
     md: '0.5rem',
     lg: '0.75rem',
     xl: '1rem',
-    full: '9999px',
-  },
+    full: '9999px'
+  }
 }
 
 // Style analyzer - checks for inline styles
@@ -83,7 +83,7 @@ const analyzeInlineStyles = (htmlContent: string): StyleViolation[] => {
         element: 'div',
         property: 'color',
         inlineValue: styles,
-        suggestedToken: 'Use design tokens from colors object',
+        suggestedToken: 'Use design tokens from colors object'
       })
     }
     if (styles.includes('padding:') || styles.includes('margin:')) {
@@ -91,7 +91,7 @@ const analyzeInlineStyles = (htmlContent: string): StyleViolation[] => {
         element: 'div',
         property: 'spacing',
         inlineValue: styles,
-        suggestedToken: 'Use design tokens from spacing object',
+        suggestedToken: 'Use design tokens from spacing object'
       })
     }
   }
@@ -114,21 +114,32 @@ describe('Design Tokens and Inline Styles', () => {
 
     it('should have semantic color tokens', () => {
       const semanticColors = ['primary', 'secondary', 'danger', 'warning', 'info', 'success']
-      semanticColors.forEach(color => {
+      semanticColors.forEach((color) => {
         expect(designTokens.colors[color]).toBeDefined()
         expect(designTokens.colors[color]).toMatch(/^#[0-9A-F]{6}$/i)
       })
     })
 
     it('should have gray scale colors', () => {
-      const grayScales = ['gray50', 'gray100', 'gray200', 'gray300', 'gray400', 'gray500', 'gray600', 'gray700', 'gray800', 'gray900']
-      grayScales.forEach(shade => {
+      const grayScales = [
+        'gray50',
+        'gray100',
+        'gray200',
+        'gray300',
+        'gray400',
+        'gray500',
+        'gray600',
+        'gray700',
+        'gray800',
+        'gray900'
+      ]
+      grayScales.forEach((shade) => {
         expect(designTokens.colors[shade]).toBeDefined()
       })
     })
 
     it('should have valid hex color format', () => {
-      Object.values(designTokens.colors).forEach(color => {
+      Object.values(designTokens.colors).forEach((color) => {
         expect(color).toMatch(/^#[0-9A-F]{6}$/i)
       })
     })
@@ -150,7 +161,7 @@ describe('Design Tokens and Inline Styles', () => {
     })
 
     it('should use rem units consistently', () => {
-      Object.values(designTokens.spacing).forEach(value => {
+      Object.values(designTokens.spacing).forEach((value) => {
         expect(value).toMatch(/^\d+(\.\d+)?rem$/)
       })
     })
@@ -170,7 +181,7 @@ describe('Design Tokens and Inline Styles', () => {
     })
 
     it('should have consistent typography structure', () => {
-      Object.values(designTokens.typography).forEach(typo => {
+      Object.values(designTokens.typography).forEach((typo) => {
         expect(typo.fontSize).toBeDefined()
         expect(typo.fontWeight).toBeDefined()
         expect(typo.lineHeight).toBeDefined()
@@ -179,7 +190,7 @@ describe('Design Tokens and Inline Styles', () => {
 
     it('should use proper font weights', () => {
       const validWeights = ['400', '600', '700']
-      Object.values(designTokens.typography).forEach(typo => {
+      Object.values(designTokens.typography).forEach((typo) => {
         expect(validWeights).toContain(typo.fontWeight)
       })
     })
@@ -193,7 +204,7 @@ describe('Design Tokens and Inline Styles', () => {
     })
 
     it('should have consistent shadow format', () => {
-      Object.values(designTokens.shadows).forEach(shadow => {
+      Object.values(designTokens.shadows).forEach((shadow) => {
         expect(shadow).toMatch(/^0\s+\d+px/)
       })
     })
@@ -208,7 +219,7 @@ describe('Design Tokens and Inline Styles', () => {
     })
 
     it('should use consistent units', () => {
-      Object.values(designTokens.borderRadius).forEach(radius => {
+      Object.values(designTokens.borderRadius).forEach((radius) => {
         if (radius !== '9999px') {
           expect(radius).toMatch(/^\d+(\.\d+)?rem$/)
         }
@@ -249,7 +260,7 @@ describe('Design Tokens and Inline Styles', () => {
   describe('Token Consistency', () => {
     it('should have no duplicate color values', () => {
       const colors = Object.values(designTokens.colors)
-      const uniqueColors = new Set(colors)
+      const _uniqueColors = new Set(colors)
       // Allow some duplicates for semantic colors, but check structure
       expect(colors.length).toBeGreaterThan(0)
     })
@@ -258,7 +269,7 @@ describe('Design Tokens and Inline Styles', () => {
       const tokenCategories = Object.keys(designTokens)
       expect(tokenCategories.length).toBeGreaterThan(0)
 
-      tokenCategories.forEach(category => {
+      tokenCategories.forEach((category) => {
         const tokens = designTokens[category as keyof DesignTokens]
         expect(Object.keys(tokens).length).toBeGreaterThan(0)
       })
@@ -266,7 +277,7 @@ describe('Design Tokens and Inline Styles', () => {
 
     it('should have consistent token naming', () => {
       // Check spacing names are lowercase with no spaces
-      Object.keys(designTokens.spacing).forEach(key => {
+      Object.keys(designTokens.spacing).forEach((key) => {
         expect(/^[a-z0-9]+$/.test(key)).toBe(true)
       })
     })
@@ -274,12 +285,12 @@ describe('Design Tokens and Inline Styles', () => {
 
   describe('Token Migration from Inline Styles', () => {
     it('should provide replacement for inline padding', () => {
-      const inlineStyle = 'padding: 1rem'
+      const _inlineStyle = 'padding: 1rem'
       expect(designTokens.spacing.md).toBe('1rem')
     })
 
     it('should provide replacement for inline color', () => {
-      const inlineStyle = 'color: #3B82F6'
+      const _inlineStyle = 'color: #3B82F6'
       expect(designTokens.colors.primary).toBe('#3B82F6')
     })
 
@@ -288,10 +299,10 @@ describe('Design Tokens and Inline Styles', () => {
         '0.5rem': designTokens.spacing.sm,
         '1rem': designTokens.spacing.md,
         '#3B82F6': designTokens.colors.primary,
-        '#EF4444': designTokens.colors.danger,
+        '#EF4444': designTokens.colors.danger
       }
 
-      Object.entries(inlineToToken).forEach(([inline, token]) => {
+      Object.entries(inlineToToken).forEach(([_inline, token]) => {
         expect(token).toBeDefined()
       })
     })
@@ -304,12 +315,13 @@ describe('Design Tokens and Inline Styles', () => {
       expect(typeof colors).toBe('object')
 
       // Accessing undefined token should fail
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- deliberately access non-existent key to assert undefined
       expect((colors as any).invalidColor).toBeUndefined()
     })
 
     it('should provide all necessary token categories', () => {
       const requiredCategories = ['colors', 'spacing', 'typography', 'shadows', 'borderRadius']
-      requiredCategories.forEach(category => {
+      requiredCategories.forEach((category) => {
         expect(Object.keys(designTokens)).toContain(category)
       })
     })

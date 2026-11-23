@@ -21,11 +21,11 @@ We will return every service error as one JSON envelope: `{ "error": { "code", "
 
 ## Alternatives Considered
 
-| Alternative | Why it was rejected |
-|-------------|---------------------|
-| Plain HTTP status plus a free-text message | Clients would parse messages, which change with copy edits. |
-| RFC 7807 `problem+json` | Workable, but it adds a second envelope to maintain without giving clients anything `code` does not already provide. |
-| Per-service error shapes | The frontend would need a branch per service, and the naming already drifted (see #1153). |
+| Alternative                                | Why it was rejected                                                                                                  |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| Plain HTTP status plus a free-text message | Clients would parse messages, which change with copy edits.                                                          |
+| RFC 7807 `problem+json`                    | Workable, but it adds a second envelope to maintain without giving clients anything `code` does not already provide. |
+| Per-service error shapes                   | The frontend would need a branch per service, and the naming already drifted (see #1153).                            |
 
 ## Consequences
 

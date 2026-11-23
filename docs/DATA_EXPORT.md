@@ -13,6 +13,7 @@ Export platform data in multiple formats for analysis and reporting.
 ## API Endpoints
 
 ### Export Waste Data
+
 ```
 GET /api/export/waste?format=csv
 GET /api/export/waste?format=json
@@ -20,6 +21,7 @@ GET /api/export/waste?format=pdf
 ```
 
 Query Parameters:
+
 - `format` (required): `csv`, `json`, or `pdf`
 - `start_date` (optional): ISO 8601 date (e.g., 2024-01-01)
 - `end_date` (optional): ISO 8601 date (e.g., 2024-12-31)
@@ -27,12 +29,14 @@ Query Parameters:
 - `participant_id` (optional): Filter by participant
 
 ### Export Participant Stats
+
 ```
 GET /api/export/stats?format=json
 GET /api/export/stats?format=csv
 ```
 
 ### Export Incentives
+
 ```
 GET /api/export/incentives?format=json
 ```
@@ -69,6 +73,7 @@ waste_002,Metal,2.3,Transferred,2024-05-30T11:00:00Z
 ## PDF Format
 
 PDF exports include:
+
 - Header with export date and time
 - Summary statistics
 - Detailed data table
@@ -77,6 +82,7 @@ PDF exports include:
 ## Usage Examples
 
 ### Export all waste as CSV
+
 ```bash
 curl -X GET "http://localhost:8080/api/export/waste?format=csv" \
   -H "Authorization: Bearer ${YOUR_API_TOKEN}" \
@@ -84,6 +90,7 @@ curl -X GET "http://localhost:8080/api/export/waste?format=csv" \
 ```
 
 ### Export waste from specific date range as JSON
+
 ```bash
 curl -X GET "http://localhost:8080/api/export/waste?format=json&start_date=2024-01-01&end_date=2024-12-31" \
   -H "Authorization: Bearer ${YOUR_API_TOKEN}" \
@@ -91,6 +98,7 @@ curl -X GET "http://localhost:8080/api/export/waste?format=json&start_date=2024-
 ```
 
 ### Export participant statistics as PDF
+
 ```bash
 curl -X GET "http://localhost:8080/api/export/stats?format=pdf" \
   -H "Authorization: Bearer ${YOUR_API_TOKEN}" \
@@ -119,11 +127,13 @@ Export operations are asynchronous for large datasets. The API returns:
 ```
 
 Check status:
+
 ```bash
 GET /api/exports/exp_123/status
 ```
 
 Download when ready:
+
 ```bash
 GET /api/exports/exp_123/download
 ```

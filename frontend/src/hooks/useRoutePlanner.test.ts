@@ -6,7 +6,7 @@ import {
   computeRouteStats,
   buildDirections,
   useRoutePlanner,
-  RouteStop,
+  RouteStop
 } from '@/hooks/useRoutePlanner'
 
 // ── Pure function tests ───────────────────────────────────────────────────────
@@ -39,7 +39,7 @@ describe('optimizeRoute', () => {
   const stops: RouteStop[] = [
     { id: 'a', lat: 0, lng: 0, label: 'A' },
     { id: 'b', lat: 10, lng: 0, label: 'B' },
-    { id: 'c', lat: 5, lng: 0, label: 'C' },
+    { id: 'c', lat: 5, lng: 0, label: 'C' }
   ]
 
   it('returns empty array for empty input', () => {
@@ -76,7 +76,7 @@ describe('computeRouteStats', () => {
 
   it('returns 0 distance for single stop but adds per-stop time', () => {
     const { totalDistanceKm, estimatedMinutes } = computeRouteStats([
-      { id: 'a', lat: 0, lng: 0, label: 'A' },
+      { id: 'a', lat: 0, lng: 0, label: 'A' }
     ])
     expect(totalDistanceKm).toBe(0)
     expect(estimatedMinutes).toBe(5) // 1 stop × 5 min
@@ -85,7 +85,7 @@ describe('computeRouteStats', () => {
   it('computes distance for two stops', () => {
     const { totalDistanceKm } = computeRouteStats([
       { id: 'a', lat: 0, lng: 0, label: 'A' },
-      { id: 'b', lat: 1, lng: 0, label: 'B' },
+      { id: 'b', lat: 1, lng: 0, label: 'B' }
     ])
     expect(totalDistanceKm).toBeGreaterThan(110)
     expect(totalDistanceKm).toBeLessThan(112)
@@ -105,7 +105,7 @@ describe('buildDirections', () => {
   it('ends with "Route complete"', () => {
     const dirs = buildDirections([
       { id: 'a', lat: 0, lng: 0, label: 'A' },
-      { id: 'b', lat: 1, lng: 0, label: 'B' },
+      { id: 'b', lat: 1, lng: 0, label: 'B' }
     ])
     expect(dirs[dirs.length - 1]).toBe('Route complete')
   })
@@ -113,7 +113,7 @@ describe('buildDirections', () => {
   it('includes intermediate stop labels', () => {
     const dirs = buildDirections([
       { id: 'a', lat: 0, lng: 0, label: 'Alpha' },
-      { id: 'b', lat: 1, lng: 0, label: 'Beta' },
+      { id: 'b', lat: 1, lng: 0, label: 'Beta' }
     ])
     expect(dirs[1]).toContain('Beta')
   })

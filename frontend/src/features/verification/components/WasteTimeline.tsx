@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { useMemo } from 'react'
 
 import type { Material, WasteTransfer } from '@/api/types'
-import { formatAddress,formatDate, wasteTypeLabel } from '@/lib/helpers'
+import { formatAddress, formatDate, wasteTypeLabel } from '@/lib/helpers'
 import { cn } from '@/lib/utils'
 
 import { formatWeight } from '../format'
@@ -14,7 +14,7 @@ const EVENT_ICON: Record<TimelineEvent['type'], ReactNode> = {
   transfer: <Truck className="h-3.5 w-3.5" />,
   verified: <ShieldCheck className="h-3.5 w-3.5" />,
   confirmed: <CheckCircle2 className="h-3.5 w-3.5" />,
-  deactivated: <XCircle className="h-3.5 w-3.5" />,
+  deactivated: <XCircle className="h-3.5 w-3.5" />
 }
 
 const EVENT_COLOR: Record<TimelineEvent['type'], string> = {
@@ -22,13 +22,13 @@ const EVENT_COLOR: Record<TimelineEvent['type'], string> = {
   transfer: 'border-blue-500 bg-blue-500 text-white',
   verified: 'border-green-500 bg-green-500 text-white',
   confirmed: 'border-emerald-500 bg-emerald-500 text-white',
-  deactivated: 'border-destructive bg-destructive text-destructive-foreground',
+  deactivated: 'border-destructive bg-destructive text-destructive-foreground'
 }
 
 export function WasteTimeline({
   material,
   transfers,
-  isLoading,
+  isLoading
 }: {
   material: Material
   transfers: WasteTransfer[]
@@ -42,8 +42,8 @@ export function WasteTimeline({
         timestamp: material.submitted_at,
         label: 'Material Submitted',
         detail: `${wasteTypeLabel(material.waste_type)}, ${formatWeight(material.weight)}`,
-        actor: material.submitter,
-      },
+        actor: material.submitter
+      }
     ]
 
     for (const t of transfers) {
@@ -53,7 +53,7 @@ export function WasteTimeline({
         timestamp: t.transferred_at,
         label: 'Transferred',
         detail: `${formatAddress(t.from)} to ${formatAddress(t.to)}`,
-        actor: t.from,
+        actor: t.from
       })
     }
 
@@ -63,7 +63,7 @@ export function WasteTimeline({
         type: 'verified',
         timestamp: material.submitted_at,
         label: 'Verified',
-        detail: 'Material quality verified',
+        detail: 'Material quality verified'
       })
     }
 
@@ -74,7 +74,7 @@ export function WasteTimeline({
         timestamp: material.submitted_at,
         label: 'Confirmed',
         detail: `Confirmed by ${formatAddress(material.confirmer)}`,
-        actor: material.confirmer,
+        actor: material.confirmer
       })
     }
 
@@ -83,7 +83,7 @@ export function WasteTimeline({
         id: 'deactivated',
         type: 'deactivated',
         timestamp: material.submitted_at,
-        label: 'Deactivated',
+        label: 'Deactivated'
       })
     }
 
@@ -119,16 +119,12 @@ export function WasteTimeline({
             >
               {EVENT_ICON[event.type]}
             </div>
-            {idx < events.length - 1 && (
-              <div className="h-8 w-px bg-border" />
-            )}
+            {idx < events.length - 1 && <div className="h-8 w-px bg-border" />}
           </div>
           <div className="pb-4">
             <p className="text-sm font-semibold">{event.label}</p>
             <p className="text-xs text-muted-foreground">{formatDate(event.timestamp)}</p>
-            {event.detail && (
-              <p className="mt-0.5 text-xs text-muted-foreground">{event.detail}</p>
-            )}
+            {event.detail && <p className="mt-0.5 text-xs text-muted-foreground">{event.detail}</p>}
           </div>
         </div>
       ))}

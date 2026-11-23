@@ -37,7 +37,7 @@ export function WasteSubmissionImageUpload({
   onAdd,
   onRemove,
   validationError,
-  photoError,
+  photoError
 }: WasteSubmissionImageUploadProps) {
   const errorId = useId()
   const { t } = useTranslation()

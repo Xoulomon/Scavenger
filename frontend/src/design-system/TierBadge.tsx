@@ -12,7 +12,7 @@ const tierTokenClasses: Record<Tier, string> = {
   free: 'text-[var(--color-tier-free)]',
   basic: 'text-[var(--color-tier-basic)]',
   pro: 'text-[var(--color-tier-pro)]',
-  enterprise: 'text-[var(--color-tier-enterprise)]',
+  enterprise: 'text-[var(--color-tier-enterprise)]'
 }
 
 function isTier(value: string): value is Tier {

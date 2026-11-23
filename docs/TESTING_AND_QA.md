@@ -106,10 +106,10 @@ fn test_participant_registration() {
     let env = Env::default();
     let contract_id = env.register_contract(None, ScavngrContract);
     let client = ScavngrContractClient::new(&env, &contract_id);
-    
+
     let participant_address = Address::random(&env);
     let role = ParticipantRole::Recycler;
-    
+
     client.register_participant(
         &participant_address,
         &role,
@@ -117,7 +117,7 @@ fn test_participant_registration() {
         &40.7128,
         &-74.006,
     );
-    
+
     let participant = client.get_participant(&participant_address);
     assert_eq!(participant.role, role);
     assert_eq!(participant.name, "Test Recycler");
@@ -442,10 +442,10 @@ Located in `frontend/e2e/fixtures/test-data.ts`
 
 ```typescript
 export const testData = {
-  participants: { /* ... */ },
-  waste: { /* ... */ },
-  incentives: { /* ... */ },
-};
+  participants: {/* ... */},
+  waste: {/* ... */},
+  incentives: {/* ... */}
+}
 ```
 
 ### Database Seeding
@@ -602,11 +602,11 @@ For testing issues:
 
 ## Summary
 
-| Test Type | Count | Coverage | Tools |
-|-----------|-------|----------|-------|
-| Unit Tests | 200+ | 80%+ | Cargo, Vitest |
-| Integration Tests | 50+ | 100% | Cargo |
-| E2E Tests | 23 | All workflows | Playwright |
-| **Total** | **273+** | **85%+** | **Multiple** |
+| Test Type         | Count    | Coverage      | Tools         |
+| ----------------- | -------- | ------------- | ------------- |
+| Unit Tests        | 200+     | 80%+          | Cargo, Vitest |
+| Integration Tests | 50+      | 100%          | Cargo         |
+| E2E Tests         | 23       | All workflows | Playwright    |
+| **Total**         | **273+** | **85%+**      | **Multiple**  |
 
 This comprehensive testing strategy ensures code quality, reliability, and user satisfaction across all components of the Scavngr platform.

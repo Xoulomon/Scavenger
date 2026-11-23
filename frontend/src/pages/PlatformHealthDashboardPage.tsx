@@ -8,7 +8,7 @@ import {
   Wrench,
   RefreshCw,
   ChevronDown,
-  ChevronUp,
+  ChevronUp
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
@@ -23,18 +23,21 @@ import {
   recordHealthSnapshot,
   type ServiceHealth,
   type ServiceStatus,
-  type Incident,
+  type Incident
 } from '@/lib/healthMonitoring'
 
 // ─── Status icon ──────────────────────────────────────────────────────────────
 
-function StatusIcon({ status, className = 'h-5 w-5' }: { status: ServiceStatus; className?: string }) {
-  if (status === 'operational')
-    return <CheckCircle2 className={`${className} text-green-500`} />
-  if (status === 'maintenance')
-    return <Wrench className={`${className} text-blue-500`} />
-  if (status === 'degraded')
-    return <AlertTriangle className={`${className} text-yellow-500`} />
+function StatusIcon({
+  status,
+  className = 'h-5 w-5'
+}: {
+  status: ServiceStatus
+  className?: string
+}) {
+  if (status === 'operational') return <CheckCircle2 className={`${className} text-green-500`} />
+  if (status === 'maintenance') return <Wrench className={`${className} text-blue-500`} />
+  if (status === 'degraded') return <AlertTriangle className={`${className} text-yellow-500`} />
   return <XCircle className={`${className} text-red-500`} />
 }
 
@@ -46,7 +49,7 @@ function OverallBanner({ status }: { status: ServiceStatus }) {
     degraded: 'bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800',
     partial_outage: 'bg-orange-50 border-orange-200 dark:bg-orange-900/20 dark:border-orange-800',
     major_outage: 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800',
-    maintenance: 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800',
+    maintenance: 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800'
   }
 
   return (
@@ -95,14 +98,14 @@ const SEVERITY_STYLES: Record<string, string> = {
   low: 'bg-blue-100 text-blue-700 border-blue-200',
   medium: 'bg-yellow-100 text-yellow-700 border-yellow-200',
   high: 'bg-orange-100 text-orange-700 border-orange-200',
-  critical: 'bg-red-100 text-red-700 border-red-200',
+  critical: 'bg-red-100 text-red-700 border-red-200'
 }
 
 const INCIDENT_STATUS_STYLES: Record<string, string> = {
   investigating: 'bg-red-100 text-red-700',
   identified: 'bg-orange-100 text-orange-700',
   monitoring: 'bg-yellow-100 text-yellow-700',
-  resolved: 'bg-green-100 text-green-700',
+  resolved: 'bg-green-100 text-green-700'
 }
 
 function IncidentCard({ incident }: { incident: Incident }) {
@@ -161,7 +164,7 @@ export function PlatformHealthDashboardPage() {
         lastChecked: Date.now(),
         responseTimeMs: s.responseTimeMs
           ? Math.max(1, s.responseTimeMs + Math.round((Math.random() - 0.5) * 20))
-          : undefined,
+          : undefined
       }))
       recordHealthSnapshot(refreshed)
       return refreshed
@@ -176,10 +179,11 @@ export function PlatformHealthDashboardPage() {
   }, [refresh])
 
   const operationalCount = services.filter((s) => s.status === 'operational').length
-  const avgUptime =
-    services.reduce((sum, s) => sum + s.uptimePercent, 0) / services.length
+  const avgUptime = services.reduce((sum, s) => sum + s.uptimePercent, 0) / services.length
   const avgResponseMs =
-    services.filter((s) => s.responseTimeMs != null).reduce((sum, s) => sum + (s.responseTimeMs ?? 0), 0) /
+    services
+      .filter((s) => s.responseTimeMs != null)
+      .reduce((sum, s) => sum + (s.responseTimeMs ?? 0), 0) /
     services.filter((s) => s.responseTimeMs != null).length
 
   return (
@@ -211,7 +215,9 @@ export function PlatformHealthDashboardPage() {
       <div className="grid grid-cols-3 gap-4">
         <Card>
           <CardContent className="pt-4">
-            <p className="text-2xl font-bold text-green-600">{operationalCount}/{services.length}</p>
+            <p className="text-2xl font-bold text-green-600">
+              {operationalCount}/{services.length}
+            </p>
             <p className="text-sm text-muted-foreground">Services operational</p>
           </CardContent>
         </Card>
@@ -260,7 +266,15 @@ export function PlatformHealthDashboardPage() {
 
       {/* Status dot legend */}
       <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-        {(['operational', 'degraded', 'partial_outage', 'major_outage', 'maintenance'] as ServiceStatus[]).map((s) => (
+        {(
+          [
+            'operational',
+            'degraded',
+            'partial_outage',
+            'major_outage',
+            'maintenance'
+          ] as ServiceStatus[]
+        ).map((s) => (
           <span key={s} className="flex items-center gap-1.5">
             <span className={`inline-block h-2.5 w-2.5 rounded-full ${getStatusBg(s)}`} />
             {getStatusLabel(s)}

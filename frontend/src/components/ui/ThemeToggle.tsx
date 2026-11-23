@@ -54,7 +54,7 @@ export function ThemeSelector({ className }: { className?: string }) {
   const options: { value: ThemeName; label: string; icon: typeof Sun }[] = [
     { value: 'light', label: 'Light', icon: Sun },
     { value: 'dark', label: 'Dark', icon: Moon },
-    { value: 'system', label: 'System', icon: Monitor },
+    { value: 'system', label: 'System', icon: Monitor }
   ]
 
   return (

@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
+  DialogFooter
 } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -27,9 +27,9 @@ import { ArrowRightLeft, AlertCircle } from 'lucide-react'
 // Manufacturer cannot transfer; same-role transfers are invalid.
 
 const VALID_RECIPIENT_ROLES: Record<Role, Role[]> = {
-  [Role.Recycler]:      [Role.Collector, Role.Manufacturer],
-  [Role.Collector]:     [Role.Manufacturer],
-  [Role.Manufacturer]:  [],
+  [Role.Recycler]: [Role.Collector, Role.Manufacturer],
+  [Role.Collector]: [Role.Manufacturer],
+  [Role.Manufacturer]: []
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -46,11 +46,11 @@ export function TransferWasteModal({ waste, open, onClose, onSuccess }: Transfer
   const { participant } = useParticipant()
   const { config } = useContract()
 
-  const [recipient, setRecipient]       = useState('')
-  const [note, setNote]                 = useState('')
-  const [isPending, setIsPending]       = useState(false)
-  const [txError, setTxError]           = useState<string | null>(null)
-  const [showConfirm, setShowConfirm]   = useState(false)
+  const [recipient, setRecipient] = useState('')
+  const [note, setNote] = useState('')
+  const [isPending, setIsPending] = useState(false)
+  const [txError, setTxError] = useState<string | null>(null)
+  const [showConfirm, setShowConfirm] = useState(false)
 
   // ── Derived validation ──────────────────────────────────────────────────
   const recipientTrimmed = recipient.trim()
@@ -68,15 +68,9 @@ export function TransferWasteModal({ waste, open, onClose, onSuccess }: Transfer
   // We do block Manufacturers from even opening the form (guarded by WasteDetailsModal),
   // but show a clear message here too.
   const senderRole = participant?.role
-  const senderCanTransfer = senderRole
-    ? VALID_RECIPIENT_ROLES[senderRole].length > 0
-    : true
+  const senderCanTransfer = senderRole ? VALID_RECIPIENT_ROLES[senderRole].length > 0 : true
 
-  const canSubmit =
-    !!recipientTrimmed &&
-    !addressError &&
-    senderCanTransfer &&
-    !isPending
+  const canSubmit = !!recipientTrimmed && !addressError && senderCanTransfer && !isPending
 
   // ── Handlers ─────────────────────────────────────────────────────────────
   function reset() {
@@ -108,7 +102,7 @@ export function TransferWasteModal({ waste, open, onClose, onSuccess }: Transfer
     const client = new ScavengerClient({
       rpcUrl: config.rpcUrl,
       networkPassphrase: networkConfig.networkPassphrase,
-      contractId: config.contractId,
+      contractId: config.contractId
     })
 
     setIsPending(true)
@@ -129,8 +123,10 @@ export function TransferWasteModal({ waste, open, onClose, onSuccess }: Transfer
     } catch (err) {
       setShowConfirm(false)
       const msg = err instanceof Error ? err.message : 'Transaction failed'
-      if (msg.includes('#') ) {
-        setTxError(`Contract error: ${msg}. Check the recipient is a registered participant with a valid role.`)
+      if (msg.includes('#')) {
+        setTxError(
+          `Contract error: ${msg}. Check the recipient is a registered participant with a valid role.`
+        )
       } else {
         setTxError(msg)
       }
@@ -142,9 +138,7 @@ export function TransferWasteModal({ waste, open, onClose, onSuccess }: Transfer
   if (!waste) return null
 
   const weightNum = Number(waste.weight)
-  const weightStr = weightNum >= 1000
-    ? `${(weightNum / 1000).toFixed(2)} kg`
-    : `${weightNum} g`
+  const weightStr = weightNum >= 1000 ? `${(weightNum / 1000).toFixed(2)} kg` : `${weightNum} g`
 
   return (
     <>
@@ -156,7 +150,7 @@ export function TransferWasteModal({ waste, open, onClose, onSuccess }: Transfer
           { label: 'Type', value: wasteTypeLabel(waste.waste_type) },
           { label: 'Weight', value: weightStr },
           { label: 'Recipient', value: formatAddress(recipientTrimmed) },
-          ...(note.trim() ? [{ label: 'Note', value: note.trim() }] : []),
+          ...(note.trim() ? [{ label: 'Note', value: note.trim() }] : [])
         ]}
         isPending={isPending}
         onConfirm={executeTransfer}
@@ -174,96 +168,104 @@ export function TransferWasteModal({ waste, open, onClose, onSuccess }: Transfer
             </DialogDescription>
           </DialogHeader>
 
-        {/* Waste summary */}
-        <div className="flex items-center justify-between rounded-md border bg-muted/40 px-4 py-3 text-sm">
-          <div className="space-y-0.5">
-            <p className="font-medium">{wasteTypeLabel(waste.waste_type)}</p>
-            <p className="text-xs text-muted-foreground">ID #{waste.waste_id.toString()}</p>
-          </div>
-          <Badge variant="outline" className="font-mono text-xs">
-            {weightStr}
-          </Badge>
-        </div>
-
-        {/* Sender role warning */}
-        {senderRole && !senderCanTransfer && (
-          <div
-            role="alert"
-            aria-live="assertive"
-            className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-          >
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-            <span>Manufacturers cannot transfer waste items.</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Recipient */}
-          <div className="space-y-1">
-            <label htmlFor="recipient-input" className="text-sm font-medium">
-              Recipient address
-            </label>
-            <Input
-              id="recipient-input"
-              placeholder="G…"
-              value={recipient}
-              onChange={(e) => { setRecipient(e.target.value); setTxError(null) }}
-              disabled={isPending || !senderCanTransfer}
-              className={cn(addressError && 'border-destructive focus-visible:ring-destructive')}
-              aria-describedby={addressError ? 'recipient-error' : undefined}
-              autoFocus
-              required
-            />
-            {addressError && (
-              <p id="recipient-error" role="alert" aria-live="assertive" className="text-xs text-destructive">
-                {addressError}
-              </p>
-            )}
-            {senderRole && senderCanTransfer && (
-              <p className="text-xs text-muted-foreground">
-                Valid recipients: {VALID_RECIPIENT_ROLES[senderRole].join(', ')}s
-              </p>
-            )}
+          {/* Waste summary */}
+          <div className="flex items-center justify-between rounded-md border bg-muted/40 px-4 py-3 text-sm">
+            <div className="space-y-0.5">
+              <p className="font-medium">{wasteTypeLabel(waste.waste_type)}</p>
+              <p className="text-xs text-muted-foreground">ID #{waste.waste_id.toString()}</p>
+            </div>
+            <Badge variant="outline" className="font-mono text-xs">
+              {weightStr}
+            </Badge>
           </div>
 
-          {/* Note */}
-          <div className="space-y-1">
-            <label htmlFor="note-input" className="text-sm font-medium">
-              Note <span className="font-normal text-muted-foreground">(optional)</span>
-            </label>
-            <Input
-              id="note-input"
-              placeholder="e.g. Collected from site A"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              disabled={isPending || !senderCanTransfer}
-              maxLength={200}
-            />
-          </div>
-
-          {/* Transaction error */}
-          {txError && (
+          {/* Sender role warning */}
+          {senderRole && !senderCanTransfer && (
             <div
               role="alert"
               aria-live="assertive"
               className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
             >
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>{txError}</span>
+              <span>Manufacturers cannot transfer waste items.</span>
             </div>
           )}
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={handleClose} disabled={isPending}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={!canSubmit}>
-              {isPending ? 'Transferring…' : 'Transfer'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Recipient */}
+            <div className="space-y-1">
+              <label htmlFor="recipient-input" className="text-sm font-medium">
+                Recipient address
+              </label>
+              <Input
+                id="recipient-input"
+                placeholder="G…"
+                value={recipient}
+                onChange={(e) => {
+                  setRecipient(e.target.value)
+                  setTxError(null)
+                }}
+                disabled={isPending || !senderCanTransfer}
+                className={cn(addressError && 'border-destructive focus-visible:ring-destructive')}
+                aria-describedby={addressError ? 'recipient-error' : undefined}
+                autoFocus
+                required
+              />
+              {addressError && (
+                <p
+                  id="recipient-error"
+                  role="alert"
+                  aria-live="assertive"
+                  className="text-xs text-destructive"
+                >
+                  {addressError}
+                </p>
+              )}
+              {senderRole && senderCanTransfer && (
+                <p className="text-xs text-muted-foreground">
+                  Valid recipients: {VALID_RECIPIENT_ROLES[senderRole].join(', ')}s
+                </p>
+              )}
+            </div>
+
+            {/* Note */}
+            <div className="space-y-1">
+              <label htmlFor="note-input" className="text-sm font-medium">
+                Note <span className="font-normal text-muted-foreground">(optional)</span>
+              </label>
+              <Input
+                id="note-input"
+                placeholder="e.g. Collected from site A"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                disabled={isPending || !senderCanTransfer}
+                maxLength={200}
+              />
+            </div>
+
+            {/* Transaction error */}
+            {txError && (
+              <div
+                role="alert"
+                aria-live="assertive"
+                className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+              >
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>{txError}</span>
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={handleClose} disabled={isPending}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={!canSubmit}>
+                {isPending ? 'Transferring…' : 'Transfer'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

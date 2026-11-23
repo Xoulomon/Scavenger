@@ -4,11 +4,11 @@
 
 Three private ECR repositories are provisioned via Terraform:
 
-| Repository | URI pattern |
-|---|---|
-| backend | `<account>.dkr.ecr.us-east-1.amazonaws.com/scavenger/backend` |
-| indexer | `<account>.dkr.ecr.us-east-1.amazonaws.com/scavenger/indexer` |
-| frontend | `<account>.dkr.ecr.us-east-1.amazonaws.com/scavenger/frontend` |
+| Repository | URI pattern                                                    |
+| ---------- | -------------------------------------------------------------- |
+| backend    | `<account>.dkr.ecr.us-east-1.amazonaws.com/scavenger/backend`  |
+| indexer    | `<account>.dkr.ecr.us-east-1.amazonaws.com/scavenger/indexer`  |
+| frontend   | `<account>.dkr.ecr.us-east-1.amazonaws.com/scavenger/frontend` |
 
 ## Features
 
@@ -35,12 +35,13 @@ The workflow `.github/workflows/ecr-build-push.yml` triggers on pushes to `main`
 
 Required GitHub secrets:
 
-| Secret | Description |
-|---|---|
-| `AWS_ACCOUNT_ID` | AWS account number |
+| Secret            | Description                          |
+| ----------------- | ------------------------------------ |
+| `AWS_ACCOUNT_ID`  | AWS account number                   |
 | `AWS_CI_ROLE_ARN` | IAM role ARN for OIDC authentication |
 
 The workflow:
+
 1. Authenticates to AWS via OIDC (no long-lived credentials).
 2. Builds each service in parallel using Docker Buildx with GitHub Actions layer cache.
 3. Tags images as `sha-<short-sha>` on branch pushes, `v<tag>` on version tags.

@@ -34,29 +34,35 @@ export function useIncentives(wasteType?: WasteType) {
     queryKey: cacheKeys.incentives(wasteType),
     queryFn: (client) =>
       wasteType !== undefined ? client.getIncentives(wasteType) : client.getActiveIncentives(),
-    staleTime: INCENTIVES_STALE_TIME,
+    staleTime: INCENTIVES_STALE_TIME
   })
 
   const invalidate = cacheKeys.incentivesRoot()
 
   const createIncentive = useContractMutation({
-    mutationFn: (client, { wt, rewardPoints, budget }: { wt: WasteType; rewardPoints: bigint; budget: bigint }) => {
+    mutationFn: (
+      client,
+      { wt, rewardPoints, budget }: { wt: WasteType; rewardPoints: bigint; budget: bigint }
+    ) => {
       if (!address) throw new Error('Wallet not connected.')
       return client.createIncentive(address, wt, rewardPoints, budget, address)
     },
     invalidateQueryKey: invalidate,
     onSuccess: (incentive) => toast.success(`Incentive #${incentive.id} created successfully.`),
-    onError: (error) => toast.error(error),
+    onError: (error) => toast.error(error)
   })
 
   const updateIncentive = useContractMutation({
-    mutationFn: (client, { id, rewardPoints, budget }: { id: bigint; rewardPoints: bigint; budget: bigint }) => {
+    mutationFn: (
+      client,
+      { id, rewardPoints, budget }: { id: bigint; rewardPoints: bigint; budget: bigint }
+    ) => {
       if (!address) throw new Error('Wallet not connected.')
       return client.updateIncentive(id, address, rewardPoints, budget, address)
     },
     invalidateQueryKey: invalidate,
     onSuccess: (incentive) => toast.success(`Incentive #${incentive.id} updated successfully.`),
-    onError: (error) => toast.error(error),
+    onError: (error) => toast.error(error)
   })
 
   const deactivateIncentive = useContractMutation({
@@ -66,7 +72,7 @@ export function useIncentives(wasteType?: WasteType) {
     },
     invalidateQueryKey: invalidate,
     onSuccess: () => toast.success('Incentive deactivated.'),
-    onError: (error) => toast.error(error),
+    onError: (error) => toast.error(error)
   })
 
   return {
@@ -79,6 +85,7 @@ export function useIncentives(wasteType?: WasteType) {
       createIncentive.mutateAsync({ wt, rewardPoints, budget }),
     updateIncentive: (id: number | bigint, rewardPoints: bigint, budget: bigint) =>
       updateIncentive.mutateAsync({ id: BigInt(id), rewardPoints, budget }),
-    deactivateIncentive: (id: number | bigint) => deactivateIncentive.mutateAsync({ id: BigInt(id) }),
+    deactivateIncentive: (id: number | bigint) =>
+      deactivateIncentive.mutateAsync({ id: BigInt(id) })
   }
 }

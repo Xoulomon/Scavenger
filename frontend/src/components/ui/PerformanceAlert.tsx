@@ -16,21 +16,27 @@ const SEVERITY_STYLES: Record<AlertSeverity, { card: string; icon: ReactNode; la
   good: {
     card: 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-900/20',
     icon: <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />,
-    label: 'Good',
+    label: 'Good'
   },
   warning: {
     card: 'border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-900/20',
     icon: <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />,
-    label: 'Needs Improvement',
+    label: 'Needs Improvement'
   },
   critical: {
     card: 'border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20',
     icon: <XCircle className="h-4 w-4 text-red-600 dark:text-red-400" />,
-    label: 'Poor',
-  },
+    label: 'Poor'
+  }
 }
 
-export function PerformanceAlert({ metric, value, severity, message, className }: PerformanceAlertProps) {
+export function PerformanceAlert({
+  metric,
+  value,
+  severity,
+  message,
+  className
+}: PerformanceAlertProps) {
   const styles = SEVERITY_STYLES[severity]
 
   return (
@@ -65,7 +71,12 @@ export function PerformanceSummary({ passed, total, className }: PerformanceSumm
       ) : (
         <TrendingUp className="h-4 w-4 text-yellow-500" />
       )}
-      <span className={cn('font-medium', allGood ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400')}>
+      <span
+        className={cn(
+          'font-medium',
+          allGood ? 'text-green-600 dark:text-green-400' : 'text-yellow-600 dark:text-yellow-400'
+        )}
+      >
         {passed}/{total} metrics passing ({pct}%)
       </span>
     </div>

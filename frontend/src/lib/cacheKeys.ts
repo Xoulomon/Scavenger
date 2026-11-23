@@ -45,21 +45,17 @@ export const cacheKeys = {
   waste: (id?: string): CacheKey => key('waste', id),
   wastes: (address?: string, filters?: object): CacheKey => key('wastes', address, filters),
   transferHistory: (wasteId?: string): CacheKey => key('transfer-history', wasteId),
-  wasteTransferHistory: (wasteId?: string): CacheKey =>
-    key('waste-transfer-history', wasteId),
-  materialTransfers: (materialId?: string): CacheKey =>
-    key('material-transfers', materialId),
+  wasteTransferHistory: (wasteId?: string): CacheKey => key('waste-transfer-history', wasteId),
+  materialTransfers: (materialId?: string): CacheKey => key('material-transfers', materialId),
 
   // Maps
-  mapWastes: (address?: string, filters?: object): CacheKey =>
-    key('map-wastes', address, filters),
+  mapWastes: (address?: string, filters?: object): CacheKey => key('map-wastes', address, filters),
   mapParticipant: (address?: string, filters?: object): CacheKey =>
     key('map-participant', address, filters),
 
   // Dashboard
   dashboardMaterials: (address?: string): CacheKey => key('dashboard-materials', address),
-  pendingVerifications: (address?: string): CacheKey =>
-    key('pending-verifications', address),
+  pendingVerifications: (address?: string): CacheKey => key('pending-verifications', address),
   rewards: (address?: string): CacheKey => key('rewards', address),
   metrics: (): CacheKey => key('metrics'),
 
@@ -82,7 +78,7 @@ export const cacheKeys = {
   adminWaste: (wasteId?: string): CacheKey => key('admin-waste', wasteId),
 
   // Testing
-  testRuns: (): CacheKey => key('test-runs'),
+  testRuns: (): CacheKey => key('test-runs')
 } as const
 
 export type CacheKeys = typeof cacheKeys

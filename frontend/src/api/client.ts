@@ -6,7 +6,7 @@ import {
   nativeToScVal,
   Address,
   TransactionBuilder,
-  BASE_FEE,
+  BASE_FEE
 } from '@stellar/stellar-sdk'
 import {
   Role,
@@ -22,13 +22,10 @@ import {
   ContractError,
   ParticipantInfo,
   SupplyChainStats,
-  MaterialSubmission,
+  MaterialSubmission
 } from './types'
 import { signTransactionXDR } from '@/features/wallet/service'
-import {
-  pollTransactionStatus,
-  TransactionStatusError,
-} from '@/features/transaction-status'
+import { pollTransactionStatus, TransactionStatusError } from '@/features/transaction-status'
 import { ContractErrorCode, isRetryableError } from '@/lib/constants'
 
 export interface ClientOptions {
@@ -83,7 +80,7 @@ export class ScavengerClient {
     const account = await this.server.getAccount(signer)
     const tx = new TransactionBuilder(account, {
       fee: BASE_FEE,
-      networkPassphrase: this.networkPassphrase,
+      networkPassphrase: this.networkPassphrase
     })
       .addOperation(operation)
       .setTimeout(30)
@@ -101,9 +98,7 @@ export class ScavengerClient {
     const sendResult = await this.server.sendTransaction(signed)
 
     if (sendResult.status === 'ERROR') {
-      throw this._parseError(
-        sendResult.errorResult?.toXDR('base64') ?? 'Transaction failed'
-      )
+      throw this._parseError(sendResult.errorResult?.toXDR('base64') ?? 'Transaction failed')
     }
 
     // Poll for confirmation via the shared transaction-status module
@@ -112,7 +107,7 @@ export class ScavengerClient {
         hash: sendResult.hash,
         getTransaction: (hash) => this.server.getTransaction(hash),
         maxAttempts: 20,
-        intervalMs: 1500,
+        intervalMs: 1500
       })
       if (!retval) return undefined
       return scValToNative(retval) as T
@@ -190,7 +185,7 @@ export class ScavengerClient {
       [
         new Address(admin).toScVal(),
         nativeToScVal(collectorPct, { type: 'u32' }),
-        nativeToScVal(ownerPct, { type: 'u32' }),
+        nativeToScVal(ownerPct, { type: 'u32' })
       ],
       admin
     )
@@ -215,7 +210,7 @@ export class ScavengerClient {
         nativeToScVal(role, { type: 'u32' }),
         nativeToScVal(name, { type: 'string' }),
         nativeToScVal(lat, { type: 'i128' }),
-        nativeToScVal(lon, { type: 'i128' }),
+        nativeToScVal(lon, { type: 'i128' })
       ],
       signer
     )
@@ -226,10 +221,9 @@ export class ScavengerClient {
   }
 
   async getParticipantInfo(address: string): Promise<ParticipantInfo | null> {
-    return this.invoke<ParticipantInfo | null>(
-      'get_participant_info',
-      [new Address(address).toScVal()]
-    )
+    return this.invoke<ParticipantInfo | null>('get_participant_info', [
+      new Address(address).toScVal()
+    ])
   }
 
   async updateRole(address: string, newRole: Role, signer: string) {
@@ -241,11 +235,7 @@ export class ScavengerClient {
   }
 
   async deregisterParticipant(address: string, signer: string) {
-    return this.invoke<void>(
-      'deregister_participant',
-      [new Address(address).toScVal()],
-      signer
-    )
+    return this.invoke<void>('deregister_participant', [new Address(address).toScVal()], signer)
   }
 
   async isParticipantRegistered(address: string): Promise<boolean> {
@@ -271,7 +261,7 @@ export class ScavengerClient {
         nativeToScVal(wasteType, { type: 'u32' }),
         nativeToScVal(weight, { type: 'u128' }),
         nativeToScVal(lat, { type: 'i128' }),
-        nativeToScVal(lon, { type: 'i128' }),
+        nativeToScVal(lon, { type: 'i128' })
       ],
       signer
     )
@@ -285,7 +275,7 @@ export class ScavengerClient {
     const vec = nativeToScVal(
       materials.map((m) => ({
         waste_type: nativeToScVal(m.wasteType, { type: 'u32' }),
-        weight: nativeToScVal(m.weight, { type: 'u128' }),
+        weight: nativeToScVal(m.weight, { type: 'u128' })
       }))
     )
     return this.invoke<Material[]>(
@@ -320,7 +310,7 @@ export class ScavengerClient {
         new Address(to).toScVal(),
         nativeToScVal(lat, { type: 'i128' }),
         nativeToScVal(lon, { type: 'i128' }),
-        nativeToScVal(note, { type: 'string' }),
+        nativeToScVal(note, { type: 'string' })
       ],
       signer
     )
@@ -355,7 +345,9 @@ export class ScavengerClient {
   }
 
   async getMaterial(materialId: bigint): Promise<Material | null> {
-    return this.invoke<Material | null>('get_material', [nativeToScVal(materialId, { type: 'u64' })])
+    return this.invoke<Material | null>('get_material', [
+      nativeToScVal(materialId, { type: 'u64' })
+    ])
   }
 
   async getParticipantWastes(address: string): Promise<bigint[]> {
@@ -364,7 +356,7 @@ export class ScavengerClient {
 
   async getWasteTransferHistory(wasteId: bigint): Promise<WasteTransfer[]> {
     return this.invoke<WasteTransfer[]>('get_waste_transfer_history', [
-      nativeToScVal(wasteId, { type: 'u128' }),
+      nativeToScVal(wasteId, { type: 'u128' })
     ])
   }
 
@@ -385,7 +377,7 @@ export class ScavengerClient {
         new Address(rewarder).toScVal(),
         nativeToScVal(wasteType, { type: 'u32' }),
         nativeToScVal(rewardPoints, { type: 'u64' }),
-        nativeToScVal(budget, { type: 'u64' }),
+        nativeToScVal(budget, { type: 'u64' })
       ],
       signer
     )
@@ -404,7 +396,7 @@ export class ScavengerClient {
         nativeToScVal(incentiveId, { type: 'u64' }),
         new Address(rewarder).toScVal(),
         nativeToScVal(rewardPoints, { type: 'u64' }),
-        nativeToScVal(budget, { type: 'u64' }),
+        nativeToScVal(budget, { type: 'u64' })
       ],
       signer
     )
@@ -420,7 +412,7 @@ export class ScavengerClient {
 
   async getIncentiveById(incentiveId: bigint): Promise<Incentive | null> {
     return this.invoke<Incentive | null>('get_incentive_by_id', [
-      nativeToScVal(incentiveId, { type: 'u64' }),
+      nativeToScVal(incentiveId, { type: 'u64' })
     ])
   }
 
@@ -432,10 +424,13 @@ export class ScavengerClient {
     return this.invoke<Incentive[]>('get_active_incentives', [])
   }
 
-  async getActiveMfrIncentive(manufacturer: string, wasteType: WasteType): Promise<Incentive | null> {
+  async getActiveMfrIncentive(
+    manufacturer: string,
+    wasteType: WasteType
+  ): Promise<Incentive | null> {
     return this.invoke<Incentive | null>('get_active_mfr_incentive', [
       new Address(manufacturer).toScVal(),
-      nativeToScVal(wasteType, { type: 'u32' }),
+      nativeToScVal(wasteType, { type: 'u32' })
     ])
   }
 
@@ -458,7 +453,7 @@ export class ScavengerClient {
       [
         nativeToScVal(wasteId, { type: 'u128' }),
         nativeToScVal(incentiveId, { type: 'u64' }),
-        new Address(manufacturer).toScVal(),
+        new Address(manufacturer).toScVal()
       ],
       signer
     )
@@ -508,7 +503,14 @@ export class ScavengerClient {
     longitude: bigint,
     signer: string
   ): Promise<bigint> {
-    const material = await this.submitMaterial(recycler, wasteType, weightGrams, latitude, longitude, signer)
+    const material = await this.submitMaterial(
+      recycler,
+      wasteType,
+      weightGrams,
+      latitude,
+      longitude,
+      signer
+    )
     return BigInt(material.id)
   }
 }

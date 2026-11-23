@@ -31,5 +31,5 @@ export {
   tabThrough,
   measurePageLoad,
   measureRenderTime,
-  getMemoryUsage,
-} from '../test-utils';
+  getMemoryUsage
+} from '../test-utils'

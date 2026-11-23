@@ -27,10 +27,7 @@ pub const MAX_DOC_TYPE_LEN: usize = 64;
 /// message when the participant has already exhausted their retries.
 pub fn check_retry_allowed(current_count: u32, max: u32) -> Result<(), String> {
     if current_count >= max {
-        Err(format!(
-            "Maximum retry attempts ({}) exceeded",
-            max
-        ))
+        Err(format!("Maximum retry attempts ({}) exceeded", max))
     } else {
         Ok(())
     }
@@ -561,10 +558,7 @@ mod tests {
     async fn test_create_review_queue_item_sets_under_review() {
         let service = DefaultVerificationService::new();
         service.start_verification("p-queue".to_string()).await.unwrap();
-        service
-            .create_review_queue_item("p-queue".to_string())
-            .await
-            .unwrap();
+        service.create_review_queue_item("p-queue".to_string()).await.unwrap();
 
         let v = service.get_verification_status("p-queue".to_string()).await.unwrap();
         assert!(
@@ -618,8 +612,7 @@ mod tests {
         }
 
         async fn save(&self, verification: ParticipantVerification) -> Result<(), String> {
-            self.save_calls
-                .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+            self.save_calls.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
             self.stored
                 .lock()
                 .await

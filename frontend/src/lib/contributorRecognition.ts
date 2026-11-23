@@ -43,7 +43,7 @@ export const TIER_THRESHOLDS: Record<ContributorTier, number> = {
   silver: 1000,
   gold: 5000,
   platinum: 15000,
-  legend: 50000,
+  legend: 50000
 }
 
 export const TIER_COLORS: Record<ContributorTier, string> = {
@@ -51,7 +51,7 @@ export const TIER_COLORS: Record<ContributorTier, string> = {
   silver: 'text-gray-500',
   gold: 'text-yellow-500',
   platinum: 'text-cyan-500',
-  legend: 'text-purple-500',
+  legend: 'text-purple-500'
 }
 
 export const TIER_BG: Record<ContributorTier, string> = {
@@ -59,20 +59,35 @@ export const TIER_BG: Record<ContributorTier, string> = {
   silver: 'bg-gray-400/10',
   gold: 'bg-yellow-500/10',
   platinum: 'bg-cyan-500/10',
-  legend: 'bg-purple-500/10',
+  legend: 'bg-purple-500/10'
 }
 
 // ── Badge definitions ─────────────────────────────────────────────────────────
 
 export const BADGE_DEFINITIONS: Badge[] = [
-  { id: 'first_recycle', name: 'First Recycler', description: 'Submit your first waste item', icon: '♻️' },
+  {
+    id: 'first_recycle',
+    name: 'First Recycler',
+    description: 'Submit your first waste item',
+    icon: '♻️'
+  },
   { id: 'ten_items', name: 'Eco Starter', description: 'Recycle 10 items', icon: '🌱' },
   { id: 'fifty_items', name: 'Eco Warrior', description: 'Recycle 50 items', icon: '⚔️' },
   { id: 'hundred_items', name: 'Century Club', description: 'Recycle 100 items', icon: '💯' },
   { id: 'streak_7', name: '7-Day Streak', description: 'Active for 7 days in a row', icon: '🔥' },
   { id: 'streak_30', name: 'Monthly Champion', description: '30-day activity streak', icon: '🏆' },
-  { id: 'top_10', name: 'Community Leader', description: 'Reach top 10 on the leaderboard', icon: '🥇' },
-  { id: 'nominated', name: 'Community Favorite', description: 'Received a community nomination', icon: '⭐' },
+  {
+    id: 'top_10',
+    name: 'Community Leader',
+    description: 'Reach top 10 on the leaderboard',
+    icon: '🥇'
+  },
+  {
+    id: 'nominated',
+    name: 'Community Favorite',
+    description: 'Received a community nomination',
+    icon: '⭐'
+  }
 ]
 
 // ── Tier calculation ──────────────────────────────────────────────────────────
@@ -85,7 +100,10 @@ export function getTier(points: number): ContributorTier {
   return 'bronze'
 }
 
-export function getPointsToNextTier(points: number): { next: ContributorTier | null; needed: number } {
+export function getPointsToNextTier(points: number): {
+  next: ContributorTier | null
+  needed: number
+} {
   const tiers: ContributorTier[] = ['bronze', 'silver', 'gold', 'platinum', 'legend']
   for (const tier of tiers) {
     if (points < TIER_THRESHOLDS[tier]) {
@@ -125,14 +143,14 @@ export function getNominations(): Nomination[] {
 export function addNomination(
   nomineeAddress: string,
   nominatorAddress: string,
-  reason: string,
+  reason: string
 ): Nomination {
   const nomination: Nomination = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     nomineeAddress,
     nominatorAddress,
     reason,
-    createdAt: Date.now(),
+    createdAt: Date.now()
   }
   const nominations = getNominations()
   nominations.push(nomination)
@@ -152,7 +170,11 @@ export interface TransparencyReport {
 
 export function generateTransparencyReport(contributors: Contributor[]): TransparencyReport {
   const tierBreakdown: Record<ContributorTier, number> = {
-    bronze: 0, silver: 0, gold: 0, platinum: 0, legend: 0,
+    bronze: 0,
+    silver: 0,
+    gold: 0,
+    platinum: 0,
+    legend: 0
   }
   const badgeCounts: Record<string, number> = {}
 
@@ -173,6 +195,6 @@ export function generateTransparencyReport(contributors: Contributor[]): Transpa
     totalContributors: contributors.length,
     tierBreakdown,
     topBadges,
-    totalNominations: getNominations().length,
+    totalNominations: getNominations().length
   }
 }

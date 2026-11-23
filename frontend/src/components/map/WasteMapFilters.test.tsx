@@ -38,7 +38,9 @@ describe('WasteMapFilters', () => {
     const onChange = vi.fn()
     render(<WasteMapFilters filters={defaultFilters} onChange={onChange} />)
     fireEvent.change(screen.getByLabelText('Location'), { target: { value: '40.7128,-74.0060' } })
-    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ locationQuery: '40.7128,-74.0060' }))
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({ locationQuery: '40.7128,-74.0060' })
+    )
   })
 
   it('calls onChange with radius search', () => {
@@ -50,7 +52,12 @@ describe('WasteMapFilters', () => {
 
   it('clears waste type when "All types" selected', () => {
     const onChange = vi.fn()
-    render(<WasteMapFilters filters={{ ...defaultFilters, wasteType: WasteType.Metal }} onChange={onChange} />)
+    render(
+      <WasteMapFilters
+        filters={{ ...defaultFilters, wasteType: WasteType.Metal }}
+        onChange={onChange}
+      />
+    )
     const typeSelect = screen.getAllByRole('combobox')[0]
     fireEvent.change(typeSelect, { target: { value: '' } })
     expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ wasteType: undefined }))

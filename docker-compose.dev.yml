@@ -18,11 +18,11 @@
 services:
   postgres:
     ports:
-      - "5432:5432"
+      - '5432:5432'
 
   redis:
     ports:
-      - "6379:6379"
+      - '6379:6379'
 
   backend:
     build:
@@ -46,7 +46,7 @@ services:
       - SOROBAN_RPC_URL=http://stellar:11626/soroban/rpc
       - CONTRACT_ID=${CONTRACT_ID}
     ports:
-      - "8080:8080"
+      - '8080:8080'
 
   indexer:
     build:
@@ -64,7 +64,7 @@ services:
       - SOROBAN_RPC_URL=http://stellar:11626/soroban/rpc
       - CONTRACT_ID=${CONTRACT_ID}
     ports:
-      - "3000:3000"
+      - '3000:3000'
 
   stellar:
     environment:
@@ -73,9 +73,9 @@ services:
       - SOROBAN_RPC_HOST=0.0.0.0
       - SOROBAN_RPC_URL=http://stellar:11626/soroban/rpc
     ports:
-      - "8000:8000"
-      - "11626:11626"
-      - "11627:11627"
+      - '8000:8000'
+      - '11626:11626'
+      - '11627:11627'
     volumes:
       - stellar_data:/opt/stellar/data
 

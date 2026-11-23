@@ -89,14 +89,14 @@ rustup component add rustfmt
 
 ### What gets checked
 
-| Hook | Languages | What it does |
-|------|-----------|--------------|
-| `cargo-fmt` | Rust (`.rs`) | Runs `cargo fmt --all` and blocks commits that aren't formatted |
-| `prettier` | TS, JS, JSON, CSS, MD | Reformats files to the project's Prettier config |
-| `eslint` | TS, JS | Runs ESLint with `--fix`; blocks commits with unfixable lint errors |
-| `gitleaks` | All tracked files | Scans staged changes for secrets using `.gitleaks.toml` config |
-| `terraform_fmt` / `terraform_validate` | Terraform | Formats and validates Terraform configs |
-| `trailing-whitespace` / `end-of-file-fixer` | All | Generic file hygiene |
+| Hook                                        | Languages             | What it does                                                        |
+| ------------------------------------------- | --------------------- | ------------------------------------------------------------------- |
+| `cargo-fmt`                                 | Rust (`.rs`)          | Runs `cargo fmt --all` and blocks commits that aren't formatted     |
+| `prettier`                                  | TS, JS, JSON, CSS, MD | Reformats files to the project's Prettier config                    |
+| `eslint`                                    | TS, JS                | Runs ESLint with `--fix`; blocks commits with unfixable lint errors |
+| `gitleaks`                                  | All tracked files     | Scans staged changes for secrets using `.gitleaks.toml` config      |
+| `terraform_fmt` / `terraform_validate`      | Terraform             | Formats and validates Terraform configs                             |
+| `trailing-whitespace` / `end-of-file-fixer` | All                   | Generic file hygiene                                                |
 
 ### Running manually
 
@@ -178,6 +178,7 @@ Every PR must include a description that covers:
 The repository provides a PR template (`.github/PULL_REQUEST_TEMPLATE.md`) that
 pre-fills this structure when you open a PR on GitHub. Fill in every section;
 do not delete sections you leave blank — use the checkboxes to show what applies.
+
 ### 4. Target the Correct Base Branch
 
 Ensure your PR targets the correct base branch (typically `main`). Check the repository's branch strategy before opening your PR and update the base if needed.

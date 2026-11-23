@@ -28,6 +28,7 @@ cargo test --test performance_test -- --nocapture
 ```
 
 Key metrics from `docs/archive/stellar-contract/BENCHMARK_RESULTS.md`:
+
 - Waste registration: measure `cpu_instructions` in gas snapshots
 - Reward distribution: check `test_gas_incentive_workflow.1.json`
 

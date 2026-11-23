@@ -1,9 +1,9 @@
-import { ChevronLeft, ChevronRight, Loader2,Recycle } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Loader2, Recycle } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import {
   ConnectWalletPrompt,
-  RegistrationSuccess,
+  RegistrationSuccess
 } from '@/features/participants/components/RegistrationStates'
 import { RegistrationStepIndicator } from '@/features/participants/components/RegistrationStepIndicator'
 import { STEP_LABELS, TOTAL_STEPS } from '@/features/participants/constants'
@@ -68,11 +68,7 @@ export function ParticipantRegistrationPage() {
           )}
 
           {f.step === 2 && (
-            <ProfileStep
-              draft={f.draft}
-              errors={f.validationErrors}
-              onChange={f.updateDraft}
-            />
+            <ProfileStep draft={f.draft} errors={f.validationErrors} onChange={f.updateDraft} />
           )}
 
           {f.step === 3 && (
@@ -98,7 +94,7 @@ export function ParticipantRegistrationPage() {
               geo={{
                 loading: f.geoLoading,
                 error: f.geoError,
-                onDetect: f.requestGeolocation,
+                onDetect: f.requestGeolocation
               }}
               submitError={
                 f.registerMutation.isError

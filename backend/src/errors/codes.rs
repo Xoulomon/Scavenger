@@ -168,9 +168,7 @@ pub fn code_for(error: &AppError) -> &'static str {
 
         AppError::Notification(NotificationError::PushFailed(_)) => NOTIFICATION_PUSH_FAILED,
         AppError::Notification(NotificationError::InvalidToken(_)) => NOTIFICATION_INVALID_TOKEN,
-        AppError::Notification(NotificationError::ServiceUnavailable(_)) => {
-            NOTIFICATION_SERVICE_UNAVAILABLE
-        }
+        AppError::Notification(NotificationError::ServiceUnavailable(_)) => NOTIFICATION_SERVICE_UNAVAILABLE,
 
         AppError::Serialization(SerializationError::JsonError(_)) => SERIALIZATION_JSON_ERROR,
         AppError::Serialization(SerializationError::CsvError(_)) => SERIALIZATION_CSV_ERROR,
@@ -178,9 +176,7 @@ pub fn code_for(error: &AppError) -> &'static str {
 
         AppError::Analytics(AnalyticsError::ComputationFailed(_)) => ANALYTICS_COMPUTATION_FAILED,
         AppError::Analytics(AnalyticsError::InvalidTimeRange(_)) => ANALYTICS_INVALID_TIME_RANGE,
-        AppError::Analytics(AnalyticsError::DataSourceUnavailable(_)) => {
-            ANALYTICS_DATA_SOURCE_UNAVAILABLE
-        }
+        AppError::Analytics(AnalyticsError::DataSourceUnavailable(_)) => ANALYTICS_DATA_SOURCE_UNAVAILABLE,
 
         AppError::NotFound(_) => NOT_FOUND_PREFIX,
         AppError::Internal(_) => INTERNAL,
@@ -193,8 +189,8 @@ pub fn code_for(error: &AppError) -> &'static str {
 mod tests {
     use super::*;
     use crate::errors::{
-        AnalyticsError, AppError, AuthError, ContractError, EmailError, ExportError,
-        NotificationError, SerializationError, StorageError, ValidationError, WebhookError,
+        AnalyticsError, AppError, AuthError, ContractError, EmailError, ExportError, NotificationError,
+        SerializationError, StorageError, ValidationError, WebhookError,
     };
 
     /// Every `AppError` variant must resolve to a non-empty, dot-separated
@@ -267,10 +263,7 @@ mod tests {
     fn codes_are_stable_and_unique_per_variant() {
         assert_eq!(code_for(&AppError::Auth(AuthError::Unauthorized)), AUTH_UNAUTHORIZED);
         assert_eq!(code_for(&AppError::Internal("x".into())), INTERNAL);
-        assert_eq!(
-            code_for(&AppError::RateLimitExceeded("x".into())),
-            RATE_LIMIT_EXCEEDED
-        );
+        assert_eq!(code_for(&AppError::RateLimitExceeded("x".into())), RATE_LIMIT_EXCEEDED);
         assert_eq!(code_for(&AppError::BadRequest("x".into())), BAD_REQUEST);
         assert_eq!(code_for(&AppError::NotFound("x".into())), NOT_FOUND_PREFIX);
     }

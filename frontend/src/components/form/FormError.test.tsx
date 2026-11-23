@@ -94,7 +94,7 @@ describe('FormError', () => {
   })
 
   it('displays error message immediately', () => {
-    const { container } = render(<FormError message="Instant error" />)
+    const { _container } = render(<FormError message="Instant error" />)
     expect(screen.getByText('Instant error')).toBeInTheDocument()
   })
 

@@ -7,7 +7,7 @@
 //!
 //! These operations do not require authorization (reads are public).
 
-use crate::key_rotation::types::{KeyRecord, KeyRotationError, KeyStorage, KeyPurpose};
+use crate::key_rotation::types::{KeyPurpose, KeyRecord, KeyRotationError, KeyStorage};
 use soroban_sdk::Env;
 
 /// Returns the active `KeyRecord` for `purpose`.
@@ -17,10 +17,7 @@ use soroban_sdk::Env;
 /// # Returns
 /// - `Ok(KeyRecord)` if a key has been installed for this purpose
 /// - `Err(KeyRotationError::NoActiveKey)` if no key exists yet
-pub fn get_active_key(
-    env: &Env,
-    purpose: KeyPurpose,
-) -> Result<KeyRecord, KeyRotationError> {
+pub fn get_active_key(env: &Env, purpose: KeyPurpose) -> Result<KeyRecord, KeyRotationError> {
     let version = env
         .storage()
         .instance()
@@ -36,11 +33,7 @@ pub fn get_active_key(
 /// # Returns
 /// - `Ok(KeyRecord)` if the (purpose, version) pair exists
 /// - `Err(KeyRotationError::VersionNotFound)` if not found
-pub fn get_key_version(
-    env: &Env,
-    purpose: KeyPurpose,
-    version: u32,
-) -> Result<KeyRecord, KeyRotationError> {
+pub fn get_key_version(env: &Env, purpose: KeyPurpose, version: u32) -> Result<KeyRecord, KeyRotationError> {
     env.storage()
         .instance()
         .get::<KeyStorage, KeyRecord>(&KeyStorage::Key(purpose, version))
@@ -73,11 +66,7 @@ mod tests {
     }
 
     /// Helper to install a key without importing the full lifecycle module
-    fn install_key_for_test(
-        env: &Env,
-        purpose: KeyPurpose,
-        key_hash: BytesN<32>,
-    ) {
+    fn install_key_for_test(env: &Env, purpose: KeyPurpose, key_hash: BytesN<32>) {
         let version = 1u32;
         let (admin, _) = setup(env);
         let record = KeyRecord {

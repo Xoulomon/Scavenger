@@ -59,7 +59,8 @@ export const SLA_TARGETS: SLATarget[] = [
     unit: '%',
     targetPercent: 99.9,
     period: 'monthly',
-    violationProcedure: 'Page on-call engineer. Escalate to engineering lead if unresolved in 15 min.',
+    violationProcedure:
+      'Page on-call engineer. Escalate to engineering lead if unresolved in 15 min.'
   },
   {
     id: 'availability-rpc',
@@ -71,7 +72,7 @@ export const SLA_TARGETS: SLATarget[] = [
     unit: '%',
     targetPercent: 99.5,
     period: 'monthly',
-    violationProcedure: 'Switch to failover RPC endpoint. Notify blockchain team.',
+    violationProcedure: 'Switch to failover RPC endpoint. Notify blockchain team.'
   },
   {
     id: 'availability-indexer',
@@ -83,7 +84,7 @@ export const SLA_TARGETS: SLATarget[] = [
     unit: '%',
     targetPercent: 99.0,
     period: 'monthly',
-    violationProcedure: 'Restart indexer pod. Check Stellar network connectivity.',
+    violationProcedure: 'Restart indexer pod. Check Stellar network connectivity.'
   },
 
   // Latency
@@ -97,7 +98,7 @@ export const SLA_TARGETS: SLATarget[] = [
     unit: 'ms',
     targetPercent: 99,
     period: 'daily',
-    violationProcedure: 'Investigate slow query logs. Scale API replicas if CPU > 80%.',
+    violationProcedure: 'Investigate slow query logs. Scale API replicas if CPU > 80%.'
   },
   {
     id: 'latency-api-p99',
@@ -109,7 +110,7 @@ export const SLA_TARGETS: SLATarget[] = [
     unit: 'ms',
     targetPercent: 99,
     period: 'daily',
-    violationProcedure: 'Identify outlier endpoints. Add query result caching.',
+    violationProcedure: 'Identify outlier endpoints. Add query result caching.'
   },
   {
     id: 'latency-contract-submit',
@@ -121,7 +122,7 @@ export const SLA_TARGETS: SLATarget[] = [
     unit: 'ms',
     targetPercent: 95,
     period: 'daily',
-    violationProcedure: 'Check Stellar network congestion. Adjust fee bump strategy.',
+    violationProcedure: 'Check Stellar network congestion. Adjust fee bump strategy.'
   },
   {
     id: 'latency-lcp',
@@ -133,7 +134,7 @@ export const SLA_TARGETS: SLATarget[] = [
     unit: 'ms',
     targetPercent: 75,
     period: 'weekly',
-    violationProcedure: 'Audit critical render path. Optimise images and fonts.',
+    violationProcedure: 'Audit critical render path. Optimise images and fonts.'
   },
   {
     id: 'latency-inp',
@@ -145,7 +146,7 @@ export const SLA_TARGETS: SLATarget[] = [
     unit: 'ms',
     targetPercent: 75,
     period: 'weekly',
-    violationProcedure: 'Profile JavaScript execution. Reduce long tasks.',
+    violationProcedure: 'Profile JavaScript execution. Reduce long tasks.'
   },
 
   // Error rate
@@ -159,7 +160,7 @@ export const SLA_TARGETS: SLATarget[] = [
     unit: '%',
     targetPercent: 99.9,
     period: 'daily',
-    violationProcedure: 'Check error logs. Roll back last deployment if error rate spiked.',
+    violationProcedure: 'Check error logs. Roll back last deployment if error rate spiked.'
   },
   {
     id: 'error-rate-contract',
@@ -171,7 +172,7 @@ export const SLA_TARGETS: SLATarget[] = [
     unit: '%',
     targetPercent: 99,
     period: 'daily',
-    violationProcedure: 'Review contract error types. Check for validation changes.',
+    violationProcedure: 'Review contract error types. Check for validation changes.'
   },
 
   // Throughput
@@ -185,8 +186,8 @@ export const SLA_TARGETS: SLATarget[] = [
     unit: 'req/min',
     targetPercent: 99,
     period: 'daily',
-    violationProcedure: 'Scale backend horizontally. Check database connection pool.',
-  },
+    violationProcedure: 'Scale backend horizontally. Check database connection pool.'
+  }
 ]
 
 // ─── Sample/mock measurement data ─────────────────────────────────────────────
@@ -194,7 +195,12 @@ export const SLA_TARGETS: SLATarget[] = [
 export function generateSampleMeasurements(target: SLATarget, count = 30): SLAMeasurement[] {
   const measurements: SLAMeasurement[] = []
   const now = Date.now()
-  const intervalMs = { hourly: 3_600_000, daily: 86_400_000, weekly: 604_800_000, monthly: 2_592_000_000 }[target.period]
+  const intervalMs = {
+    hourly: 3_600_000,
+    daily: 86_400_000,
+    weekly: 604_800_000,
+    monthly: 2_592_000_000
+  }[target.period]
 
   for (let i = count - 1; i >= 0; i--) {
     const timestamp = now - i * (intervalMs / count)
@@ -203,17 +209,22 @@ export function generateSampleMeasurements(target: SLATarget, count = 30): SLAMe
     if (target.minValue !== undefined) {
       // availability / throughput — mostly above target with occasional dips
       const base = target.minValue
-      value = base + (Math.random() > 0.05 ? Math.random() * (100 - base) * 0.01 : -(Math.random() * 0.5))
+      value =
+        base + (Math.random() > 0.05 ? Math.random() * (100 - base) * 0.01 : -(Math.random() * 0.5))
     } else if (target.maxValue !== undefined) {
       // latency / error — mostly below target with occasional spikes
       const base = target.maxValue * 0.4
-      value = base + (Math.random() > 0.05 ? Math.random() * base : target.maxValue * (1.1 + Math.random()))
+      value =
+        base +
+        (Math.random() > 0.05 ? Math.random() * base : target.maxValue * (1.1 + Math.random()))
     } else {
       value = 0
     }
 
     const compliant =
-      target.minValue !== undefined ? value >= target.minValue : value <= (target.maxValue ?? Infinity)
+      target.minValue !== undefined
+        ? value >= target.minValue
+        : value <= (target.maxValue ?? Infinity)
 
     measurements.push({ targetId: target.id, value: Math.max(0, value), timestamp, compliant })
   }
@@ -233,7 +244,7 @@ export function computeSLAReport(target: SLATarget, measurements: SLAMeasurement
       status: 'compliant',
       avgValue: 0,
       p95Value: 0,
-      violations: 0,
+      violations: 0
     }
   }
 
@@ -250,20 +261,31 @@ export function computeSLAReport(target: SLATarget, measurements: SLAMeasurement
     status = 'at_risk'
   }
 
-  return { targetId: target.id, period: target.period, measurements, compliancePercent, status, avgValue, p95Value, violations }
+  return {
+    targetId: target.id,
+    period: target.period,
+    measurements,
+    compliancePercent,
+    status,
+    avgValue,
+    p95Value,
+    violations
+  }
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function getSLAStatusColor(status: SLAStatus): string {
-  return { compliant: 'text-green-600', at_risk: 'text-yellow-600', violated: 'text-red-600' }[status]
+  return { compliant: 'text-green-600', at_risk: 'text-yellow-600', violated: 'text-red-600' }[
+    status
+  ]
 }
 
 export function getSLAStatusBadgeClass(status: SLAStatus): string {
   return {
     compliant: 'bg-green-100 text-green-700 border-green-200',
     at_risk: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-    violated: 'bg-red-100 text-red-700 border-red-200',
+    violated: 'bg-red-100 text-red-700 border-red-200'
   }[status]
 }
 
@@ -273,6 +295,6 @@ export function getCategoryLabel(category: SLACategory): string {
     latency: 'Latency',
     throughput: 'Throughput',
     error_rate: 'Error Rate',
-    web_vitals: 'Web Vitals',
+    web_vitals: 'Web Vitals'
   }[category]
 }

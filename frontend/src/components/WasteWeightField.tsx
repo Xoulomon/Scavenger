@@ -36,13 +36,13 @@ export function WasteWeightField({
   watch,
   errors,
   weightUnit,
-  setWeightUnit,
+  setWeightUnit
 }: WasteWeightFieldProps) {
   const { t } = useTranslation()
   const weightValue = watch('weight')
   const convertedWeight = useMemo(
     () => formatWeightConversion(convertWeight(weightValue, weightUnit)),
-    [weightValue, weightUnit],
+    [weightValue, weightUnit]
   )
   const hasError = Boolean(errors.weight)
   const nextWeightUnit: WeightUnit = weightUnit === 'grams' ? 'kilograms' : 'grams'
@@ -69,7 +69,9 @@ export function WasteWeightField({
           type="button"
           onClick={() => setWeightUnit(nextWeightUnit)}
           className="shrink-0 rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent xs:w-auto tablet:px-5"
-          aria-label={t('waste.form.weight.switchUnit', { unit: t(`waste.units.${nextWeightUnit}`) })}
+          aria-label={t('waste.form.weight.switchUnit', {
+            unit: t(`waste.units.${nextWeightUnit}`)
+          })}
           aria-pressed={weightUnit === 'kilograms'}
         >
           {getWeightUnitLabel(weightUnit)}

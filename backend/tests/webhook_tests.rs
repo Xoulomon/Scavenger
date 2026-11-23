@@ -10,10 +10,10 @@ use std::sync::{
 };
 use std::time::Duration;
 
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
-use tokio::net::TcpListener;
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use tokio::net::TcpListener;
 
 use scavenger_backend::services::webhook::{
     CreateWebhookRequest, RetryConfig, UpdateWebhookRequest, WebhookEvent, WebhookManager,
@@ -302,16 +302,14 @@ async fn webhook_signature_and_idempotency_key_are_verified_by_receiver() {
             .lines()
             .find_map(|line| {
                 let (name, value) = line.split_once(':')?;
-                name.eq_ignore_ascii_case("X-Webhook-Signature")
-                    .then_some(value.trim())
+                name.eq_ignore_ascii_case("X-Webhook-Signature").then_some(value.trim())
             })
             .unwrap();
         let idempotency_key = headers
             .lines()
             .find_map(|line| {
                 let (name, value) = line.split_once(':')?;
-                name.eq_ignore_ascii_case("Idempotency-Key")
-                    .then_some(value.trim())
+                name.eq_ignore_ascii_case("Idempotency-Key").then_some(value.trim())
             })
             .unwrap();
         let payload: serde_json::Value = serde_json::from_str(body).unwrap();
@@ -322,9 +320,7 @@ async fn webhook_signature_and_idempotency_key_are_verified_by_receiver() {
         let verified = mac.verify_slice(&signature).is_ok();
         let event_id_matches = payload["id"].as_str() == Some(idempotency_key);
 
-        let _ = stream
-            .write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n")
-            .await;
+        let _ = stream.write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n").await;
         let _ = result_tx.send((verified, event_id_matches));
     });
 
@@ -332,13 +328,10 @@ async fn webhook_signature_and_idempotency_key_are_verified_by_receiver() {
         .trigger(WebhookEvent::WasteRegistered, serde_json::json!({"test": true}))
         .await;
 
-    let (signature_verified, event_id_matches) = tokio::time::timeout(
-        Duration::from_secs(2),
-        result_rx,
-    )
-    .await
-    .expect("receiver should get the webhook")
-    .expect("receiver task should report its verification result");
+    let (signature_verified, event_id_matches) = tokio::time::timeout(Duration::from_secs(2), result_rx)
+        .await
+        .expect("receiver should get the webhook")
+        .expect("receiver task should report its verification result");
     assert!(signature_verified, "receiver should verify the HMAC signature");
     assert!(event_id_matches, "idempotency key should equal the payload event ID");
 }

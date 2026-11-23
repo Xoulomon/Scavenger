@@ -496,8 +496,8 @@ fn test_contract_version_information_accessible() {
 // can still read and process that state after the V1→V2 version transition.
 // A separate test asserts that check_version_transition rejects any downgrade.
 
-use stellar_scavngr_contract::versioning::{check_version_transition, ApiVersion};
 use stellar_scavngr_contract::upgrade::{ProxyState, UpgradeProposal, UpgradeStatus};
+use stellar_scavngr_contract::versioning::{check_version_transition, ApiVersion};
 
 // ── Migration fixture: V1 state survives V1→V2 upgrade ──────────────────────
 
@@ -536,11 +536,15 @@ fn test_migration_v1_state_readable_after_v1_to_v2_upgrade() {
     );
 
     // — Post-upgrade: the same data must still be readable (storage preserved) —
-    let p0_info = client.get_participant_info(p0).expect("p0 must still be registered after upgrade");
+    let p0_info = client
+        .get_participant_info(p0)
+        .expect("p0 must still be registered after upgrade");
     assert_eq!(p0_info.address, *p0, "participant address must be preserved");
     assert!(p0_info.is_registered, "registration flag must be preserved");
 
-    let p1_info = client.get_participant_info(p1).expect("p1 must still be registered after upgrade");
+    let p1_info = client
+        .get_participant_info(p1)
+        .expect("p1 must still be registered after upgrade");
     assert_eq!(p1_info.address, *p1);
 
     // Waste records must still be accessible
@@ -656,5 +660,9 @@ fn test_upgrade_proposal_rejects_execute_without_approval() {
         result.is_err(),
         "executing a Proposed (not Approved) proposal must fail"
     );
-    assert_eq!(proposal.status, UpgradeStatus::Proposed, "status must not change on failure");
+    assert_eq!(
+        proposal.status,
+        UpgradeStatus::Proposed,
+        "status must not change on failure"
+    );
 }

@@ -3,7 +3,8 @@
  * Tracks service status, incidents, and health history.
  */
 
-export type ServiceStatus = 'operational' | 'degraded' | 'partial_outage' | 'major_outage' | 'maintenance'
+export type ServiceStatus =
+  'operational' | 'degraded' | 'partial_outage' | 'major_outage' | 'maintenance'
 
 export interface ServiceHealth {
   id: string
@@ -50,7 +51,7 @@ export function getStatusLabel(status: ServiceStatus): string {
     degraded: 'Degraded Performance',
     partial_outage: 'Partial Outage',
     major_outage: 'Major Outage',
-    maintenance: 'Under Maintenance',
+    maintenance: 'Under Maintenance'
   }
   return labels[status]
 }
@@ -61,7 +62,7 @@ export function getStatusColor(status: ServiceStatus): string {
     degraded: 'text-yellow-600',
     partial_outage: 'text-orange-600',
     major_outage: 'text-red-600',
-    maintenance: 'text-blue-600',
+    maintenance: 'text-blue-600'
   }
   return colors[status]
 }
@@ -72,7 +73,7 @@ export function getStatusBg(status: ServiceStatus): string {
     degraded: 'bg-yellow-500',
     partial_outage: 'bg-orange-500',
     major_outage: 'bg-red-500',
-    maintenance: 'bg-blue-500',
+    maintenance: 'bg-blue-500'
   }
   return colors[status]
 }
@@ -98,7 +99,7 @@ export const DEFAULT_SERVICES: ServiceHealth[] = [
     uptimePercent: 99.97,
     lastChecked: Date.now(),
     responseTimeMs: 145,
-    group: 'Blockchain',
+    group: 'Blockchain'
   },
   {
     id: 'smart-contract',
@@ -108,7 +109,7 @@ export const DEFAULT_SERVICES: ServiceHealth[] = [
     uptimePercent: 99.99,
     lastChecked: Date.now(),
     responseTimeMs: 210,
-    group: 'Blockchain',
+    group: 'Blockchain'
   },
   {
     id: 'backend-api',
@@ -118,17 +119,17 @@ export const DEFAULT_SERVICES: ServiceHealth[] = [
     uptimePercent: 99.95,
     lastChecked: Date.now(),
     responseTimeMs: 58,
-    group: 'Infrastructure',
+    group: 'Infrastructure'
   },
   {
     id: 'indexer',
     name: 'Event Indexer',
     description: 'TypeScript event indexer and query service',
     status: 'operational',
-    uptimePercent: 99.90,
+    uptimePercent: 99.9,
     lastChecked: Date.now(),
     responseTimeMs: 32,
-    group: 'Infrastructure',
+    group: 'Infrastructure'
   },
   {
     id: 'database',
@@ -138,7 +139,7 @@ export const DEFAULT_SERVICES: ServiceHealth[] = [
     uptimePercent: 99.99,
     lastChecked: Date.now(),
     responseTimeMs: 12,
-    group: 'Infrastructure',
+    group: 'Infrastructure'
   },
   {
     id: 'cache',
@@ -148,7 +149,7 @@ export const DEFAULT_SERVICES: ServiceHealth[] = [
     uptimePercent: 99.95,
     lastChecked: Date.now(),
     responseTimeMs: 2,
-    group: 'Infrastructure',
+    group: 'Infrastructure'
   },
   {
     id: 'frontend-cdn',
@@ -158,7 +159,7 @@ export const DEFAULT_SERVICES: ServiceHealth[] = [
     uptimePercent: 100,
     lastChecked: Date.now(),
     responseTimeMs: 18,
-    group: 'Frontend',
+    group: 'Frontend'
   },
   {
     id: 'firebase-auth',
@@ -168,8 +169,8 @@ export const DEFAULT_SERVICES: ServiceHealth[] = [
     uptimePercent: 99.98,
     lastChecked: Date.now(),
     responseTimeMs: 95,
-    group: 'Frontend',
-  },
+    group: 'Frontend'
+  }
 ]
 
 export const SAMPLE_INCIDENTS: Incident[] = [
@@ -182,7 +183,8 @@ export const SAMPLE_INCIDENTS: Incident[] = [
     createdAt: Date.now() - 86_400_000 * 3,
     updatedAt: Date.now() - 86_400_000 * 3 + 7_200_000,
     resolvedAt: Date.now() - 86_400_000 * 3 + 7_200_000,
-    message: 'Stellar testnet experienced elevated latency. Issue resolved after Stellar network maintenance.',
+    message:
+      'Stellar testnet experienced elevated latency. Issue resolved after Stellar network maintenance.'
   },
   {
     id: 'inc-002',
@@ -193,8 +195,9 @@ export const SAMPLE_INCIDENTS: Incident[] = [
     createdAt: Date.now() - 86_400_000 * 7,
     updatedAt: Date.now() - 86_400_000 * 7 + 1_800_000,
     resolvedAt: Date.now() - 86_400_000 * 7 + 1_800_000,
-    message: 'Connection pool was exhausted under peak load. Pool size increased and query optimisations applied.',
-  },
+    message:
+      'Connection pool was exhausted under peak load. Pool size increased and query optimisations applied.'
+  }
 ]
 
 // ─── History helpers ──────────────────────────────────────────────────────────
@@ -206,7 +209,12 @@ export function recordHealthSnapshot(services: ServiceHealth[]): void {
     const history: HealthHistory[] = JSON.parse(localStorage.getItem(HISTORY_KEY) ?? '[]')
     const now = Date.now()
     services.forEach((s) => {
-      history.push({ serviceId: s.id, timestamp: now, status: s.status, responseTimeMs: s.responseTimeMs })
+      history.push({
+        serviceId: s.id,
+        timestamp: now,
+        status: s.status,
+        responseTimeMs: s.responseTimeMs
+      })
     })
     // Keep only last 24 h worth of snapshots per service (288 @ 5 min intervals)
     const cutoff = now - 86_400_000
@@ -214,7 +222,9 @@ export function recordHealthSnapshot(services: ServiceHealth[]): void {
       HISTORY_KEY,
       JSON.stringify(history.filter((h) => h.timestamp > cutoff).slice(-5000))
     )
-  } catch { /* non-critical */ }
+  } catch {
+    /* non-critical */
+  }
 }
 
 export function getHealthHistory(serviceId: string): HealthHistory[] {
@@ -226,10 +236,24 @@ export function getHealthHistory(serviceId: string): HealthHistory[] {
   }
 }
 
-export function getUptimeWindows(services: ServiceHealth[]): { label: string; up: number; total: number }[] {
+export function getUptimeWindows(
+  services: ServiceHealth[]
+): { label: string; up: number; total: number }[] {
   return [
-    { label: '24h', up: services.filter((s) => s.status === 'operational').length, total: services.length },
-    { label: '7d', up: services.filter((s) => s.uptimePercent >= 99).length, total: services.length },
-    { label: '30d', up: services.filter((s) => s.uptimePercent >= 99.5).length, total: services.length },
+    {
+      label: '24h',
+      up: services.filter((s) => s.status === 'operational').length,
+      total: services.length
+    },
+    {
+      label: '7d',
+      up: services.filter((s) => s.uptimePercent >= 99).length,
+      total: services.length
+    },
+    {
+      label: '30d',
+      up: services.filter((s) => s.uptimePercent >= 99.5).length,
+      total: services.length
+    }
   ]
 }

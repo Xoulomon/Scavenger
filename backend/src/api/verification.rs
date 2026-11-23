@@ -7,7 +7,9 @@
 //! unchanged for backward compatibility.
 
 use crate::services::VerificationService;
-use crate::validation::{error_response, sanitize_string, validate_doc_type, validate_required, validate_url, ValidationError};
+use crate::validation::{
+    error_response, sanitize_string, validate_doc_type, validate_required, validate_url, ValidationError,
+};
 use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -193,7 +195,9 @@ pub async fn get_verification_status(
 }
 
 /// #1697: controller-level input parsing for `submit_checklist`.
-fn parse_submit_checklist(req: &ChecklistSubmitRequest) -> Result<(String, HashMap<String, bool>), Vec<ValidationError>> {
+fn parse_submit_checklist(
+    req: &ChecklistSubmitRequest,
+) -> Result<(String, HashMap<String, bool>), Vec<ValidationError>> {
     let participant_id = sanitize_string(&req.participant_id);
     let mut errors = Vec::new();
     if let Some(e) = validate_required(&participant_id, "participant_id") {

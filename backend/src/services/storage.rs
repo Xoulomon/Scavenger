@@ -94,10 +94,7 @@ impl StorageService for S3StorageService {
 
         let file_id = uuid::Uuid::new_v4().to_string();
         let size = request.data.len() as u64;
-        let url = format!(
-            "https://{}.s3.{}.amazonaws.com/{}",
-            self.bucket, self.region, file_id
-        );
+        let url = format!("https://{}.s3.{}.amazonaws.com/{}", self.bucket, self.region, file_id);
 
         log::info!(
             service = "storage",

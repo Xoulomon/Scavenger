@@ -12,7 +12,7 @@ describe('useOnlineStatus', () => {
     Object.defineProperty(navigator, 'onLine', {
       value: true,
       configurable: true,
-      writable: true,
+      writable: true
     })
     vi.clearAllMocks()
   })

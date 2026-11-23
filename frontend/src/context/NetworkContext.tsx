@@ -1,15 +1,7 @@
-'use client';
+'use client'
 
-import React, {
-  createContext,
-  useContext,
-  useMemo,
-  type ReactNode,
-} from 'react';
-import {
-  useOnlineStatus,
-  useConnectionQuality,
-} from '@/hooks/useOnlineStatus';
+import React, { createContext, useContext, useMemo, type ReactNode } from 'react'
+import { useOnlineStatus, useConnectionQuality } from '@/hooks/useOnlineStatus'
 
 /**
  * Shape of the network status exposed by {@link NetworkContext}.
@@ -20,35 +12,33 @@ import {
  */
 export interface NetworkContextValue {
   /** Whether the browser currently reports an active network connection. */
-  isOnline: boolean;
+  isOnline: boolean
   /**
    * Effective connection type reported by the Network Information API
    * (e.g. `'4g'`, `'3g'`, `'2g'`, `'slow-2g'`), or `undefined` when the
    * API is unavailable.
    */
-  effectiveType?: string;
+  effectiveType?: string
   /**
    * Estimated round-trip time in milliseconds reported by the Network
    * Information API, or `undefined` when the API is unavailable.
    */
-  rtt?: number;
+  rtt?: number
 }
 
-const NetworkContext = createContext<NetworkContextValue | undefined>(
-  undefined,
-);
+const NetworkContext = createContext<NetworkContextValue | undefined>(undefined)
 
 export interface NetworkProviderProps {
-  children: ReactNode;
+  children: ReactNode
   /**
    * Optional override for the online status. Primarily useful for tests
    * and for consumers that already know the status from another source.
    */
-  isOnline?: boolean;
+  isOnline?: boolean
   /** Optional override for the effective connection type. */
-  effectiveType?: string;
+  effectiveType?: string
   /** Optional override for the estimated round-trip time (ms). */
-  rtt?: number;
+  rtt?: number
 }
 
 /**
@@ -63,35 +53,23 @@ export function NetworkProvider({
   children,
   isOnline: isOnlineOverride,
   effectiveType: effectiveTypeOverride,
-  rtt: rttOverride,
+  rtt: rttOverride
 }: NetworkProviderProps) {
-  const hookIsOnline = useOnlineStatus();
-  const connectionQuality = useConnectionQuality();
+  const hookIsOnline = useOnlineStatus()
+  const connectionQuality = useConnectionQuality()
 
   const value = useMemo<NetworkContextValue>(() => {
-    const isOnline =
-      isOnlineOverride !== undefined ? isOnlineOverride : hookIsOnline;
+    const isOnline = isOnlineOverride !== undefined ? isOnlineOverride : hookIsOnline
 
     const effectiveType =
-      effectiveTypeOverride !== undefined
-        ? effectiveTypeOverride
-        : connectionQuality?.effectiveType;
+      effectiveTypeOverride !== undefined ? effectiveTypeOverride : connectionQuality?.effectiveType
 
-    const rtt =
-      rttOverride !== undefined ? rttOverride : connectionQuality?.rtt;
+    const rtt = rttOverride !== undefined ? rttOverride : connectionQuality?.rtt
 
-    return { isOnline, effectiveType, rtt };
-  }, [
-    hookIsOnline,
-    connectionQuality,
-    isOnlineOverride,
-    effectiveTypeOverride,
-    rttOverride,
-  ]);
+    return { isOnline, effectiveType, rtt }
+  }, [hookIsOnline, connectionQuality, isOnlineOverride, effectiveTypeOverride, rttOverride])
 
-  return (
-    <NetworkContext.Provider value={value}>{children}</NetworkContext.Provider>
-  );
+  return <NetworkContext.Provider value={value}>{children}</NetworkContext.Provider>
 }
 
 /**
@@ -101,13 +79,13 @@ export function NetworkProvider({
  * error when used outside of a provider to surface misconfiguration early.
  */
 export function useNetwork(): NetworkContextValue {
-  const context = useContext(NetworkContext);
+  const context = useContext(NetworkContext)
 
   if (context === undefined) {
-    throw new Error('useNetwork must be used within a NetworkProvider');
+    throw new Error('useNetwork must be used within a NetworkProvider')
   }
 
-  return context;
+  return context
 }
 
-export default NetworkContext;
+export default NetworkContext

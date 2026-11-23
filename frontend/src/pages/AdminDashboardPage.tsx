@@ -13,7 +13,7 @@ import {
   IncentivesTab,
   SystemHealthTab,
   ConfigTab,
-  AuditLogTab,
+  AuditLogTab
 } from '@/components/admin'
 
 export function AdminDashboardPage() {

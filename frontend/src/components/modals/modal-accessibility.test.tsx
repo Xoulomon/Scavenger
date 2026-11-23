@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe, toHaveNoViolations } from 'jest-axe'
@@ -10,7 +10,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogClose,
-  DialogTrigger,
+  DialogTrigger
 } from '@/components/ui/Dialog'
 
 expect.extend(toHaveNoViolations)
@@ -251,7 +251,9 @@ describe('Modal Accessibility', () => {
       const closeButton = closeButtons.find((btn) => btn.classList.contains('absolute'))
 
       // Should have sr-only text or aria-label
-      expect(closeButton?.querySelector('.sr-only') || closeButton?.getAttribute('aria-label')).toBeTruthy()
+      expect(
+        closeButton?.querySelector('.sr-only') || closeButton?.getAttribute('aria-label')
+      ).toBeTruthy()
     })
   })
 

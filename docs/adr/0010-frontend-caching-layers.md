@@ -21,11 +21,11 @@ We will cache frontend data in three layers:
 
 ## Alternatives Considered
 
-| Alternative | Why it was rejected |
-|-------------|---------------------|
-| Redux or a hand-written store for server data | Duplicates staleness and refetch logic that React Query already provides. |
-| `localStorage` persistence | Synchronous and size-limited; too small for cached aggregates. |
-| Service worker only | Cannot invalidate per-query after a wallet transaction, so users see stale balances. |
+| Alternative                                   | Why it was rejected                                                                  |
+| --------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Redux or a hand-written store for server data | Duplicates staleness and refetch logic that React Query already provides.            |
+| `localStorage` persistence                    | Synchronous and size-limited; too small for cached aggregates.                       |
+| Service worker only                           | Cannot invalidate per-query after a wallet transaction, so users see stale balances. |
 
 ## Consequences
 

@@ -34,7 +34,7 @@ export function DataTable<T extends { id: string | number }>({
   className,
   emptyStateMessage = 'No data available',
   onRowClick,
-  testId = 'data-table',
+  testId = 'data-table'
 }: DataTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1)
   const [sortState, setSortState] = useState<SortState>({ key: null, direction: null })
@@ -116,7 +116,7 @@ export function DataTable<T extends { id: string | number }>({
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              {columns.map(column => (
+              {columns.map((column) => (
                 <th
                   key={String(column.key)}
                   className="px-4 py-3 text-left font-semibold text-gray-700"
@@ -150,7 +150,7 @@ export function DataTable<T extends { id: string | number }>({
                 className={cn('bg-white', onRowClick && 'cursor-pointer hover:bg-gray-50')}
                 data-testid={`table-row-${rowIndex}`}
               >
-                {columns.map(column => (
+                {columns.map((column) => (
                   <td
                     key={`${row.id}-${String(column.key)}`}
                     className="px-4 py-3 text-gray-800"
@@ -184,7 +184,7 @@ export function DataTable<T extends { id: string | number }>({
               Previous
             </button>
             <div className="flex items-center gap-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
                 <button
                   key={pageNum}
                   onClick={() => setCurrentPage(pageNum)}

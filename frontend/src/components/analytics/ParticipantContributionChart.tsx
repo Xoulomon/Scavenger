@@ -4,7 +4,7 @@ import {
   PARTICIPANT_CONTRIBUTIONS,
   ROLE_COLORS,
   roleColor,
-  type ParticipantContribution,
+  type ParticipantContribution
 } from '@/lib/analytics'
 
 interface ParticipantContributionChartProps {
@@ -12,7 +12,7 @@ interface ParticipantContributionChartProps {
 }
 
 export function ParticipantContributionChart({
-  contributions = PARTICIPANT_CONTRIBUTIONS,
+  contributions = PARTICIPANT_CONTRIBUTIONS
 }: ParticipantContributionChartProps) {
   return (
     <Card>

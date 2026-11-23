@@ -15,12 +15,12 @@
  *     npx playwright test --config e2e/playwright.smoke-build.config.ts
  */
 
-import { defineConfig, devices } from '@playwright/test';
-import path from 'node:path';
+import { defineConfig, devices } from '@playwright/test'
+import path from 'node:path'
 
-const externalUrl = process.env.SMOKE_BUILD_URL;
-const previewPort = parseInt(process.env.SMOKE_BUILD_PORT ?? '4173', 10);
-const baseURL = externalUrl ?? `http://localhost:${previewPort}`;
+const externalUrl = process.env.SMOKE_BUILD_URL
+const previewPort = parseInt(process.env.SMOKE_BUILD_PORT ?? '4173', 10)
+const baseURL = externalUrl ?? `http://localhost:${previewPort}`
 
 export default defineConfig({
   // Only execute the post-build smoke spec.
@@ -36,7 +36,7 @@ export default defineConfig({
         reuseExistingServer: !process.env.CI,
         // Give the preview server up to 30 s to start.
         timeout: 30_000,
-        cwd: path.join(__dirname, '..'),
+        cwd: path.join(__dirname, '..')
       },
 
   use: {
@@ -46,7 +46,7 @@ export default defineConfig({
     navigationTimeout: 15_000,
     // Capture screenshots/traces only on failure so CI artefacts stay small.
     screenshot: 'only-on-failure',
-    trace: 'on-first-retry',
+    trace: 'on-first-retry'
   },
 
   // Fail fast on the first test failure in CI.
@@ -64,27 +64,21 @@ export default defineConfig({
       'html',
       {
         outputFolder: path.join(__dirname, '..', 'playwright-report', 'smoke-build'),
-        open: 'never',
-      },
+        open: 'never'
+      }
     ],
     [
       'json',
       {
-        outputFile: path.join(
-          __dirname,
-          '..',
-          'playwright-report',
-          'smoke-build',
-          'results.json',
-        ),
-      },
-    ],
+        outputFile: path.join(__dirname, '..', 'playwright-report', 'smoke-build', 'results.json')
+      }
+    ]
   ],
 
   projects: [
     {
       name: 'smoke-chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-  ],
-});
+      use: { ...devices['Desktop Chrome'] }
+    }
+  ]
+})

@@ -24,26 +24,26 @@ export default defineConfig({
         lines: 85,
         functions: 85,
         branches: 85,
-        statements: 85,
+        statements: 85
       },
       include: [
         'src/components/ui/**/*.{ts,tsx}',
         'src/lib/schemas/**/*.{ts,tsx}',
         'src/routes/**/*.{ts,tsx}',
-        'src/components/**/*.{ts,tsx}',
+        'src/components/**/*.{ts,tsx}'
       ],
       exclude: [
         'src/**/*.test.{ts,tsx}',
         'src/**/*.stories.{ts,tsx}',
         'src/**/*.d.ts',
         'src/test-utils/**',
-        'src/main.tsx',
-      ],
+        'src/main.tsx'
+      ]
     },
     env: {
       VITE_CONTRACT_ID: 'TEST_CONTRACT_ID',
       VITE_RPC_URL: 'https://testnet.sorobanrpc.com',
-      VITE_NETWORK: 'TESTNET',
+      VITE_NETWORK: 'TESTNET'
     },
     projects: [
       {
@@ -60,14 +60,14 @@ export default defineConfig({
             'src/lib/schemas/**/*.test.{ts,tsx}',
             'src/routes/**/*.test.{ts,tsx}',
             'src/components/**/*.test.{ts,tsx}',
-            'src/**/*.test.{ts,tsx}',
+            'src/**/*.test.{ts,tsx}'
           ],
           env: {
             VITE_CONTRACT_ID: 'TEST_CONTRACT_ID',
             VITE_RPC_URL: 'https://testnet.sorobanrpc.com',
-            VITE_NETWORK: 'TESTNET',
-          },
-        },
+            VITE_NETWORK: 'TESTNET'
+          }
+        }
       },
       {
         // Storybook interaction and accessibility tests
@@ -79,16 +79,16 @@ export default defineConfig({
             enabled: true,
             headless: true,
             provider: 'playwright',
-            instances: [{ browser: 'chromium' }],
+            instances: [{ browser: 'chromium' }]
           },
-          setupFiles: ['.storybook/vitest.setup.ts'],
-        },
-      },
-    ],
+          setupFiles: ['.storybook/vitest.setup.ts']
+        }
+      }
+    ]
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
+      '@': path.resolve(__dirname, './src')
+    }
+  }
 })

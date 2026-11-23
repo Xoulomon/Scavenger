@@ -37,6 +37,7 @@ Recycler ──► Collector ──► Manufacturer
 ```
 
 **Key capabilities:**
+
 - On-chain participant registration with role-based access control
 - Waste item lifecycle: submit → verify → transfer → confirm → reward
 - Manufacturer-created incentives with configurable reward splits
@@ -75,49 +76,49 @@ pub enum WasteGrade { A = 0, B = 1, C = 2, D = 3 }
 
 ### `Waste` (v2 storage)
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `u128` | Unique waste identifier |
-| `owner` | `Address` | Current owner |
-| `waste_type` | `WasteType` | Material category |
-| `weight` | `u128` | Weight in grams |
-| `latitude` | `i128` | Location latitude (microdegrees) |
-| `longitude` | `i128` | Location longitude (microdegrees) |
-| `is_confirmed` | `bool` | Whether confirmed by a third party |
-| `is_active` | `bool` | Whether the item is active |
-| `confirmer` | `Option<Address>` | Address that confirmed |
-| `timestamp` | `u64` | Creation ledger timestamp |
+| Field          | Type              | Description                        |
+| -------------- | ----------------- | ---------------------------------- |
+| `id`           | `u128`            | Unique waste identifier            |
+| `owner`        | `Address`         | Current owner                      |
+| `waste_type`   | `WasteType`       | Material category                  |
+| `weight`       | `u128`            | Weight in grams                    |
+| `latitude`     | `i128`            | Location latitude (microdegrees)   |
+| `longitude`    | `i128`            | Location longitude (microdegrees)  |
+| `is_confirmed` | `bool`            | Whether confirmed by a third party |
+| `is_active`    | `bool`            | Whether the item is active         |
+| `confirmer`    | `Option<Address>` | Address that confirmed             |
+| `timestamp`    | `u64`             | Creation ledger timestamp          |
 
 ### `Participant`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `address` | `Address` | Participant's address |
-| `role` | `ParticipantRole` | Assigned role |
-| `name` | `Symbol` | Display name |
-| `latitude` | `i128` | Location latitude (microdegrees) |
-| `longitude` | `i128` | Location longitude (microdegrees) |
-| `is_registered` | `bool` | Registration status |
-| `registered_at` | `u64` | Registration timestamp |
+| Field           | Type              | Description                       |
+| --------------- | ----------------- | --------------------------------- |
+| `address`       | `Address`         | Participant's address             |
+| `role`          | `ParticipantRole` | Assigned role                     |
+| `name`          | `Symbol`          | Display name                      |
+| `latitude`      | `i128`            | Location latitude (microdegrees)  |
+| `longitude`     | `i128`            | Location longitude (microdegrees) |
+| `is_registered` | `bool`            | Registration status               |
+| `registered_at` | `u64`             | Registration timestamp            |
 
 ### `Incentive`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `u64` | Unique identifier |
-| `rewarder` | `Address` | Manufacturer who created it |
-| `waste_type` | `WasteType` | Target waste type |
-| `reward_points` | `u128` | Reward tokens per kg |
-| `budget` | `u128` | Remaining token budget |
-| `is_active` | `bool` | Active status |
+| Field           | Type        | Description                 |
+| --------------- | ----------- | --------------------------- |
+| `id`            | `u64`       | Unique identifier           |
+| `rewarder`      | `Address`   | Manufacturer who created it |
+| `waste_type`    | `WasteType` | Target waste type           |
+| `reward_points` | `u128`      | Reward tokens per kg        |
+| `budget`        | `u128`      | Remaining token budget      |
+| `is_active`     | `bool`      | Active status               |
 
 ### `GlobalMetrics`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `total_wastes` | `u128` | All registered waste items |
-| `total_tokens_distributed` | `u128` | All tokens ever distributed |
-| `total_participants` | `u32` | Registered participant count |
+| Field                      | Type   | Description                  |
+| -------------------------- | ------ | ---------------------------- |
+| `total_wastes`             | `u128` | All registered waste items   |
+| `total_tokens_distributed` | `u128` | All tokens ever distributed  |
+| `total_participants`       | `u32`  | Registered participant count |
 
 ---
 
@@ -182,13 +183,13 @@ Set reward split percentages. The sum of `collector_pct + owner_pct` must not ex
 
 Register a new participant on-chain.
 
-| Parameter | Type | Constraints |
-|-----------|------|-------------|
-| `address` | `Address` | Must not already be registered |
-| `role` | `ParticipantRole` | 0=Recycler, 1=Collector, 2=Manufacturer |
-| `name` | `Symbol` | Non-empty |
-| `lat` | `i128` | `[-90_000_000, +90_000_000]` |
-| `lon` | `i128` | `[-180_000_000, +180_000_000]` |
+| Parameter | Type              | Constraints                             |
+| --------- | ----------------- | --------------------------------------- |
+| `address` | `Address`         | Must not already be registered          |
+| `role`    | `ParticipantRole` | 0=Recycler, 1=Collector, 2=Manufacturer |
+| `name`    | `Symbol`          | Non-empty                               |
+| `lat`     | `i128`            | `[-90_000_000, +90_000_000]`            |
+| `lon`     | `i128`            | `[-180_000_000, +180_000_000]`          |
 
 **Auth:** `address` must sign  
 **Errors:** `AlreadyRegistered (4)`, `InvalidCoordinates (13)`  
@@ -272,10 +273,10 @@ Mark a material as verified by a second party.
 
 Transfer waste ownership. Valid routes:
 
-| From | To |
-|------|----|
-| Recycler | Collector |
-| Recycler | Manufacturer |
+| From      | To           |
+| --------- | ------------ |
+| Recycler  | Collector    |
+| Recycler  | Manufacturer |
 | Collector | Manufacturer |
 
 **Auth:** `from` must sign and be the current owner  
@@ -390,6 +391,7 @@ Find the highest-reward active incentive offered by a specific manufacturer for 
 Distribute supply chain rewards for a confirmed waste item.
 
 Reward split (defaults: collector=0%, owner=0%, remainder→recycler):
+
 ```
 collector_reward = budget_used * collector_pct / 100
 owner_reward     = budget_used * owner_pct / 100
@@ -426,39 +428,41 @@ Aggregate supply chain metrics across all transfers.
 
 All events are emitted via `env.events().publish()` and can be indexed from the Stellar Horizon or Soroban RPC event stream.
 
-| Symbol | Trigger | Topic | Data |
-|--------|---------|-------|------|
-| `recycled` | Waste registered | `(symbol, waste_id)` | `(waste_type, weight, recycler, lat, lon)` |
-| `transfer` | Waste transferred | `(symbol, waste_id)` | `(from, to)` |
-| `confirmed` | Waste confirmed | `(symbol, waste_id)` | `confirmer` |
-| `reg` | Participant registered | `(symbol, address)` | `(role, name, lat, lon)` |
-| `rewarded` | Tokens distributed | `(symbol, recipient)` | `(amount, waste_id)` |
-| `donated` | Charity donation | `(symbol, donor)` | `(amount, charity)` |
-| `deactive` | Waste deactivated | `(symbol, waste_id)` | `(admin, timestamp)` |
-| `expired` | Waste expired | `(symbol, waste_id)` | `timestamp` |
-| `paused` | Contract paused | `(symbol,)` | `admin` |
-| `unpaused` | Contract unpaused | `(symbol,)` | `admin` |
-| `graded` | Waste graded | `(symbol, waste_id)` | `(grade, grader)` |
-| `carbon` | Carbon credits earned | `(symbol, participant)` | `(waste_type, weight, credits)` |
-| `carb_rdm` | Carbon credits redeemed | `(symbol, participant)` | `(amount, remaining)` |
-| `adm_xfr` | Admin transferred | `(symbol,)` | `previous_admin` |
-| `upg_prop` | Upgrade proposed | `(symbol, proposal_id)` | `new_implementation` |
-| `upg_exec` | Upgrade executed | `(symbol, proposal_id)` | `version` |
-| `perm_gr` | Permission granted | `(symbol, subject)` | `(permission, granted_by)` |
-| `reconcil` | Waste reconciled | `(symbol, waste_id)` | `(original, adjusted, by)` |
+| Symbol      | Trigger                 | Topic                   | Data                                       |
+| ----------- | ----------------------- | ----------------------- | ------------------------------------------ |
+| `recycled`  | Waste registered        | `(symbol, waste_id)`    | `(waste_type, weight, recycler, lat, lon)` |
+| `transfer`  | Waste transferred       | `(symbol, waste_id)`    | `(from, to)`                               |
+| `confirmed` | Waste confirmed         | `(symbol, waste_id)`    | `confirmer`                                |
+| `reg`       | Participant registered  | `(symbol, address)`     | `(role, name, lat, lon)`                   |
+| `rewarded`  | Tokens distributed      | `(symbol, recipient)`   | `(amount, waste_id)`                       |
+| `donated`   | Charity donation        | `(symbol, donor)`       | `(amount, charity)`                        |
+| `deactive`  | Waste deactivated       | `(symbol, waste_id)`    | `(admin, timestamp)`                       |
+| `expired`   | Waste expired           | `(symbol, waste_id)`    | `timestamp`                                |
+| `paused`    | Contract paused         | `(symbol,)`             | `admin`                                    |
+| `unpaused`  | Contract unpaused       | `(symbol,)`             | `admin`                                    |
+| `graded`    | Waste graded            | `(symbol, waste_id)`    | `(grade, grader)`                          |
+| `carbon`    | Carbon credits earned   | `(symbol, participant)` | `(waste_type, weight, credits)`            |
+| `carb_rdm`  | Carbon credits redeemed | `(symbol, participant)` | `(amount, remaining)`                      |
+| `adm_xfr`   | Admin transferred       | `(symbol,)`             | `previous_admin`                           |
+| `upg_prop`  | Upgrade proposed        | `(symbol, proposal_id)` | `new_implementation`                       |
+| `upg_exec`  | Upgrade executed        | `(symbol, proposal_id)` | `version`                                  |
+| `perm_gr`   | Permission granted      | `(symbol, subject)`     | `(permission, granted_by)`                 |
+| `reconcil`  | Waste reconciled        | `(symbol, waste_id)`    | `(original, adjusted, by)`                 |
 
 ### Subscribing to Events (TypeScript)
 
 ```typescript
-const server = new SorobanRpc.Server(RPC_URL);
+const server = new SorobanRpc.Server(RPC_URL)
 const events = await server.getEvents({
   startLedger: fromLedger,
-  filters: [{
-    type: 'contract',
-    contractIds: [CONTRACT_ID],
-    topics: [['recycled']]  // filter by symbol
-  }]
-});
+  filters: [
+    {
+      type: 'contract',
+      contractIds: [CONTRACT_ID],
+      topics: [['recycled']] // filter by symbol
+    }
+  ]
+})
 ```
 
 ---
@@ -467,65 +471,65 @@ const events = await server.getEvents({
 
 The contract uses three Soroban storage tiers:
 
-| Tier | Key Pattern | Contents | TTL |
-|------|-------------|----------|-----|
-| **Persistent** | `Admin` | Admin address | Permanent |
-| **Persistent** | `Participant(address)` | Participant record | Permanent |
-| **Persistent** | `Waste(id)` | Waste record (v2) | Permanent |
-| **Persistent** | `WasteCounter` | Incrementing waste ID | Permanent |
-| **Persistent** | `Incentive(id)` | Incentive record | Permanent |
-| **Persistent** | `IncentiveCounter` | Incrementing incentive ID | Permanent |
-| **Persistent** | `ParticipantWastes(address)` | `Vec<u128>` of owned waste IDs | Permanent |
-| **Persistent** | `TransferHistory(waste_id)` | `Vec<TransferRecord>` | Permanent |
-| **Persistent** | `GlobalMetrics` | Aggregate counters | Permanent |
-| **Temporary** | `ReentrancyGuard(fn_name)` | Reentrancy lock (single ledger) | Temporary |
-| **Instance** | `TokenAddress` | Reward token contract | Instance |
-| **Instance** | `CharityContract` | Charity contract address | Instance |
-| **Instance** | `Percentages` | Collector/owner split | Instance |
-| **Instance** | `Paused` | Circuit-breaker flag | Instance |
+| Tier           | Key Pattern                  | Contents                        | TTL       |
+| -------------- | ---------------------------- | ------------------------------- | --------- |
+| **Persistent** | `Admin`                      | Admin address                   | Permanent |
+| **Persistent** | `Participant(address)`       | Participant record              | Permanent |
+| **Persistent** | `Waste(id)`                  | Waste record (v2)               | Permanent |
+| **Persistent** | `WasteCounter`               | Incrementing waste ID           | Permanent |
+| **Persistent** | `Incentive(id)`              | Incentive record                | Permanent |
+| **Persistent** | `IncentiveCounter`           | Incrementing incentive ID       | Permanent |
+| **Persistent** | `ParticipantWastes(address)` | `Vec<u128>` of owned waste IDs  | Permanent |
+| **Persistent** | `TransferHistory(waste_id)`  | `Vec<TransferRecord>`           | Permanent |
+| **Persistent** | `GlobalMetrics`              | Aggregate counters              | Permanent |
+| **Temporary**  | `ReentrancyGuard(fn_name)`   | Reentrancy lock (single ledger) | Temporary |
+| **Instance**   | `TokenAddress`               | Reward token contract           | Instance  |
+| **Instance**   | `CharityContract`            | Charity contract address        | Instance  |
+| **Instance**   | `Percentages`                | Collector/owner split           | Instance  |
+| **Instance**   | `Paused`                     | Circuit-breaker flag            | Instance  |
 
 ---
 
 ## Error Codes
 
-| Code | Variant | Trigger |
-|------|---------|---------|
-| 1 | `AlreadyInitialized` | `initialize_admin` called twice |
-| 2 | `Unauthorized` | Caller is not admin |
-| 3 | `NotRegistered` | Caller/target not registered |
-| 4 | `AlreadyRegistered` | Address already registered |
-| 5 | `NotManufacturer` | Only Manufacturer can create incentives |
-| 6 | `NotWasteOwner` | Caller doesn't own the waste |
-| 7 | `WasteNotFound` | Waste ID doesn't exist |
-| 8 | `MaterialNotFound` | Material ID doesn't exist (v1) |
-| 9 | `IncentiveNotFound` | Incentive ID doesn't exist |
-| 10 | `ParticipantNotFound` | Participant address not found |
-| 11 | `InvalidAmount` | Amount is zero |
-| 12 | `InvalidWeight` | Weight is zero |
-| 13 | `InvalidCoordinates` | Lat/lon out of range |
-| 14 | `InvalidPercentage` | Percentages exceed 100 |
-| 15 | `InsufficientBalance` | Token balance too low |
-| 16 | `CharityNotSet` | Charity address not configured |
-| 17 | `TokenAddressNotSet` | Token address not configured |
-| 18 | `WasteDeactivated` | Operation on deactivated waste |
-| 19 | `WasteAlreadyDeactivated` | Already deactivated |
-| 20 | `WasteAlreadyConfirmed` | Already confirmed |
-| 21 | `WasteNotConfirmed` | Not yet confirmed |
-| 22 | `SelfConfirmation` | Owner tried to confirm own waste |
-| 23 | `IncentiveInactive` | Incentive not active |
-| 24 | `MaterialNotVerified` | Material must be verified first |
-| 25 | `WasteTypeMismatch` | Type mismatch between waste and incentive |
-| 26 | `NoRewardAvailable` | Budget exhausted or weight too low |
-| 27 | `InvalidTransferRoute` | Invalid role-to-role transfer path |
-| 28 | `SameAddress` | Two addresses must differ |
-| 29 | `Overflow` | Arithmetic overflow |
-| 30 | `NotCreator` | Not the original creator |
-| 31 | `InsufficientBudget` | Budget cannot cover reward |
-| 32 | `TooManySplits` | >10 splits requested |
-| 33 | `WeightMismatch` | Split weights don't sum to original |
-| 44 | `WasteExpired` | Waste TTL has elapsed |
-| 50 | `WasteFrozen` | Waste has an open dispute |
-| 51 | `PermissionDenied` | RBAC permission check failed |
+| Code | Variant                   | Trigger                                   |
+| ---- | ------------------------- | ----------------------------------------- |
+| 1    | `AlreadyInitialized`      | `initialize_admin` called twice           |
+| 2    | `Unauthorized`            | Caller is not admin                       |
+| 3    | `NotRegistered`           | Caller/target not registered              |
+| 4    | `AlreadyRegistered`       | Address already registered                |
+| 5    | `NotManufacturer`         | Only Manufacturer can create incentives   |
+| 6    | `NotWasteOwner`           | Caller doesn't own the waste              |
+| 7    | `WasteNotFound`           | Waste ID doesn't exist                    |
+| 8    | `MaterialNotFound`        | Material ID doesn't exist (v1)            |
+| 9    | `IncentiveNotFound`       | Incentive ID doesn't exist                |
+| 10   | `ParticipantNotFound`     | Participant address not found             |
+| 11   | `InvalidAmount`           | Amount is zero                            |
+| 12   | `InvalidWeight`           | Weight is zero                            |
+| 13   | `InvalidCoordinates`      | Lat/lon out of range                      |
+| 14   | `InvalidPercentage`       | Percentages exceed 100                    |
+| 15   | `InsufficientBalance`     | Token balance too low                     |
+| 16   | `CharityNotSet`           | Charity address not configured            |
+| 17   | `TokenAddressNotSet`      | Token address not configured              |
+| 18   | `WasteDeactivated`        | Operation on deactivated waste            |
+| 19   | `WasteAlreadyDeactivated` | Already deactivated                       |
+| 20   | `WasteAlreadyConfirmed`   | Already confirmed                         |
+| 21   | `WasteNotConfirmed`       | Not yet confirmed                         |
+| 22   | `SelfConfirmation`        | Owner tried to confirm own waste          |
+| 23   | `IncentiveInactive`       | Incentive not active                      |
+| 24   | `MaterialNotVerified`     | Material must be verified first           |
+| 25   | `WasteTypeMismatch`       | Type mismatch between waste and incentive |
+| 26   | `NoRewardAvailable`       | Budget exhausted or weight too low        |
+| 27   | `InvalidTransferRoute`    | Invalid role-to-role transfer path        |
+| 28   | `SameAddress`             | Two addresses must differ                 |
+| 29   | `Overflow`                | Arithmetic overflow                       |
+| 30   | `NotCreator`              | Not the original creator                  |
+| 31   | `InsufficientBudget`      | Budget cannot cover reward                |
+| 32   | `TooManySplits`           | >10 splits requested                      |
+| 33   | `WeightMismatch`          | Split weights don't sum to original       |
+| 44   | `WasteExpired`            | Waste TTL has elapsed                     |
+| 50   | `WasteFrozen`             | Waste has an open dispute                 |
+| 51   | `PermissionDenied`        | RBAC permission check failed              |
 
 ---
 
@@ -652,14 +656,14 @@ Test snapshots capture ledger state after each test run and are stored in `stell
 
 ### Gas Benchmarks (typical)
 
-| Operation | CPU Instructions | Notes |
-|-----------|-----------------|-------|
-| `register_participant` | ~500K | One-time per address |
-| `submit_material` | ~800K | Includes counter update |
-| `transfer_waste` | ~1.2M | Includes history append |
-| `confirm_waste_details` | ~600K | |
-| `distribute_rewards` | ~2M | Token transfer included |
-| `get_participant_wastes` (100 items) | ~300K | Read-only |
+| Operation                            | CPU Instructions | Notes                   |
+| ------------------------------------ | ---------------- | ----------------------- |
+| `register_participant`               | ~500K            | One-time per address    |
+| `submit_material`                    | ~800K            | Includes counter update |
+| `transfer_waste`                     | ~1.2M            | Includes history append |
+| `confirm_waste_details`              | ~600K            |                         |
+| `distribute_rewards`                 | ~2M              | Token transfer included |
+| `get_participant_wastes` (100 items) | ~300K            | Read-only               |
 
 ### Optimization Tips
 

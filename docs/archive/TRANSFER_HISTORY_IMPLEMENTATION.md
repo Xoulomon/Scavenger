@@ -7,16 +7,19 @@ The waste transfer history system provides an immutable, chronologically-ordered
 ## Storage Architecture
 
 ### Storage Key Structure
+
 ```rust
 Key: ("transfers", waste_id) → Vec<WasteTransfer>
 ```
 
 Each waste item has its own transfer history stored as a vector, ensuring:
+
 - Chronological ordering (append-only)
 - Immutability (history cannot be modified)
 - Efficient retrieval by waste ID
 
 ### WasteTransfer Structure
+
 ```rust
 pub struct WasteTransfer {
     pub waste_id: u64,
@@ -32,6 +35,7 @@ pub struct WasteTransfer {
 ### Transfer Recording
 
 #### `record_transfer` (Internal)
+
 ```rust
 fn record_transfer(
     env: &Env,
@@ -45,11 +49,13 @@ fn record_transfer(
 Internal function that appends a new transfer to the history.
 
 **Features:**
+
 - Automatically captures timestamp
 - Appends to existing history (preserves chronological order)
 - Creates new history vector if none exists
 
 **Implementation:**
+
 ```rust
 let mut history: Vec<WasteTransfer> = env
     .storage()
@@ -72,6 +78,7 @@ env.storage().instance().set(&key, &history);
 ### Waste Transfer
 
 #### `transfer_waste`
+
 ```rust
 pub fn transfer_waste(
     env: Env,
@@ -85,12 +92,14 @@ pub fn transfer_waste(
 Transfers waste ownership and records the transfer in history.
 
 **Validations:**
+
 1. Sender authentication required
 2. Both sender and receiver must be registered participants
 3. Sender must be the current owner of the waste
 4. Waste must exist
 
 **Process:**
+
 1. Validate participants
 2. Retrieve and validate waste ownership
 3. Update waste ownership
@@ -98,12 +107,14 @@ Transfers waste ownership and records the transfer in history.
 5. Return updated material
 
 **Panics:**
+
 - "Sender not registered"
 - "Receiver not registered"
 - "Only waste owner can transfer"
 - "Waste not found"
 
 **Example:**
+
 ```rust
 let note = String::from_str(&env, "Transferring to processing facility");
 let transferred = client.transfer_waste(
@@ -117,17 +128,20 @@ let transferred = client.transfer_waste(
 ### History Retrieval
 
 #### `get_transfer_history`
+
 ```rust
 pub fn get_transfer_history(env: Env, waste_id: u64) -> Vec<WasteTransfer>
 ```
 
 Retrieves the complete transfer history for a waste item.
 
-**Returns:** 
+**Returns:**
+
 - Vector of WasteTransfer records in chronological order
 - Empty vector if no transfers have occurred
 
 **Example:**
+
 ```rust
 let history = client.get_transfer_history(&waste_id);
 for transfer in history.iter() {
@@ -138,6 +152,7 @@ for transfer in history.iter() {
 ### Query Functions
 
 #### `get_transfers_from`
+
 ```rust
 pub fn get_transfers_from(env: Env, address: Address) -> Vec<(u64, Vec<WasteTransfer>)>
 ```
@@ -147,6 +162,7 @@ Gets all transfers where the address was the sender.
 **Note:** Current implementation returns empty vector. Production version would require additional indexing for efficient queries.
 
 #### `get_transfers_to`
+
 ```rust
 pub fn get_transfers_to(env: Env, address: Address) -> Vec<(u64, Vec<WasteTransfer>)>
 ```
@@ -158,13 +174,17 @@ Gets all transfers where the address was the receiver.
 ## Immutability Guarantees
 
 ### Append-Only Design
+
 The history is append-only, ensuring:
+
 - Past transfers cannot be modified
 - Transfer order is preserved
 - Complete audit trail is maintained
 
 ### No Delete Operations
+
 There are no functions to delete or modify transfer history, providing:
+
 - Tamper-proof records
 - Regulatory compliance
 - Trust in the system
@@ -172,13 +192,17 @@ There are no functions to delete or modify transfer history, providing:
 ## Chronological Ordering
 
 ### Automatic Timestamp
+
 Each transfer automatically captures the ledger timestamp:
+
 ```rust
 env.ledger().timestamp()
 ```
 
 ### Sequential Appending
+
 Transfers are appended to the vector in order:
+
 ```rust
 history.push_back(transfer);
 ```
@@ -188,6 +212,7 @@ This ensures chronological order is maintained naturally.
 ## Usage Examples
 
 ### Single Transfer
+
 ```rust
 // Register participants
 client.register_participant(&recycler, &ParticipantRole::Recycler);
@@ -211,6 +236,7 @@ assert_eq!(history.len(), 1);
 ```
 
 ### Multi-Hop Transfer Chain
+
 ```rust
 // Register supply chain participants
 client.register_participant(&recycler, &ParticipantRole::Recycler);
@@ -247,6 +273,7 @@ assert!(t2.transferred_at >= t1.transferred_at);
 ```
 
 ### Audit Trail Verification
+
 ```rust
 let history = client.get_transfer_history(&waste_id);
 
@@ -258,7 +285,7 @@ for (i, transfer) in history.iter().enumerate() {
         transfer.to,
         transfer.transferred_at
     );
-    
+
     // Verify each participant in chain
     assert!(client.is_participant_registered(&transfer.from));
     assert!(client.is_participant_registered(&transfer.to));
@@ -275,12 +302,15 @@ for (i, transfer) in history.iter().enumerate() {
 ## Gas Optimization
 
 ### Efficient Storage
+
 - Single storage key per waste item
 - Vector storage is gas-efficient for sequential access
 - No redundant data stored
 
 ### Batch Considerations
+
 For high-volume scenarios, consider:
+
 - Limiting history length
 - Archiving old transfers
 - Off-chain indexing for queries
@@ -309,7 +339,9 @@ Comprehensive test coverage includes:
 ## Integration Points
 
 ### Material Tracking
+
 Transfer history integrates with the material tracking system:
+
 ```rust
 // Material ownership is updated
 material.submitter = to.clone();
@@ -320,13 +352,17 @@ Self::record_transfer(&env, waste_id, from, to, note);
 ```
 
 ### Statistics System
+
 Future integration could track:
+
 - Number of transfers per participant
 - Average time between transfers
 - Most active transfer routes
 
 ### Verification System
+
 Transfer history can be used to:
+
 - Verify supply chain integrity
 - Validate material provenance
 - Audit recycling processes
@@ -334,14 +370,18 @@ Transfer history can be used to:
 ## Future Enhancements
 
 ### Indexing
+
 Add participant-based indexes for efficient queries:
+
 ```rust
 // Index: ("transfers_from", address) → Vec<u64> (waste_ids)
 // Index: ("transfers_to", address) → Vec<u64> (waste_ids)
 ```
 
 ### Batch Transfers
+
 Support transferring multiple wastes in one transaction:
+
 ```rust
 pub fn transfer_wastes_batch(
     env: Env,
@@ -353,20 +393,26 @@ pub fn transfer_wastes_batch(
 ```
 
 ### Transfer Metadata
+
 Enhance WasteTransfer with additional fields:
+
 - Transfer reason/category
 - Location information
 - Quality assessment
 - Processing notes
 
 ### History Archival
+
 For long-lived wastes with many transfers:
+
 - Archive old transfers to separate storage
 - Maintain summary statistics
 - Provide paginated history access
 
 ### Event Emission
+
 Emit events for off-chain indexing:
+
 ```rust
 env.events().publish(("transfer", waste_id), (from, to, timestamp));
 ```

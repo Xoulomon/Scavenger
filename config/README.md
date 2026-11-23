@@ -5,22 +5,22 @@ by monitoring tools, and by manual ops processes.
 
 ## Active files
 
-| File | Consumer |
-|------|----------|
-| `alertmanager.yml` | Alertmanager (Prometheus alert routing) |
-| `elasticsearch.yml` | Elasticsearch node configuration |
-| `filebeat.yml` | Filebeat log shipper |
-| `ilm-policy.json` | Elasticsearch ILM policy |
-| `jaeger-config.yml` | Jaeger distributed tracing |
-| `logstash.conf` | Logstash pipeline |
-| `monitoring-manifests.yml` | Prometheus + Grafana k8s manifests |
-| `prometheus.yml` | Prometheus scrape config |
-| `vault-config.hcl` | Vault server configuration |
-| `vault-rotation-policy.hcl` | Vault secret rotation policy |
-| `vault-secrets-config.hcl` | Vault secrets engine setup |
-| `environments.md` | Human-readable environment variable reference |
-| `grafana/` | Grafana dashboard and datasource provisioning |
-| `vault-templates/` | Vault agent template for env injection |
+| File                        | Consumer                                      |
+| --------------------------- | --------------------------------------------- |
+| `alertmanager.yml`          | Alertmanager (Prometheus alert routing)       |
+| `elasticsearch.yml`         | Elasticsearch node configuration              |
+| `filebeat.yml`              | Filebeat log shipper                          |
+| `ilm-policy.json`           | Elasticsearch ILM policy                      |
+| `jaeger-config.yml`         | Jaeger distributed tracing                    |
+| `logstash.conf`             | Logstash pipeline                             |
+| `monitoring-manifests.yml`  | Prometheus + Grafana k8s manifests            |
+| `prometheus.yml`            | Prometheus scrape config                      |
+| `vault-config.hcl`          | Vault server configuration                    |
+| `vault-rotation-policy.hcl` | Vault secret rotation policy                  |
+| `vault-secrets-config.hcl`  | Vault secrets engine setup                    |
+| `environments.md`           | Human-readable environment variable reference |
+| `grafana/`                  | Grafana dashboard and datasource provisioning |
+| `vault-templates/`          | Vault agent template for env injection        |
 
 ## Guard: no dead config files
 

@@ -13,24 +13,28 @@ Scavenger uses a comprehensive monitoring stack:
 ## Key Metrics Monitored
 
 ### Application Metrics
+
 - HTTP request rate, latency (p50, p95, p99)
 - Error rates and types
 - Service availability
 - Transaction success rates
 
 ### Infrastructure Metrics
+
 - Container CPU and memory usage
 - Disk I/O and space
 - Network I/O
 - Pod restart counts
 
 ### Business Metrics
+
 - Waste collected (kg)
 - Participants count
 - Rewards distributed
 - Supply chain efficiency
 
 ### Blockchain Metrics
+
 - Transaction success rate
 - Gas usage
 - Smart contract calls
@@ -39,20 +43,24 @@ Scavenger uses a comprehensive monitoring stack:
 ## Accessing Monitoring Tools
 
 ### Prometheus
+
 - URL: `http://localhost:9090`
 - Query language: PromQL
 - Data retention: 30 days by default
 
 ### Grafana
+
 - URL: `http://localhost:3000`
 - Default credentials: admin/admin
 - Pre-built dashboards for key metrics
 
 ### Kibana
+
 - URL: `http://localhost:5601`
 - Full-text log search and analysis
 
 ### Jaeger
+
 - URL: `http://localhost:16686`
 - Trace visualization and analysis
 
@@ -72,6 +80,7 @@ See `alerting-rules.yml` for configured alerts:
 ### Docker Compose
 
 Full monitoring stack:
+
 ```bash
 docker-compose -f docker-compose.monitoring.yml -f docker-compose.observability.yml up
 ```
@@ -79,6 +88,7 @@ docker-compose -f docker-compose.monitoring.yml -f docker-compose.observability.
 ### Kubernetes
 
 Deploy monitoring with Helm:
+
 ```bash
 helm install scavenger-monitoring ./k8s/monitoring
 ```
@@ -95,6 +105,7 @@ helm install scavenger-monitoring ./k8s/monitoring
 ## SLA Tracking
 
 Target metrics:
+
 - 99.9% availability
 - < 200ms p95 latency
 - < 1% error rate
@@ -104,18 +115,21 @@ Violations are automatically alerted.
 ## On-Call Runbooks
 
 ### Service Down Alert
+
 1. Check pod status: `kubectl get pods -n scavenger`
 2. View logs: `kubectl logs deployment/scavenger-backend`
 3. Check resource limits: `kubectl describe deployment`
 4. Restart if needed: `kubectl rollout restart deployment/scavenger-backend`
 
 ### High Error Rate Alert
+
 1. Check error types in logs
 2. Monitor related service dependencies
 3. Check recent code deployments
 4. Analyze error patterns in Kibana
 
 ### High Resource Usage Alert
+
 1. Identify resource-hungry pods
 2. Check if spike is temporary or sustained
 3. Consider horizontal scaling

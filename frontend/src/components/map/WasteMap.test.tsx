@@ -21,8 +21,8 @@ const mockWaste: WasteMapPoint = {
     recycled_timestamp: 1700000000,
     is_active: true,
     is_confirmed: false,
-    confirmer: '',
-  },
+    confirmer: ''
+  }
 }
 
 const mockParticipant: ParticipantMapPoint = {
@@ -35,8 +35,8 @@ const mockParticipant: ParticipantMapPoint = {
     name: 'Alice',
     latitude: 515074000,
     longitude: -1278000,
-    registered_at: 1700000000,
-  },
+    registered_at: 1700000000
+  }
 }
 
 describe('WasteMap', () => {

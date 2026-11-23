@@ -28,7 +28,7 @@ const WASTE_LABELS: Record<WasteType, string> = {
   [WasteType.Metal]: 'Metal',
   [WasteType.Glass]: 'Glass',
   [WasteType.Organic]: 'Organic',
-  [WasteType.Electronic]: 'Electronic',
+  [WasteType.Electronic]: 'Electronic'
 }
 
 function statusVariant(m: Material): 'default' | 'secondary' | 'outline' | 'destructive' {
@@ -53,7 +53,11 @@ export function RecyclerDashboard() {
   const [modalOpen, setModalOpen] = useState(false)
   const [transferWasteId, setTransferWasteId] = useState<bigint | null>(null)
 
-  const { data, isLoading: loading, reload: load } = useResource(async () => {
+  const {
+    data,
+    isLoading: loading,
+    reload: load
+  } = useResource(async () => {
     if (!address) return null
     const [participantStats, wasteIds, activeIncentives] = await Promise.all([
       client.getStats(address),

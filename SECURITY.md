@@ -2,10 +2,10 @@
 
 ## Supported Versions
 
-| Version | Supported |
-|---------|-----------|
-| latest (main) | ✅ |
-| older releases | ❌ |
+| Version        | Supported |
+| -------------- | --------- |
+| latest (main)  | ✅        |
+| older releases | ❌        |
 
 ## Reporting a Vulnerability
 
@@ -22,18 +22,19 @@ You will receive an acknowledgment within **24 hours** and a triage decision wit
 
 ## Response Timeline
 
-| Stage | SLA |
-|-------|-----|
-| Acknowledgment | 24 hours |
-| Triage & severity assessment | 7 business days |
-| Fix for Critical/High | 14 days |
-| Fix for Medium | 30 days |
-| Fix for Low | 90 days |
-| Public disclosure | 90 days after initial report (coordinated) |
+| Stage                        | SLA                                        |
+| ---------------------------- | ------------------------------------------ |
+| Acknowledgment               | 24 hours                                   |
+| Triage & severity assessment | 7 business days                            |
+| Fix for Critical/High        | 14 days                                    |
+| Fix for Medium               | 30 days                                    |
+| Fix for Low                  | 90 days                                    |
+| Public disclosure            | 90 days after initial report (coordinated) |
 
 ## Scope
 
 **In scope:**
+
 - `backend/` — Rust/actix-web API server
 - `indexer/` — TypeScript event indexer
 - `frontend/` — React web application
@@ -41,6 +42,7 @@ You will receive an acknowledgment within **24 hours** and a triage decision wit
 - Infrastructure configuration in `terraform/` and `k8s/`
 
 **Out of scope:**
+
 - Third-party dependencies (report to their maintainers)
 - Social engineering attacks
 - Physical attacks
@@ -49,6 +51,7 @@ You will receive an acknowledgment within **24 hours** and a triage decision wit
 ## Safe Harbor
 
 We will not pursue legal action against researchers who:
+
 - Report vulnerabilities in good faith following this policy
 - Do not access, modify, or delete user data
 - Do not disrupt production services
@@ -56,6 +59,7 @@ We will not pursue legal action against researchers who:
 ## CVE Process
 
 For vulnerabilities that qualify for a CVE:
+
 1. We will request a CVE ID from MITRE after confirming the issue
 2. The CVE will be referenced in the security advisory and release notes
 3. We credit the reporter unless anonymity is requested

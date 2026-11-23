@@ -5,11 +5,11 @@ This document describes the internationalization (i18n) architecture, translatio
 ## Supported Languages
 
 | Code | Language | Direction |
-|------|----------|-----------|
+| ---- | -------- | --------- |
 | `en` | English  | LTR       |
 | `es` | Español  | LTR       |
 | `fr` | Français | LTR       |
-| `zh` | 中文      | LTR       |
+| `zh` | 中文     | LTR       |
 | `ar` | العربية  | RTL       |
 
 ## Architecture
@@ -33,28 +33,28 @@ frontend/src/i18n/
 
 All translations live in a single `translation` namespace, organized by domain:
 
-| Namespace      | Description                        |
-|----------------|------------------------------------|
-| `common.*`     | Shared UI labels (Save, Cancel...) |
-| `nav.*`        | Navigation items                   |
-| `waste.*`      | Waste management strings           |
-| `auth.*`       | Wallet connection strings          |
-| `participants.*` | Participant roles and labels     |
-| `rewards.*`    | Reward-related strings             |
-| `profile.*`    | User profile strings               |
-| `errors.*`     | Error messages                     |
-| `settings.*`   | Settings page labels               |
+| Namespace        | Description                        |
+| ---------------- | ---------------------------------- |
+| `common.*`       | Shared UI labels (Save, Cancel...) |
+| `nav.*`          | Navigation items                   |
+| `waste.*`        | Waste management strings           |
+| `auth.*`         | Wallet connection strings          |
+| `participants.*` | Participant roles and labels       |
+| `rewards.*`      | Reward-related strings             |
+| `profile.*`      | User profile strings               |
+| `errors.*`       | Error messages                     |
+| `settings.*`     | Settings page labels               |
 
 ## Usage in Components
 
 ### Basic translation
 
 ```tsx
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'
 
 function MyComponent() {
-  const { t } = useTranslation();
-  return <h1>{t('waste.title')}</h1>;
+  const { t } = useTranslation()
+  return <h1>{t('waste.title')}</h1>
 }
 ```
 
@@ -63,10 +63,14 @@ function MyComponent() {
 Use the `LanguageSwitcher` component:
 
 ```tsx
-import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
 function Header() {
-  return <header><LanguageSwitcher /></header>;
+  return (
+    <header>
+      <LanguageSwitcher />
+    </header>
+  )
 }
 ```
 
@@ -75,11 +79,11 @@ function Header() {
 Use the `useRTL` hook to conditionally apply RTL-aware styles:
 
 ```tsx
-import { useRTL } from '@/hooks/useRTL';
+import { useRTL } from '@/hooks/useRTL'
 
 function Sidebar() {
-  const { dir } = useRTL();
-  return <aside dir={dir}>...</aside>;
+  const { dir } = useRTL()
+  return <aside dir={dir}>...</aside>
 }
 ```
 
@@ -109,12 +113,12 @@ The i18n config also automatically sets `document.documentElement.dir` on langua
 2. Import and register it in `config.ts`:
 
 ```ts
-import de from './locales/de.json';
+import de from './locales/de.json'
 
 const resources = {
   // ...existing
-  de: { translation: de },
-};
+  de: { translation: de }
+}
 ```
 
 3. Add the language entry to `LANGUAGES` in `LanguageSwitcher.tsx`.
@@ -130,6 +134,7 @@ npm test -- --testPathPattern=i18n
 ```
 
 Tests verify:
+
 - All supported languages load without errors.
 - Key translations return expected strings.
 - RTL language detection works for Arabic.

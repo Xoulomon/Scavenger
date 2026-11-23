@@ -23,7 +23,6 @@ export function UsersTab({ initialUsers = [] }: UsersTabProps = {}) {
   const [users, setUsers] = useState<AdminUser[]>(initialUsers)
   const [search, setSearch] = useState('')
 
-
   const filtered = users.filter(
     (u) =>
       !search ||
@@ -35,9 +34,7 @@ export function UsersTab({ initialUsers = [] }: UsersTabProps = {}) {
   function toggleStatus(address: string) {
     setUsers((prev) =>
       prev.map((u) =>
-        u.address === address
-          ? { ...u, status: u.status === 'active' ? 'suspended' : 'active' }
-          : u
+        u.address === address ? { ...u, status: u.status === 'active' ? 'suspended' : 'active' } : u
       )
     )
     addAuditEntry('toggle_user_status', address)
@@ -64,9 +61,7 @@ export function UsersTab({ initialUsers = [] }: UsersTabProps = {}) {
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <Badge variant={u.status === 'active' ? 'default' : 'outline'}>
-                  {u.status}
-                </Badge>
+                <Badge variant={u.status === 'active' ? 'default' : 'outline'}>{u.status}</Badge>
                 <Button
                   size="sm"
                   variant={u.status === 'active' ? 'destructive' : 'outline'}

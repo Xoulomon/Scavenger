@@ -116,14 +116,14 @@ pub fn claim_reward(env: Env, /* ... */) {
 
 Choosing the wrong storage tier wastes fees. Use this decision table:
 
-| Data | Tier | Reason |
-|------|------|--------|
-| Admin address | `instance` | One per contract, read often |
+| Data                     | Tier         | Reason                                 |
+| ------------------------ | ------------ | -------------------------------------- |
+| Admin address            | `instance`   | One per contract, read often           |
 | Participant approval map | `persistent` | Long-lived, sized by participant count |
-| Individual waste records | `persistent` | Long-lived, keyed by ID |
-| Re-entrancy lock | `instance` | Single boolean, per-contract |
-| Per-transaction nonce | `temporary` | Valid only within a ledger |
-| Aggregated stats cache | `temporary` | Rebuilt on miss, no archive needed |
+| Individual waste records | `persistent` | Long-lived, keyed by ID                |
+| Re-entrancy lock         | `instance`   | Single boolean, per-contract           |
+| Per-transaction nonce    | `temporary`  | Valid only within a ledger             |
+| Aggregated stats cache   | `temporary`  | Rebuilt on miss, no archive needed     |
 
 Extend TTLs for long-lived data to avoid ledger entry expiry:
 
@@ -210,6 +210,7 @@ stellar contract invoke \
 ```
 
 Observe the `fee_charged` in the transaction result and reduce it by:
+
 1. Batching storage reads with `get_or_default` helpers
 2. Prefetching known keys at function start
 3. Using `temporary` storage for ephemeral data

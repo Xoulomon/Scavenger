@@ -60,11 +60,11 @@ Complete **all** items before proceeding to either testnet or mainnet.
 
 ## Environment Overview
 
-| Environment | Stellar Network | RPC URL | Horizon URL |
-|-------------|----------------|---------|-------------|
-| Local | Standalone | `http://localhost:8000/soroban/rpc` | `http://localhost:8000` |
-| Testnet | Test SDF Network | `https://soroban-testnet.stellar.org` | `https://horizon-testnet.stellar.org` |
-| Mainnet | Public Global Stellar Network | `https://soroban-mainnet.stellar.org` | `https://horizon.stellar.org` |
+| Environment | Stellar Network               | RPC URL                               | Horizon URL                           |
+| ----------- | ----------------------------- | ------------------------------------- | ------------------------------------- |
+| Local       | Standalone                    | `http://localhost:8000/soroban/rpc`   | `http://localhost:8000`               |
+| Testnet     | Test SDF Network              | `https://soroban-testnet.stellar.org` | `https://horizon-testnet.stellar.org` |
+| Mainnet     | Public Global Stellar Network | `https://soroban-mainnet.stellar.org` | `https://horizon.stellar.org`         |
 
 ---
 
@@ -659,15 +659,15 @@ psql $DATABASE_URL -c "SELECT count(*) FROM wastes;"
 
 ### Key Metrics to Watch
 
-| Metric | Warning | Critical | Check |
-|--------|---------|----------|-------|
-| Contract invocation success rate | < 95% | < 90% | Horizon API |
-| Transaction latency | > 15 s | > 30 s | Soroban RPC |
+| Metric                           | Warning       | Critical      | Check                   |
+| -------------------------------- | ------------- | ------------- | ----------------------- |
+| Contract invocation success rate | < 95%         | < 90%         | Horizon API             |
+| Transaction latency              | > 15 s        | > 30 s        | Soroban RPC             |
 | Indexer lag (last synced ledger) | > 100 ledgers | > 500 ledgers | Indexer health endpoint |
-| Backend API p99 latency | > 2 s | > 5 s | Prometheus |
-| Error rate (4xx + 5xx) | > 1% | > 5% | Application logs |
-| Database connections | > 80% | > 95% | PostgreSQL metrics |
-| Redis memory usage | > 70% | > 90% | Redis INFO |
+| Backend API p99 latency          | > 2 s         | > 5 s         | Prometheus              |
+| Error rate (4xx + 5xx)           | > 1%          | > 5%          | Application logs        |
+| Database connections             | > 80%         | > 95%         | PostgreSQL metrics      |
+| Redis memory usage               | > 70%         | > 90%         | Redis INFO              |
 
 ### Post-Deployment Monitoring Checklist
 

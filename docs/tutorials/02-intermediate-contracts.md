@@ -11,6 +11,7 @@
 ## What You Will Build
 
 Extend the `WasteRegistry` contract with:
+
 - Admin initialization (single owner with elevated privileges)
 - Role-gated functions (`register_waste` restricted to verified participants)
 - Contract upgrade via WASM hash replacement

@@ -21,7 +21,7 @@ export function useConfirmWaste() {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       await client.confirmWasteDetails(wasteId, address, address)
       return wasteId
@@ -34,6 +34,6 @@ export function useConfirmWaste() {
     onError: (error) => {
       transactionStatus.setFailed(error)
       toast.error(error)
-    },
+    }
   })
 }

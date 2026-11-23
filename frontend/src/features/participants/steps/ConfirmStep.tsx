@@ -14,7 +14,7 @@ export function ConfirmStep({
   summaryItems,
   geo,
   submitError,
-  onChange,
+  onChange
 }: {
   draft: FormDraft
   address: string | null
@@ -59,7 +59,11 @@ export function ConfirmStep({
                 aria-describedby={errors.latitude ? 'err-latitude' : undefined}
               />
               {errors.latitude && (
-                <p id="err-latitude" role="alert" className="flex items-center gap-1.5 text-xs text-destructive">
+                <p
+                  id="err-latitude"
+                  role="alert"
+                  className="flex items-center gap-1.5 text-xs text-destructive"
+                >
                   <AlertCircle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                   {errors.latitude}
                 </p>
@@ -81,7 +85,11 @@ export function ConfirmStep({
                 aria-describedby={errors.longitude ? 'err-longitude' : undefined}
               />
               {errors.longitude && (
-                <p id="err-longitude" role="alert" className="flex items-center gap-1.5 text-xs text-destructive">
+                <p
+                  id="err-longitude"
+                  role="alert"
+                  className="flex items-center gap-1.5 text-xs text-destructive"
+                >
                   <AlertCircle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                   {errors.longitude}
                 </p>
@@ -89,7 +97,13 @@ export function ConfirmStep({
             </div>
           </div>
 
-          <Button type="button" variant="outline" size="sm" onClick={geo.onDetect} disabled={geo.loading}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={geo.onDetect}
+            disabled={geo.loading}
+          >
             {geo.loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
@@ -137,9 +151,7 @@ export function ConfirmStep({
             <div className="flex items-center justify-between py-2.5 text-sm">
               <dt className="text-muted-foreground">Location</dt>
               <dd className="font-mono text-xs font-medium">
-                {draft.latitude && draft.longitude
-                  ? `${draft.latitude}, ${draft.longitude}`
-                  : '-'}
+                {draft.latitude && draft.longitude ? `${draft.latitude}, ${draft.longitude}` : '-'}
               </dd>
             </div>
           </dl>
@@ -169,7 +181,12 @@ export function ConfirmStep({
           </span>
         </label>
         {errors.agreedToTerms && (
-          <p id="err-terms" role="alert" aria-live="assertive" className="flex items-center gap-1.5 text-xs text-destructive">
+          <p
+            id="err-terms"
+            role="alert"
+            aria-live="assertive"
+            className="flex items-center gap-1.5 text-xs text-destructive"
+          >
             <AlertCircle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
             {errors.agreedToTerms}
           </p>
@@ -178,7 +195,11 @@ export function ConfirmStep({
 
       {/* Registration error */}
       {submitError && (
-        <p role="alert" aria-live="assertive" className="flex items-center gap-1.5 text-sm text-destructive">
+        <p
+          role="alert"
+          aria-live="assertive"
+          className="flex items-center gap-1.5 text-sm text-destructive"
+        >
           <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
           {submitError}
         </p>

@@ -8,8 +8,7 @@
 //   env.mock_all_auths()  – allow all auths (positive path)
 //   env.set_auths(&[])    – strip all auths (negative path, must panic)
 
-#![cfg(test)]
-
+#[cfg(test)]
 use soroban_sdk::{testutils::Address as _, Address, Env, String, Symbol, Vec};
 
 use crate::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
@@ -460,7 +459,6 @@ fn test_reset_confirmation_owner_succeeds() {
     let waste = client.reset_waste_confirmation(&waste_id, &recycler);
     assert!(!waste.is_confirmed);
 }
-
 
 // ── #1275: end_auction — caller must be creator or admin ───────────────
 
@@ -493,8 +491,7 @@ fn test_end_auction_creator_authorized() {
 //   env.mock_all_auths()  – allow all auths (positive path)
 //   env.set_auths(&[])    – strip all auths (negative path, must panic)
 
-#![cfg(test)]
-
+#[cfg(test)]
 use soroban_sdk::{testutils::Address as _, Address, Env, String, Symbol, Vec};
 
 use crate::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
@@ -945,7 +942,6 @@ fn test_reset_confirmation_owner_succeeds() {
     let waste = client.reset_waste_confirmation(&waste_id, &recycler);
     assert!(!waste.is_confirmed);
 }
-
 
 // ── #1275: end_auction — caller must be creator or admin ───────────────
 

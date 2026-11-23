@@ -26,13 +26,13 @@ All tokens live in `src/design-system/tokens.ts` and are the single source of tr
 
 ### Color Palette
 
-| Scale | Token | Light value | Dark value |
-|-------|-------|-------------|------------|
-| Primary | `--primary` | green-600 `#16a34a` | green-400 `#4ade80` |
-| Background | `--background` | `#ffffff` | `hsl(222 47% 8%)` |
-| Foreground | `--foreground` | `hsl(222 47% 11%)` | `hsl(210 40% 96%)` |
-| Muted | `--muted-foreground` | `hsl(215 25% 38%)` | `hsl(215 25% 68%)` |
-| Destructive | `--destructive` | red-600 `#dc2626` | red-500 `#ef4444` |
+| Scale       | Token                | Light value         | Dark value          |
+| ----------- | -------------------- | ------------------- | ------------------- |
+| Primary     | `--primary`          | green-600 `#16a34a` | green-400 `#4ade80` |
+| Background  | `--background`       | `#ffffff`           | `hsl(222 47% 8%)`   |
+| Foreground  | `--foreground`       | `hsl(222 47% 11%)`  | `hsl(210 40% 96%)`  |
+| Muted       | `--muted-foreground` | `hsl(215 25% 38%)`  | `hsl(215 25% 68%)`  |
+| Destructive | `--destructive`      | red-600 `#dc2626`   | red-500 `#ef4444`   |
 
 All semantic color pairs meet **WCAG AA** (4.5:1 contrast ratio) in both light and dark modes.
 
@@ -45,18 +45,18 @@ Raw palette tokens (`green`, `blue`, `amber`, `red`, `neutral`) are also availab
 
 ### Typography
 
-| Token | Value |
-|-------|-------|
+| Token       | Value                           |
+| ----------- | ------------------------------- |
 | `font-sans` | Inter, ui-sans-serif, system-ui |
-| `font-mono` | JetBrains Mono, ui-monospace |
-| `text-xs` | 0.75rem / 1rem |
-| `text-sm` | 0.875rem / 1.25rem |
-| `text-base` | 1rem / 1.5rem |
-| `text-lg` | 1.125rem / 1.75rem |
-| `text-xl` | 1.25rem / 1.75rem |
-| `text-2xl` | 1.5rem / 2rem |
-| `text-3xl` | 1.875rem / 2.25rem |
-| `text-4xl` | 2.25rem / 2.5rem |
+| `font-mono` | JetBrains Mono, ui-monospace    |
+| `text-xs`   | 0.75rem / 1rem                  |
+| `text-sm`   | 0.875rem / 1.25rem              |
+| `text-base` | 1rem / 1.5rem                   |
+| `text-lg`   | 1.125rem / 1.75rem              |
+| `text-xl`   | 1.25rem / 1.75rem               |
+| `text-2xl`  | 1.5rem / 2rem                   |
+| `text-3xl`  | 1.875rem / 2.25rem              |
+| `text-4xl`  | 2.25rem / 2.5rem                |
 
 ### Spacing
 
@@ -64,27 +64,27 @@ Uses the standard Tailwind 4px grid (`spacing-1` = 4px, `spacing-4` = 16px, …)
 
 ### Border Radius
 
-| Token | Value |
-|-------|-------|
-| `rounded-sm` | 4px |
-| `rounded` | 6px |
-| `rounded-md` | 8px |
-| `rounded-lg` | 12px |
-| `rounded-xl` | 16px |
-| `rounded-2xl` | 24px |
+| Token          | Value  |
+| -------------- | ------ |
+| `rounded-sm`   | 4px    |
+| `rounded`      | 6px    |
+| `rounded-md`   | 8px    |
+| `rounded-lg`   | 12px   |
+| `rounded-xl`   | 16px   |
+| `rounded-2xl`  | 24px   |
 | `rounded-full` | 9999px |
 
 The `--radius` CSS variable (default `0.5rem`) drives the shadcn/ui `rounded-lg/md/sm` aliases.
 
 ### Shadows
 
-| Token | Usage |
-|-------|-------|
-| `shadow-sm` | Subtle card lift |
-| `shadow` | Default card |
+| Token       | Usage               |
+| ----------- | ------------------- |
+| `shadow-sm` | Subtle card lift    |
+| `shadow`    | Default card        |
 | `shadow-md` | Dropdowns, popovers |
-| `shadow-lg` | Modals |
-| `shadow-xl` | Floating panels |
+| `shadow-lg` | Modals              |
+| `shadow-xl` | Floating panels     |
 
 ---
 
@@ -119,9 +119,16 @@ import { Badge } from '@/components/ui/Badge'
 ### Card
 
 ```tsx
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/Card'
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter
+} from '@/components/ui/Card'
 
-<Card>
+;<Card>
   <CardHeader>
     <CardTitle>Waste Submission</CardTitle>
     <CardDescription>Submit recyclable materials.</CardDescription>
@@ -143,10 +150,18 @@ import { Input } from '@/components/ui/Input'
 ### Select
 
 ```tsx
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/Select'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from '@/components/ui/Select'
 
-<Select>
-  <SelectTrigger><SelectValue placeholder="Waste type" /></SelectTrigger>
+;<Select>
+  <SelectTrigger>
+    <SelectValue placeholder="Waste type" />
+  </SelectTrigger>
   <SelectContent>
     <SelectItem value="plastic">Plastic</SelectItem>
     <SelectItem value="metal">Metal</SelectItem>
@@ -157,10 +172,20 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 ### Dialog
 
 ```tsx
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/Dialog'
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from '@/components/ui/Dialog'
 
-<Dialog>
-  <DialogTrigger asChild><Button>Open</Button></DialogTrigger>
+;<Dialog>
+  <DialogTrigger asChild>
+    <Button>Open</Button>
+  </DialogTrigger>
   <DialogContent>
     <DialogHeader>
       <DialogTitle>Confirm Transfer</DialogTitle>
@@ -179,7 +204,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 ```tsx
 import { Switch } from '@/components/ui/Switch'
 
-<Switch id="notifications" defaultChecked />
+;<Switch id="notifications" defaultChecked />
 ```
 
 ### Checkbox
@@ -187,7 +212,7 @@ import { Switch } from '@/components/ui/Switch'
 ```tsx
 import { Checkbox } from '@/components/ui/Checkbox'
 
-<Checkbox id="terms" />
+;<Checkbox id="terms" />
 ```
 
 ---
@@ -224,7 +249,7 @@ Dark mode is driven by the `.dark` class on `<html>`. The `ThemeProvider` in `sr
 // Toggle dark mode
 import { useTheme } from 'next-themes'
 const { setTheme } = useTheme()
-setTheme('dark')   // or 'light' | 'system'
+setTheme('dark') // or 'light' | 'system'
 ```
 
 Smooth transitions are applied once the `html.theme-ready` class is set (prevents flash on initial load).
@@ -241,7 +266,7 @@ import tokens from '@/design-system'
 import { colors, spacing, shadows } from '@/design-system'
 
 // Example: pass brand green to a chart library
-const chartColor = tokens.colors.green[500]  // '#22c55e'
+const chartColor = tokens.colors.green[500] // '#22c55e'
 ```
 
 See `src/design-system/index.ts` for the full export surface.

@@ -5,6 +5,7 @@ Comprehensive security testing suite for the Scavenger platform using OWASP ZAP 
 ## Overview
 
 This directory contains security tests covering:
+
 - SQL Injection vulnerabilities
 - XSS (Cross-Site Scripting) vulnerabilities
 - CSRF (Cross-Site Request Forgery) vulnerabilities
@@ -63,8 +64,8 @@ npx vitest run tests/injection-input-validation.test.ts
 
 ## Environment Requirements
 
-| Variable | Default | Description |
-|----------|---------|-------------|
+| Variable  | Default                     | Description         |
+| --------- | --------------------------- | ------------------- |
 | `API_URL` | `http://localhost:3000/api` | Target API base URL |
 
 **IMPORTANT**: Security tests must only run against authorized local/staging/test environments. Never run against production.
@@ -72,40 +73,48 @@ npx vitest run tests/injection-input-validation.test.ts
 ## Test Coverage
 
 ### 1. SQL Injection Tests (3 tests)
+
 - Test parameterized queries
 - Test input sanitization
 - Test prepared statements
 
 ### 2. XSS Vulnerability Tests (3 tests)
+
 - Test HTML encoding
 - Test JavaScript context escaping
 - Test attribute encoding
 
 ### 3. CSRF Protection Tests (2 tests)
+
 - Test CSRF token validation
 - Test SameSite cookie attributes
 
 ### 4. Authentication/Authorization Tests (4 tests)
+
 - Test JWT token validation
 - Test role-based access control
 - Test session management
 - Test password policies
 
 ### 5. Rate Limiting Tests (3 tests)
+
 - Test request rate limits
 - Test IP-based throttling
 - Test user-based throttling
 
 ### 6. API Security Tests (3 tests)
+
 - Test HTTPS enforcement
 - Test API key validation
 - Test CORS policies
 
 ### 7. Input Validation Tests (2 tests)
+
 - Test boundary conditions
 - Test malformed input handling
 
 ### 8. IDOR / Broken Object-Level Authorization Tests (11 tests) — NEW
+
 - Waste resource ownership enforcement
 - Participant resource ownership enforcement
 - Incentive resource ownership enforcement
@@ -113,6 +122,7 @@ npx vitest run tests/injection-input-validation.test.ts
 - Resource existence leakage prevention
 
 ### 9. Broken Authentication Tests (12 tests) — NEW
+
 - Missing authentication on protected endpoints
 - Malformed JWT tokens
 - Invalid token signatures
@@ -123,6 +133,7 @@ npx vitest run tests/injection-input-validation.test.ts
 - Session security headers
 
 ### 10. Injection & Input Validation Security Tests (25+ tests) — NEW
+
 - SQL/ORM injection payloads
 - XSS/script injection payloads
 - Command injection payloads
@@ -133,18 +144,18 @@ npx vitest run tests/injection-input-validation.test.ts
 
 ## OWASP Top 10 Coverage
 
-| OWASP Category | Test File | Status |
-|----------------|-----------|--------|
-| A01: Broken Access Control | `idor.test.ts` | Covered |
-| A02: Cryptographic Failures | `broken-authentication.test.ts` | Covered |
-| A03: Injection | `injection-input-validation.test.ts` | Covered |
-| A04: Insecure Design | — | Manual review required |
-| A05: Security Misconfiguration | `security.test.ts` | Covered |
-| A06: Vulnerable Components | `scripts/zap-scan.js` | Covered |
-| A07: Auth Failures | `broken-authentication.test.ts` | Covered |
-| A08: Data Integrity Failures | `reentrancy.test.ts` | Covered |
-| A09: Logging Failures | — | Manual review required |
-| A10: SSRF | `injection-input-validation.test.ts` | Partial |
+| OWASP Category                 | Test File                            | Status                 |
+| ------------------------------ | ------------------------------------ | ---------------------- |
+| A01: Broken Access Control     | `idor.test.ts`                       | Covered                |
+| A02: Cryptographic Failures    | `broken-authentication.test.ts`      | Covered                |
+| A03: Injection                 | `injection-input-validation.test.ts` | Covered                |
+| A04: Insecure Design           | —                                    | Manual review required |
+| A05: Security Misconfiguration | `security.test.ts`                   | Covered                |
+| A06: Vulnerable Components     | `scripts/zap-scan.js`                | Covered                |
+| A07: Auth Failures             | `broken-authentication.test.ts`      | Covered                |
+| A08: Data Integrity Failures   | `reentrancy.test.ts`                 | Covered                |
+| A09: Logging Failures          | —                                    | Manual review required |
+| A10: SSRF                      | `injection-input-validation.test.ts` | Partial                |
 
 ## Adding New Security Tests
 
@@ -166,9 +177,9 @@ describe('Category Name', () => {
       // Arrange
       // Act
       // Assert
-    });
-  });
-});
+    })
+  })
+})
 ```
 
 ### What to Assert
@@ -180,12 +191,12 @@ describe('Category Name', () => {
 
 ## Interpreting Failures
 
-| Failure | Likely Cause |
-|---------|-------------|
-| Test returns 500 | Application bug — investigate immediately |
-| Test returns unexpected status | Possible security issue or API contract change |
-| Test passes but should fail | Security control may be missing |
-| Test fails with connection error | Target environment not running |
+| Failure                          | Likely Cause                                   |
+| -------------------------------- | ---------------------------------------------- |
+| Test returns 500                 | Application bug — investigate immediately      |
+| Test returns unexpected status   | Possible security issue or API contract change |
+| Test passes but should fail      | Security control may be missing                |
+| Test fails with connection error | Target environment not running                 |
 
 ## OWASP ZAP Integration
 
@@ -208,6 +219,7 @@ This runs OWASP ZAP in headless mode against the application.
 ## Security Test Results
 
 Test results are generated in:
+
 - `./reports/security-tests.json` - Detailed test results
 - `./reports/zap-report.html` - OWASP ZAP scan report
 - `./reports/coverage.json` - Security coverage metrics
@@ -215,6 +227,7 @@ Test results are generated in:
 ## CI/CD Integration
 
 Security tests run automatically on:
+
 - Pull requests
 - Commits to main branch
 - Scheduled daily scans
@@ -224,6 +237,7 @@ See `.github/workflows/security.yml` for CI configuration.
 ## Never Commit Secrets
 
 Before committing:
+
 - Ensure no real API keys in test fixtures
 - Ensure no private keys or certificates
 - Ensure no real user credentials
@@ -232,6 +246,7 @@ Before committing:
 ## Remediation
 
 For each security finding:
+
 1. Document the vulnerability
 2. Implement fix
 3. Add regression test

@@ -3,7 +3,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
-interface OfflineDBSchema {
+interface _OfflineDBSchema {
   queries: {
     key: string
     data: unknown
@@ -32,7 +32,7 @@ interface OfflineDBSchema {
 
 // Mock IndexedDB
 vi.mock('idb', () => ({
-  openDB: vi.fn(),
+  openDB: vi.fn()
 }))
 
 describe('Offline Storage', () => {
@@ -42,7 +42,7 @@ describe('Offline Storage', () => {
     delete: vi.fn(),
     clear: vi.fn(),
     getAll: vi.fn(),
-    getAllFromIndex: vi.fn(),
+    getAllFromIndex: vi.fn()
   }
 
   beforeEach(() => {
@@ -55,8 +55,8 @@ describe('Offline Storage', () => {
 
   describe('Query Cache Operations', () => {
     it('should save query to storage', async () => {
-      const key = 'participant:GABC123'
-      const data = { address: 'GABC123', role: 0, name: 'Alice' }
+      const _key = 'participant:GABC123'
+      const _data = { address: 'GABC123', role: 0, name: 'Alice' }
 
       mockDB.put.mockResolvedValue(undefined)
 
@@ -108,7 +108,7 @@ describe('Offline Storage', () => {
         variables: { weight: 100 },
         timestamp: Date.now(),
         retries: 0,
-        status: 'pending' as const,
+        status: 'pending' as const
       }
 
       mockDB.put.mockResolvedValue(undefined)
@@ -125,7 +125,7 @@ describe('Offline Storage', () => {
         variables: { weight: 100 },
         timestamp: Date.now(),
         retries: 0,
-        status: 'pending' as const,
+        status: 'pending' as const
       }
 
       mockDB.get.mockResolvedValue(mutation)
@@ -142,7 +142,7 @@ describe('Offline Storage', () => {
         variables: { weight: 100 },
         timestamp: Date.now(),
         retries: 0,
-        status: 'syncing' as const,
+        status: 'syncing' as const
       }
 
       mockDB.put.mockResolvedValue(undefined)
@@ -168,7 +168,7 @@ describe('Offline Storage', () => {
           variables: {},
           timestamp: Date.now(),
           retries: 0,
-          status: 'pending' as const,
+          status: 'pending' as const
         },
         {
           id: 'mut-2',
@@ -176,8 +176,8 @@ describe('Offline Storage', () => {
           variables: {},
           timestamp: Date.now(),
           retries: 0,
-          status: 'pending' as const,
-        },
+          status: 'pending' as const
+        }
       ]
 
       mockDB.getAllFromIndex.mockResolvedValue(mutations)
@@ -196,8 +196,8 @@ describe('Offline Storage', () => {
           timestamp: Date.now(),
           retries: 3,
           status: 'failed' as const,
-          error: 'Network error',
-        },
+          error: 'Network error'
+        }
       ]
 
       mockDB.getAllFromIndex.mockResolvedValue(failedMutations)
@@ -227,7 +227,7 @@ describe('Offline Storage', () => {
         key,
         data,
         timestamp: Date.now(),
-        expiresAt,
+        expiresAt
       })
 
       expect(mockDB.put).toHaveBeenCalled()
@@ -239,7 +239,7 @@ describe('Offline Storage', () => {
         key,
         data: [{ id: 1, rewardPoints: 100 }],
         timestamp: Date.now(),
-        expiresAt: Date.now() + 3600000,
+        expiresAt: Date.now() + 3600000
       }
 
       mockDB.get.mockResolvedValue(cachedItem)
@@ -255,7 +255,7 @@ describe('Offline Storage', () => {
         key,
         data: [{ id: 1, rewardPoints: 100 }],
         timestamp: Date.now() - 7200000, // 2 hours ago
-        expiresAt: Date.now() - 3600000, // Expired 1 hour ago
+        expiresAt: Date.now() - 3600000 // Expired 1 hour ago
       }
 
       mockDB.get.mockResolvedValue(expiredItem)
@@ -286,7 +286,7 @@ describe('Offline Storage', () => {
     it('should save setting', async () => {
       const setting = {
         key: 'last-sync',
-        value: Date.now(),
+        value: Date.now()
       }
 
       mockDB.put.mockResolvedValue(undefined)
@@ -298,7 +298,7 @@ describe('Offline Storage', () => {
     it('should retrieve setting', async () => {
       const setting = {
         key: 'last-sync',
-        value: Date.now(),
+        value: Date.now()
       }
 
       mockDB.get.mockResolvedValue(setting)
@@ -311,7 +311,7 @@ describe('Offline Storage', () => {
     it('should update setting', async () => {
       const updatedSetting = {
         key: 'offline-mode',
-        value: true,
+        value: true
       }
 
       mockDB.put.mockResolvedValue(undefined)

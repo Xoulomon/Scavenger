@@ -5,7 +5,7 @@ import { EmptyState } from './index'
 const meta: Meta<typeof EmptyState> = {
   title: 'Design System/EmptyState',
   component: EmptyState,
-  tags: ['autodocs'],
+  tags: ['autodocs']
 }
 export default meta
 type Story = StoryObj<typeof EmptyState>
@@ -14,8 +14,8 @@ export const Default: Story = {
   args: {
     icon: Package,
     title: 'No waste submissions yet',
-    description: 'Start by submitting recyclable materials to earn tokens.',
-  },
+    description: 'Start by submitting recyclable materials to earn tokens.'
+  }
 }
 
 export const WithAction: Story = {
@@ -25,9 +25,9 @@ export const WithAction: Story = {
     description: 'Your inbox is empty. Messages from collectors will appear here.',
     action: {
       label: 'Browse Collectors',
-      onClick: () => {},
-    },
-  },
+      onClick: () => {}
+    }
+  }
 }
 
 export const SearchEmpty: Story = {
@@ -37,9 +37,9 @@ export const SearchEmpty: Story = {
     description: 'Try adjusting your search terms or filters.',
     action: {
       label: 'Clear Filters',
-      onClick: () => {},
-    },
-  },
+      onClick: () => {}
+    }
+  }
 }
 
 export const ErrorState: Story = {
@@ -49,14 +49,14 @@ export const ErrorState: Story = {
     description: 'We could not load your data. Please try again.',
     action: {
       label: 'Retry',
-      onClick: () => {},
-    },
-  },
+      onClick: () => {}
+    }
+  }
 }
 
 export const NoIcon: Story = {
   args: {
     title: 'Nothing here yet',
-    description: 'Check back later for updates.',
-  },
+    description: 'Check back later for updates.'
+  }
 }

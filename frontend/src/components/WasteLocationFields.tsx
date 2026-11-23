@@ -49,7 +49,10 @@ export function WasteLocationFields({ register, setValue, errors }: WasteLocatio
   return (
     <section role="group" aria-labelledby={groupLabelId}>
       <span id={groupLabelId} className="block text-sm font-medium mb-2">
-        {t('waste.location.label')} <span className="text-destructive" aria-hidden="true">*</span>
+        {t('waste.location.label')}{' '}
+        <span className="text-destructive" aria-hidden="true">
+          *
+        </span>
         <span className="sr-only">(required)</span>
       </span>
       <div className="grid grid-cols-1 gap-4 xs:grid-cols-2 tablet:gap-6">
@@ -64,7 +67,9 @@ export function WasteLocationFields({ register, setValue, errors }: WasteLocatio
             {...register('latitude')}
           />
           {errors.latitude && (
-            <p id={latitudeErrorId} className="mt-1 text-sm text-destructive" role="alert">{errors.latitude.message}</p>
+            <p id={latitudeErrorId} className="mt-1 text-sm text-destructive" role="alert">
+              {errors.latitude.message}
+            </p>
           )}
         </div>
         <div>
@@ -78,7 +83,9 @@ export function WasteLocationFields({ register, setValue, errors }: WasteLocatio
             {...register('longitude')}
           />
           {errors.longitude && (
-            <p id={longitudeErrorId} className="mt-1 text-sm text-destructive" role="alert">{errors.longitude.message}</p>
+            <p id={longitudeErrorId} className="mt-1 text-sm text-destructive" role="alert">
+              {errors.longitude.message}
+            </p>
           )}
         </div>
       </div>
@@ -92,14 +99,11 @@ export function WasteLocationFields({ register, setValue, errors }: WasteLocatio
         <LocateFixed className={cn('h-4 w-4', locating && 'animate-pulse')} aria-hidden="true" />
         {locating ? t('waste.location.locating') : t('waste.location.useCurrentLocation')}
       </button>
-      {locating && (
-        <LoadingState
-          label={t('waste.location.locating')}
-          className="mt-2"
-        />
-      )}
+      {locating && <LoadingState label={t('waste.location.locating')} className="mt-2" />}
       {locError && (
-        <p className="mt-1 text-sm text-destructive" role="alert" aria-live="assertive">{locError}</p>
+        <p className="mt-1 text-sm text-destructive" role="alert" aria-live="assertive">
+          {locError}
+        </p>
       )}
     </section>
   )

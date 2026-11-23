@@ -1,7 +1,7 @@
 import { ArrowRight } from 'lucide-react'
 
 import { useWasteTransferHistory } from '@/hooks/useMaterialTransfer'
-import { formatAddress,formatDate } from '@/lib/helpers'
+import { formatAddress, formatDate } from '@/lib/helpers'
 
 export function WasteChainHistory({ wasteId }: { wasteId: bigint }) {
   const { data: history = [], isLoading } = useWasteTransferHistory(wasteId)

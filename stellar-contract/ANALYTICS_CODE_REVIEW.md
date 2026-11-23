@@ -15,6 +15,7 @@ This PR consolidates two duplicate analytics modules into a single, production-r
 **Impact**: Low-risk refactoring of unused infrastructure code
 
 **Files Changed**: 8 files (1 deleted)
+
 - Modified: `stellar-contract/src/lib.rs`, `stellar-contract/src/analytics.rs`, `stellar-contract/src/storage_keys.rs`, `docs/CONTRACT_DOCUMENTATION.md`
 - Deleted: `stellar-contract/src/contract_analytics.rs`
 - Added: 4 design/analysis documents
@@ -235,12 +236,12 @@ pub struct AnalyticsEngine { ... }   // 0 callers
 
 ### New Keys Added
 
-| Key | Type | Chars | Purpose | Collision Check |
-|-----|------|-------|---------|---|
-| GMTR_SNAP | Symbol | 9 | Global metrics snapshot | ✅ No collision |
-| ANAL_UPD | Symbol | 8 | Analytics update timestamp | ✅ No collision |
-| ANAL_BAT | Symbol | 7 | Analytics batch counter | ✅ No collision |
-| recycling_stats_key() | Tuple | N/A | Per-participant stats | ✅ Per-address unique |
+| Key                   | Type   | Chars | Purpose                    | Collision Check       |
+| --------------------- | ------ | ----- | -------------------------- | --------------------- |
+| GMTR_SNAP             | Symbol | 9     | Global metrics snapshot    | ✅ No collision       |
+| ANAL_UPD              | Symbol | 8     | Analytics update timestamp | ✅ No collision       |
+| ANAL_BAT              | Symbol | 7     | Analytics batch counter    | ✅ No collision       |
+| recycling_stats_key() | Tuple  | N/A   | Per-participant stats      | ✅ Per-address unique |
 
 **Total Storage Keys After**: 39 Symbol constants + 11 Tuple constructors  
 **Collisions**: 0 (verified by tests in storage_keys.rs)
@@ -320,6 +321,7 @@ pub struct AnalyticsEngine { ... }   // 0 callers
 ### How to Run Tests
 
 Once workspace is fixed:
+
 ```bash
 cargo test --lib analytics:: --manifest-path stellar-contract/Cargo.toml
 cargo test --lib storage_keys::tests
@@ -413,18 +415,19 @@ cargo test --lib storage_keys::tests
 
 This consolidation is **production-ready and low-risk**:
 
-| Aspect | Status | Risk |
-|--------|--------|------|
-| Code correctness | ✅ Verified | 🟢 Low |
-| Breaking changes | ✅ None | 🟢 Low |
-| Test coverage | ✅ Comprehensive | 🟢 Low |
-| Documentation | ✅ Complete | 🟢 Low |
-| Storage impact | ✅ Acceptable | 🟢 Low |
-| Performance impact | ✅ Neutral | 🟢 Low |
+| Aspect             | Status           | Risk   |
+| ------------------ | ---------------- | ------ |
+| Code correctness   | ✅ Verified      | 🟢 Low |
+| Breaking changes   | ✅ None          | 🟢 Low |
+| Test coverage      | ✅ Comprehensive | 🟢 Low |
+| Documentation      | ✅ Complete      | 🟢 Low |
+| Storage impact     | ✅ Acceptable    | 🟢 Low |
+| Performance impact | ✅ Neutral       | 🟢 Low |
 
 **Recommendation**: ✅ **APPROVE AND MERGE**
 
 **Next Steps**:
+
 1. Fix workspace manifest issue (pre-merge or concurrent PR)
 2. Execute full test suite
 3. Merge to main

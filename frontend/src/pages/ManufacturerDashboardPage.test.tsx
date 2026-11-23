@@ -11,20 +11,20 @@ vi.mock('@/hooks/useManufacturerDashboard', () => ({
     stats: { received_count: 0, active_incentives: 0, total_distributed: 0n },
     isLoading: false,
     error: null,
-    refetch: vi.fn(),
-  })),
+    refetch: vi.fn()
+  }))
 }))
 
 vi.mock('@/hooks/useDistributeRewards', () => ({
-  useDistributeRewards: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
+  useDistributeRewards: vi.fn(() => ({ mutate: vi.fn(), isPending: false }))
 }))
 
 vi.mock('@/hooks/useSupplyChainStats', () => ({
-  useSupplyChainStats: vi.fn(() => ({ stats: null, isLoading: false })),
+  useSupplyChainStats: vi.fn(() => ({ stats: null, isLoading: false }))
 }))
 
 vi.mock('@/context/WalletContext', () => ({
-  useWallet: vi.fn(() => ({ address: 'GTEST' })),
+  useWallet: vi.fn(() => ({ address: 'GTEST' }))
 }))
 
 describe('ManufacturerDashboardPage', () => {

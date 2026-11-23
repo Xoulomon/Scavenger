@@ -162,7 +162,7 @@ jobs:
 
       - name: Generate combined report
         run: pnpm dlx tsx scripts/coverage-report.ts
-        continue-on-error: true   # don't block the workflow on threshold failure
+        continue-on-error: true # don't block the workflow on threshold failure
 
       - name: Upload combined report
         uses: actions/upload-artifact@v4

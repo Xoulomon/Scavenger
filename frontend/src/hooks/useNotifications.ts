@@ -32,20 +32,17 @@ export function useNotifications(walletAddress: string | null | undefined) {
     queryFn: () => notifications,
     enabled: Boolean(walletAddress),
     ...queryCachePolicy.notifications,
-    initialData: notifications,
+    initialData: notifications
   })
 
   const invalidateNotifications = async (): Promise<void> => {
     if (!walletAddress) return
     await queryClient.invalidateQueries({
-      queryKey: cacheKeys.notifications(walletAddress),
+      queryKey: cacheKeys.notifications(walletAddress)
     })
   }
 
-  const unreadCount = Math.min(
-    notifications.filter((n) => !n.read).length,
-    UNREAD_CAP
-  )
+  const unreadCount = Math.min(notifications.filter((n) => !n.read).length, UNREAD_CAP)
 
   const markRead = async (id: string): Promise<void> => {
     if (!storeRef.current) return
@@ -65,9 +62,7 @@ export function useNotifications(walletAddress: string | null | undefined) {
     await invalidateNotifications()
   }
 
-  const addNotification = async (
-    n: Omit<Notification, 'id' | 'read' | 'count'>
-  ): Promise<void> => {
+  const addNotification = async (n: Omit<Notification, 'id' | 'read' | 'count'>): Promise<void> => {
     if (!storeRef.current) return
     await storeRef.current.add(n)
     await invalidateNotifications()
@@ -79,6 +74,6 @@ export function useNotifications(walletAddress: string | null | undefined) {
     markRead,
     markAllRead,
     deleteNotification,
-    addNotification,
+    addNotification
   }
 }

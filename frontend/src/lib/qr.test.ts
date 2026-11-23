@@ -5,7 +5,7 @@ import {
   validateQRPayload,
   isValidQRFormat,
   handleQRScanError,
-  sanitizeQRData,
+  sanitizeQRData
 } from './qr'
 
 describe('QR Utilities', () => {

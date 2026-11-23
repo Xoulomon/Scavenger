@@ -15,12 +15,12 @@ Services (backend, indexer)
 
 ## Components
 
-| Component     | Version | Port  | Purpose                          |
-|---------------|---------|-------|----------------------------------|
-| Elasticsearch | 8.11.0  | 9200  | Log storage and indexing         |
-| Logstash      | 8.11.0  | 5044  | Log parsing and enrichment       |
-| Kibana        | 8.11.0  | 5601  | Visualization and search UI      |
-| Filebeat      | 8.11.0  | —     | Log collection from files/Docker |
+| Component     | Version | Port | Purpose                          |
+| ------------- | ------- | ---- | -------------------------------- |
+| Elasticsearch | 8.11.0  | 9200 | Log storage and indexing         |
+| Logstash      | 8.11.0  | 5044 | Log parsing and enrichment       |
+| Kibana        | 8.11.0  | 5601 | Visualization and search UI      |
+| Filebeat      | 8.11.0  | —    | Log collection from files/Docker |
 
 ## Quick Start
 
@@ -90,12 +90,12 @@ Logstash (`config/logstash.conf`) handles:
 
 Configured via `config/ilm-policy.json` and applied automatically by the `es-setup` container:
 
-| Phase  | Age   | Action                        |
-|--------|-------|-------------------------------|
-| hot    | 0d    | Active writes, rollover at 1d / 5 GB |
-| warm   | 7d    | Shrink + force-merge          |
-| cold   | 14d   | Read-only, low priority       |
-| delete | 30d   | Index deleted                 |
+| Phase  | Age | Action                               |
+| ------ | --- | ------------------------------------ |
+| hot    | 0d  | Active writes, rollover at 1d / 5 GB |
+| warm   | 7d  | Shrink + force-merge                 |
+| cold   | 14d | Read-only, low priority              |
+| delete | 30d | Index deleted                        |
 
 Override retention per environment by editing `ilm-policy.json` before starting the stack.
 
@@ -125,17 +125,17 @@ service: "indexer" AND message: "ledger"
 
 ## Index Naming
 
-| Pattern                    | Contents                  |
-|----------------------------|---------------------------|
-| `scavngr-backend-*`        | Rust backend logs         |
-| `scavngr-indexer-*`        | TypeScript indexer logs   |
-| `scavngr-app-*`            | Unclassified service logs |
+| Pattern             | Contents                  |
+| ------------------- | ------------------------- |
+| `scavngr-backend-*` | Rust backend logs         |
+| `scavngr-indexer-*` | TypeScript indexer logs   |
+| `scavngr-app-*`     | Unclassified service logs |
 
 ## Configuration Files
 
-| File                        | Purpose                              |
-|-----------------------------|--------------------------------------|
-| `docker-compose.logging.yml`| ELK + Filebeat stack definition      |
-| `config/filebeat.yml`       | Filebeat input/output configuration  |
-| `config/logstash.conf`      | Logstash pipeline (parse + route)    |
-| `config/ilm-policy.json`    | Elasticsearch ILM retention policy   |
+| File                         | Purpose                             |
+| ---------------------------- | ----------------------------------- |
+| `docker-compose.logging.yml` | ELK + Filebeat stack definition     |
+| `config/filebeat.yml`        | Filebeat input/output configuration |
+| `config/logstash.conf`       | Logstash pipeline (parse + route)   |
+| `config/ilm-policy.json`     | Elasticsearch ILM retention policy  |

@@ -5,20 +5,20 @@ import { WasteType } from '@/api/types'
 
 vi.mock('@/context/ContractContext', () => ({
   useContract: vi.fn(() => ({
-    config: { network: 'TESTNET', rpcUrl: 'https://testnet', contractId: 'TEST_CONTRACT' },
-  })),
+    config: { network: 'TESTNET', rpcUrl: 'https://testnet', contractId: 'TEST_CONTRACT' }
+  }))
 }))
 
 vi.mock('@/context/WalletContext', () => ({
   useWallet: vi.fn(() => ({
     address: 'GABC123',
     connect: vi.fn(),
-    disconnect: vi.fn(),
-  })),
+    disconnect: vi.fn()
+  }))
 }))
 
 vi.mock('@/hooks/useAppTitle', () => ({
-  useAppTitle: vi.fn(),
+  useAppTitle: vi.fn()
 }))
 
 vi.mock('@tanstack/react-query', () => ({
@@ -32,7 +32,7 @@ vi.mock('@tanstack/react-query', () => ({
             weight: 500n,
             recycled_timestamp: Math.floor(Date.now() / 1000),
             is_confirmed: true,
-            is_active: true,
+            is_active: true
           },
           {
             waste_id: 2n,
@@ -40,11 +40,11 @@ vi.mock('@tanstack/react-query', () => ({
             weight: 250n,
             recycled_timestamp: Math.floor(Date.now() / 1000),
             is_confirmed: true,
-            is_active: true,
-          },
+            is_active: true
+          }
         ],
         isLoading: false,
-        isError: false,
+        isError: false
       }
     }
     return { data: null, isLoading: false, isError: false }
@@ -52,11 +52,11 @@ vi.mock('@tanstack/react-query', () => ({
   useMutation: vi.fn(() => ({
     mutate: vi.fn(),
     isLoading: false,
-    isError: false,
+    isError: false
   })),
   useQueryClient: vi.fn(() => ({
-    invalidateQueries: vi.fn(),
-  })),
+    invalidateQueries: vi.fn()
+  }))
 }))
 
 describe('MaterialTransferPage', () => {
@@ -136,7 +136,7 @@ describe('MaterialTransferPage', () => {
       useQuery.mockReturnValue({
         data: [],
         isLoading: false,
-        isError: false,
+        isError: false
       })
 
       render(<MaterialTransferPage />)
@@ -149,7 +149,7 @@ describe('MaterialTransferPage', () => {
       useQuery.mockReturnValue({
         data: null,
         isLoading: true,
-        isError: false,
+        isError: false
       })
 
       render(<MaterialTransferPage />)
@@ -191,7 +191,9 @@ describe('MaterialTransferPage', () => {
 
     it('accepts valid Stellar address', async () => {
       const addressInput = screen.getByLabelText(/Recipient Address/i) as HTMLInputElement
-      fireEvent.change(addressInput, { target: { value: 'GBCD123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' } })
+      fireEvent.change(addressInput, {
+        target: { value: 'GBCD123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' }
+      })
 
       fireEvent.blur(addressInput)
 
@@ -216,7 +218,9 @@ describe('MaterialTransferPage', () => {
 
     it('enables next button with valid destination', async () => {
       const addressInput = screen.getByLabelText(/Recipient Address/i) as HTMLInputElement
-      fireEvent.change(addressInput, { target: { value: 'GBCD123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' } })
+      fireEvent.change(addressInput, {
+        target: { value: 'GBCD123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' }
+      })
 
       const nextButton = screen.getByText(/Next/)
 
@@ -241,7 +245,9 @@ describe('MaterialTransferPage', () => {
       })
 
       const addressInput = screen.getByLabelText(/Recipient Address/i) as HTMLInputElement
-      fireEvent.change(addressInput, { target: { value: 'GBCD123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' } })
+      fireEvent.change(addressInput, {
+        target: { value: 'GBCD123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' }
+      })
 
       nextButton = screen.getByText(/Next/)
       fireEvent.click(nextButton)
@@ -308,7 +314,9 @@ describe('MaterialTransferPage', () => {
       })
 
       const addressInput = screen.getByLabelText(/Recipient Address/i) as HTMLInputElement
-      fireEvent.change(addressInput, { target: { value: 'GBCD123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' } })
+      fireEvent.change(addressInput, {
+        target: { value: 'GBCD123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' }
+      })
 
       nextButton = screen.getByText(/Next/)
       fireEvent.click(nextButton)
@@ -332,7 +340,9 @@ describe('MaterialTransferPage', () => {
       })
 
       const addressInput = screen.getByLabelText(/Recipient Address/i) as HTMLInputElement
-      fireEvent.change(addressInput, { target: { value: 'GBCD123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' } })
+      fireEvent.change(addressInput, {
+        target: { value: 'GBCD123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ' }
+      })
 
       nextButton = screen.getByText(/Next/)
       fireEvent.click(nextButton)

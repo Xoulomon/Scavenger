@@ -25,13 +25,7 @@ pub fn parse_filter(raw: &str) -> Option<(String, String)> {
 /// Pure function: given the raw request parameters it returns the JSON body
 /// to send to Elasticsearch, combining the free-text match across `fields`
 /// with any valid `field:value` filters as `term` clauses in a bool query.
-pub fn build_search_query(
-    q: &str,
-    from: usize,
-    size: usize,
-    fields: &[String],
-    filters: &[String],
-) -> Value {
+pub fn build_search_query(q: &str, from: usize, size: usize, fields: &[String], filters: &[String]) -> Value {
     let mut must: Vec<QueryType> = Vec::new();
     let typed_fields: Vec<SearchField> = fields
         .iter()
@@ -153,10 +147,7 @@ mod tests {
         let filters = vec!["malformed".to_string(), "status:active".to_string()];
         let body = build_search_query("", 0, 20, &fields, &filters);
         // Only the valid filter survives, so this collapses to a single term query.
-        assert_eq!(
-            body["query"],
-            serde_json::json!({ "term": { "status": "active" } })
-        );
+        assert_eq!(body["query"], serde_json::json!({ "term": { "status": "active" } }));
     }
 
     #[test]

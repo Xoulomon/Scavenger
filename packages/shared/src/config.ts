@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod'
 
 /**
  * Shared environment/config schema and types.
@@ -16,40 +16,40 @@ import { z } from 'zod';
  *   required contract fields to keep existing tests/consumers stable.
  */
 
-export const NETWORKS = ['TESTNET', 'MAINNET', 'FUTURENET', 'STANDALONE'] as const;
-export type Network = (typeof NETWORKS)[number];
+export const NETWORKS = ['TESTNET', 'MAINNET', 'FUTURENET', 'STANDALONE'] as const
+export type Network = (typeof NETWORKS)[number]
 
-export const LOG_LEVELS = ['debug', 'info', 'warn', 'error'] as const;
-export type LogLevel = (typeof LOG_LEVELS)[number];
+export const LOG_LEVELS = ['debug', 'info', 'warn', 'error'] as const
+export type LogLevel = (typeof LOG_LEVELS)[number]
 
 export const contractConfigSchema = z.object({
   contractId: z.string().min(1, 'CONTRACT_ID environment variable is required'),
   network: z.enum(NETWORKS, {
-    errorMap: () => ({ message: 'NETWORK environment variable is required' }),
+    errorMap: () => ({ message: 'NETWORK environment variable is required' })
   }),
-  rpcUrl: z.string().min(1, 'RPC_URL environment variable is required'),
-});
+  rpcUrl: z.string().min(1, 'RPC_URL environment variable is required')
+})
 
 export const apiConfigSchema = z.object({
   baseUrl: z.string().min(1),
-  timeout: z.number().int().positive(),
-});
+  timeout: z.number().int().positive()
+})
 
 export const loggingConfigSchema = z.object({
   level: z.enum(LOG_LEVELS),
-  enableConsole: z.boolean(),
-});
+  enableConsole: z.boolean()
+})
 
 export const appConfigSchema = z.object({
   contract: contractConfigSchema,
   api: apiConfigSchema,
-  logging: loggingConfigSchema,
-});
+  logging: loggingConfigSchema
+})
 
-export type ContractConfig = z.infer<typeof contractConfigSchema>;
-export type ApiConfig = z.infer<typeof apiConfigSchema>;
-export type LoggingConfig = z.infer<typeof loggingConfigSchema>;
-export type AppConfig = z.infer<typeof appConfigSchema>;
+export type ContractConfig = z.infer<typeof contractConfigSchema>
+export type ApiConfig = z.infer<typeof apiConfigSchema>
+export type LoggingConfig = z.infer<typeof loggingConfigSchema>
+export type AppConfig = z.infer<typeof appConfigSchema>
 
 /**
  * Environment variable schema for VITE_/env vars.
@@ -69,20 +69,20 @@ export const envSchema = z.object({
   VITE_LOG_CONSOLE: z
     .string()
     .optional()
-    .transform((val) => val !== 'false'),
-});
+    .transform((val) => val !== 'false')
+})
 
-export type Env = z.infer<typeof envSchema>;
+export type Env = z.infer<typeof envSchema>
 
 /**
  * Validate the contract configuration. Preserves the original error messages
  * for required fields for backwards compatibility.
  */
 export function validateContractConfig(config: ContractConfig): void {
-  const result = contractConfigSchema.safeParse(config);
+  const result = contractConfigSchema.safeParse(config)
   if (!result.success) {
-    const first = result.error.issues[0];
-    throw new Error(first?.message ?? 'Invalid contract configuration');
+    const first = result.error.issues[0]
+    throw new Error(first?.message ?? 'Invalid contract configuration')
   }
 }
 
@@ -91,14 +91,14 @@ export function validateContractConfig(config: ContractConfig): void {
  * Throws a descriptive error if validation fails.
  */
 export function parseEnv(raw: Record<string, unknown>): Env {
-  const result = envSchema.safeParse(raw);
+  const result = envSchema.safeParse(raw)
   if (!result.success) {
     const messages = result.error.issues
       .map((issue) => `${issue.path.join('.')}: ${issue.message}`)
-      .join('; ');
-    throw new Error(`Invalid environment configuration: ${messages}`);
+      .join('; ')
+    throw new Error(`Invalid environment configuration: ${messages}`)
   }
-  return result.data;
+  return result.data
 }
 
 /**
@@ -109,17 +109,17 @@ export function buildConfig(env: Env): AppConfig {
     contract: {
       contractId: env.VITE_CONTRACT_ID,
       network: env.VITE_NETWORK,
-      rpcUrl: env.VITE_RPC_URL,
+      rpcUrl: env.VITE_RPC_URL
     },
     api: {
       baseUrl: env.VITE_API_BASE_URL,
-      timeout: env.VITE_API_TIMEOUT,
+      timeout: env.VITE_API_TIMEOUT
     },
     logging: {
       level: env.VITE_LOG_LEVEL,
-      enableConsole: env.VITE_LOG_CONSOLE,
-    },
-  };
+      enableConsole: env.VITE_LOG_CONSOLE
+    }
+  }
 }
 
 /**
@@ -127,8 +127,8 @@ export function buildConfig(env: Env): AppConfig {
  * Kept for backwards compatibility with existing callers.
  */
 export function loadConfig(): AppConfig {
-  const env = parseEnv(import.meta.env as unknown as Record<string, unknown>);
-  const config = buildConfig(env);
-  validateContractConfig(config.contract);
-  return config;
+  const env = parseEnv(import.meta.env as unknown as Record<string, unknown>)
+  const config = buildConfig(env)
+  validateContractConfig(config.contract)
+  return config
 }

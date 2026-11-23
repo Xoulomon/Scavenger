@@ -27,17 +27,16 @@
 name: scavngr-dev
 
 services:
-
   # ── Stellar standalone network ──────────────────────────────────────────────
   stellar:
     image: stellar/quickstart:latest
     command: --standalone --enable-soroban-rpc
     ports:
-      - "8000:8000"   # Horizon + Soroban RPC
+      - '8000:8000' # Horizon + Soroban RPC
     environment:
       NETWORK: standalone
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8000/health || exit 1"]
+      test: ['CMD-SHELL', 'curl -sf http://localhost:8000/health || exit 1']
       interval: 10s
       timeout: 5s
       retries: 10
@@ -51,12 +50,12 @@ services:
       POSTGRES_PASSWORD: scavngr_dev
       POSTGRES_DB: scavngr
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/seed-test-data.sql:/docker-entrypoint-initdb.d/seed.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U scavngr"]
+      test: ['CMD-SHELL', 'pg_isready -U scavngr']
       interval: 5s
       timeout: 3s
       retries: 10
@@ -66,9 +65,9 @@ services:
     image: redis:7-alpine
     command: redis-server --save "" --appendonly no
     ports:
-      - "6379:6379"
+      - '6379:6379'
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
       timeout: 3s
       retries: 5
@@ -80,7 +79,7 @@ services:
       dockerfile: Dockerfile
       target: dev
     ports:
-      - "8080:8080"
+      - '8080:8080'
     environment:
       RUST_LOG: debug
       DATABASE_URL: postgresql://scavngr:scavngr_dev@postgres:5432/scavngr
@@ -97,7 +96,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8080/health || exit 1"]
+      test: ['CMD-SHELL', 'curl -sf http://localhost:8080/health || exit 1']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -109,15 +108,15 @@ services:
       dockerfile: Dockerfile
       target: dev
     ports:
-      - "3001:3001"
+      - '3001:3001'
     environment:
       DATABASE_URL: postgresql://scavngr:scavngr_dev@postgres:5432/scavngr
       REDIS_URL: redis://redis:6379
       STELLAR_RPC_URL: http://stellar:8000/soroban/rpc
-      NETWORK_PASSPHRASE: "Standalone Network ; February 2017"
+      NETWORK_PASSPHRASE: 'Standalone Network ; February 2017'
       CONTRACT_ID: ${CONTRACT_ID:-}
-      START_LEDGER: "0"
-      POLL_INTERVAL_MS: "2000"
+      START_LEDGER: '0'
+      POLL_INTERVAL_MS: '2000'
     volumes:
       - ./indexer/src:/app/src
     depends_on:
@@ -135,7 +134,7 @@ services:
       dockerfile: Dockerfile
       target: dev
     ports:
-      - "5173:5173"
+      - '5173:5173'
     environment:
       VITE_CONTRACT_ID: ${CONTRACT_ID:-}
       VITE_NETWORK: STANDALONE
@@ -161,13 +160,13 @@ services:
   # ── Prometheus ──────────────────────────────────────────────────────────────
   prometheus:
     image: prom/prometheus:latest
-    profiles: ["monitoring"]
+    profiles: ['monitoring']
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.path=/prometheus
       - --web.enable-lifecycle
     ports:
-      - "9090:9090"
+      - '9090:9090'
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./monitoring/alert-rules.yml:/etc/prometheus/alert-rules.yml:ro
@@ -179,13 +178,13 @@ services:
   # ── Grafana ─────────────────────────────────────────────────────────────────
   grafana:
     image: grafana/grafana:latest
-    profiles: ["monitoring"]
+    profiles: ['monitoring']
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
-      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_USERS_ALLOW_SIGN_UP: 'false'
     volumes:
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
@@ -197,9 +196,9 @@ services:
   # ── Alertmanager ────────────────────────────────────────────────────────────
   alertmanager:
     image: prom/alertmanager:latest
-    profiles: ["monitoring"]
+    profiles: ['monitoring']
     ports:
-      - "9093:9093"
+      - '9093:9093'
     volumes:
       - ./monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
       - alertmanager_data:/alertmanager
@@ -208,13 +207,13 @@ services:
   # ── Node Exporter ───────────────────────────────────────────────────────────
   node-exporter:
     image: prom/node-exporter:latest
-    profiles: ["monitoring"]
+    profiles: ['monitoring']
     command:
       - --path.procfs=/host/proc
       - --path.sysfs=/host/sys
       - --path.rootfs=/host/root
     ports:
-      - "9100:9100"
+      - '9100:9100'
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -228,17 +227,17 @@ services:
   # ── Elasticsearch ───────────────────────────────────────────────────────────
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
-    profiles: ["logging", "search"]
+    profiles: ['logging', 'search']
     environment:
       discovery.type: single-node
-      xpack.security.enabled: "false"
-      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+      xpack.security.enabled: 'false'
+      ES_JAVA_OPTS: '-Xms512m -Xmx512m'
     ports:
-      - "9200:9200"
+      - '9200:9200'
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      test: ['CMD-SHELL', 'curl -sf http://localhost:9200/_cluster/health || exit 1']
       interval: 10s
       timeout: 5s
       retries: 20
@@ -248,11 +247,11 @@ services:
   # ── Kibana ──────────────────────────────────────────────────────────────────
   kibana:
     image: docker.elastic.co/kibana/kibana:8.13.0
-    profiles: ["logging"]
+    profiles: ['logging']
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
     ports:
-      - "5601:5601"
+      - '5601:5601'
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -261,15 +260,15 @@ services:
   # ── Logstash ────────────────────────────────────────────────────────────────
   logstash:
     image: docker.elastic.co/logstash/logstash:8.13.0
-    profiles: ["logging"]
+    profiles: ['logging']
     volumes:
       - ./logging/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
     ports:
-      - "5044:5044"
-      - "5000:5000/tcp"
-      - "5000:5000/udp"
+      - '5044:5044'
+      - '5000:5000/tcp'
+      - '5000:5000/udp'
     environment:
-      LS_JAVA_OPTS: "-Xms256m -Xmx256m"
+      LS_JAVA_OPTS: '-Xms256m -Xmx256m'
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -278,7 +277,7 @@ services:
   # ── Filebeat ────────────────────────────────────────────────────────────────
   filebeat:
     image: docker.elastic.co/beats/filebeat:8.13.0
-    profiles: ["logging"]
+    profiles: ['logging']
     user: root
     command: filebeat -e -strict.perms=false
     volumes:
@@ -292,26 +291,26 @@ services:
   # ── Jaeger (tracing) ────────────────────────────────────────────────────────
   jaeger:
     image: jaegertracing/all-in-one:latest
-    profiles: ["logging"]
+    profiles: ['logging']
     environment:
-      COLLECTOR_OTLP_ENABLED: "true"
+      COLLECTOR_OTLP_ENABLED: 'true'
     ports:
-      - "16686:16686"   # Jaeger UI
-      - "4317:4317"     # OTLP gRPC
-      - "4318:4318"     # OTLP HTTP
+      - '16686:16686' # Jaeger UI
+      - '4317:4317' # OTLP gRPC
+      - '4318:4318' # OTLP HTTP
     restart: unless-stopped
 
   # ── Elasticsearch index setup (one-shot) ────────────────────────────────────
   es-setup:
     image: curlimages/curl:latest
-    profiles: ["logging", "search"]
+    profiles: ['logging', 'search']
     depends_on:
       elasticsearch:
         condition: service_healthy
     volumes:
       - ./logging/es-setup.sh:/es-setup.sh:ro
-    entrypoint: ["/bin/sh", "/es-setup.sh"]
-    restart: "no"
+    entrypoint: ['/bin/sh', '/es-setup.sh']
+    restart: 'no'
 
 volumes:
   postgres_data:

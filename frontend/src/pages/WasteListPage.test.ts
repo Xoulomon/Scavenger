@@ -6,14 +6,14 @@ import * as fc from 'fast-check'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-enum WasteType {
+enum _WasteType {
   Paper = 0,
   PetPlastic = 1,
   Plastic = 2,
   Metal = 3,
   Glass = 4,
   Organic = 5,
-  Electronic = 6,
+  Electronic = 6
 }
 
 type StatusFilter = 'all' | 'active' | 'confirmed' | 'inactive'
@@ -35,7 +35,7 @@ const materialArb: fc.Arbitrary<Material> = fc.record({
   waste_type: wasteTypeArb,
   is_active: fc.boolean(),
   is_confirmed: fc.boolean(),
-  verified: fc.boolean(),
+  verified: fc.boolean()
 })
 
 // ─── Utility Functions for Testing ───────────────────────────────────────────
@@ -62,11 +62,7 @@ function filterWaste(
   })
 }
 
-function paginate(
-  items: Material[],
-  page: number,
-  pageSize: number = PAGE_SIZE
-): Material[] {
+function paginate(items: Material[], page: number, pageSize: number = PAGE_SIZE): Material[] {
   if (page < 1) page = 1
   return items.slice((page - 1) * pageSize, page * pageSize)
 }
@@ -76,9 +72,7 @@ function calculateTotalPages(itemCount: number, pageSize: number = PAGE_SIZE): n
 }
 
 function toggleSelection(selected: number[], id: number): number[] {
-  return selected.includes(id)
-    ? selected.filter((sid) => sid !== id)
-    : [...selected, id]
+  return selected.includes(id) ? selected.filter((sid) => sid !== id) : [...selected, id]
 }
 
 function selectAllOnPage(
@@ -94,7 +88,10 @@ function selectAllOnPage(
   }
 }
 
-function countSelectableByStatus(wastes: Material[], status: 'confirmable' | 'verifiable' | 'transferable'): number {
+function countSelectableByStatus(
+  wastes: Material[],
+  status: 'confirmable' | 'verifiable' | 'transferable'
+): number {
   switch (status) {
     case 'confirmable':
       return wastes.filter((w) => w.is_active && !w.is_confirmed).length
@@ -107,7 +104,7 @@ function countSelectableByStatus(wastes: Material[], status: 'confirmable' | 've
   }
 }
 
-function filterByWasteType(wastes: Material[], typeFilter: string): Material[] {
+function _filterByWasteType(wastes: Material[], typeFilter: string): Material[] {
   if (typeFilter === 'all') return wastes
   const typeNum = Number(typeFilter)
   return wastes.filter((w) => w.waste_type === typeNum)
@@ -131,7 +128,7 @@ function getWasteLabel(type: number): string {
     3: 'Metal',
     4: 'Glass',
     5: 'Organic',
-    6: 'Electronic',
+    6: 'Electronic'
   }
   return labels[type] || 'Unknown'
 }
@@ -141,9 +138,12 @@ function getWasteLabel(type: number): string {
 describe('WasteListPage — waste status determination', () => {
   it('inactive waste returns inactive status', () => {
     fc.assert(
-      fc.property(materialArb.filter(m => !m.is_active), (w) => {
-        return getStatus(w) === 'inactive'
-      }),
+      fc.property(
+        materialArb.filter((m) => !m.is_active),
+        (w) => {
+          return getStatus(w) === 'inactive'
+        }
+      ),
       { numRuns: 50 }
     )
   })
@@ -151,7 +151,7 @@ describe('WasteListPage — waste status determination', () => {
   it('active but confirmed waste returns confirmed status', () => {
     fc.assert(
       fc.property(
-        materialArb.filter(m => m.is_active && m.is_confirmed),
+        materialArb.filter((m) => m.is_active && m.is_confirmed),
         (w) => {
           return getStatus(w) === 'confirmed'
         }
@@ -163,7 +163,7 @@ describe('WasteListPage — waste status determination', () => {
   it('active but not confirmed waste returns active status', () => {
     fc.assert(
       fc.property(
-        materialArb.filter(m => m.is_active && !m.is_confirmed),
+        materialArb.filter((m) => m.is_active && !m.is_confirmed),
         (w) => {
           return getStatus(w) === 'active'
         }
@@ -210,28 +210,22 @@ describe('WasteListPage — waste filtering', () => {
 
   it('status filter returns only matching statuses', () => {
     fc.assert(
-      fc.property(
-        fc.array(materialArb, { minLength: 1, maxLength: 50 }),
-        (wastes) => {
-          const filtered = filterByStatus(wastes, 'active')
-          return filtered.every((w) => getStatus(w) === 'active')
-        }
-      ),
+      fc.property(fc.array(materialArb, { minLength: 1, maxLength: 50 }), (wastes) => {
+        const filtered = filterByStatus(wastes, 'active')
+        return filtered.every((w) => getStatus(w) === 'active')
+      }),
       { numRuns: 50 }
     )
   })
 
   it('search by ID includes only matching IDs', () => {
     fc.assert(
-      fc.property(
-        fc.array(materialArb, { minLength: 1, maxLength: 50 }),
-        (wastes) => {
-          if (wastes.length === 0) return true
-          const search = String(wastes[0].id)
-          const filtered = filterBySearch(wastes, search)
-          return filtered.every((w) => String(w.id).includes(search))
-        }
-      ),
+      fc.property(fc.array(materialArb, { minLength: 1, maxLength: 50 }), (wastes) => {
+        if (wastes.length === 0) return true
+        const search = String(wastes[0].id)
+        const filtered = filterBySearch(wastes, search)
+        return filtered.every((w) => String(w.id).includes(search))
+      }),
       { numRuns: 50 }
     )
   })
@@ -252,14 +246,11 @@ describe('WasteListPage — waste filtering', () => {
 
   it('filtering does not mutate original array', () => {
     fc.assert(
-      fc.property(
-        fc.array(materialArb, { minLength: 1, maxLength: 50 }),
-        (wastes) => {
-          const original = wastes.map((w) => w.id)
-          filterWaste(wastes, '', 'all', 'all')
-          return wastes.map((w) => w.id).join(',') === original.join(',')
-        }
-      ),
+      fc.property(fc.array(materialArb, { minLength: 1, maxLength: 50 }), (wastes) => {
+        const original = wastes.map((w) => w.id)
+        filterWaste(wastes, '', 'all', 'all')
+        return wastes.map((w) => w.id).join(',') === original.join(',')
+      }),
       { numRuns: 50 }
     )
   })
@@ -282,13 +273,10 @@ describe('WasteListPage — waste filtering', () => {
 describe('WasteListPage — pagination', () => {
   it('first page starts at index 0', () => {
     fc.assert(
-      fc.property(
-        fc.array(materialArb, { minLength: PAGE_SIZE + 1, maxLength: 100 }),
-        (wastes) => {
-          const paged = paginate(wastes, 1)
-          return paged[0]?.id === wastes[0]?.id
-        }
-      ),
+      fc.property(fc.array(materialArb, { minLength: PAGE_SIZE + 1, maxLength: 100 }), (wastes) => {
+        const paged = paginate(wastes, 1)
+        return paged[0]?.id === wastes[0]?.id
+      }),
       { numRuns: 50 }
     )
   })
@@ -308,15 +296,12 @@ describe('WasteListPage — pagination', () => {
 
   it('second page starts at correct offset', () => {
     fc.assert(
-      fc.property(
-        fc.array(materialArb, { minLength: PAGE_SIZE + 1, maxLength: 100 }),
-        (wastes) => {
-          const page1 = paginate(wastes, 1)
-          const page2 = paginate(wastes, 2)
-          if (page1.length === 0 || page2.length === 0) return true
-          return page2[0]?.id === wastes[PAGE_SIZE]?.id
-        }
-      ),
+      fc.property(fc.array(materialArb, { minLength: PAGE_SIZE + 1, maxLength: 100 }), (wastes) => {
+        const page1 = paginate(wastes, 1)
+        const page2 = paginate(wastes, 2)
+        if (page1.length === 0 || page2.length === 0) return true
+        return page2[0]?.id === wastes[PAGE_SIZE]?.id
+      }),
       { numRuns: 50 }
     )
   })
@@ -338,47 +323,38 @@ describe('WasteListPage — pagination', () => {
 
   it('last page contains fewer items if not full', () => {
     fc.assert(
-      fc.property(
-        fc.array(materialArb, { minLength: 1, maxLength: PAGE_SIZE + 5 }),
-        (wastes) => {
-          const totalPages = calculateTotalPages(wastes.length)
-          if (totalPages === 1) return wastes.length === paginate(wastes, 1).length
-          const lastPage = paginate(wastes, totalPages)
-          return lastPage.length <= PAGE_SIZE
-        }
-      ),
+      fc.property(fc.array(materialArb, { minLength: 1, maxLength: PAGE_SIZE + 5 }), (wastes) => {
+        const totalPages = calculateTotalPages(wastes.length)
+        if (totalPages === 1) return wastes.length === paginate(wastes, 1).length
+        const lastPage = paginate(wastes, totalPages)
+        return lastPage.length <= PAGE_SIZE
+      }),
       { numRuns: 50 }
     )
   })
 
   it('total pages calculation is correct', () => {
     fc.assert(
-      fc.property(
-        fc.array(materialArb, { minLength: 0, maxLength: 100 }),
-        (wastes) => {
-          const totalPages = calculateTotalPages(wastes.length)
-          const expected = Math.max(1, Math.ceil(wastes.length / PAGE_SIZE))
-          return totalPages === expected
-        }
-      ),
+      fc.property(fc.array(materialArb, { minLength: 0, maxLength: 100 }), (wastes) => {
+        const totalPages = calculateTotalPages(wastes.length)
+        const expected = Math.max(1, Math.ceil(wastes.length / PAGE_SIZE))
+        return totalPages === expected
+      }),
       { numRuns: 50 }
     )
   })
 
   it('all pages together contain all items', () => {
     fc.assert(
-      fc.property(
-        fc.array(materialArb, { minLength: 0, maxLength: PAGE_SIZE * 5 }),
-        (wastes) => {
-          if (wastes.length === 0) return true
-          const totalPages = calculateTotalPages(wastes.length)
-          const allPaged: Material[] = []
-          for (let i = 1; i <= totalPages; i++) {
-            allPaged.push(...paginate(wastes, i))
-          }
-          return allPaged.length === wastes.length
+      fc.property(fc.array(materialArb, { minLength: 0, maxLength: PAGE_SIZE * 5 }), (wastes) => {
+        if (wastes.length === 0) return true
+        const totalPages = calculateTotalPages(wastes.length)
+        const allPaged: Material[] = []
+        for (let i = 1; i <= totalPages; i++) {
+          allPaged.push(...paginate(wastes, i))
         }
-      ),
+        return allPaged.length === wastes.length
+      }),
       { numRuns: 50 }
     )
   })
@@ -387,28 +363,22 @@ describe('WasteListPage — pagination', () => {
 describe('WasteListPage — waste selection', () => {
   it('toggling off removes ID from selection', () => {
     fc.assert(
-      fc.property(
-        fc.integer({ min: 1, max: 100000 }),
-        (id) => {
-          const selected = [id]
-          const result = toggleSelection(selected, id)
-          return result.length === 0
-        }
-      ),
+      fc.property(fc.integer({ min: 1, max: 100000 }), (id) => {
+        const selected = [id]
+        const result = toggleSelection(selected, id)
+        return result.length === 0
+      }),
       { numRuns: 50 }
     )
   })
 
   it('toggling on adds ID to selection', () => {
     fc.assert(
-      fc.property(
-        fc.integer({ min: 1, max: 100000 }),
-        (id) => {
-          const selected: number[] = []
-          const result = toggleSelection(selected, id)
-          return result.includes(id) && result.length === 1
-        }
-      ),
+      fc.property(fc.integer({ min: 1, max: 100000 }), (id) => {
+        const selected: number[] = []
+        const result = toggleSelection(selected, id)
+        return result.includes(id) && result.length === 1
+      }),
       { numRuns: 50 }
     )
   })
@@ -447,29 +417,23 @@ describe('WasteListPage — waste selection', () => {
 describe('WasteListPage — select all on page', () => {
   it('select all adds all page IDs when not all selected', () => {
     fc.assert(
-      fc.property(
-        fc.array(materialArb, { minLength: 1, maxLength: PAGE_SIZE }),
-        (pageItems) => {
-          const selected: number[] = []
-          const result = selectAllOnPage(selected, pageItems, false)
-          return pageItems.every((item) => result.includes(item.id))
-        }
-      ),
+      fc.property(fc.array(materialArb, { minLength: 1, maxLength: PAGE_SIZE }), (pageItems) => {
+        const selected: number[] = []
+        const result = selectAllOnPage(selected, pageItems, false)
+        return pageItems.every((item) => result.includes(item.id))
+      }),
       { numRuns: 50 }
     )
   })
 
   it('select all removes page IDs when all selected', () => {
     fc.assert(
-      fc.property(
-        fc.array(materialArb, { minLength: 1, maxLength: PAGE_SIZE }),
-        (pageItems) => {
-          const pageIds = pageItems.map((w) => w.id)
-          const selected = [...pageIds]
-          const result = selectAllOnPage(selected, pageItems, true)
-          return !pageItems.some((item) => result.includes(item.id))
-        }
-      ),
+      fc.property(fc.array(materialArb, { minLength: 1, maxLength: PAGE_SIZE }), (pageItems) => {
+        const pageIds = pageItems.map((w) => w.id)
+        const selected = [...pageIds]
+        const result = selectAllOnPage(selected, pageItems, true)
+        return !pageItems.some((item) => result.includes(item.id))
+      }),
       { numRuns: 50 }
     )
   })
@@ -493,42 +457,33 @@ describe('WasteListPage — select all on page', () => {
 describe('WasteListPage — batch action availability', () => {
   it('confirmable items are active and not confirmed', () => {
     fc.assert(
-      fc.property(
-        fc.array(materialArb, { minLength: 0, maxLength: 50 }),
-        (wastes) => {
-          const count = countSelectableByStatus(wastes, 'confirmable')
-          const expected = wastes.filter((w) => w.is_active && !w.is_confirmed).length
-          return count === expected
-        }
-      ),
+      fc.property(fc.array(materialArb, { minLength: 0, maxLength: 50 }), (wastes) => {
+        const count = countSelectableByStatus(wastes, 'confirmable')
+        const expected = wastes.filter((w) => w.is_active && !w.is_confirmed).length
+        return count === expected
+      }),
       { numRuns: 50 }
     )
   })
 
   it('verifiable items are those not yet verified', () => {
     fc.assert(
-      fc.property(
-        fc.array(materialArb, { minLength: 0, maxLength: 50 }),
-        (wastes) => {
-          const count = countSelectableByStatus(wastes, 'verifiable')
-          const expected = wastes.filter((w) => !w.verified).length
-          return count === expected
-        }
-      ),
+      fc.property(fc.array(materialArb, { minLength: 0, maxLength: 50 }), (wastes) => {
+        const count = countSelectableByStatus(wastes, 'verifiable')
+        const expected = wastes.filter((w) => !w.verified).length
+        return count === expected
+      }),
       { numRuns: 50 }
     )
   })
 
   it('transferable items are all active items', () => {
     fc.assert(
-      fc.property(
-        fc.array(materialArb, { minLength: 0, maxLength: 50 }),
-        (wastes) => {
-          const count = countSelectableByStatus(wastes, 'transferable')
-          const expected = wastes.filter((w) => w.is_active).length
-          return count === expected
-        }
-      ),
+      fc.property(fc.array(materialArb, { minLength: 0, maxLength: 50 }), (wastes) => {
+        const count = countSelectableByStatus(wastes, 'transferable')
+        const expected = wastes.filter((w) => w.is_active).length
+        return count === expected
+      }),
       { numRuns: 50 }
     )
   })

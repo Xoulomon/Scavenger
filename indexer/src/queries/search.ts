@@ -1,5 +1,5 @@
-import { getPool } from '../db/client';
-import { ANALYTICS, FULL_TEXT_SEARCH_CONFIG, QUERY_LIMITS } from '../constants';
+import { getPool } from '../db/client'
+import { ANALYTICS, FULL_TEXT_SEARCH_CONFIG, QUERY_LIMITS } from '../constants'
 
 // --- Full-text search ---
 
@@ -12,8 +12,8 @@ export async function searchParticipants(query: string, limit = QUERY_LIMITS.DEF
      ORDER BY rank DESC
      LIMIT $2`,
     [query, limit]
-  );
-  return rows;
+  )
+  return rows
 }
 
 export async function searchWastes(query: string, limit = QUERY_LIMITS.DEFAULT) {
@@ -26,8 +26,8 @@ export async function searchWastes(query: string, limit = QUERY_LIMITS.DEFAULT) 
      ORDER BY rank DESC
      LIMIT $2`,
     [query, limit]
-  );
-  return rows;
+  )
+  return rows
 }
 
 // --- Aggregations ---
@@ -42,8 +42,8 @@ export async function getWasteStatsByType() {
      FROM wastes
      GROUP BY waste_type
      ORDER BY total_weight DESC`
-  );
-  return rows;
+  )
+  return rows
 }
 
 export async function getTopRecyclers(limit = ANALYTICS.DEFAULT_TOP_RESULTS_LIMIT) {
@@ -59,8 +59,8 @@ export async function getTopRecyclers(limit = ANALYTICS.DEFAULT_TOP_RESULTS_LIMI
      ORDER BY total_weight DESC
      LIMIT $1`,
     [limit]
-  );
-  return rows;
+  )
+  return rows
 }
 
 export async function getRewardSummary() {
@@ -71,8 +71,8 @@ export async function getRewardSummary() {
      FROM token_rewards
      GROUP BY recipient_address
      ORDER BY total_amount DESC`
-  );
-  return rows;
+  )
+  return rows
 }
 
 export async function getTransferActivity(days = ANALYTICS.DEFAULT_TRANSFER_ACTIVITY_DAYS) {
@@ -84,8 +84,8 @@ export async function getTransferActivity(days = ANALYTICS.DEFAULT_TRANSFER_ACTI
      GROUP BY day
      ORDER BY day`,
     [days]
-  );
-  return rows;
+  )
+  return rows
 }
 
 export async function getCarbonCreditsByParticipant(limit = ANALYTICS.DEFAULT_TOP_RESULTS_LIMIT) {
@@ -98,24 +98,24 @@ export async function getCarbonCreditsByParticipant(limit = ANALYTICS.DEFAULT_TO
      ORDER BY total_credits DESC
      LIMIT $1`,
     [limit]
-  );
-  return rows;
+  )
+  return rows
 }
 
 export async function getGlobalMetrics() {
-  const pool = getPool();
+  const pool = getPool()
   const [wastes, participants, rewards, transfers] = await Promise.all([
     pool.query(`SELECT COUNT(*) AS total, SUM(weight) AS total_weight FROM wastes WHERE is_active`),
     pool.query(`SELECT COUNT(*) AS total FROM participants WHERE is_active`),
     pool.query(`SELECT COALESCE(SUM(amount), 0) AS total FROM token_rewards`),
-    pool.query(`SELECT COUNT(*) AS total FROM waste_transfers`),
-  ]);
+    pool.query(`SELECT COUNT(*) AS total FROM waste_transfers`)
+  ])
 
   return {
     totalWastes: Number(wastes.rows[0].total),
     totalWeight: wastes.rows[0].total_weight ?? '0',
     totalParticipants: Number(participants.rows[0].total),
     totalRewardsDistributed: rewards.rows[0].total,
-    totalTransfers: Number(transfers.rows[0].total),
-  };
+    totalTransfers: Number(transfers.rows[0].total)
+  }
 }

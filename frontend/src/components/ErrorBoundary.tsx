@@ -32,7 +32,9 @@ function DefaultFallback({ error, onRetry }: DefaultFallbackProps) {
     <EmptyState
       role="alert"
       title={t('errorBoundary.title', 'Something went wrong.')}
-      description={error?.message ?? t('errorBoundary.description', 'An unexpected error occurred.')}
+      description={
+        error?.message ?? t('errorBoundary.description', 'An unexpected error occurred.')
+      }
       actionLabel={t('errorBoundary.tryAgain', 'Try again')}
       onAction={onRetry}
     />

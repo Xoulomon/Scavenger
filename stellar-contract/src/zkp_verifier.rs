@@ -66,10 +66,7 @@ impl ProofVerifier for MockVerifier {
 }
 
 /// High-level helper: parse then verify using any [`ProofVerifier`] impl.
-pub fn parse_and_verify<V: ProofVerifier>(
-    raw: &[u8],
-    verifier: &V,
-) -> Result<bool, ProofParseError> {
+pub fn parse_and_verify<V: ProofVerifier>(raw: &[u8], verifier: &V) -> Result<bool, ProofParseError> {
     let proof = parse_proof(raw)?;
     Ok(verifier.verify(&proof))
 }
@@ -166,10 +163,7 @@ mod tests {
     #[test]
     fn malformed_proof_with_random_garbage_length_is_rejected() {
         let raw = vec![0xFFu8; 13];
-        assert!(matches!(
-            parse_proof(&raw),
-            Err(ProofParseError::InvalidLength { .. })
-        ));
+        assert!(matches!(parse_proof(&raw), Err(ProofParseError::InvalidLength { .. })));
     }
 
     #[test]

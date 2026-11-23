@@ -67,13 +67,7 @@ pub struct VerificationRecord {
 
 impl VerificationRecord {
     /// Creates a new verification record
-    pub fn new(
-        env: &Env,
-        verification_id: u64,
-        waste_id: u128,
-        verifier: Address,
-        timeout_secs: u64,
-    ) -> Self {
+    pub fn new(env: &Env, verification_id: u64, waste_id: u128, verifier: Address, timeout_secs: u64) -> Self {
         Self {
             verification_id,
             waste_id,
@@ -105,12 +99,7 @@ impl VerificationRecord {
     }
 
     /// Completes verification successfully
-    pub fn complete_verification(
-        &mut self,
-        env: &Env,
-        quality_score: u32,
-        notes: String,
-    ) -> Result<(), &'static str> {
+    pub fn complete_verification(&mut self, env: &Env, quality_score: u32, notes: String) -> Result<(), &'static str> {
         if self.state != VerificationState::InProgress {
             return Err("Verification not in progress");
         }
@@ -125,11 +114,7 @@ impl VerificationRecord {
     }
 
     /// Fails verification
-    pub fn fail_verification(
-        &mut self,
-        env: &Env,
-        reason: String,
-    ) -> Result<(), &'static str> {
+    pub fn fail_verification(&mut self, env: &Env, reason: String) -> Result<(), &'static str> {
         if self.state != VerificationState::InProgress {
             return Err("Verification not in progress");
         }

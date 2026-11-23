@@ -3,29 +3,29 @@
  */
 
 export interface UserPreferences {
-  theme: 'light' | 'dark' | 'system';
-  language: string;
+  theme: 'light' | 'dark' | 'system'
+  language: string
   notifications: {
-    enabled: boolean;
-    email: boolean;
-    push: boolean;
-  };
+    enabled: boolean
+    email: boolean
+    push: boolean
+  }
   display: {
-    compactView: boolean;
-    showMinimap: boolean;
-    animationsEnabled: boolean;
-  };
+    compactView: boolean
+    showMinimap: boolean
+    animationsEnabled: boolean
+  }
   accessibility: {
-    highContrast: boolean;
-    reducedMotion: boolean;
-    fontSize: 'small' | 'medium' | 'large';
-    keyboardNavigation: boolean;
-  };
+    highContrast: boolean
+    reducedMotion: boolean
+    fontSize: 'small' | 'medium' | 'large'
+    keyboardNavigation: boolean
+  }
   privacy: {
-    shareLocation: boolean;
-    shareActivity: boolean;
-    publicProfile: boolean;
-  };
+    shareLocation: boolean
+    shareActivity: boolean
+    publicProfile: boolean
+  }
 }
 
 const DEFAULT_PREFERENCES: UserPreferences = {
@@ -34,38 +34,38 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   notifications: {
     enabled: true,
     email: true,
-    push: false,
+    push: false
   },
   display: {
     compactView: false,
     showMinimap: true,
-    animationsEnabled: true,
+    animationsEnabled: true
   },
   accessibility: {
     highContrast: false,
     reducedMotion: false,
     fontSize: 'medium',
-    keyboardNavigation: true,
+    keyboardNavigation: true
   },
   privacy: {
     shareLocation: true,
     shareActivity: true,
-    publicProfile: false,
-  },
-};
+    publicProfile: false
+  }
+}
 
-const STORAGE_KEY = 'userPreferences';
+const STORAGE_KEY = 'userPreferences'
 
 /**
  * Get user preferences from storage
  */
 export function getUserPreferences(): UserPreferences {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return DEFAULT_PREFERENCES;
-    return { ...DEFAULT_PREFERENCES, ...JSON.parse(stored) };
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (!stored) return DEFAULT_PREFERENCES
+    return { ...DEFAULT_PREFERENCES, ...JSON.parse(stored) }
   } catch {
-    return DEFAULT_PREFERENCES;
+    return DEFAULT_PREFERENCES
   }
 }
 
@@ -74,11 +74,11 @@ export function getUserPreferences(): UserPreferences {
  */
 export function saveUserPreferences(preferences: Partial<UserPreferences>): void {
   try {
-    const current = getUserPreferences();
-    const updated = { ...current, ...preferences };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    const current = getUserPreferences()
+    const updated = { ...current, ...preferences }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
   } catch (error) {
-    console.error('Failed to save preferences:', error);
+    console.error('Failed to save preferences:', error)
   }
 }
 
@@ -86,15 +86,15 @@ export function saveUserPreferences(preferences: Partial<UserPreferences>): void
  * Reset preferences to defaults
  */
 export function resetUserPreferences(): void {
-  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(STORAGE_KEY)
 }
 
 /**
  * Export preferences as JSON
  */
 export function exportPreferences(): string {
-  const preferences = getUserPreferences();
-  return JSON.stringify(preferences, null, 2);
+  const preferences = getUserPreferences()
+  return JSON.stringify(preferences, null, 2)
 }
 
 /**
@@ -102,10 +102,10 @@ export function exportPreferences(): string {
  */
 export function importPreferences(json: string): boolean {
   try {
-    const preferences = JSON.parse(json);
-    saveUserPreferences(preferences);
-    return true;
+    const preferences = JSON.parse(json)
+    saveUserPreferences(preferences)
+    return true
   } catch {
-    return false;
+    return false
   }
 }

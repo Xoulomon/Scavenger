@@ -13,9 +13,7 @@ export function ReviewConfirmStep({ formData }: ReviewConfirmStepProps) {
         <div className="space-y-3">
           <div>
             <p className="text-sm font-medium text-muted-foreground">Selected Waste Items</p>
-            <p className="font-medium">
-              {formData.wasteIds?.length || 0} item(s) selected
-            </p>
+            <p className="font-medium">{formData.wasteIds?.length || 0} item(s) selected</p>
             <p className="text-sm">{formData.wasteIds?.join(', ')}</p>
           </div>
 
@@ -40,9 +38,10 @@ export function ReviewConfirmStep({ formData }: ReviewConfirmStepProps) {
 
       <div className="p-4 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg">
         <p className="text-sm">
-          ⚠️ Please verify all information is correct before confirming. This action cannot be undone.
+          ⚠️ Please verify all information is correct before confirming. This action cannot be
+          undone.
         </p>
       </div>
     </div>
-  );
+  )
 }

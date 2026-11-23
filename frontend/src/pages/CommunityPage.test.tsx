@@ -5,11 +5,11 @@ import { CommunityPage } from './CommunityPage'
 vi.mock('@/hooks/useAppTitle', () => ({ useAppTitle: vi.fn() }))
 
 vi.mock('@/design-system', () => ({
-  LeaderboardRow: ({ rank }: { rank: number }) => <div data-testid={`row-${rank}`} />,
+  LeaderboardRow: ({ rank }: { rank: number }) => <div data-testid={`row-${rank}`} />
 }))
 
 vi.mock('@/components/community/ContributorRecognition', () => ({
-  ContributorRecognition: () => <div data-testid="contributor-recognition" />,
+  ContributorRecognition: () => <div data-testid="contributor-recognition" />
 }))
 
 describe('CommunityPage', () => {
@@ -34,8 +34,6 @@ describe('CommunityPage', () => {
 
   it('renders the Contributor Recognition section', () => {
     render(<CommunityPage />)
-    expect(
-      screen.getByText('Contributor Recognition Program')
-    ).toBeInTheDocument()
+    expect(screen.getByText('Contributor Recognition Program')).toBeInTheDocument()
   })
 })

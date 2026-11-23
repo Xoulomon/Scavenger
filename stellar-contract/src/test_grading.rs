@@ -130,7 +130,10 @@ fn test_electronic_waste_rejects_grade_d() {
     // Electronic waste minimum is Grade B (value 1).
     // Grade D value is 3, which is > 1 (lower quality), so D < B.
     let min = WasteType::Electronic.min_acceptable_grade() as u32;
-    assert!((WasteGrade::D as u32) > min, "Grade D should not meet Electronic minimum");
+    assert!(
+        (WasteGrade::D as u32) > min,
+        "Grade D should not meet Electronic minimum"
+    );
 }
 
 // ─── apply_grade_multiplier ──────────────────────────────────────────────────
@@ -281,8 +284,7 @@ fn test_grade_deactivated_waste_panics() {
     let recycler2 = register(&client, &env, ParticipantRole::Recycler);
     env.ledger().with_mut(|li| li.timestamp = 0);
     client.set_waste_ttl(&admin, &WasteType::Paper, &10u64);
-    let expired_id =
-        client.recycle_waste(&WasteType::Paper, &1_000u128, &recycler2, &0, &0);
+    let expired_id = client.recycle_waste(&WasteType::Paper, &1_000u128, &recycler2, &0, &0);
     env.ledger().with_mut(|li| li.timestamp = 5_000);
     client.cleanup_expired_wastes(&admin);
 

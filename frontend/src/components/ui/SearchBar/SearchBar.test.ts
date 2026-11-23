@@ -1,7 +1,7 @@
 // Feature: frontend-enhancements, Property 8: Search preview capped at 5 results
 // Validates: Requirements 6.7
 
-import { describe, it, expect } from 'vitest'
+import { describe, it } from 'vitest'
 import * as fc from 'fast-check'
 import type { SearchResult } from '@/lib/searchStorage'
 
@@ -21,7 +21,7 @@ const searchResultArb = fc.record({
   id: fc.string({ minLength: 1, maxLength: 20 }),
   label: fc.string({ minLength: 1, maxLength: 50 }),
   sublabel: fc.string({ minLength: 0, maxLength: 80 }),
-  data: fc.constant({}),
+  data: fc.constant({})
 })
 
 describe('SearchBar — Property 8: search preview capped at 5 results', () => {
@@ -41,13 +41,10 @@ describe('SearchBar — Property 8: search preview capped at 5 results', () => {
 
   it('renders exactly 5 results when more than 5 matches exist', () => {
     fc.assert(
-      fc.property(
-        fc.array(searchResultArb, { minLength: 6, maxLength: 50 }),
-        (results) => {
-          const preview = getPreviewResults(results)
-          return preview.length === MAX_PREVIEW
-        }
-      ),
+      fc.property(fc.array(searchResultArb, { minLength: 6, maxLength: 50 }), (results) => {
+        const preview = getPreviewResults(results)
+        return preview.length === MAX_PREVIEW
+      }),
       { numRuns: 100 }
     )
   })
@@ -67,13 +64,10 @@ describe('SearchBar — Property 8: search preview capped at 5 results', () => {
 
   it('preview is always a prefix of the original results array', () => {
     fc.assert(
-      fc.property(
-        fc.array(searchResultArb, { minLength: 0, maxLength: 30 }),
-        (results) => {
-          const preview = getPreviewResults(results)
-          return preview.every((item, idx) => item === results[idx])
-        }
-      ),
+      fc.property(fc.array(searchResultArb, { minLength: 0, maxLength: 30 }), (results) => {
+        const preview = getPreviewResults(results)
+        return preview.every((item, idx) => item === results[idx])
+      }),
       { numRuns: 100 }
     )
   })

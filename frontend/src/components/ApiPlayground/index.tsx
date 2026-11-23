@@ -1,11 +1,11 @@
-import React, { useState, useCallback } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { ApiRequest, ApiResponse, ExampleRequest, HistoryEntry } from './types';
-import { RequestBuilder } from './RequestBuilder';
-import { ResponseViewer } from './ResponseViewer';
-import { RequestHistory } from './RequestHistory';
-import { ExampleRequests } from './ExampleRequests';
-import { createApiClient, ApiError } from '@/api/httpClient';
+import React, { useState, useCallback } from 'react'
+import { v4 as uuidv4 } from 'uuid'
+import { ApiRequest, ApiResponse, ExampleRequest, HistoryEntry } from './types'
+import { RequestBuilder } from './RequestBuilder'
+import { ResponseViewer } from './ResponseViewer'
+import { RequestHistory } from './RequestHistory'
+import { ExampleRequests } from './ExampleRequests'
+import { createApiClient, ApiError } from '@/api/httpClient'
 
 const DEFAULT_REQUEST: ApiRequest = {
   id: uuidv4(),
@@ -15,70 +15,77 @@ const DEFAULT_REQUEST: ApiRequest = {
   headers: [{ key: 'Accept', value: 'application/json', enabled: true }],
   queryParams: [
     { key: 'page', value: '1', enabled: true },
-    { key: 'limit', value: '20', enabled: true },
+    { key: 'limit', value: '20', enabled: true }
   ],
   body: '',
-  auth: { type: 'none' },
-};
+  auth: { type: 'none' }
+}
 
-
-type PanelView = 'examples' | 'history';
+type PanelView = 'examples' | 'history'
 
 export const ApiPlayground: React.FC<{ baseUrl?: string }> = ({
-  baseUrl = window.location.origin,
+  baseUrl = window.location.origin
 }) => {
-  const [request, setRequest] = useState<ApiRequest>(DEFAULT_REQUEST);
-  const [response, setResponse] = useState<ApiResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [panel, setPanel] = useState<PanelView>('examples');
+  const [request, setRequest] = useState<ApiRequest>(DEFAULT_REQUEST)
+  const [response, setResponse] = useState<ApiResponse | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [history, setHistory] = useState<HistoryEntry[]>([])
+  const [panel, setPanel] = useState<PanelView>('examples')
 
   const sendRequest = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    setResponse(null);
+    setLoading(true)
+    setError(null)
+    setResponse(null)
 
-    let res: ApiResponse | null = null;
-    let err: string | null = null;
+    let res: ApiResponse | null = null
+    let err: string | null = null
 
     try {
-      const client = createApiClient({ baseUrl });
+      const client = createApiClient({ baseUrl })
 
       // Build query params map
-      const enabledParams = request.queryParams.filter((p) => p.enabled && p.key);
-      const params = Object.fromEntries(enabledParams.map((p) => [p.key, p.value]));
+      const enabledParams = request.queryParams.filter((p) => p.enabled && p.key)
+      const params = Object.fromEntries(enabledParams.map((p) => [p.key, p.value]))
 
       // Build extra headers
-      const extraHeaders: Record<string, string> = {};
+      const extraHeaders: Record<string, string> = {}
       for (const h of request.headers) {
-        if (h.enabled && h.key) extraHeaders[h.key] = h.value;
+        if (h.enabled && h.key) extraHeaders[h.key] = h.value
       }
 
       // Auth headers
       if (request.auth.type === 'api_key' && request.auth.apiKey) {
-        extraHeaders['X-API-Key'] = request.auth.apiKey;
+        extraHeaders['X-API-Key'] = request.auth.apiKey
       }
       if (request.auth.type === 'stellar' && request.auth.stellarPublicKey) {
-        extraHeaders['X-Stellar-Public-Key'] = request.auth.stellarPublicKey;
+        extraHeaders['X-Stellar-Public-Key'] = request.auth.stellarPublicKey
       }
 
-      const bearerToken =
-        request.auth.type === 'bearer' ? request.auth.token : undefined;
+      const bearerToken = request.auth.type === 'bearer' ? request.auth.token : undefined
 
-      const hasBody = !['GET', 'DELETE'].includes(request.method) && request.body.trim();
-      const body = hasBody ? (() => { try { return JSON.parse(request.body); } catch { return request.body; } })() : undefined;
+      const hasBody = !['GET', 'DELETE'].includes(request.method) && request.body.trim()
+      const body = hasBody
+        ? (() => {
+            try {
+              return JSON.parse(request.body)
+            } catch {
+              return request.body
+            }
+          })()
+        : undefined
 
-      const method = request.method as 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+      const method = request.method as 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
-      const result = await client[method.toLowerCase() as 'get' | 'post' | 'put' | 'patch' | 'delete'](
+      const result = await client[
+        method.toLowerCase() as 'get' | 'post' | 'put' | 'patch' | 'delete'
+      ](
         request.url,
         // For methods with body, pass body as second arg; otherwise pass options directly
-        ...(method !== 'GET' && method !== 'DELETE'
+        ...((method !== 'GET' && method !== 'DELETE'
           ? [body, { headers: extraHeaders, params, bearerToken }]
-          : [{ headers: extraHeaders, params, bearerToken }]
-        ) as [unknown, ...unknown[]]
-      );
+          : [{ headers: extraHeaders, params, bearerToken }]) as [unknown, ...unknown[]])
+      )
 
       res = {
         status: result.status,
@@ -86,54 +93,54 @@ export const ApiPlayground: React.FC<{ baseUrl?: string }> = ({
         headers: result.headers,
         body: typeof result.data === 'string' ? result.data : JSON.stringify(result.data, null, 2),
         durationMs: result.durationMs,
-        timestamp: new Date().toISOString(),
-      };
-      setResponse(res);
+        timestamp: new Date().toISOString()
+      }
+      setResponse(res)
     } catch (e) {
       if (e instanceof ApiError) {
-        const bodyStr = typeof e.body === 'string' ? e.body : JSON.stringify(e.body, null, 2);
-        err = `${e.status} ${e.statusText}${bodyStr ? `\n${bodyStr}` : ''}`;
+        const bodyStr = typeof e.body === 'string' ? e.body : JSON.stringify(e.body, null, 2)
+        err = `${e.status} ${e.statusText}${bodyStr ? `\n${bodyStr}` : ''}`
         res = {
           status: e.status,
           statusText: e.statusText,
           headers: {},
           body: bodyStr ?? '',
           durationMs: 0,
-          timestamp: new Date().toISOString(),
-        };
-        setResponse(res);
+          timestamp: new Date().toISOString()
+        }
+        setResponse(res)
       } else {
-        err = e instanceof Error ? e.message : String(e);
+        err = e instanceof Error ? e.message : String(e)
       }
-      setError(err);
+      setError(err)
     } finally {
-      setLoading(false);
+      setLoading(false)
       const entry: HistoryEntry = {
         id: uuidv4(),
         request: { ...request },
         response: res,
         error: err,
-        timestamp: new Date().toISOString(),
-      };
-      setHistory((prev) => [...prev, entry]);
+        timestamp: new Date().toISOString()
+      }
+      setHistory((prev) => [...prev, entry])
     }
-  }, [request, baseUrl]);
+  }, [request, baseUrl])
 
   const loadExample = (example: ExampleRequest) => {
     setRequest({
       id: uuidv4(),
       name: example.name,
-      ...example.request,
-    });
-    setResponse(null);
-    setError(null);
-  };
+      ...example.request
+    })
+    setResponse(null)
+    setError(null)
+  }
 
   const loadHistoryEntry = (entry: HistoryEntry) => {
-    setRequest({ ...entry.request, id: uuidv4() });
-    setResponse(entry.response);
-    setError(entry.error);
-  };
+    setRequest({ ...entry.request, id: uuidv4() })
+    setResponse(entry.response)
+    setError(entry.error)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-6">
@@ -187,7 +194,7 @@ export const ApiPlayground: React.FC<{ baseUrl?: string }> = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ApiPlayground;
+export default ApiPlayground

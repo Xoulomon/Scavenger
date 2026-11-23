@@ -25,10 +25,7 @@ use soroban_sdk::{Address, Vec};
 ///   admin membership (address is in the admin list)
 /// - This prevents bypass by a careless caller that forgot the membership check
 /// - Called by: install_key, rotate_key, revoke_key_version, purge_key_version
-pub(crate) fn authorize(
-    caller: &Address,
-    current_admins: &Vec<Address>,
-) -> Result<(), KeyRotationError> {
+pub(crate) fn authorize(caller: &Address, current_admins: &Vec<Address>) -> Result<(), KeyRotationError> {
     caller.require_auth();
     if !current_admins.contains(caller) {
         return Err(KeyRotationError::Unauthorized);

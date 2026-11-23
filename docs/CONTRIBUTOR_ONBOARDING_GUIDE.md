@@ -24,12 +24,12 @@ Welcome to Scavngr! This guide walks new contributors through everything needed 
 
 #### Smart Contract (Rust / Soroban)
 
-| Tool | Version | Install |
-|---|---|---|
-| Rust toolchain | stable | [rustup.rs](https://rustup.rs/) |
-| wasm32 target | — | `rustup target add wasm32-unknown-unknown` |
-| Soroban CLI | latest | `cargo install --locked soroban-cli --features opt` |
-| Docker | 20+ | [docs.docker.com](https://docs.docker.com/get-docker/) |
+| Tool           | Version | Install                                                |
+| -------------- | ------- | ------------------------------------------------------ |
+| Rust toolchain | stable  | [rustup.rs](https://rustup.rs/)                        |
+| wasm32 target  | —       | `rustup target add wasm32-unknown-unknown`             |
+| Soroban CLI    | latest  | `cargo install --locked soroban-cli --features opt`    |
+| Docker         | 20+     | [docs.docker.com](https://docs.docker.com/get-docker/) |
 
 ```bash
 # 1. Install Rust
@@ -45,10 +45,10 @@ cargo install --locked soroban-cli --features opt
 
 #### Frontend (React / TypeScript)
 
-| Tool | Version | Install |
-|---|---|---|
-| Node.js | 18 LTS+ | [nodejs.org](https://nodejs.org/) or `nvm` |
-| npm | bundled with Node | — |
+| Tool    | Version           | Install                                    |
+| ------- | ----------------- | ------------------------------------------ |
+| Node.js | 18 LTS+           | [nodejs.org](https://nodejs.org/) or `nvm` |
+| npm     | bundled with Node | —                                          |
 
 ```bash
 # Using nvm (recommended)
@@ -128,12 +128,12 @@ Copy the example env file and fill in the values:
 cp frontend/.env.example frontend/.env
 ```
 
-| Variable | Required | Description |
-|---|---|---|
-| `VITE_CONTRACT_ID` | ✅ | Deployed Soroban contract ID |
-| `VITE_NETWORK` | ✅ | `TESTNET`, `MAINNET`, or `STANDALONE` |
-| `VITE_RPC_URL` | ✅ | Soroban RPC endpoint |
-| `VITE_FIREBASE_*` | ✅ | Firebase project credentials |
+| Variable           | Required | Description                           |
+| ------------------ | -------- | ------------------------------------- |
+| `VITE_CONTRACT_ID` | ✅       | Deployed Soroban contract ID          |
+| `VITE_NETWORK`     | ✅       | `TESTNET`, `MAINNET`, or `STANDALONE` |
+| `VITE_RPC_URL`     | ✅       | Soroban RPC endpoint                  |
+| `VITE_FIREBASE_*`  | ✅       | Firebase project credentials          |
 
 ---
 
@@ -183,23 +183,23 @@ Scavenger/
 
 #### Rust (Smart Contract)
 
-| Kind | Convention | Example |
-|---|---|---|
-| Functions | `snake_case` | `register_participant` |
-| Types / Structs | `PascalCase` | `ParticipantRole` |
-| Constants | `SCREAMING_SNAKE_CASE` | `MAX_WEIGHT` |
-| Modules | `snake_case` | `audit_log` |
+| Kind            | Convention             | Example                |
+| --------------- | ---------------------- | ---------------------- |
+| Functions       | `snake_case`           | `register_participant` |
+| Types / Structs | `PascalCase`           | `ParticipantRole`      |
+| Constants       | `SCREAMING_SNAKE_CASE` | `MAX_WEIGHT`           |
+| Modules         | `snake_case`           | `audit_log`            |
 
 #### TypeScript (Frontend / Indexer)
 
-| Kind | Convention | Example |
-|---|---|---|
-| React components | `PascalCase` | `WasteCard` |
-| Hooks | `camelCase` with `use` prefix | `useParticipant` |
-| Types / Interfaces | `PascalCase` | `WasteData` |
-| Variables / functions | `camelCase` | `fetchWaste` |
-| Constants | `SCREAMING_SNAKE_CASE` | `MAX_RETRIES` |
-| File names | `kebab-case` | `waste-card.tsx` |
+| Kind                  | Convention                    | Example          |
+| --------------------- | ----------------------------- | ---------------- |
+| React components      | `PascalCase`                  | `WasteCard`      |
+| Hooks                 | `camelCase` with `use` prefix | `useParticipant` |
+| Types / Interfaces    | `PascalCase`                  | `WasteData`      |
+| Variables / functions | `camelCase`                   | `fetchWaste`     |
+| Constants             | `SCREAMING_SNAKE_CASE`        | `MAX_RETRIES`    |
+| File names            | `kebab-case`                  | `waste-card.tsx` |
 
 ### Branch Naming
 
@@ -212,6 +212,7 @@ test/<short-description>       # Test additions
 ```
 
 Examples:
+
 - `feature/add-auction-ui`
 - `fix/transfer-path-validation`
 - `docs/update-onboarding-guide`
@@ -310,11 +311,11 @@ describe('WasteCard', () => {
 
 ### Coverage Requirements
 
-| Scope | Minimum |
-|---|---|
-| New code (overall) | 80% |
-| Critical paths (reward distribution, transfer validation) | 100% |
-| No regression | Overall coverage must not decrease |
+| Scope                                                     | Minimum                            |
+| --------------------------------------------------------- | ---------------------------------- |
+| New code (overall)                                        | 80%                                |
+| Critical paths (reward distribution, transfer validation) | 100%                               |
+| No regression                                             | Overall coverage must not decrease |
 
 ### Integration Tests
 
@@ -340,24 +341,31 @@ pnpm test:integration
 
 ```markdown
 ## Description
+
 Brief summary of what this PR does.
 
 ## Motivation
+
 Why this change is needed (link to issue).
 
 ## Changes
+
 - Change 1
 - Change 2
 
 ## Testing
+
 Steps to verify this works:
+
 1. Run `cargo test`
 2. ...
 
 ## Related Issues
+
 Closes #<issue-number>
 
 ## Checklist
+
 - [ ] Tests added / updated
 - [ ] Documentation updated
 - [ ] No breaking changes
@@ -400,28 +408,28 @@ Closes #<issue-number>
 
 ### Types
 
-| Type | When to use |
-|---|---|
-| `feat` | New feature or capability |
-| `fix` | Bug fix |
-| `docs` | Documentation only |
-| `chore` | Build, deps, tooling, CI |
+| Type       | When to use                           |
+| ---------- | ------------------------------------- |
+| `feat`     | New feature or capability             |
+| `fix`      | Bug fix                               |
+| `docs`     | Documentation only                    |
+| `chore`    | Build, deps, tooling, CI              |
 | `refactor` | Code restructure, no behaviour change |
-| `test` | Adding or updating tests |
-| `style` | Formatting, whitespace only |
-| `perf` | Performance improvement |
+| `test`     | Adding or updating tests              |
+| `style`    | Formatting, whitespace only           |
+| `perf`     | Performance improvement               |
 
 ### Scopes
 
-| Scope | Area |
-|---|---|
+| Scope      | Area                        |
+| ---------- | --------------------------- |
 | `contract` | Rust/Soroban smart contract |
-| `frontend` | React/TypeScript UI |
-| `indexer` | TypeScript indexer |
-| `backend` | Rust API server |
-| `docs` | Documentation files |
-| `ci` | GitHub Actions / CI config |
-| `infra` | Terraform, Kubernetes |
+| `frontend` | React/TypeScript UI         |
+| `indexer`  | TypeScript indexer          |
+| `backend`  | Rust API server             |
+| `docs`     | Documentation files         |
+| `ci`       | GitHub Actions / CI config  |
+| `infra`    | Terraform, Kubernetes       |
 
 ### Rules
 
@@ -503,16 +511,16 @@ PR
 
 ### Key Documentation
 
-| Document | Contents |
-|---|---|
-| [`README.md`](../README.md) | Project overview, build, deploy |
-| [`CONTRIBUTING.md`](../CONTRIBUTING.md) | Full contribution policy |
-| [`docs/ARCHITECTURE.md`](./ARCHITECTURE.md) | System architecture |
-| [`docs/SYSTEM_DESIGN.md`](./SYSTEM_DESIGN.md) | Contract state & algorithms |
-| [`docs/TESTING_AND_QA.md`](./TESTING_AND_QA.md) | Testing strategy |
-| [`docs/DEV_ENVIRONMENT.md`](./DEV_ENVIRONMENT.md) | Detailed environment setup |
-| [`docs/API_REFERENCE.md`](./API_REFERENCE.md) | REST API reference |
-| [`QUICKSTART.txt`](../QUICKSTART.txt) | Fast-path setup |
+| Document                                          | Contents                        |
+| ------------------------------------------------- | ------------------------------- |
+| [`README.md`](../README.md)                       | Project overview, build, deploy |
+| [`CONTRIBUTING.md`](../CONTRIBUTING.md)           | Full contribution policy        |
+| [`docs/ARCHITECTURE.md`](./ARCHITECTURE.md)       | System architecture             |
+| [`docs/SYSTEM_DESIGN.md`](./SYSTEM_DESIGN.md)     | Contract state & algorithms     |
+| [`docs/TESTING_AND_QA.md`](./TESTING_AND_QA.md)   | Testing strategy                |
+| [`docs/DEV_ENVIRONMENT.md`](./DEV_ENVIRONMENT.md) | Detailed environment setup      |
+| [`docs/API_REFERENCE.md`](./API_REFERENCE.md)     | REST API reference              |
+| [`QUICKSTART.txt`](../QUICKSTART.txt)             | Fast-path setup                 |
 
 ---
 

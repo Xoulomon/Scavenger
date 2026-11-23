@@ -39,10 +39,7 @@ export function sortIncentives(
  * Filter a list of incentives by the given filters.
  * Returns a new array — does not mutate the input.
  */
-export function filterIncentives(
-  incentives: Incentive[],
-  filters: IncentiveFilters
-): Incentive[] {
+export function filterIncentives(incentives: Incentive[], filters: IncentiveFilters): Incentive[] {
   return incentives.filter((inc) => {
     if (filters.wasteTypes.length > 0 && !filters.wasteTypes.includes(inc.waste_type)) {
       return false

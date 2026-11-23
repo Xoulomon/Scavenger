@@ -258,7 +258,10 @@ mod tests {
         let to_version = ApiVersion::V2;
 
         assert!(from_version.is_safe_upgrade(to_version));
-        assert_eq!(check_version_transition(from_version.as_u32(), to_version.as_u32()), Ok(true));
+        assert_eq!(
+            check_version_transition(from_version.as_u32(), to_version.as_u32()),
+            Ok(true)
+        );
 
         let prior_state = 42_u32;
         let migrated_state = prior_state;

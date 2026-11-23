@@ -1,4 +1,4 @@
-import { injectAxe, checkA11y } from 'axe-playwright';
+import { injectAxe, checkA11y } from 'axe-playwright'
 
 /**
  * Accessibility audit configuration (WCAG 2.1 AA).
@@ -28,9 +28,9 @@ import { injectAxe, checkA11y } from 'axe-playwright';
  */
 
 /** Axe impact levels that should fail CI. */
-export const BLOCKING_IMPACTS = ['serious', 'critical'] as const;
+export const BLOCKING_IMPACTS = ['serious', 'critical'] as const
 
-export type BlockingImpact = (typeof BLOCKING_IMPACTS)[number];
+export type BlockingImpact = (typeof BLOCKING_IMPACTS)[number]
 
 export const a11yConfig = {
   rules: {
@@ -39,7 +39,7 @@ export const a11yConfig = {
 
     // Images and names (WCAG 1.1.1 / 2.4.4 / 4.1.2)
     'image-alt': { enabled: true },
-    'label': { enabled: true },
+    label: { enabled: true },
     'button-name': { enabled: true },
     'link-name': { enabled: true },
 
@@ -55,22 +55,22 @@ export const a11yConfig = {
     // Focus management / focus traps (WCAG 2.1.2 / 2.4.3 / #1678)
     'focus-trap': { enabled: true },
     'focus-order-semantics': { enabled: true },
-    'tabindex': { enabled: true },
+    tabindex: { enabled: true },
 
     // Forms and structure (WCAG 1.3.1 / 2.4.6)
     'form-field-multiple-labels': { enabled: true },
     'heading-order': { enabled: true },
-    'list': { enabled: true },
-  },
-};
+    list: { enabled: true }
+  }
+}
 
 export interface RunA11yCheckOptions {
   /** Optional selector scoping the audit to a subtree. */
-  context?: string;
+  context?: string
   /** Impact levels that should fail the run. Defaults to serious + critical. */
-  blockingImpacts?: readonly BlockingImpact[];
+  blockingImpacts?: readonly BlockingImpact[]
   /** Extra axe options merged over the defaults. */
-  axeOptions?: Record<string, unknown>;
+  axeOptions?: Record<string, unknown>
 }
 
 /**
@@ -84,26 +84,22 @@ export interface RunA11yCheckOptions {
  *                with the previous `runA11yCheck(page, context)` signature).
  * @param options Optional advanced options.
  */
-export async function runA11yCheck(
-  page: any,
-  context?: string,
-  options: RunA11yCheckOptions = {},
-) {
-  const blockingImpacts = options.blockingImpacts ?? BLOCKING_IMPACTS;
+export async function runA11yCheck(page: any, context?: string, options: RunA11yCheckOptions = {}) {
+  const blockingImpacts = options.blockingImpacts ?? BLOCKING_IMPACTS
 
-  await injectAxe(page);
+  await injectAxe(page)
   await checkA11y(page, context, {
     detailedReport: true,
     detailedReportOptions: {
-      html: true,
+      html: true
     },
     axeOptions: {
       rules: a11yConfig.rules,
-      ...(options.axeOptions ?? {}),
+      ...(options.axeOptions ?? {})
     },
     // Fail the run only on serious/critical violations.
-    includedImpacts: [...blockingImpacts],
-  });
+    includedImpacts: [...blockingImpacts]
+  })
 }
 
 /**
@@ -111,5 +107,5 @@ export async function runA11yCheck(
  * Useful for tests and for keeping documentation in sync.
  */
 export function getRequiredRuleIds(): string[] {
-  return Object.keys(a11yConfig.rules);
+  return Object.keys(a11yConfig.rules)
 }

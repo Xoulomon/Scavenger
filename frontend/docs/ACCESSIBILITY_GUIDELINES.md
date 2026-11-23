@@ -16,6 +16,7 @@ All form components must meet WCAG 2.1 Level AA standards and pass automated acc
 - [ ] For required fields, include visual indicator (e.g., asterisk) AND use `required` attribute
 
 **Example:**
+
 ```tsx
 <label htmlFor="email-input">Email Address *</label>
 <Input id="email-input" type="email" required aria-required="true" />
@@ -30,20 +31,23 @@ All form components must meet WCAG 2.1 Level AA standards and pass automated acc
 - [ ] Use `role="alert"` for error messages
 
 **Example:**
+
 ```tsx
-<Input
+;<Input
   id="password-input"
   type="password"
   aria-required="true"
   aria-invalid={hasError}
-  aria-describedby={hasError ? "password-error" : undefined}
+  aria-describedby={hasError ? 'password-error' : undefined}
   required
 />
-{hasError && (
-  <div id="password-error" role="alert">
-    Password must be at least 8 characters
-  </div>
-)}
+{
+  hasError && (
+    <div id="password-error" role="alert">
+      Password must be at least 8 characters
+    </div>
+  )
+}
 ```
 
 ### Keyboard Navigation
@@ -54,6 +58,7 @@ All form components must meet WCAG 2.1 Level AA standards and pass automated acc
 - [ ] Select dropdowns must open with Arrow Down or Space, navigate with Arrow keys
 
 **Testing:**
+
 ```bash
 # Test keyboard navigation by tabbing through form
 # All interactive elements should be reachable
@@ -73,12 +78,13 @@ All form components must meet WCAG 2.1 Level AA standards and pass automated acc
 - [ ] Errors should be visible near the field they relate to
 
 **Example:**
+
 ```tsx
 <FormField
   id="username"
   label="Username"
-  error={error && "Username must be 3-20 characters"}
-  aria-describedby={error ? "username-error" : undefined}
+  error={error && 'Username must be 3-20 characters'}
+  aria-describedby={error ? 'username-error' : undefined}
 />
 ```
 
@@ -92,11 +98,13 @@ All form components must meet WCAG 2.1 Level AA standards and pass automated acc
 ### Component-Specific Guidelines
 
 #### Input Component
+
 - `aria-label` for inputs without visible labels
 - `aria-describedby` for hint text or error messages
 - `type` attribute must be semantic (email, password, date, etc.)
 
 #### Select Component
+
 - Should use native `<select>` element or Radix UI Select with proper ARIA roles
 - Radix UI Select automatically provides:
   - `role="combobox"` on trigger
@@ -105,11 +113,13 @@ All form components must meet WCAG 2.1 Level AA standards and pass automated acc
   - Escape key to close
 
 #### Checkbox Component
+
 - Wrap checkbox and label together or use `aria-labelledby`
 - Include `aria-checked` for custom checkbox implementations
 - Make entire label clickable for better UX
 
 #### Textarea Component
+
 - Same label requirements as input
 - Use `aria-label` if no visible label
 - Include character count if there's a limit
@@ -152,6 +162,7 @@ describe('MyFormComponent', () => {
 ### Browser DevTools
 
 Use browser accessibility inspector:
+
 - Chrome: DevTools → Elements → Accessibility tree
 - Firefox: Inspector → Accessibility tab
 - See ARIA roles, labels, and tree structure

@@ -78,7 +78,8 @@ function scanSourceFiles(srcDir: string): Set<string> {
 // Detect hardcoded strings (simple heuristic)
 function findHardcodedStrings(srcDir: string): string[] {
   const hardcoded: string[] = []
-  const commonUIStrings = /['"`](Loading|Error|Success|Cancel|Confirm|Save|Delete|Edit|Close|Submit)[`'"]/.g
+  const commonUIStrings =
+    /['"`](Loading|Error|Success|Cancel|Confirm|Save|Delete|Edit|Close|Submit)[`'"]/.g
 
   const srcFiles = globSync(`${srcDir}/**/*.{ts,tsx}`, { ignore: '**/node_modules/**' })
 
@@ -132,8 +133,8 @@ function main() {
       totalKeys: enKeys.size,
       usedKeys: Array.from(usedKeys).filter((k) => enKeys.has(k)).length,
       unusedKeys: unusedKeys['en']?.length || 0,
-      hardcodedStrings: hardcodedStrings.length,
-    },
+      hardcodedStrings: hardcodedStrings.length
+    }
   }
 
   // Print report

@@ -1,14 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { axe, toHaveNoViolations } from 'jest-axe'
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from './Card'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './Card'
 
 expect.extend(toHaveNoViolations)
 
@@ -73,9 +66,7 @@ describe('Card Components', () => {
         </Card>
       )
       const elements = container.querySelectorAll('div')
-      const header = Array.from(elements).find((el) =>
-        el.textContent?.includes('Content')
-      )
+      const header = Array.from(elements).find((el) => el.textContent?.includes('Content'))
       expect(header).toHaveClass('p-4')
     })
 

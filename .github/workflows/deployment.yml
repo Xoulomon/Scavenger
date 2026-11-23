@@ -2,7 +2,7 @@ name: Deployment
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -71,4 +71,5 @@ jobs:
           node-version: '18'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter scavenger-integration-tests typecheck
       - run: pnpm --filter scavenger-integration-tests test

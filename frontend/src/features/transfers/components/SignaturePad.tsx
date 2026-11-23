@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button'
 
 export function SignaturePad({
   onSign,
-  signed,
+  signed
 }: {
   onSign: (signed: boolean) => void
   signed: boolean
@@ -21,7 +21,7 @@ export function SignaturePad({
       if ('touches' in e) {
         return {
           x: e.touches[0].clientX - rect.left,
-          y: e.touches[0].clientY - rect.top,
+          y: e.touches[0].clientY - rect.top
         }
       }
       return { x: e.clientX - rect.left, y: e.clientY - rect.top }

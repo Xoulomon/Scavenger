@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { WasteType, Material } from '@/api/types'
+import { Material } from '@/api/types'
 import { formatTokenAmount, wasteTypeLabel, formatDate, formatAddress } from '@/lib/helpers'
 import { ROUTES } from '@/constants/routes'
 import { ALL_WASTE_TYPES } from '@/constants/wasteTypes'
@@ -170,7 +170,9 @@ export function CollectorDashboardPage() {
       {/* Pending incoming transfers */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{t('collectorDashboard.pendingIncomingTransfers')}</CardTitle>
+          <CardTitle className="text-base">
+            {t('collectorDashboard.pendingIncomingTransfers')}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           {pendingTransfers.length === 0 ? (
@@ -210,7 +212,9 @@ export function CollectorDashboardPage() {
       {/* Collection statistics by waste type */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{t('collectorDashboard.statisticsByWasteType')}</CardTitle>
+          <CardTitle className="text-base">
+            {t('collectorDashboard.statisticsByWasteType')}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-3 xs:grid-cols-3 tablet:grid-cols-3 lg:grid-cols-5">

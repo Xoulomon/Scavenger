@@ -25,10 +25,8 @@
 
 #![cfg(test)]
 
-use soroban_sdk::{
-    symbol_short, testutils::Address as _, Address, Env, String,
-};
 use crate::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
+use soroban_sdk::{symbol_short, testutils::Address as _, Address, Env, String};
 
 // ── shared setup ─────────────────────────────────────────────────────────────
 
@@ -54,9 +52,7 @@ fn setup_with_recycler(env: &Env) -> (ScavengerContractClient<'_>, Address, Addr
     (client, admin, recycler)
 }
 
-fn setup_with_two_participants(
-    env: &Env,
-) -> (ScavengerContractClient<'_>, Address, Address, Address) {
+fn setup_with_two_participants(env: &Env) -> (ScavengerContractClient<'_>, Address, Address, Address) {
     let (client, admin, recycler) = setup_with_recycler(env);
     let collector = Address::generate(env);
     client.register_participant(
@@ -119,13 +115,7 @@ fn test_pause_blocks_register_participant() {
     let (client, admin) = setup(&env);
     client.pause(&admin);
     let user = Address::generate(&env);
-    client.register_participant(
-        &user,
-        &ParticipantRole::Recycler,
-        &symbol_short!("U"),
-        &0i128,
-        &0i128,
-    );
+    client.register_participant(&user, &ParticipantRole::Recycler, &symbol_short!("U"), &0i128, &0i128);
 }
 
 #[test]
@@ -163,12 +153,7 @@ fn test_pause_blocks_submit_material() {
     let env = Env::default();
     let (client, admin, recycler) = setup_with_recycler(&env);
     client.pause(&admin);
-    client.submit_material(
-        &WasteType::Plastic,
-        &5000u64,
-        &recycler,
-        &String::from_str(&env, ""),
-    );
+    client.submit_material(&WasteType::Plastic, &5000u64, &recycler, &String::from_str(&env, ""));
 }
 
 #[test]
@@ -185,19 +170,9 @@ fn test_pause_blocks_recycle_waste() {
 fn test_pause_blocks_transfer_waste() {
     let env = Env::default();
     let (client, admin, recycler, collector) = setup_with_two_participants(&env);
-    let waste_id = client.submit_material(
-        &WasteType::Plastic,
-        &5000u64,
-        &recycler,
-        &String::from_str(&env, ""),
-    );
+    let waste_id = client.submit_material(&WasteType::Plastic, &5000u64, &recycler, &String::from_str(&env, ""));
     client.pause(&admin);
-    client.transfer_waste(
-        &waste_id,
-        &recycler,
-        &collector,
-        &String::from_str(&env, ""),
-    );
+    client.transfer_waste(&waste_id, &recycler, &collector, &String::from_str(&env, ""));
 }
 
 #[test]
@@ -216,7 +191,9 @@ fn test_pause_blocks_confirm_waste_details() {
     let env = Env::default();
     let (client, admin, recycler, collector) = setup_with_two_participants(&env);
     let waste_id = client.recycle_waste(&WasteType::Plastic, &1000u128, &recycler, &0i128, &0i128);
-    client.transfer_waste_v2(&waste_id, &recycler, &collector, &0i128, &0i128).unwrap();
+    client
+        .transfer_waste_v2(&waste_id, &recycler, &collector, &0i128, &0i128)
+        .unwrap();
     client.pause(&admin);
     client.confirm_waste_details(&waste_id, &collector);
 }
@@ -227,7 +204,9 @@ fn test_pause_blocks_reset_waste_confirmation() {
     let env = Env::default();
     let (client, admin, recycler, collector) = setup_with_two_participants(&env);
     let waste_id = client.recycle_waste(&WasteType::Plastic, &1000u128, &recycler, &0i128, &0i128);
-    client.transfer_waste_v2(&waste_id, &recycler, &collector, &0i128, &0i128).unwrap();
+    client
+        .transfer_waste_v2(&waste_id, &recycler, &collector, &0i128, &0i128)
+        .unwrap();
     client.confirm_waste_details(&waste_id, &collector);
     client.pause(&admin);
     client.reset_waste_confirmation(&waste_id, &recycler);
@@ -364,13 +343,7 @@ fn test_unpause_restores_register_participant() {
     client.pause(&admin);
     client.unpause(&admin);
     let user = Address::generate(&env);
-    client.register_participant(
-        &user,
-        &ParticipantRole::Recycler,
-        &symbol_short!("U"),
-        &0i128,
-        &0i128,
-    );
+    client.register_participant(&user, &ParticipantRole::Recycler, &symbol_short!("U"), &0i128, &0i128);
     assert!(client.is_participant_registered(&user));
 }
 

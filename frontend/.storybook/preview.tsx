@@ -10,7 +10,7 @@ import { worker } from './msw'
 worker.start({
   // Stories load over file:// or localhost; suppress "no-handler" warnings for
   // non-API requests (assets, Storybook internals, etc.).
-  onUnhandledRequest: 'bypass',
+  onUnhandledRequest: 'bypass'
 })
 
 const preview: Preview = {
@@ -18,15 +18,15 @@ const preview: Preview = {
     controls: {
       matchers: {
         color: /(background|color)$/i,
-        date: /Date$/i,
-      },
+        date: /Date$/i
+      }
     },
     backgrounds: {
       default: 'light',
       values: [
         { name: 'light', value: 'hsl(0 0% 100%)' },
-        { name: 'dark', value: 'hsl(222 47% 8%)' },
-      ],
+        { name: 'dark', value: 'hsl(222 47% 8%)' }
+      ]
     },
     // ── Accessibility for shared UI primitives (#1674) ─────────────────────
     // The shared Button/Input/Modal primitives must be a11y-clean; fail the
@@ -38,9 +38,9 @@ const preview: Preview = {
           // Modal renders into a portal; ensure focus-trap/dialog semantics
           // are validated rather than skipped.
           { id: 'aria-dialog-name', enabled: true },
-          { id: 'aria-required-attr', enabled: true },
-        ],
-      },
+          { id: 'aria-required-attr', enabled: true }
+        ]
+      }
     },
     // Expose the MSW worker on story parameters so individual stories can
     // override handlers with:
@@ -48,7 +48,7 @@ const preview: Preview = {
     msw: { worker },
     // Shared primitives render best at a predictable viewport; stories can
     // override via parameters.layout / parameters.viewport.
-    layout: 'centered',
+    layout: 'centered'
   },
   decorators: [
     // ── Design-system decorator (#1674) ────────────────────────────────────
@@ -90,8 +90,8 @@ const preview: Preview = {
           {rendered}
         </div>
       )
-    },
-  ],
+    }
+  ]
 }
 
 export default preview

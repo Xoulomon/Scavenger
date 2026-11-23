@@ -9,36 +9,43 @@ This document describes the implementation of key UI components in the Scavngr f
 ### Features Implemented
 
 ✅ **Waste Type Icon and Label**
+
 - Dynamic icons for each waste type (Paper, PET Plastic, Plastic, Metal, Glass)
 - Color-coded backgrounds with dark mode support
 - Accessible icon presentation with `aria-hidden`
 
 ✅ **Weight Display**
+
 - Automatic unit conversion (grams to kilograms)
 - Formatted display: "500 g" or "1.50 kg"
 - Responsive layout
 
 ✅ **Status Badge**
+
 - Three states: Confirmed (green), Pending (yellow), Inactive (gray)
 - Icon indicators (CheckCircle, Clock, XCircle)
 - Accessible color contrast
 
 ✅ **Waste ID**
+
 - Monospace font for readability
 - Displayed as "#123" format
 - Supports BigInt IDs
 
 ✅ **Current Owner**
+
 - Truncated address display
 - Link to block explorer
 - Responsive text wrapping
 
 ✅ **Action Buttons Slot**
+
 - Flexible `actions` prop for custom buttons
 - Rendered in card footer
 - Supports multiple buttons with proper spacing
 
 ✅ **Responsive Layout**
+
 - Mobile-first design
 - Flexbox layout for optimal spacing
 - Card component with proper padding
@@ -49,16 +56,14 @@ This document describes the implementation of key UI components in the Scavngr f
 import { WasteCard } from '@/components/ui/WasteCard'
 import { Button } from '@/components/ui/Button'
 
-<WasteCard
+;<WasteCard
   waste={wasteItem}
   actions={
     <>
       <Button variant="outline" onClick={handleTransfer}>
         Transfer
       </Button>
-      <Button onClick={handleConfirm}>
-        Confirm
-      </Button>
+      <Button onClick={handleConfirm}>Confirm</Button>
     </>
   }
 />
@@ -68,9 +73,9 @@ import { Button } from '@/components/ui/Button'
 
 ```typescript
 interface WasteCardProps {
-  waste: Waste              // Waste item data
+  waste: Waste // Waste item data
   actions?: React.ReactNode // Optional action buttons
-  className?: string        // Additional CSS classes
+  className?: string // Additional CSS classes
 }
 ```
 
@@ -81,24 +86,28 @@ interface WasteCardProps {
 ### Features Implemented
 
 ✅ **Waste Type Selector**
+
 - Dropdown with all waste types
 - Labeled options (Paper, PET Plastic, etc.)
 - Keyboard navigation support
 - Accessible with proper ARIA labels
 
 ✅ **Reward Per Gram Input**
+
 - Number input with validation
 - Minimum value: 1
 - Step: 1 (integer values)
 - Placeholder text for guidance
 
 ✅ **Total Budget Input**
+
 - Number input with validation
 - Minimum value: 1
 - Step: 1 (integer values)
 - Clear labeling
 
 ✅ **Preview of Estimated Rewards**
+
 - Real-time calculation: `budget / reward_per_gram`
 - Automatic unit conversion (grams to kg)
 - Formatted display with context
@@ -106,6 +115,7 @@ interface WasteCardProps {
 - Accessible with `role="status"` and `aria-live="polite"`
 
 ✅ **Submit Integration**
+
 - Calls `createIncentive` from `useIncentives` hook
 - Transaction confirmation dialog
 - Loading states during submission
@@ -113,12 +123,14 @@ interface WasteCardProps {
 - Success callback with created incentive data
 
 ✅ **Form Validation**
+
 - Required fields
 - Positive number validation
 - Submit button disabled when invalid
 - Clear error messages
 
 ✅ **Responsive Design**
+
 - Mobile-friendly modal
 - Proper spacing and typography
 - Accessible focus management
@@ -144,8 +156,8 @@ const [isOpen, setIsOpen] = useState(false)
 
 ```typescript
 interface Props {
-  open: boolean                           // Modal visibility
-  onClose: () => void                     // Close handler
+  open: boolean // Modal visibility
+  onClose: () => void // Close handler
   onSuccess?: (incentive: Incentive) => void // Success callback
 }
 ```
@@ -165,6 +177,7 @@ interface Props {
 ## Design Patterns
 
 ### Accessibility
+
 - Semantic HTML elements
 - ARIA labels and roles
 - Keyboard navigation
@@ -172,18 +185,21 @@ interface Props {
 - Screen reader announcements
 
 ### Responsive Design
+
 - Mobile-first approach
 - Flexible layouts
 - Proper touch targets
 - Readable typography
 
 ### Error Handling
+
 - User-friendly error messages
 - Non-blocking errors
 - Clear recovery paths
 - Loading states
 
 ### Performance
+
 - Memoized components
 - Optimized re-renders
 - Efficient calculations
@@ -192,6 +208,7 @@ interface Props {
 ## Testing Recommendations
 
 ### WasteCard
+
 - [ ] Renders all waste types correctly
 - [ ] Shows correct status badges
 - [ ] Formats weight properly (g/kg)
@@ -200,6 +217,7 @@ interface Props {
 - [ ] Responsive on mobile/desktop
 
 ### CreateIncentiveModal
+
 - [ ] Validates required fields
 - [ ] Calculates preview correctly
 - [ ] Handles form submission
@@ -211,12 +229,14 @@ interface Props {
 ## Future Enhancements
 
 ### WasteCard
+
 - Add waste image/photo support
 - Show transfer count badge
 - Add quick actions menu
 - Implement card animations
 
 ### CreateIncentiveModal
+
 - Add incentive templates
 - Support recurring incentives
 - Add budget recommendations
@@ -233,11 +253,13 @@ Stories are run as interaction and accessibility tests via the
    `src/components/MyWidget.stories.tsx`).
 
 2. **Import the testing helpers** at the top of the file:
+
    ```tsx
    import { userEvent, within, expect } from '@storybook/test'
    ```
 
 3. **Add a `play` function** to any story that should be tested:
+
    ```tsx
    export const Default: Story = {
      args: { label: 'Click me' },
@@ -248,7 +270,7 @@ Stories are run as interaction and accessibility tests via the
        await userEvent.click(btn)
        // assert post-interaction state
        await expect(canvas.getByText(/done/i)).toBeInTheDocument()
-     },
+     }
    }
    ```
 

@@ -5,46 +5,61 @@ import * as profileLib from '@/lib/profile'
 import { WasteType } from '@/api/types'
 
 vi.mock('@/hooks/useParticipant', () => ({
-  useParticipant: vi.fn(),
+  useParticipant: vi.fn()
 }))
 
 vi.mock('@/hooks/useProfileStats', () => ({
-  useProfileStats: vi.fn(),
+  useProfileStats: vi.fn()
 }))
 
 vi.mock('@/context/WalletContext', () => ({
-  useWallet: vi.fn(),
+  useWallet: vi.fn()
 }))
 
 vi.mock('@/hooks/useToast', () => ({
   useToast: vi.fn(() => ({
     error: vi.fn(),
-    success: vi.fn(),
-  })),
+    success: vi.fn()
+  }))
 }))
 
 vi.mock('@tanstack/react-query', () => ({
   useQueryClient: vi.fn(() => ({
     invalidateQueries: vi.fn(),
     setQueryData: vi.fn(),
-    getQueryData: vi.fn(),
-  })),
+    getQueryData: vi.fn()
+  }))
 }))
 
 vi.mock('@/lib/profile', () => ({
   generateAvatarUrl: vi.fn((addr) => `https://avatar.example.com/${addr}`),
   computeReputationScore: vi.fn((stats) => 85),
   computeMilestones: vi.fn((stats) => [
-    { id: 'first_submission', label: 'First Submission', description: 'Submit your first waste item', reached: true },
-    { id: 'ten_transfers', label: '10 Transfers', description: 'Complete 10 waste transfers', reached: false },
+    {
+      id: 'first_submission',
+      label: 'First Submission',
+      description: 'Submit your first waste item',
+      reached: true
+    },
+    {
+      id: 'ten_transfers',
+      label: '10 Transfers',
+      description: 'Complete 10 waste transfers',
+      reached: false
+    },
     { id: 'hundred_tokens', label: '100 Tokens', description: 'Earn 100 tokens', reached: true },
-    { id: 'fifty_materials', label: '50 Submissions', description: 'Submit 50 waste items', reached: false },
+    {
+      id: 'fifty_materials',
+      label: '50 Submissions',
+      description: 'Submit 50 waste items',
+      reached: false
+    }
   ]),
   validateProfileImage: vi.fn(() => ({ valid: true })),
   getStoredProfileName: vi.fn(() => null),
   setStoredProfileName: vi.fn(),
   getStoredProfileImage: vi.fn(() => null),
-  setStoredProfileImage: vi.fn(),
+  setStoredProfileImage: vi.fn()
 }))
 
 describe('ProfilePage', () => {
@@ -52,13 +67,13 @@ describe('ProfilePage', () => {
     address: 'GABC123',
     name: 'Test User',
     role: 'Contributor',
-    registered_at: Math.floor(Date.now() / 1000) - 2592000,
+    registered_at: Math.floor(Date.now() / 1000) - 2592000
   }
 
   const mockStats = {
     total_earned: 1000n,
     materials_submitted: 25,
-    transfers_count: 5,
+    transfers_count: 5
   }
 
   const mockWastes = [
@@ -68,7 +83,7 @@ describe('ProfilePage', () => {
       weight: 500n,
       recycled_timestamp: Math.floor(Date.now() / 1000) - 86400,
       is_confirmed: true,
-      is_active: true,
+      is_active: true
     },
     {
       waste_id: 2n,
@@ -76,8 +91,8 @@ describe('ProfilePage', () => {
       weight: 250n,
       recycled_timestamp: Math.floor(Date.now() / 1000) - 172800,
       is_confirmed: false,
-      is_active: true,
-    },
+      is_active: true
+    }
   ]
 
   beforeEach(() => {
@@ -94,17 +109,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: mockParticipant,
         isLoading: false,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: mockStats,
         wastes: mockWastes,
         isLoadingStats: false,
         isLoadingWastes: false,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -121,17 +136,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: mockParticipant,
         isLoading: false,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: mockStats,
         wastes: mockWastes,
         isLoadingStats: false,
         isLoadingWastes: false,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -148,17 +163,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: mockParticipant,
         isLoading: false,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: mockStats,
         wastes: mockWastes,
         isLoadingStats: false,
         isLoadingWastes: false,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -176,17 +191,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: mockParticipant,
         isLoading: false,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: mockStats,
         wastes: mockWastes,
         isLoadingStats: false,
         isLoadingWastes: false,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -205,17 +220,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: mockParticipant,
         isLoading: false,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: null,
         wastes: [],
         isLoadingStats: true,
         isLoadingWastes: true,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -232,17 +247,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: mockParticipant,
         isLoading: false,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: null,
         wastes: [],
         isLoadingStats: false,
         isLoadingWastes: false,
-        isStatsError: true,
+        isStatsError: true
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -258,17 +273,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: mockParticipant,
         isLoading: false,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: mockStats,
         wastes: mockWastes,
         isLoadingStats: false,
         isLoadingWastes: false,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -284,17 +299,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: mockParticipant,
         isLoading: false,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: mockStats,
         wastes: mockWastes,
         isLoadingStats: false,
         isLoadingWastes: false,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -312,17 +327,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: mockParticipant,
         isLoading: false,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: mockStats,
         wastes: mockWastes,
         isLoadingStats: false,
         isLoadingWastes: false,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -340,17 +355,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: mockParticipant,
         isLoading: false,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: mockStats,
         wastes: [],
         isLoadingStats: false,
         isLoadingWastes: false,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -366,17 +381,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: mockParticipant,
         isLoading: false,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: mockStats,
         wastes: mockWastes,
         isLoadingStats: false,
         isLoadingWastes: false,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -393,17 +408,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: mockParticipant,
         isLoading: false,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: mockStats,
         wastes: mockWastes,
         isLoadingStats: false,
         isLoadingWastes: false,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -426,17 +441,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: mockParticipant,
         isLoading: false,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: mockStats,
         wastes: mockWastes,
         isLoadingStats: false,
         isLoadingWastes: false,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -453,17 +468,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: mockParticipant,
         isLoading: false,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: mockStats,
         wastes: mockWastes,
         isLoadingStats: false,
         isLoadingWastes: false,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -482,17 +497,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: mockParticipant,
         isLoading: false,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: mockStats,
         wastes: mockWastes,
         isLoadingStats: false,
         isLoadingWastes: false,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -513,17 +528,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: mockParticipant,
         isLoading: false,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: mockStats,
         wastes: mockWastes,
         isLoadingStats: false,
         isLoadingWastes: false,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -546,17 +561,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: mockParticipant,
         isLoading: false,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: mockStats,
         wastes: mockWastes,
         isLoadingStats: false,
         isLoadingWastes: false,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -583,17 +598,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: mockParticipant,
         isLoading: false,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: mockStats,
         wastes: mockWastes,
         isLoadingStats: false,
         isLoadingWastes: false,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -617,17 +632,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: null,
         isLoading: false,
-        isError: true,
+        isError: true
       })
       useProfileStats.mockReturnValue({
         stats: null,
         wastes: [],
         isLoadingStats: false,
         isLoadingWastes: false,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)
@@ -643,17 +658,17 @@ describe('ProfilePage', () => {
       useParticipant.mockReturnValue({
         participant: null,
         isLoading: true,
-        isError: false,
+        isError: false
       })
       useProfileStats.mockReturnValue({
         stats: null,
         wastes: [],
         isLoadingStats: true,
         isLoadingWastes: true,
-        isStatsError: false,
+        isStatsError: false
       })
       useWallet.mockReturnValue({
-        address: mockParticipant.address,
+        address: mockParticipant.address
       })
 
       render(<ProfilePage />)

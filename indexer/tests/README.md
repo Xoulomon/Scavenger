@@ -49,6 +49,7 @@ to ensure determinism without requiring a live Redis instance. The mock simulate
 sorted-set and hash operations used by `JobQueue`.
 
 For the live Redis test (`job-queue.test.ts`), start Redis locally:
+
 ```bash
 redis-server --port 6379
 ```

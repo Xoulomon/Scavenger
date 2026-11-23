@@ -24,7 +24,7 @@ export const queryCachePolicy = {
   staleTime: DEFAULT_STALE_TIME,
   gcTime: DEFAULT_GC_TIME,
   refetchOnWindowFocus: false,
-  retry: DEFAULT_RETRY,
+  retry: DEFAULT_RETRY
 } as const
 
 /**
@@ -36,7 +36,7 @@ export const queryCachePolicy = {
  * shared policy.
  */
 export function createQueryClient(
-  overrides: Partial<ConstructorParameters<typeof QueryClient>[0]> = {},
+  overrides: Partial<ConstructorParameters<typeof QueryClient>[0]> = {}
 ): QueryClient {
   return new QueryClient({
     ...overrides,
@@ -44,8 +44,8 @@ export function createQueryClient(
       ...overrides.defaultOptions,
       queries: {
         ...queryCachePolicy,
-        ...overrides.defaultOptions?.queries,
-      },
-    },
+        ...overrides.defaultOptions?.queries
+      }
+    }
   })
 }

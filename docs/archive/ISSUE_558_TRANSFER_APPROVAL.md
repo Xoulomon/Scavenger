@@ -1,10 +1,13 @@
 # Issue #558: Waste Transfer Approval System
 
 ## Overview
+
 Implement an approval mechanism for waste transfers with voting/timeout capabilities to ensure controlled and verified waste movement through the supply chain.
 
 ## Problem Statement
+
 The recycling system needs a secure mechanism for waste transfers that:
+
 - Requires explicit recipient approval before ownership transfer
 - Prevents unauthorized transfers
 - Implements timeout to prevent indefinite pending transfers
@@ -14,6 +17,7 @@ The recycling system needs a secure mechanism for waste transfers that:
 ## Solution Architecture
 
 ### State Machine
+
 ```
 Initiated → Pending → Approved → Completed
                    ↓
@@ -25,6 +29,7 @@ Initiated → Pending → Approved → Completed
 ### Data Structures
 
 #### PendingTransfer Struct
+
 ```rust
 pub struct PendingTransfer {
     pub id: u64,                    // Unique transfer ID
@@ -40,6 +45,7 @@ pub struct PendingTransfer {
 ```
 
 #### PendingTransferStatus Enum
+
 ```rust
 pub enum PendingTransferStatus {
     Pending = 0,      // Awaiting recipient action
@@ -52,6 +58,7 @@ pub enum PendingTransferStatus {
 ### Core Functions
 
 #### 1. initiate_transfer()
+
 ```rust
 pub fn initiate_transfer(
     env: Env,
@@ -66,6 +73,7 @@ pub fn initiate_transfer(
 **Purpose**: Create a pending transfer request
 
 **Parameters**:
+
 - `env`: Soroban environment
 - `waste_id`: ID of waste to transfer
 - `from`: Current owner (must sign)
@@ -73,6 +81,7 @@ pub fn initiate_transfer(
 - `latitude`, `longitude`: Transfer location
 
 **Validation**:
+
 - Sender must be registered participant
 - Recipient must be registered participant
 - Sender must own the waste
@@ -80,6 +89,7 @@ pub fn initiate_transfer(
 - Sender and recipient must be different
 
 **Side Effects**:
+
 - Creates new PendingTransfer with unique ID
 - Sets expiry to 24 hours from now
 - Stores in pending transfers map
@@ -89,12 +99,14 @@ pub fn initiate_transfer(
 **Returns**: PendingTransfer with ID and status
 
 **Errors**:
+
 - "Waste not found" - waste_id doesn't exist
 - "Caller is not the owner of this waste item" - not owner
 - "Waste is deactivated" - waste inactive
 - Participant not registered errors
 
 #### 2. approve_transfer()
+
 ```rust
 pub fn approve_transfer(
     env: Env,
@@ -106,17 +118,20 @@ pub fn approve_transfer(
 **Purpose**: Recipient approves transfer and takes ownership
 
 **Parameters**:
+
 - `env`: Soroban environment
 - `transfer_id`: ID of pending transfer
 - `recipient`: Recipient address (must sign)
 
 **Validation**:
+
 - Recipient must be the intended recipient
 - Transfer must be in Pending status
 - Transfer must not be expired
 - Waste must still be active
 
 **Side Effects**:
+
 - Transfers waste ownership to recipient
 - Updates participant waste lists
 - Records transfer in history
@@ -127,6 +142,7 @@ pub fn approve_transfer(
 **Returns**: Updated PendingTransfer
 
 **Errors**:
+
 - "Pending transfer not found" - transfer_id invalid
 - "Only the recipient can approve" - not recipient
 - "Transfer is not pending" - wrong status
@@ -135,6 +151,7 @@ pub fn approve_transfer(
 - "Waste is deactivated" - waste inactive
 
 #### 3. reject_transfer()
+
 ```rust
 pub fn reject_transfer(
     env: Env,
@@ -146,15 +163,18 @@ pub fn reject_transfer(
 **Purpose**: Recipient rejects transfer
 
 **Parameters**:
+
 - `env`: Soroban environment
 - `transfer_id`: ID of pending transfer
 - `recipient`: Recipient address (must sign)
 
 **Validation**:
+
 - Recipient must be the intended recipient
 - Transfer must be in Pending status
 
 **Side Effects**:
+
 - Sets status to Rejected
 - Waste remains with original owner
 - Emits `xfr_rej` event
@@ -163,11 +183,13 @@ pub fn reject_transfer(
 **Returns**: Updated PendingTransfer
 
 **Errors**:
+
 - "Pending transfer not found" - transfer_id invalid
 - "Only the recipient can reject" - not recipient
 - "Transfer is not pending" - wrong status
 
 #### 4. expire_transfer()
+
 ```rust
 pub fn expire_transfer(
     env: Env,
@@ -178,14 +200,17 @@ pub fn expire_transfer(
 **Purpose**: Mark transfer as expired if past deadline
 
 **Parameters**:
+
 - `env`: Soroban environment
 - `transfer_id`: ID of pending transfer
 
 **Validation**:
+
 - Transfer must be in Pending status
 - Current time must be >= expiry time
 
 **Side Effects**:
+
 - Sets status to Expired
 - Waste remains with original owner
 - Emits `xfr_exp` event
@@ -194,11 +219,13 @@ pub fn expire_transfer(
 **Returns**: Updated PendingTransfer
 
 **Errors**:
+
 - "Pending transfer not found" - transfer_id invalid
 - "Transfer is not pending" - wrong status
 - "Transfer has not expired yet" - before deadline
 
 #### 5. get_pending_transfer()
+
 ```rust
 pub fn get_pending_transfer(
     env: Env,
@@ -209,6 +236,7 @@ pub fn get_pending_transfer(
 **Purpose**: Retrieve pending transfer details
 
 **Parameters**:
+
 - `env`: Soroban environment
 - `transfer_id`: ID of pending transfer
 
@@ -219,6 +247,7 @@ pub fn get_pending_transfer(
 ### Event Emissions
 
 #### xfr_init Event
+
 ```
 Topic: symbol_short!("xfr_init")
 Data: (transfer_id: u64, waste_id: u128, from: Address, to: Address)
@@ -226,6 +255,7 @@ Emitted by: initiate_transfer()
 ```
 
 #### xfr_appr Event
+
 ```
 Topic: symbol_short!("xfr_appr")
 Data: (transfer_id: u64, waste_id: u128, from: Address, to: Address)
@@ -233,6 +263,7 @@ Emitted by: approve_transfer()
 ```
 
 #### xfr_rej Event
+
 ```
 Topic: symbol_short!("xfr_rej")
 Data: (transfer_id: u64, waste_id: u128, from: Address, to: Address)
@@ -240,6 +271,7 @@ Emitted by: reject_transfer()
 ```
 
 #### xfr_exp Event
+
 ```
 Topic: symbol_short!("xfr_exp")
 Data: (transfer_id: u64, waste_id: u128)
@@ -249,6 +281,7 @@ Emitted by: expire_transfer()
 ## Usage Examples
 
 ### Example 1: Successful Transfer
+
 ```rust
 // Recycler initiates transfer to collector
 let pending = client.initiate_transfer(
@@ -270,6 +303,7 @@ assert_eq!(waste.current_owner, collector);
 ```
 
 ### Example 2: Rejection Flow
+
 ```rust
 // Initiate transfer
 let pending = client.initiate_transfer(
@@ -290,6 +324,7 @@ assert_eq!(waste.current_owner, recycler);
 ```
 
 ### Example 3: Expiry Handling
+
 ```rust
 // Initiate transfer
 let pending = client.initiate_transfer(
@@ -315,16 +350,19 @@ assert_eq!(waste.current_owner, recycler);
 ## Integration Points
 
 ### With Confirmation System (#557)
+
 - Waste should be confirmed before transfer approval
 - Confirmation provides quality assurance
 - Transfer approval can require confirmation
 
 ### With Processing Status (#560)
+
 - Transfer moves waste between processing stages
 - Status history includes transfer events
 - Processing status affects transfer eligibility
 
 ### With Reputation System
+
 - Successful transfers build reputation
 - Rejections may affect reputation
 - Transfer history tracked for scoring
@@ -332,21 +370,25 @@ assert_eq!(waste.current_owner, recycler);
 ## Security Considerations
 
 ### Access Control
+
 - Only waste owner can initiate transfer
 - Only recipient can approve/reject
 - Expiry callable by anyone (no auth needed)
 
 ### Transfer Validation
+
 - Waste must be active
 - Both parties must be registered
 - Ownership verified before transfer
 
 ### Timeout Protection
+
 - 24-hour expiry prevents indefinite pending
 - Automatic expiry prevents stale transfers
 - Expired transfers cannot be approved
 
 ### Audit Trail
+
 - All transfers recorded with IDs
 - Status changes tracked
 - Events emitted for all state changes
@@ -354,6 +396,7 @@ assert_eq!(waste.current_owner, recycler);
 ## Testing Strategy
 
 ### Unit Tests
+
 1. Transfer initiation
 2. Approval changes ownership
 3. Rejection keeps ownership
@@ -368,6 +411,7 @@ assert_eq!(waste.current_owner, recycler);
 12. Expiry timestamp accuracy
 
 ### Integration Tests
+
 1. Full transfer flow
 2. Multiple transfers in sequence
 3. Concurrent transfers
@@ -375,6 +419,7 @@ assert_eq!(waste.current_owner, recycler);
 5. Transfer + processing status
 
 ### Edge Cases
+
 1. Non-existent waste
 2. Non-existent transfer
 3. Unregistered participants
@@ -384,6 +429,7 @@ assert_eq!(waste.current_owner, recycler);
 ## Performance Characteristics
 
 ### Gas Usage
+
 - Initiate: ~6,000 gas (storage write + event)
 - Approve: ~12,000 gas (multiple storage updates + event)
 - Reject: ~4,000 gas (storage write + event)
@@ -391,6 +437,7 @@ assert_eq!(waste.current_owner, recycler);
 - Query: ~1,000 gas (storage read)
 
 ### Storage
+
 - Per transfer: ~100 bytes
 - Scales with transfer count
 - Transfers can be archived after completion
@@ -398,6 +445,7 @@ assert_eq!(waste.current_owner, recycler);
 ## Future Enhancements
 
 ### Potential Improvements
+
 1. **Multi-signature Approval**: Multiple recipients must approve
 2. **Conditional Transfers**: Transfer with conditions
 3. **Batch Transfers**: Transfer multiple wastes at once

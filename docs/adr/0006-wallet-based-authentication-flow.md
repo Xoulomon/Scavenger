@@ -16,7 +16,7 @@ the contract boundary: Soroban's `require_auth` will reject the invocation unles
 transaction carries a valid signature from the address in question. There are 62
 `require_auth` call sites in `stellar-contract/src/lib.rs`.
 
-The open question was whether to *also* build a conventional account system —
+The open question was whether to _also_ build a conventional account system —
 credentials, server-issued sessions, a user table — on top of that.
 
 ## Decision
@@ -33,7 +33,7 @@ Concretely:
   reconnect.
 - **Authorisation is enforced on-chain.** Each contract function calls
   `caller.require_auth()`. Privileged functions additionally check membership in the
-  `ADMINS` list via `only_admin`, which does `require_auth` *and* a membership test —
+  `ADMINS` list via `only_admin`, which does `require_auth` _and_ a membership test —
   holding a key is not the same as being an admin.
 - **`AuthContext` holds display state only** — address, role, name, cached in
   `localStorage` under `scavngr_user`. It gates what the UI renders. It is not
@@ -43,12 +43,12 @@ Concretely:
 
 ## Alternatives Considered
 
-| Alternative | Why it was rejected |
-|-------------|---------------------|
-| Email/password accounts with server sessions | Introduces credential storage, reset flows, and breach liability for an identity the chain already establishes cryptographically. It would also create a second identity to reconcile with the on-chain address. |
+| Alternative                                            | Why it was rejected                                                                                                                                                                                                                                            |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Email/password accounts with server sessions           | Introduces credential storage, reset flows, and breach liability for an identity the chain already establishes cryptographically. It would also create a second identity to reconcile with the on-chain address.                                               |
 | Sign-In-With-Stellar: sign a nonce, exchange for a JWT | The standard pattern, and worth revisiting **if** a server endpoint ever needs to authorise a caller. Today no such endpoint exists: writes go to the contract and reads are public. A token system with nothing to protect is attack surface without benefit. |
-| Custodial key management | Removes the wallet-install friction, but makes the project a custodian of user funds and identity. Wrong trade for a supply-chain tracking application. |
-| Authenticating the indexer API | The data is public on-chain; authenticating it protects nothing. **`POST /replay` is the exception** and is a genuine gap — see below. |
+| Custodial key management                               | Removes the wallet-install friction, but makes the project a custodian of user funds and identity. Wrong trade for a supply-chain tracking application.                                                                                                        |
+| Authenticating the indexer API                         | The data is public on-chain; authenticating it protects nothing. **`POST /replay` is the exception** and is a genuine gap — see below.                                                                                                                         |
 
 ## Consequences
 
@@ -69,7 +69,7 @@ Concretely:
   can mislead the UI about which account is active. The user is still protected at
   signing time, because Freighter shows what is being signed and holds the key.
 - **`AuthContext` is trivially forgeable.** Writing a `scavngr_user` object into
-  `localStorage` makes the UI render as that user. This is acceptable *only* because
+  `localStorage` makes the UI render as that user. This is acceptable _only_ because
   nothing security-relevant depends on it, and it stops being acceptable the moment a
   server endpoint trusts it. That constraint is easy to violate accidentally.
 - **Freighter is a hard dependency** for any state-changing action. Users without the

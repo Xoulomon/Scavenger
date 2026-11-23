@@ -13,7 +13,7 @@ import {
   getComparisonHistory,
   saveComparison,
   deleteComparison,
-  type ComparisonSnapshot,
+  type ComparisonSnapshot
 } from '@/lib/comparisonHistory'
 
 const MAX_COMPARE = 4
@@ -75,11 +75,17 @@ export function WasteComparisonPage() {
             <CardContent className="space-y-2">
               {isLoading && (
                 <div className="space-y-2">
-                  {[1, 2, 3].map((i) => <div key={i} className="h-10 animate-pulse rounded bg-muted" />)}
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-10 animate-pulse rounded bg-muted" />
+                  ))}
                 </div>
               )}
               {!isLoading && wastes.length === 0 && (
-                <EmptyState icon={GitCompare} title="No wastes" description="No waste items found" />
+                <EmptyState
+                  icon={GitCompare}
+                  title="No wastes"
+                  description="No waste items found"
+                />
               )}
               {wastes.map((w) => {
                 const isSelected = selected.some((s) => s.waste_id === w.waste_id)
@@ -93,8 +99,8 @@ export function WasteComparisonPage() {
                       isSelected
                         ? 'border-primary bg-primary/10'
                         : disabled
-                        ? 'cursor-not-allowed opacity-40'
-                        : 'hover:bg-muted/50'
+                          ? 'cursor-not-allowed opacity-40'
+                          : 'hover:bg-muted/50'
                     }`}
                   >
                     <div className="flex items-center gap-2">

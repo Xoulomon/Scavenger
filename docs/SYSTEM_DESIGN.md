@@ -69,10 +69,10 @@ ParticipantRole
 
 The Scavngr contract uses Soroban's **instance storage** and **persistent storage** to maintain on-chain state. The two storage tiers serve different purposes:
 
-| Storage Tier | Use Case | TTL |
-|---|---|---|
-| `instance` | Frequently read data (participants, config, counters) | Extended automatically |
-| `persistent` | Long-lived data (waste records, transfer history) | Extended on access |
+| Storage Tier | Use Case                                              | TTL                    |
+| ------------ | ----------------------------------------------------- | ---------------------- |
+| `instance`   | Frequently read data (participants, config, counters) | Extended automatically |
+| `persistent` | Long-lived data (waste records, transfer history)     | Extended on access     |
 
 ### Global State Keys
 
@@ -311,12 +311,12 @@ Weight Submitted   →   Reward Per Unit
 
 The contract provides several query functions for incentive discovery:
 
-| Function | Use Case |
-|---|---|
-| `get_incentives(waste_type)` | Active incentives for a given waste type |
-| `get_active_incentives()` | All active incentives across all waste types |
+| Function                                             | Use Case                                          |
+| ---------------------------------------------------- | ------------------------------------------------- |
+| `get_incentives(waste_type)`                         | Active incentives for a given waste type          |
+| `get_active_incentives()`                            | All active incentives across all waste types      |
 | `get_active_mfr_incentive(manufacturer, waste_type)` | Best incentive offered by a specific manufacturer |
-| `get_incentive_by_id(id)` | Direct lookup by ID |
+| `get_incentive_by_id(id)`                            | Direct lookup by ID                               |
 
 ### Incentive Lifecycle
 
@@ -341,7 +341,7 @@ Incentive { is_active: true, budget: N }
 ```rust
 pub fn calculate_incentive_reward(incentive_id: u64, waste_amount: u64) -> u64 {
     let incentive = get_incentive(incentive_id);
-    
+
     // Find highest applicable tier
     let rate = incentive.tiers
         .iter()
@@ -349,7 +349,7 @@ pub fn calculate_incentive_reward(incentive_id: u64, waste_amount: u64) -> u64 {
         .map(|t| t.reward_points)
         .max()
         .unwrap_or(incentive.reward_points); // Fall back to base rate
-    
+
     rate * waste_amount
 }
 ```
@@ -412,28 +412,28 @@ distribute_rewards(waste_id, incentive_id, manufacturer)
 fn _reward_tokens(env: &Env, waste_id: u64, total_reward: u128) {
     let cfg = get_reward_config(env);
     let waste = get_waste(env, waste_id);
-    
+
     // Owner share
     let owner_amount = total_reward * cfg.owner_pct as u128 / 100;
-    
+
     // Collector share (last address in transfer history with Collector role)
     let collector_amount = total_reward * cfg.collector_pct as u128 / 100;
     let collector = get_last_collector_from_history(env, waste_id);
-    
+
     // Execute token transfers via Soroban token interface
     let token = token::Client::new(env, &get_token_address(env));
     token.transfer(&env.current_contract_address(), &waste.owner, &(owner_amount as i128));
     if let Some(collector_addr) = collector {
         token.transfer(&env.current_contract_address(), &collector_addr, &(collector_amount as i128));
     }
-    
+
     // Update participant earnings records
     update_participant_earnings(env, &waste.owner, owner_amount as i128);
-    
+
     // Update global metrics
     let total: u128 = env.storage().instance().get(&TOTAL_TOKENS).unwrap_or(0);
     env.storage().instance().set(&TOTAL_TOKENS, &(total + total_reward));
-    
+
     // Emit event
     events::emit_tokens_rewarded(env, &waste.owner, total_reward, waste_id);
 }
@@ -510,19 +510,19 @@ pub fn calculate_carbon_credits(waste_type: WasteType, weight_grams: u128) -> u1
 
 Every state-mutating function enforces role-based access via `require_auth()` and role checks:
 
-| Action | Required Role |
-|---|---|
-| `initialize_admin` | None (one-time) |
-| `set_token_address` | Admin |
-| `set_percentages` | Admin (multi-sig) |
-| `register_participant` | Self (address auth) |
-| `submit_material` | Recycler |
-| `verify_material` | Registered participant |
-| `transfer_waste` | Current waste holder |
-| `create_incentive` | Manufacturer |
-| `distribute_rewards` | Manufacturer |
-| `deactivate_waste` | Admin (multi-sig) |
-| `grant_certification` | Admin |
+| Action                 | Required Role          |
+| ---------------------- | ---------------------- |
+| `initialize_admin`     | None (one-time)        |
+| `set_token_address`    | Admin                  |
+| `set_percentages`      | Admin (multi-sig)      |
+| `register_participant` | Self (address auth)    |
+| `submit_material`      | Recycler               |
+| `verify_material`      | Registered participant |
+| `transfer_waste`       | Current waste holder   |
+| `create_incentive`     | Manufacturer           |
+| `distribute_rewards`   | Manufacturer           |
+| `deactivate_waste`     | Admin (multi-sig)      |
+| `grant_certification`  | Admin                  |
 
 ### Emergency Pause
 
@@ -569,27 +569,27 @@ User Input
 
 All significant state changes emit on-chain events, providing an immutable audit log:
 
-| Event | Trigger |
-|---|---|
+| Event                   | Trigger                    |
+| ----------------------- | -------------------------- |
 | `ParticipantRegistered` | New participant registered |
-| `WasteSubmitted` | Waste item created |
-| `WasteTransferred` | Ownership transferred |
-| `WasteVerified` | Material verified |
-| `IncentiveCreated` | New incentive posted |
-| `TokensRewarded` | Reward distributed |
-| `MilestoneReached` | Weight milestone crossed |
-| `AdminChanged` | Admin set modified |
+| `WasteSubmitted`        | Waste item created         |
+| `WasteTransferred`      | Ownership transferred      |
+| `WasteVerified`         | Material verified          |
+| `IncentiveCreated`      | New incentive posted       |
+| `TokensRewarded`        | Reward distributed         |
+| `MilestoneReached`      | Weight milestone crossed   |
+| `AdminChanged`          | Admin set modified         |
 
 ### Known Constraints
 
-| Constraint | Value | Rationale |
-|---|---|---|
-| Max active challenges | 10 | Prevent state bloat |
-| Min auction duration | 1 hour | Prevent flash auctions |
-| Max auction duration | 7 days | Prevent stale auctions |
-| Min bid increment | 5% | Prevent bid spam |
-| Proposal TTL | 7 days | Prevent stale proposals |
-| Transfer expiry | 24 hours | Prevent forgotten transfers |
+| Constraint            | Value    | Rationale                   |
+| --------------------- | -------- | --------------------------- |
+| Max active challenges | 10       | Prevent state bloat         |
+| Min auction duration  | 1 hour   | Prevent flash auctions      |
+| Max auction duration  | 7 days   | Prevent stale auctions      |
+| Min bid increment     | 5%       | Prevent bid spam            |
+| Proposal TTL          | 7 days   | Prevent stale proposals     |
+| Transfer expiry       | 24 hours | Prevent forgotten transfers |
 
 ---
 

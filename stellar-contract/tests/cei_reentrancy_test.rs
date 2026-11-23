@@ -39,7 +39,7 @@ fn purchase_carbon_listing_deactivates_listing_before_returning() {
     // The test framework does not currently support injecting a malicious token
     // contract that reenters mid-transfer, but the code structure guarantees
     // that all state mutations are committed before the `token_client.transfer` call.
-    
+
     // Assertion: the CEI fix prevents double-purchase reentrancy
     // (See CEI_AUDIT.md for detailed ordering analysis)
     assert!(
@@ -74,7 +74,7 @@ fn distribute_reward_decrements_budget_before_returning() {
     // The budget update happens immediately after `total_reward` is computed,
     // before any external interaction, so a reentrant callee cannot observe
     // stale budget and trigger a second payout.
-    
+
     // Assertion: the CEI fix prevents budget-drain reentrancy
     // (See CEI_AUDIT.md for detailed ordering analysis)
     assert!(

@@ -15,13 +15,13 @@ the handler file as the source of truth until OpenAPI generation is added.
 
 ## Routes
 
-| Method | Path | Handler | Source |
-|--------|------|---------|--------|
-| `GET` | `contract:stats` | `(inline)` | `backend/src/api/contracts.rs` |
-| `GET` | `data_type` | `(inline)` | `backend/src/api/export.rs` |
-| `GET` | `format` | `(inline)` | `backend/src/api/export.rs` |
-| `GET` | `id` | `(inline)` | `backend/src/api/export.rs` |
-| `GET` | `X-Cache` | `(inline)` | `backend/src/api/contracts.rs` |
+| Method | Path             | Handler    | Source                         |
+| ------ | ---------------- | ---------- | ------------------------------ |
+| `GET`  | `contract:stats` | `(inline)` | `backend/src/api/contracts.rs` |
+| `GET`  | `data_type`      | `(inline)` | `backend/src/api/export.rs`    |
+| `GET`  | `format`         | `(inline)` | `backend/src/api/export.rs`    |
+| `GET`  | `id`             | `(inline)` | `backend/src/api/export.rs`    |
+| `GET`  | `X-Cache`        | `(inline)` | `backend/src/api/contracts.rs` |
 
 ## Endpoint examples
 

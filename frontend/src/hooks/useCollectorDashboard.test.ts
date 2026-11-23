@@ -8,21 +8,21 @@ const mockWallet = { address: 'G1234567890ABCDEF' }
 const mockConfig = {
   contractId: 'CTEST123',
   rpcUrl: 'https://soroban-testnet.stellar.org',
-  network: 'TESTNET' as const,
+  network: 'TESTNET' as const
 }
 
 vi.mock('@/context/WalletContext', () => ({
-  useWallet: () => mockWallet,
+  useWallet: () => mockWallet
 }))
 
 vi.mock('@/context/ContractContext', () => ({
-  useContract: () => ({ config: mockConfig }),
+  useContract: () => ({ config: mockConfig })
 }))
 
 vi.mock('@/lib/stellar', () => ({
   NETWORK_CONFIGS: {
-    TESTNET: { networkPassphrase: 'Test SDF Network ; September 2015' },
-  },
+    TESTNET: { networkPassphrase: 'Test SDF Network ; September 2015' }
+  }
 }))
 
 // ── Centralised ScavengerClient mock (#1546) ──────────────────────────────────
@@ -37,9 +37,9 @@ vi.mock('@/api/client', () => ({
     createMockClient({
       getStats: mockGetStats,
       getMetrics: mockGetMetrics,
-      getMaterial: mockGetMaterial,
+      getMaterial: mockGetMaterial
     })
-  ),
+  )
 }))
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -64,12 +64,12 @@ describe('useCollectorDashboard', () => {
     const mockStats = {
       materials_submitted: 5n,
       total_weight: 1000n,
-      total_earned: 500n,
+      total_earned: 500n
     }
 
     const mockMetrics = {
       total_tokens_earned: 1000n,
-      total_waste_weight: 5000n,
+      total_waste_weight: 5000n
     }
 
     mockGetStats.mockResolvedValue(mockStats)
@@ -103,6 +103,7 @@ describe('useCollectorDashboard', () => {
   })
 
   it('should not fetch data when wallet address is missing', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- simulate missing wallet address in test
     mockWallet.address = undefined as any
 
     renderHook(() => useCollectorDashboard())
@@ -140,7 +141,7 @@ describe('useCollectorDashboard', () => {
       weight: 100,
       is_active: true,
       is_confirmed: true,
-      current_owner: mockWallet.address,
+      current_owner: mockWallet.address
     }
     const mockMaterial2 = {
       id: 2,
@@ -148,7 +149,7 @@ describe('useCollectorDashboard', () => {
       weight: 200,
       is_active: true,
       is_confirmed: true,
-      current_owner: mockWallet.address,
+      current_owner: mockWallet.address
     }
 
     mockGetMaterial.mockResolvedValueOnce(mockMaterial1).mockResolvedValueOnce(mockMaterial2)

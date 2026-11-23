@@ -13,7 +13,7 @@ expect.extend(toHaveNoViolations)
 describe('FormField Accessibility', () => {
   describe('Label Association', () => {
     it('should have proper label-input association', () => {
-      const { container } = render(
+      const { _container } = render(
         <div>
           <label htmlFor="test-input">Test Label</label>
           <input id="test-input" type="text" />
@@ -24,15 +24,13 @@ describe('FormField Accessibility', () => {
     })
 
     it('should include aria-label when visible label is not available', () => {
-      const { container } = render(
-        <input type="text" aria-label="Test input field" />
-      )
+      const { _container } = render(<input type="text" aria-label="Test input field" />)
       const input = screen.getByLabelText('Test input field')
       expect(input).toBeInTheDocument()
     })
 
     it('should have descriptive labels for all form inputs', () => {
-      const { container } = render(
+      const { _container } = render(
         <form>
           <label htmlFor="email">Email Address</label>
           <input id="email" type="email" required />
@@ -47,15 +45,13 @@ describe('FormField Accessibility', () => {
 
   describe('Required Field Indicators', () => {
     it('should indicate required fields with aria-required', () => {
-      const { container } = render(
-        <input type="text" aria-required="true" required />
-      )
+      const { _container } = render(<input type="text" aria-required="true" required />)
       const input = screen.getByRole('textbox')
       expect(input).toHaveAttribute('required')
     })
 
     it('should have clear visual indicator for required fields', () => {
-      const { container } = render(
+      const { _container } = render(
         <div>
           <label htmlFor="required-input">
             Name <span aria-label="required">*</span>
@@ -67,9 +63,7 @@ describe('FormField Accessibility', () => {
     })
 
     it('should use aria-required attribute for optional fields', () => {
-      const { container } = render(
-        <input type="text" aria-required="false" />
-      )
+      const { _container } = render(<input type="text" aria-required="false" />)
       const input = screen.getByRole('textbox')
       expect(input).toHaveAttribute('aria-required', 'false')
     })
@@ -77,14 +71,10 @@ describe('FormField Accessibility', () => {
 
   describe('Error Messages', () => {
     it('should associate error messages with input using aria-describedby', () => {
-      const { container } = render(
+      const { _container } = render(
         <div>
           <label htmlFor="email-input">Email</label>
-          <input
-            id="email-input"
-            type="email"
-            aria-describedby="email-error"
-          />
+          <input id="email-input" type="email" aria-describedby="email-error" />
           <span id="email-error" role="alert">
             Please enter a valid email
           </span>
@@ -95,28 +85,20 @@ describe('FormField Accessibility', () => {
     })
 
     it('should use role="alert" for error messages', () => {
-      const { container } = render(
-        <div role="alert">This field is required</div>
-      )
+      const { _container } = render(<div role="alert">This field is required</div>)
       expect(screen.getByRole('alert')).toBeInTheDocument()
     })
 
     it('should have aria-invalid attribute on invalid inputs', () => {
-      const { container } = render(
-        <input type="email" aria-invalid="true" />
-      )
+      const { _container } = render(<input type="email" aria-invalid="true" />)
       const input = screen.getByRole('textbox')
       expect(input).toHaveAttribute('aria-invalid', 'true')
     })
 
     it('should announce error messages to screen readers', () => {
-      const { container } = render(
+      const { _container } = render(
         <div>
-          <input
-            type="text"
-            aria-invalid="true"
-            aria-describedby="error-msg"
-          />
+          <input type="text" aria-invalid="true" aria-describedby="error-msg" />
           <div id="error-msg" role="alert">
             Username must be at least 3 characters
           </div>
@@ -128,14 +110,10 @@ describe('FormField Accessibility', () => {
 
   describe('Help Text and Hints', () => {
     it('should associate help text with input using aria-describedby', () => {
-      const { container } = render(
+      const { _container } = render(
         <div>
           <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            aria-describedby="password-hint"
-          />
+          <input id="password" type="password" aria-describedby="password-hint" />
           <span id="password-hint">At least 8 characters required</span>
         </div>
       )
@@ -144,14 +122,10 @@ describe('FormField Accessibility', () => {
     })
 
     it('should handle multiple descriptions with aria-describedby', () => {
-      const { container } = render(
+      const { _container } = render(
         <div>
           <label htmlFor="bio">Bio</label>
-          <input
-            id="bio"
-            type="text"
-            aria-describedby="bio-hint bio-error"
-          />
+          <input id="bio" type="text" aria-describedby="bio-hint bio-error" />
           <span id="bio-hint">Max 500 characters</span>
           <span id="bio-error" role="alert">
             Currently exceeds limit
@@ -166,7 +140,7 @@ describe('FormField Accessibility', () => {
   describe('Keyboard Navigation', () => {
     it('should allow Tab navigation through form fields', async () => {
       const user = userEvent.setup()
-      const { container } = render(
+      const { _container } = render(
         <form>
           <label htmlFor="first">First Name</label>
           <input id="first" type="text" />
@@ -185,7 +159,7 @@ describe('FormField Accessibility', () => {
 
     it('should support Shift+Tab for backwards navigation', async () => {
       const user = userEvent.setup()
-      const { container } = render(
+      const { _container } = render(
         <form>
           <label htmlFor="first">First</label>
           <input id="first" type="text" />
@@ -204,7 +178,7 @@ describe('FormField Accessibility', () => {
       const user = userEvent.setup()
       const handleSubmit = vi.fn((e) => e.preventDefault())
 
-      const { container } = render(
+      const { _container } = render(
         <form onSubmit={handleSubmit}>
           <label htmlFor="name">Name</label>
           <input id="name" type="text" />
@@ -222,7 +196,7 @@ describe('FormField Accessibility', () => {
 
   describe('Placeholder Text', () => {
     it('should not rely solely on placeholder for labeling', () => {
-      const { container } = render(
+      const { _container } = render(
         <div>
           <label htmlFor="email">Email</label>
           <input id="email" type="email" placeholder="user@example.com" />
@@ -232,9 +206,7 @@ describe('FormField Accessibility', () => {
     })
 
     it('should have proper contrast for placeholder text', () => {
-      const { container } = render(
-        <input type="text" placeholder="Enter text here" />
-      )
+      const { _container } = render(<input type="text" placeholder="Enter text here" />)
       const input = screen.getByPlaceholderText('Enter text here')
       expect(input).toBeInTheDocument()
     })
@@ -256,12 +228,7 @@ describe('FormField Accessibility', () => {
       const { container } = render(
         <div>
           <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            aria-invalid="true"
-            aria-describedby="error"
-          />
+          <input id="email" type="email" aria-invalid="true" aria-describedby="error" />
           <span id="error" role="alert">
             Invalid email format
           </span>
@@ -288,11 +255,7 @@ describe('FormField Accessibility', () => {
       const { container } = render(
         <div>
           <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            aria-describedby="hint"
-          />
+          <input id="password" type="password" aria-describedby="hint" />
           <span id="hint">At least 8 characters</span>
         </div>
       )

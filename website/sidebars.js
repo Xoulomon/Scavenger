@@ -13,14 +13,14 @@ const sidebars = {
     {
       type: 'category',
       label: 'Contributing',
-      items: ['contributing/style-guide'],
+      items: ['contributing/style-guide']
     },
     {
       type: 'category',
       label: 'Deployment',
-      items: ['deployment/ci-cd'],
-    },
-  ],
-};
+      items: ['deployment/ci-cd']
+    }
+  ]
+}
 
-module.exports = sidebars;
+module.exports = sidebars

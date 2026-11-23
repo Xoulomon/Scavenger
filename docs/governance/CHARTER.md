@@ -70,14 +70,14 @@ Maintainers who are no longer active may be moved to Emeritus status. Emeritus m
 
 We track the following metrics quarterly to assess project health:
 
-| Metric | Target |
-|--------|--------|
+| Metric                               | Target     |
+| ------------------------------------ | ---------- |
 | Time to first response on new issues | ≤ 72 hours |
-| Time to merge a reviewed PR | ≤ 7 days |
-| Test coverage (smart contract) | ≥ 80% |
-| Test coverage (frontend) | ≥ 70% |
-| Open issues older than 90 days | < 20 |
-| Contributors per quarter | ≥ 5 |
+| Time to merge a reviewed PR          | ≤ 7 days   |
+| Test coverage (smart contract)       | ≥ 80%      |
+| Test coverage (frontend)             | ≥ 70%      |
+| Open issues older than 90 days       | < 20       |
+| Contributors per quarter             | ≥ 5        |
 
 Metrics are reported in the quarterly transparency report (see `docs/governance/transparency-report-template.md`).
 

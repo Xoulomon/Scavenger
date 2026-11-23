@@ -29,7 +29,7 @@ export const uiInitialState: UiState = {
   sidebarOpen: false,
   activeModal: null,
   globalLoading: false,
-  loadingKeys: new Set(),
+  loadingKeys: new Set()
 }
 
 export function uiReducer(state: UiState, action: UiAction): UiState {

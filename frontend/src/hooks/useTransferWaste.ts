@@ -9,7 +9,7 @@ import { invalidateKeys, invalidationPlan } from '@/lib/cacheInvalidation'
 import {
   useTransactionStatus,
   type TransactionStatus,
-  type TransactionLifecycle,
+  type TransactionLifecycle
 } from '@/hooks/useTransactionStatus'
 
 export interface TransferWasteParams {
@@ -54,7 +54,7 @@ export function useTransferWaste(): UseTransferWasteResult {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
 
       await client.transferWaste(wasteId, address, to, 0n, 0n, '', address)
@@ -63,14 +63,18 @@ export function useTransferWaste(): UseTransferWasteResult {
     onSuccess: (_to, { wasteId }) => {
       invalidateKeys(queryClient, invalidationPlan.transferWaste(wasteId.toString()))
     },
-    mutationKey: ['transfer-waste'],
+    mutationKey: ['transfer-waste']
   })
 
-  const { status, lifecycle, reset: resetStatus } = useTransactionStatus({
+  const {
+    status,
+    lifecycle,
+    reset: resetStatus
+  } = useTransactionStatus({
     isPending: mutation.isPending,
     isSuccess: mutation.isSuccess,
     isError: mutation.isError,
-    error: mutation.error ?? null,
+    error: mutation.error ?? null
   })
 
   const reset = () => {
@@ -88,6 +92,6 @@ export function useTransferWaste(): UseTransferWasteResult {
     data: mutation.data,
     status,
     lifecycle,
-    reset,
+    reset
   }
 }

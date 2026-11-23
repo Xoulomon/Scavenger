@@ -8,26 +8,42 @@ import {
   tallyVotes,
   finalizeProposal,
   getGovernanceStats,
-  clearGovernanceData,
+  clearGovernanceData
 } from './governance'
 
 beforeEach(() => clearGovernanceData())
 
 describe('createProposal', () => {
   it('creates and persists a proposal', () => {
-    const p = createProposal({ title: 'Test', description: 'Desc', category: 'community', authorAddress: 'G001' })
+    const p = createProposal({
+      title: 'Test',
+      description: 'Desc',
+      category: 'community',
+      authorAddress: 'G001'
+    })
     expect(p.title).toBe('Test')
     expect(p.status).toBe('active')
     expect(getProposals()).toHaveLength(1)
   })
 
   it('defaults quorum to 5', () => {
-    const p = createProposal({ title: 'T', description: 'D', category: 'protocol', authorAddress: 'G001' })
+    const p = createProposal({
+      title: 'T',
+      description: 'D',
+      category: 'protocol',
+      authorAddress: 'G001'
+    })
     expect(p.quorum).toBe(5)
   })
 
   it('respects custom quorum', () => {
-    const p = createProposal({ title: 'T', description: 'D', category: 'treasury', authorAddress: 'G001', quorum: 10 })
+    const p = createProposal({
+      title: 'T',
+      description: 'D',
+      category: 'treasury',
+      authorAddress: 'G001',
+      quorum: 10
+    })
     expect(p.quorum).toBe(10)
   })
 })
@@ -44,7 +60,12 @@ describe('getProposals', () => {
 
 describe('castVote', () => {
   it('records a vote', () => {
-    const p = createProposal({ title: 'T', description: 'D', category: 'community', authorAddress: 'G001' })
+    const p = createProposal({
+      title: 'T',
+      description: 'D',
+      category: 'community',
+      authorAddress: 'G001'
+    })
     const vote = castVote(p.id, 'GVOTER', 'for')
     expect(vote.choice).toBe('for')
     const updated = getProposal(p.id)!
@@ -52,7 +73,12 @@ describe('castVote', () => {
   })
 
   it('replaces existing vote from same voter', () => {
-    const p = createProposal({ title: 'T', description: 'D', category: 'community', authorAddress: 'G001' })
+    const p = createProposal({
+      title: 'T',
+      description: 'D',
+      category: 'community',
+      authorAddress: 'G001'
+    })
     castVote(p.id, 'GVOTER', 'for')
     castVote(p.id, 'GVOTER', 'against')
     const updated = getProposal(p.id)!
@@ -67,13 +93,23 @@ describe('castVote', () => {
 
 describe('vetoProposal', () => {
   it('sets status to vetoed', () => {
-    const p = createProposal({ title: 'T', description: 'D', category: 'community', authorAddress: 'G001' })
+    const p = createProposal({
+      title: 'T',
+      description: 'D',
+      category: 'community',
+      authorAddress: 'G001'
+    })
     vetoProposal(p.id, 'GADMIN', 'Bad idea')
     expect(getProposal(p.id)!.status).toBe('vetoed')
   })
 
   it('throws if already vetoed', () => {
-    const p = createProposal({ title: 'T', description: 'D', category: 'community', authorAddress: 'G001' })
+    const p = createProposal({
+      title: 'T',
+      description: 'D',
+      category: 'community',
+      authorAddress: 'G001'
+    })
     vetoProposal(p.id, 'GADMIN', 'reason')
     expect(() => vetoProposal(p.id, 'GADMIN2', 'reason2')).toThrow()
   })
@@ -81,7 +117,13 @@ describe('vetoProposal', () => {
 
 describe('tallyVotes', () => {
   it('counts votes correctly', () => {
-    const p = createProposal({ title: 'T', description: 'D', category: 'community', authorAddress: 'G001', quorum: 2 })
+    const p = createProposal({
+      title: 'T',
+      description: 'D',
+      category: 'community',
+      authorAddress: 'G001',
+      quorum: 2
+    })
     castVote(p.id, 'G1', 'for')
     castVote(p.id, 'G2', 'for')
     castVote(p.id, 'G3', 'against')
@@ -94,7 +136,13 @@ describe('tallyVotes', () => {
   })
 
   it('marks passed when majority for and quorum met', () => {
-    const p = createProposal({ title: 'T', description: 'D', category: 'community', authorAddress: 'G001', quorum: 1 })
+    const p = createProposal({
+      title: 'T',
+      description: 'D',
+      category: 'community',
+      authorAddress: 'G001',
+      quorum: 1
+    })
     castVote(p.id, 'G1', 'for')
     const tally = tallyVotes(getProposal(p.id)!)
     expect(tally.passed).toBe(true)
@@ -103,14 +151,26 @@ describe('tallyVotes', () => {
 
 describe('finalizeProposal', () => {
   it('marks passed when votes pass threshold and quorum met', () => {
-    const p = createProposal({ title: 'T', description: 'D', category: 'community', authorAddress: 'G001', quorum: 1 })
+    const p = createProposal({
+      title: 'T',
+      description: 'D',
+      category: 'community',
+      authorAddress: 'G001',
+      quorum: 1
+    })
     castVote(p.id, 'G1', 'for')
     const finalized = finalizeProposal(p.id)
     expect(finalized.status).toBe('passed')
   })
 
   it('marks rejected when quorum not met', () => {
-    const p = createProposal({ title: 'T', description: 'D', category: 'community', authorAddress: 'G001', quorum: 10 })
+    const p = createProposal({
+      title: 'T',
+      description: 'D',
+      category: 'community',
+      authorAddress: 'G001',
+      quorum: 10
+    })
     castVote(p.id, 'G1', 'for')
     const finalized = finalizeProposal(p.id)
     expect(finalized.status).toBe('rejected')
@@ -125,7 +185,12 @@ describe('getGovernanceStats', () => {
   })
 
   it('counts proposals and votes correctly', () => {
-    const p = createProposal({ title: 'T', description: 'D', category: 'community', authorAddress: 'G001' })
+    const p = createProposal({
+      title: 'T',
+      description: 'D',
+      category: 'community',
+      authorAddress: 'G001'
+    })
     castVote(p.id, 'G1', 'for')
     const stats = getGovernanceStats()
     expect(stats.totalProposals).toBe(1)

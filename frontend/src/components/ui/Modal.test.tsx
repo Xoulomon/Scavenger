@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe, toHaveNoViolations } from 'jest-axe'
 import { Modal } from './Modal'
@@ -8,7 +8,7 @@ import { useState } from 'react'
 expect.extend(toHaveNoViolations)
 
 // Test wrapper component to manage modal state
-function TestModal({ onClose }: { onClose: () => void }) {
+function _TestModal({ onClose }: { onClose: () => void }) {
   const [open, setOpen] = useState(true)
   return (
     <Modal
@@ -66,12 +66,7 @@ describe('Modal', () => {
 
     it('renders description when provided', () => {
       render(
-        <Modal
-          open={true}
-          onClose={vi.fn()}
-          title="Confirm"
-          description="Are you sure?"
-        >
+        <Modal open={true} onClose={vi.fn()} title="Confirm" description="Are you sure?">
           Content
         </Modal>
       )
@@ -101,12 +96,7 @@ describe('Modal', () => {
 
     it('applies custom className', () => {
       const { container } = render(
-        <Modal
-          open={true}
-          onClose={vi.fn()}
-          title="Test"
-          className="custom-modal-class"
-        >
+        <Modal open={true} onClose={vi.fn()} title="Test" className="custom-modal-class">
           Content
         </Modal>
       )
@@ -224,7 +214,7 @@ describe('Modal', () => {
     })
 
     it('restores focus to triggerRef when modal closes', async () => {
-      const user = userEvent.setup()
+      const _user = userEvent.setup()
       let modalOpen = true
 
       function TestComponent() {
@@ -291,7 +281,7 @@ describe('Modal', () => {
     })
 
     it('announces content changes to screen readers', async () => {
-      const user = userEvent.setup()
+      const _user = userEvent.setup()
       const { rerender } = render(
         <Modal open={true} onClose={vi.fn()} title="Original Title">
           Original Content
@@ -310,7 +300,7 @@ describe('Modal', () => {
 
   describe('Edge Cases', () => {
     it('handles rapid open/close cycles', async () => {
-      const user = userEvent.setup()
+      const _user = userEvent.setup()
       const onClose = vi.fn()
       const { rerender } = render(
         <Modal open={true} onClose={onClose} title="Test">
@@ -334,7 +324,8 @@ describe('Modal', () => {
     })
 
     it('handles very long title', () => {
-      const longTitle = 'This is a very long modal title that might wrap to multiple lines in the UI'
+      const longTitle =
+        'This is a very long modal title that might wrap to multiple lines in the UI'
       render(
         <Modal open={true} onClose={vi.fn()} title={longTitle}>
           Content

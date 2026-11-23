@@ -543,10 +543,10 @@ mod tests {
     #[test]
     fn test_valid_boundary_coordinates() {
         // Exact boundary values must be accepted
-        assert!(Coordinates::new(90.0, 0.0).is_ok(),  "lat=90 should be valid");
+        assert!(Coordinates::new(90.0, 0.0).is_ok(), "lat=90 should be valid");
         assert!(Coordinates::new(-90.0, 0.0).is_ok(), "lat=-90 should be valid");
         assert!(Coordinates::new(0.0, 180.0).is_ok(), "lon=180 should be valid");
-        assert!(Coordinates::new(0.0, -180.0).is_ok(),"lon=-180 should be valid");
+        assert!(Coordinates::new(0.0, -180.0).is_ok(), "lon=-180 should be valid");
     }
 
     #[test]
@@ -679,11 +679,7 @@ mod tests {
         let pole = Coordinates::new(90.0, 0.0).unwrap();
         let equator = Coordinates::new(0.0, 0.0).unwrap();
         let d = GeoService::haversine_distance(&pole, &equator);
-        assert!(
-            (d - 10_007_000.0).abs() < 50_000.0,
-            "pole-to-equator={:.0} m",
-            d
-        );
+        assert!((d - 10_007_000.0).abs() < 50_000.0, "pole-to-equator={:.0} m", d);
     }
 
     #[test]
@@ -691,11 +687,7 @@ mod tests {
         let pole = Coordinates::new(-90.0, 0.0).unwrap();
         let equator = Coordinates::new(0.0, 0.0).unwrap();
         let d = GeoService::haversine_distance(&pole, &equator);
-        assert!(
-            (d - 10_007_000.0).abs() < 50_000.0,
-            "south-pole-to-equator={:.0} m",
-            d
-        );
+        assert!((d - 10_007_000.0).abs() < 50_000.0, "south-pole-to-equator={:.0} m", d);
     }
 
     #[test]
@@ -704,11 +696,7 @@ mod tests {
         let north = Coordinates::new(90.0, 0.0).unwrap();
         let south = Coordinates::new(-90.0, 0.0).unwrap();
         let d = GeoService::haversine_distance(&north, &south);
-        assert!(
-            (d - 20_015_000.0).abs() < 100_000.0,
-            "pole-to-pole={:.0} m",
-            d
-        );
+        assert!((d - 20_015_000.0).abs() < 100_000.0, "pole-to-pole={:.0} m", d);
     }
 
     #[test]
@@ -797,9 +785,9 @@ mod tests {
     fn test_proximity_search_results_sorted_by_distance_ascending() {
         let svc = GeoService::new();
         // Add several locations at increasing distances from London
-        svc.add_location(make_loc("close",  51.51, -0.12)).unwrap(); // ~500 m
-        svc.add_location(make_loc("medium", 51.55,  0.00)).unwrap(); // ~5 km
-        svc.add_location(make_loc("farish", 51.60,  0.10)).unwrap(); // ~12 km
+        svc.add_location(make_loc("close", 51.51, -0.12)).unwrap(); // ~500 m
+        svc.add_location(make_loc("medium", 51.55, 0.00)).unwrap(); // ~5 km
+        svc.add_location(make_loc("farish", 51.60, 0.10)).unwrap(); // ~12 km
 
         let results = svc
             .proximity_search(ProximityQuery {
@@ -891,7 +879,7 @@ mod tests {
     fn test_nearest_n_larger_than_total_returns_all() {
         let svc = GeoService::new();
         svc.add_location(make_loc("a", 51.5, -0.1)).unwrap();
-        svc.add_location(make_loc("b", 52.0,  1.0)).unwrap();
+        svc.add_location(make_loc("b", 52.0, 1.0)).unwrap();
         let results = svc.nearest(&london(), 100);
         assert_eq!(results.len(), 2);
     }
@@ -1052,7 +1040,7 @@ mod tests {
         let svc = GeoService::new();
         svc.add_location(make_loc("a", 51.51, -0.12)).unwrap();
         svc.add_location(make_loc("b", 51.52, -0.11)).unwrap();
-        svc.add_location(make_loc("c", 53.00,  1.00)).unwrap(); // ~200 km
+        svc.add_location(make_loc("c", 53.00, 1.00)).unwrap(); // ~200 km
 
         let radius = 50_000.0_f64;
         let results = svc
@@ -1079,12 +1067,12 @@ mod tests {
     #[test]
     fn property_coordinates_constructor_validates_all_boundary_violations() {
         let invalid_cases = [
-            (90.001,   0.0),
-            (-90.001,  0.0),
-            (0.0,    180.001),
-            (0.0,   -180.001),
-            (91.0,     0.0),
-            (0.0,    200.0),
+            (90.001, 0.0),
+            (-90.001, 0.0),
+            (0.0, 180.001),
+            (0.0, -180.001),
+            (91.0, 0.0),
+            (0.0, 200.0),
         ];
         for (lat, lon) in invalid_cases {
             assert!(

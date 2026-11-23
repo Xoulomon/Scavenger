@@ -13,14 +13,14 @@ vi.mock('@/context/ContractContext', () => ({
     config: {
       contractId: 'CTEST123',
       rpcUrl: 'https://soroban-testnet.stellar.org',
-      network: 'TESTNET',
+      network: 'TESTNET'
     },
-    updateConfig: vi.fn(),
-  }),
+    updateConfig: vi.fn()
+  })
 }))
 
 vi.mock('@/lib/stellar', () => ({
-  networkConfig: { networkPassphrase: 'Test SDF Network ; September 2015' },
+  networkConfig: { networkPassphrase: 'Test SDF Network ; September 2015' }
 }))
 
 // ── Centralised ScavengerClient mock (#1546) ──────────────────────────────────
@@ -33,9 +33,11 @@ const mockGetParticipant = vi.fn()
 const mockSubmitMaterial = vi.fn()
 
 vi.mock('@/api/client', () => ({
-  ScavengerClient: vi.fn().mockImplementation(() =>
-    createMockClient({ getParticipant: mockGetParticipant, submitMaterial: mockSubmitMaterial })
-  ),
+  ScavengerClient: vi
+    .fn()
+    .mockImplementation(() =>
+      createMockClient({ getParticipant: mockGetParticipant, submitMaterial: mockSubmitMaterial })
+    )
 }))
 
 import { ScavengerClient } from '@/api/client'
@@ -60,7 +62,7 @@ describe('useApi', () => {
     expect(ScavengerClient).toHaveBeenCalledWith({
       contractId: 'CTEST123',
       rpcUrl: 'https://soroban-testnet.stellar.org',
-      networkPassphrase: 'Test SDF Network ; September 2015',
+      networkPassphrase: 'Test SDF Network ; September 2015'
     })
     expect(result.current).toBeDefined()
   })
@@ -96,7 +98,7 @@ describe('useContractQuery', () => {
     const { result } = renderHook(
       () =>
         useContractQuery(['participant', 'GBAD'], (api) => api.getParticipant('GBAD'), {
-          retry: false,
+          retry: false
         }),
       { wrapper: makeWrapper() }
     )

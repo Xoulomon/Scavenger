@@ -63,19 +63,11 @@ impl TestEnv {
             .expect("failed to start Redis container");
 
         let pg_host = pg_container.get_host().await.expect("pg host");
-        let pg_port = pg_container
-            .get_host_port_ipv4(5432)
-            .await
-            .expect("pg port");
-        let pg_url = format!(
-            "host={pg_host} port={pg_port} user=test password=test dbname=scavenger_test"
-        );
+        let pg_port = pg_container.get_host_port_ipv4(5432).await.expect("pg port");
+        let pg_url = format!("host={pg_host} port={pg_port} user=test password=test dbname=scavenger_test");
 
         let redis_host = redis_container.get_host().await.expect("redis host");
-        let redis_port = redis_container
-            .get_host_port_ipv4(6379)
-            .await
-            .expect("redis port");
+        let redis_port = redis_container.get_host_port_ipv4(6379).await.expect("redis port");
         let redis_url = format!("redis://{redis_host}:{redis_port}");
 
         let env = Self {

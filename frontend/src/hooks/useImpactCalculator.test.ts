@@ -9,22 +9,22 @@ const mockWastes = [
     id: 1,
     waste_type: 'Paper',
     weight: 100,
-    is_active: true,
+    is_active: true
   },
   {
     id: 2,
     waste_type: 'Plastic',
     weight: 50,
-    is_active: true,
-  },
+    is_active: true
+  }
 ]
 
 vi.mock('@/hooks/useParticipantWastes', () => ({
   useParticipantWastes: () => ({
     wastes: mockWastes,
     isLoading: false,
-    isError: false,
-  }),
+    isError: false
+  })
 }))
 
 vi.mock('@/lib/impactCalculator', () => ({
@@ -32,15 +32,15 @@ vi.mock('@/lib/impactCalculator', () => ({
     co2Kg: 250,
     energyKwh: 50,
     waterLitres: 200,
-    treesEquivalent: 2,
+    treesEquivalent: 2
   }),
   calculateEquivalents: () => ({
     carsKm: 1000,
     smartphones: 5,
     showers: 10,
-    lightbulbDays: 50,
+    lightbulbDays: 50
   }),
-  buildShareText: () => 'I saved 250kg of CO2 through recycling!',
+  buildShareText: () => 'I saved 250kg of CO2 through recycling!'
 }))
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -61,7 +61,7 @@ describe('useImpactCalculator', () => {
       co2Kg: 250,
       energyKwh: 50,
       waterLitres: 200,
-      treesEquivalent: 2,
+      treesEquivalent: 2
     })
   })
 
@@ -76,7 +76,7 @@ describe('useImpactCalculator', () => {
       carsKm: 1000,
       smartphones: 5,
       showers: 10,
-      lightbulbDays: 50,
+      lightbulbDays: 50
     })
   })
 
@@ -94,7 +94,7 @@ describe('useImpactCalculator', () => {
     vi.mocked(require('@/hooks/useParticipantWastes').useParticipantWastes).mockReturnValueOnce({
       wastes: [],
       isLoading: true,
-      isError: false,
+      isError: false
     })
 
     const { result } = renderHook(() => useImpactCalculator())
@@ -106,7 +106,7 @@ describe('useImpactCalculator', () => {
     vi.mocked(require('@/hooks/useParticipantWastes').useParticipantWastes).mockReturnValueOnce({
       wastes: [],
       isLoading: false,
-      isError: true,
+      isError: true
     })
 
     const { result } = renderHook(() => useImpactCalculator())
@@ -118,7 +118,7 @@ describe('useImpactCalculator', () => {
     vi.mocked(require('@/hooks/useParticipantWastes').useParticipantWastes).mockReturnValueOnce({
       wastes: [],
       isLoading: false,
-      isError: false,
+      isError: false
     })
 
     const { result } = renderHook(() => useImpactCalculator())
@@ -127,7 +127,7 @@ describe('useImpactCalculator', () => {
       co2Kg: 250,
       energyKwh: 50,
       waterLitres: 200,
-      treesEquivalent: 2,
+      treesEquivalent: 2
     })
   })
 
@@ -139,14 +139,14 @@ describe('useImpactCalculator', () => {
         id: 3,
         waste_type: 'Metal',
         weight: 200,
-        is_active: true,
-      },
+        is_active: true
+      }
     ]
 
     vi.mocked(require('@/hooks/useParticipantWastes').useParticipantWastes).mockReturnValueOnce({
       wastes: newWastes,
       isLoading: false,
-      isError: false,
+      isError: false
     })
 
     rerender()

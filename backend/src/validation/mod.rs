@@ -117,7 +117,10 @@ pub fn validate_email(email: &str) -> Option<ValidationError> {
 pub fn validate_url(url: &str, field: &str) -> Option<ValidationError> {
     let trimmed = url.trim();
     if trimmed.is_empty() {
-        Some(ValidationError { field: field.to_string(), message: format!("{} is required", field) })
+        Some(ValidationError {
+            field: field.to_string(),
+            message: format!("{} is required", field),
+        })
     } else if !trimmed.starts_with("http://") && !trimmed.starts_with("https://") {
         Some(ValidationError {
             field: field.to_string(),
@@ -131,12 +134,18 @@ pub fn validate_url(url: &str, field: &str) -> Option<ValidationError> {
 pub fn validate_doc_type(doc_type: &str) -> Option<ValidationError> {
     let trimmed = doc_type.trim();
     if trimmed.is_empty() {
-        return Some(ValidationError { field: "doc_type".to_string(), message: "doc_type is required".to_string() });
+        return Some(ValidationError {
+            field: "doc_type".to_string(),
+            message: "doc_type is required".to_string(),
+        });
     }
     if trimmed.len() > crate::services::verification::MAX_DOC_TYPE_LEN {
         return Some(ValidationError {
             field: "doc_type".to_string(),
-            message: format!("doc_type must be at most {} characters", crate::services::verification::MAX_DOC_TYPE_LEN),
+            message: format!(
+                "doc_type must be at most {} characters",
+                crate::services::verification::MAX_DOC_TYPE_LEN
+            ),
         });
     }
     None
@@ -172,13 +181,13 @@ pub fn validate_date_range(start: &str, end: &str) -> Vec<ValidationError> {
 /// Validates a Stellar address: 56 chars, starts with 'G', remaining 55 chars
 /// from the Stellar base32 alphabet [A-Z2-7].
 pub fn validate_stellar_address(addr: &str) -> Option<ValidationError> {
-    let valid = addr.len() == 56
-        && addr.starts_with('G')
-        && addr[1..].chars().all(|c| matches!(c, 'A'..='Z' | '2'..='7'));
+    let valid =
+        addr.len() == 56 && addr.starts_with('G') && addr[1..].chars().all(|c| matches!(c, 'A'..='Z' | '2'..='7'));
     if !valid {
         Some(ValidationError {
             field: "address".to_string(),
-            message: "stellar address must be 56 characters starting with 'G' using base32 alphabet [A-Z2-7]".to_string(),
+            message: "stellar address must be 56 characters starting with 'G' using base32 alphabet [A-Z2-7]"
+                .to_string(),
         })
     } else {
         None
@@ -314,9 +323,7 @@ pub fn required_string(field: &'static str) -> FieldRule {
 /// Rule: field, when present, must be a string of at least `min` characters.
 pub fn min_length(field: &'static str, min: usize) -> FieldRule {
     move |payload| match get_str(payload, field) {
-        Some(v) if v.len() < min => {
-            Some(format!("{} must be at least {} characters", field, min))
-        }
+        Some(v) if v.len() < min => Some(format!("{} must be at least {} characters", field, min)),
         _ => None,
     }
 }
@@ -324,9 +331,7 @@ pub fn min_length(field: &'static str, min: usize) -> FieldRule {
 /// Rule: field, when present, must be a string no longer than `max` chars.
 pub fn max_length(field: &'static str, max: usize) -> FieldRule {
     move |payload| match get_str(payload, field) {
-        Some(v) if v.len() > max => {
-            Some(format!("{} must be at most {} characters", field, max))
-        }
+        Some(v) if v.len() > max => Some(format!("{} must be at most {} characters", field, max)),
         _ => None,
     }
 }
@@ -342,10 +347,9 @@ pub fn email(field: &'static str) -> FieldRule {
 /// Rule: field, when present, must be a valid Stellar address.
 pub fn stellar_address(field: &'static str) -> FieldRule {
     move |payload| match get_str(payload, field) {
-        Some(v) if validate_stellar_address(v).is_some() => Some(
-            "stellar address must be 56 characters starting with 'G' using base32 alphabet [A-Z2-7]"
-                .to_string(),
-        ),
+        Some(v) if validate_stellar_address(v).is_some() => {
+            Some("stellar address must be 56 characters starting with 'G' using base32 alphabet [A-Z2-7]".to_string())
+        }
         _ => None,
     }
 }
@@ -410,7 +414,10 @@ mod tests {
     fn test_validate_stellar_address() {
         // Valid: 56 chars, starts with G, remaining 55 chars all in [A-Z2-7]
         let valid = "GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN";
-        assert!(validate_stellar_address(valid).is_none(), "canonical address should pass");
+        assert!(
+            validate_stellar_address(valid).is_none(),
+            "canonical address should pass"
+        );
         // Too short
         assert!(validate_stellar_address("GABC").is_some());
         // Doesn't start with G
@@ -533,8 +540,6 @@ mod tests {
             .validate(&serde_json::json!({ "name": "abcd" }))
             .iter()
             .any(|e| e.field == "name"));
-        assert!(schema
-            .validate(&serde_json::json!({ "name": "abc" }))
-            .is_empty());
+        assert!(schema.validate(&serde_json::json!({ "name": "abc" })).is_empty());
     }
 }

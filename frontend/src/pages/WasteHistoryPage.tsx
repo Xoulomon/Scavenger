@@ -48,12 +48,12 @@ export function WasteHistoryPage() {
       type: wasteTypeLabel(w.waste_type),
       weight: w.weight.toString(),
       date: formatDate(w.timestamp),
-      location: `${w.location.lat}, ${w.location.lon}`,
+      location: `${w.location.lat}, ${w.location.lon}`
     }))
 
     const csv = [
       ['Waste ID', 'Type', 'Weight (kg)', 'Date', 'Location'],
-      ...data.map((d) => [d.wasteId, d.type, d.weight, d.date, d.location]),
+      ...data.map((d) => [d.wasteId, d.type, d.weight, d.date, d.location])
     ]
       .map((row) => row.join(','))
       .join('\n')
@@ -168,7 +168,9 @@ export function WasteHistoryPage() {
                             {transfer.to.slice(0, 6)}...{transfer.to.slice(-4)}
                           </span>
                           <span className="text-gray-400">{formatDate(transfer.timestamp)}</span>
-                          {transfer.note && <span className="text-gray-500 italic">({transfer.note})</span>}
+                          {transfer.note && (
+                            <span className="text-gray-500 italic">({transfer.note})</span>
+                          )}
                         </div>
                       ))}
                     </div>

@@ -8,5 +8,5 @@ export default defineConfig({
   clean: true,
   splitting: false,
   minify: false,
-  external: [],
+  external: []
 })

@@ -38,7 +38,7 @@ describe('Chart Component Usage Analysis', () => {
   function searchImports(content: string, componentName: string): boolean {
     const patterns = [
       new RegExp(`import\\s+.*${componentName}`, 'g'),
-      new RegExp(`from\\s+['"].*${componentName}['"]`, 'g'),
+      new RegExp(`from\\s+['"].*${componentName}['"]`, 'g')
     ]
     return patterns.some((pattern) => pattern.test(content))
   }
@@ -63,7 +63,12 @@ describe('Chart Component Usage Analysis', () => {
   it('should verify chart components are used or identified for removal', () => {
     const files = readFilesRecursively(srcDir, ['__tests__', '.test.', 'node_modules'])
 
-    const chartComponents = ['AreaChartComponent', 'BarChartComponent', 'LineChartComponent', 'PieChartComponent']
+    const chartComponents = [
+      'AreaChartComponent',
+      'BarChartComponent',
+      'LineChartComponent',
+      'PieChartComponent'
+    ]
 
     const usageMap: Record<string, boolean> = {}
 

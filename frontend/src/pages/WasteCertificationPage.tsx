@@ -7,7 +7,7 @@ import {
   XCircle,
   History,
   QrCode,
-  Search,
+  Search
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -95,7 +95,7 @@ const MOCK_CERTS: WasteCertificate[] = [
     issuedAt: NOW - 86400 * 10,
     expiresAt: NOW + 86400 * 355,
     status: 'valid',
-    blockchainTxId: 'abc123def456',
+    blockchainTxId: 'abc123def456'
   },
   {
     id: 'CERT-002',
@@ -107,7 +107,7 @@ const MOCK_CERTS: WasteCertificate[] = [
     issuedAt: NOW - 86400 * 400,
     expiresAt: NOW - 86400 * 35,
     status: 'expired',
-    blockchainTxId: 'xyz789uvw012',
+    blockchainTxId: 'xyz789uvw012'
   },
   {
     id: 'CERT-003',
@@ -119,7 +119,7 @@ const MOCK_CERTS: WasteCertificate[] = [
     issuedAt: NOW - 86400 * 5,
     expiresAt: NOW + 86400 * 360,
     status: 'valid',
-    blockchainTxId: 'lmn345opq678',
+    blockchainTxId: 'lmn345opq678'
   },
   {
     id: 'CERT-004',
@@ -131,32 +131,84 @@ const MOCK_CERTS: WasteCertificate[] = [
     issuedAt: NOW - 86400 * 20,
     expiresAt: NOW + 86400 * 345,
     status: 'revoked',
-    blockchainTxId: 'rst901uvw234',
-  },
+    blockchainTxId: 'rst901uvw234'
+  }
 ]
 
 const MOCK_HISTORY: CertificateHistoryEntry[] = [
-  { certificateId: 'CERT-001', action: 'issued', actor: 'GISSUER...001', timestamp: NOW - 86400 * 10 },
-  { certificateId: 'CERT-001', action: 'verified', actor: 'GVERIFIER...001', timestamp: NOW - 86400 * 5 },
-  { certificateId: 'CERT-001', action: 'downloaded', actor: 'GHOLDER...001', timestamp: NOW - 86400 * 2 },
-  { certificateId: 'CERT-002', action: 'issued', actor: 'GISSUER...001', timestamp: NOW - 86400 * 400 },
-  { certificateId: 'CERT-003', action: 'issued', actor: 'GISSUER...002', timestamp: NOW - 86400 * 5 },
-  { certificateId: 'CERT-004', action: 'issued', actor: 'GISSUER...003', timestamp: NOW - 86400 * 20 },
-  { certificateId: 'CERT-004', action: 'revoked', actor: 'GADMIN...001', timestamp: NOW - 86400 * 3 },
+  {
+    certificateId: 'CERT-001',
+    action: 'issued',
+    actor: 'GISSUER...001',
+    timestamp: NOW - 86400 * 10
+  },
+  {
+    certificateId: 'CERT-001',
+    action: 'verified',
+    actor: 'GVERIFIER...001',
+    timestamp: NOW - 86400 * 5
+  },
+  {
+    certificateId: 'CERT-001',
+    action: 'downloaded',
+    actor: 'GHOLDER...001',
+    timestamp: NOW - 86400 * 2
+  },
+  {
+    certificateId: 'CERT-002',
+    action: 'issued',
+    actor: 'GISSUER...001',
+    timestamp: NOW - 86400 * 400
+  },
+  {
+    certificateId: 'CERT-003',
+    action: 'issued',
+    actor: 'GISSUER...002',
+    timestamp: NOW - 86400 * 5
+  },
+  {
+    certificateId: 'CERT-004',
+    action: 'issued',
+    actor: 'GISSUER...003',
+    timestamp: NOW - 86400 * 20
+  },
+  {
+    certificateId: 'CERT-004',
+    action: 'revoked',
+    actor: 'GADMIN...001',
+    timestamp: NOW - 86400 * 3
+  }
 ]
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: CertificateStatus }) {
-  if (status === 'valid') return <Badge variant="secondary" className="gap-1"><CheckCircle className="h-3 w-3" />Valid</Badge>
-  if (status === 'expired') return <Badge variant="outline" className="gap-1"><XCircle className="h-3 w-3" />Expired</Badge>
-  return <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" />Revoked</Badge>
+  if (status === 'valid')
+    return (
+      <Badge variant="secondary" className="gap-1">
+        <CheckCircle className="h-3 w-3" />
+        Valid
+      </Badge>
+    )
+  if (status === 'expired')
+    return (
+      <Badge variant="outline" className="gap-1">
+        <XCircle className="h-3 w-3" />
+        Expired
+      </Badge>
+    )
+  return (
+    <Badge variant="destructive" className="gap-1">
+      <XCircle className="h-3 w-3" />
+      Revoked
+    </Badge>
+  )
 }
 
 function CertificateDetailPanel({
   cert,
   history,
-  onClose,
+  onClose
 }: {
   cert: WasteCertificate
   history: CertificateHistoryEntry[]
@@ -201,7 +253,13 @@ function CertificateDetailPanel({
             </CardTitle>
             <StatusBadge status={cert.status} />
           </div>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground" aria-label="Close">✕</button>
+          <button
+            onClick={onClose}
+            className="text-muted-foreground hover:text-foreground"
+            aria-label="Close"
+          >
+            ✕
+          </button>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Details */}
@@ -223,8 +281,14 @@ function CertificateDetailPanel({
           </div>
 
           {/* Verification result */}
-          <div className={`rounded-md border p-3 text-sm ${verification.authentic ? 'border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-400' : 'border-destructive/30 bg-destructive/10 text-destructive'}`}>
-            {verification.authentic ? <CheckCircle className="mr-1.5 inline h-4 w-4" /> : <XCircle className="mr-1.5 inline h-4 w-4" />}
+          <div
+            className={`rounded-md border p-3 text-sm ${verification.authentic ? 'border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-400' : 'border-destructive/30 bg-destructive/10 text-destructive'}`}
+          >
+            {verification.authentic ? (
+              <CheckCircle className="mr-1.5 inline h-4 w-4" />
+            ) : (
+              <XCircle className="mr-1.5 inline h-4 w-4" />
+            )}
             {verification.reason}
           </div>
 
@@ -238,11 +302,19 @@ function CertificateDetailPanel({
           {/* History */}
           {certHistory.length > 0 && (
             <div>
-              <p className="mb-2 text-sm font-medium flex items-center gap-1"><History className="h-4 w-4" />Certificate History</p>
+              <p className="mb-2 text-sm font-medium flex items-center gap-1">
+                <History className="h-4 w-4" />
+                Certificate History
+              </p>
               <div className="space-y-1">
                 {certHistory.map((h, i) => (
-                  <div key={i} className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="capitalize">{h.action} by {h.actor.slice(0, 12)}…</span>
+                  <div
+                    key={i}
+                    className="flex items-center justify-between text-xs text-muted-foreground"
+                  >
+                    <span className="capitalize">
+                      {h.action} by {h.actor.slice(0, 12)}…
+                    </span>
                     <span>{formatDate(h.timestamp)}</span>
                   </div>
                 ))}
@@ -253,10 +325,12 @@ function CertificateDetailPanel({
           {/* Actions */}
           <div className="flex gap-2">
             <Button size="sm" variant="outline" className="flex-1" onClick={handleDownload}>
-              <Download className="mr-1.5 h-4 w-4" />Download
+              <Download className="mr-1.5 h-4 w-4" />
+              Download
             </Button>
             <Button size="sm" variant="outline" className="flex-1" onClick={handleShare}>
-              <Share2 className="mr-1.5 h-4 w-4" />Share
+              <Share2 className="mr-1.5 h-4 w-4" />
+              Share
             </Button>
           </div>
         </CardContent>
@@ -334,9 +408,13 @@ export function WasteCertificationPage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-1 text-sm">
-                <p>{wasteTypeLabel(cert.wasteType)} · {cert.weight} kg</p>
+                <p>
+                  {wasteTypeLabel(cert.wasteType)} · {cert.weight} kg
+                </p>
                 <p className="text-xs text-muted-foreground">Issued: {formatDate(cert.issuedAt)}</p>
-                <p className="text-xs text-muted-foreground">Expires: {formatDate(cert.expiresAt)}</p>
+                <p className="text-xs text-muted-foreground">
+                  Expires: {formatDate(cert.expiresAt)}
+                </p>
               </CardContent>
             </Card>
           ))}

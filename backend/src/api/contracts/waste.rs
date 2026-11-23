@@ -1,3 +1,4 @@
+use crate::api::errors::ApiError;
 /// Waste-contract API handlers.
 ///
 /// Covers every route that operates on waste records: registration,
@@ -6,7 +7,6 @@
 /// each submodule under ~300 lines and to reduce merge-conflict surface.
 use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
-use crate::api::errors::ApiError;
 
 // ── Request / response shapes ──────────────────────────────────────────────
 
@@ -53,9 +53,7 @@ pub struct WasteListResponse {
 /// POST /api/contracts/waste/register
 ///
 /// Registers a new waste record on behalf of a participant.
-pub async fn register_waste(
-    body: web::Json<RegisterWasteRequest>,
-) -> Result<HttpResponse, ApiError> {
+pub async fn register_waste(body: web::Json<RegisterWasteRequest>) -> Result<HttpResponse, ApiError> {
     if body.participant_id.is_empty() {
         return Err(ApiError::validation("participant_id is required"));
     }
@@ -105,9 +103,7 @@ pub async fn get_waste(path: web::Path<String>) -> Result<HttpResponse, ApiError
 /// GET /api/contracts/waste/participant/{participant_id}
 ///
 /// Returns all waste records for a given participant.
-pub async fn list_participant_wastes(
-    path: web::Path<String>,
-) -> Result<HttpResponse, ApiError> {
+pub async fn list_participant_wastes(path: web::Path<String>) -> Result<HttpResponse, ApiError> {
     let participant_id = path.into_inner();
     if participant_id.is_empty() {
         return Err(ApiError::validation("participant_id is required"));
@@ -132,9 +128,7 @@ pub async fn list_participant_wastes(
 /// POST /api/contracts/waste/transfer
 ///
 /// Transfers ownership of a waste record between participants.
-pub async fn transfer_waste(
-    body: web::Json<TransferWasteRequest>,
-) -> Result<HttpResponse, ApiError> {
+pub async fn transfer_waste(body: web::Json<TransferWasteRequest>) -> Result<HttpResponse, ApiError> {
     if body.waste_id.is_empty() {
         return Err(ApiError::validation("waste_id is required"));
     }
@@ -145,9 +139,7 @@ pub async fn transfer_waste(
         return Err(ApiError::validation("to_participant is required"));
     }
     if body.from_participant == body.to_participant {
-        return Err(ApiError::validation(
-            "from_participant and to_participant must differ",
-        ));
+        return Err(ApiError::validation("from_participant and to_participant must differ"));
     }
 
     Ok(HttpResponse::Ok().json(serde_json::json!({
@@ -162,9 +154,7 @@ pub async fn transfer_waste(
 /// PATCH /api/contracts/waste/status
 ///
 /// Updates the processing status of a waste record.
-pub async fn update_waste_status(
-    body: web::Json<UpdateWasteStatusRequest>,
-) -> Result<HttpResponse, ApiError> {
+pub async fn update_waste_status(body: web::Json<UpdateWasteStatusRequest>) -> Result<HttpResponse, ApiError> {
     if body.waste_id.is_empty() {
         return Err(ApiError::validation("waste_id is required"));
     }
@@ -208,13 +198,7 @@ mod tests {
 
     #[actix_web::test]
     async fn test_register_waste_success() {
-        let app = test::init_service(
-            App::new().route(
-                "/waste/register",
-                web::post().to(register_waste),
-            ),
-        )
-        .await;
+        let app = test::init_service(App::new().route("/waste/register", web::post().to(register_waste))).await;
 
         let body = RegisterWasteRequest {
             participant_id: "participant-1".to_string(),
@@ -233,10 +217,7 @@ mod tests {
 
     #[actix_web::test]
     async fn test_register_waste_missing_participant() {
-        let app = test::init_service(
-            App::new().route("/waste/register", web::post().to(register_waste)),
-        )
-        .await;
+        let app = test::init_service(App::new().route("/waste/register", web::post().to(register_waste))).await;
 
         let body = RegisterWasteRequest {
             participant_id: String::new(),
@@ -255,10 +236,7 @@ mod tests {
 
     #[actix_web::test]
     async fn test_transfer_waste_same_participant_rejected() {
-        let app = test::init_service(
-            App::new().route("/waste/transfer", web::post().to(transfer_waste)),
-        )
-        .await;
+        let app = test::init_service(App::new().route("/waste/transfer", web::post().to(transfer_waste))).await;
 
         let body = TransferWasteRequest {
             waste_id: "waste-1".to_string(),
@@ -276,10 +254,7 @@ mod tests {
 
     #[actix_web::test]
     async fn test_update_status_invalid_value() {
-        let app = test::init_service(
-            App::new().route("/waste/status", web::patch().to(update_waste_status)),
-        )
-        .await;
+        let app = test::init_service(App::new().route("/waste/status", web::patch().to(update_waste_status))).await;
 
         let body = UpdateWasteStatusRequest {
             waste_id: "waste-1".to_string(),

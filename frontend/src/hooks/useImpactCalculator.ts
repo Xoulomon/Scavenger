@@ -5,7 +5,7 @@ import {
   calculateEquivalents,
   buildShareText,
   ImpactResult,
-  Equivalents,
+  Equivalents
 } from '@/lib/impactCalculator'
 
 export interface ImpactCalculatorData {

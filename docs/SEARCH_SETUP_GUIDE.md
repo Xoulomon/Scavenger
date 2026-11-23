@@ -16,6 +16,7 @@ docker-compose -f docker-compose.elasticsearch.yml up -d
 ```
 
 This will start:
+
 - Elasticsearch on port 9200
 - Kibana (optional UI) on port 5601
 
@@ -26,6 +27,7 @@ curl http://localhost:9200
 ```
 
 Expected response:
+
 ```json
 {
   "name" : "scavenger-node-1",
@@ -75,6 +77,7 @@ curl "http://localhost:8080/api/v1/search/suggest?q=haz"
 ### Install Elasticsearch
 
 #### Linux (Debian/Ubuntu)
+
 ```bash
 wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
 echo "deb https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
@@ -84,6 +87,7 @@ sudo systemctl enable elasticsearch
 ```
 
 #### macOS (Homebrew)
+
 ```bash
 brew tap elastic/tap
 brew install elastic/tap/elasticsearch-full
@@ -91,6 +95,7 @@ brew services start elastic/tap/elasticsearch-full
 ```
 
 #### Windows
+
 1. Download from https://www.elastic.co/downloads/elasticsearch
 2. Extract the ZIP file
 3. Run `bin\elasticsearch.bat`
@@ -136,11 +141,13 @@ index.create(Some(mapping)).await?;
 ## Data Indexing
 
 ### Single Document
+
 ```rust
 pipeline.index_document("waste-123", &waste_document).await?;
 ```
 
 ### Bulk Indexing
+
 ```rust
 let documents = vec![
     ("waste-1".to_string(), doc1),
@@ -155,11 +162,13 @@ println!("Success: {}, Errors: {}", result.success_count, result.error_count);
 ## Monitoring
 
 ### Using Kibana
+
 1. Access Kibana at http://localhost:5601
 2. Navigate to "Stack Monitoring"
 3. View cluster health, index stats, and queries
 
 ### Using Elasticsearch APIs
+
 ```bash
 # Cluster health
 curl http://localhost:9200/_cluster/health?pretty
@@ -174,23 +183,27 @@ curl http://localhost:9200/_nodes/stats?pretty
 ## Troubleshooting
 
 ### Elasticsearch Won't Start
+
 - Check if port 9200 is already in use
 - Verify sufficient memory (minimum 512MB heap)
 - Check logs: `docker-compose logs elasticsearch`
 
 ### Connection Refused
+
 - Ensure Elasticsearch is running
 - Verify network connectivity
 - Check firewall settings
 
 ### Out of Memory
+
 ```yaml
 # In docker-compose.elasticsearch.yml
 environment:
-  - "ES_JAVA_OPTS=-Xms1g -Xmx1g"  # Increase heap size
+  - 'ES_JAVA_OPTS=-Xms1g -Xmx1g' # Increase heap size
 ```
 
 ### Slow Queries
+
 - Check index stats for hot spots
 - Review query patterns
 - Consider adding more shards
@@ -221,6 +234,7 @@ environment:
 ## Testing
 
 Run the test suite:
+
 ```bash
 cd backend
 cargo test --test search_tests

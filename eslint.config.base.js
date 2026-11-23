@@ -9,7 +9,7 @@ module.exports = {
     'plugin:import/errors',
     'plugin:import/warnings',
     'plugin:import/typescript',
-    'prettier',
+    'prettier'
   ],
   plugins: [
     '@typescript-eslint',
@@ -17,18 +17,18 @@ module.exports = {
     'react-hooks',
     'jsx-a11y',
     'import',
-    'simple-import-sort',
+    'simple-import-sort'
   ],
   settings: {
     react: {
-      version: 'detect',
+      version: 'detect'
     },
     'import/resolver': {
       typescript: {},
       node: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
-      },
-    },
+        extensions: ['.js', '.jsx', '.ts', '.tsx']
+      }
+    }
   },
   rules: {
     // TypeScript
@@ -41,17 +41,17 @@ module.exports = {
       'error',
       {
         argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-      },
+        varsIgnorePattern: '^_'
+      }
     ],
     '@typescript-eslint/no-non-null-assertion': 'warn',
-    
+
     // React
     'react/prop-types': 'off',
     'react/react-in-jsx-scope': 'off',
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
-    
+
     // Import
     'import/no-unresolved': 'error',
     'import/named': 'error',
@@ -60,34 +60,38 @@ module.exports = {
     'import/export': 'error',
     'simple-import-sort/imports': 'error',
     'simple-import-sort/exports': 'error',
-    
+
     // General
     'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
     'no-debugger': 'warn',
     'prefer-const': 'error',
-    'eqeqeq': ['error', 'always'],
-    'curly': ['error', 'all'],
-    
+    eqeqeq: ['error', 'always'],
+    curly: ['error', 'all'],
+
     // JSDoc
     'require-jsdoc': 'off',
-    'valid-jsdoc': 'off',
+    'valid-jsdoc': 'off'
   },
   overrides: [
     {
       files: ['**/*.test.ts', '**/*.spec.ts', '**/__tests__/**/*.ts'],
       env: {
-        jest: true,
+        jest: true
       },
       rules: {
-        '@typescript-eslint/no-explicit-any': 'off',
-        '@typescript-eslint/no-unused-vars': 'off',
-      },
+        // Enforced in tests too — issue #1767.
+        '@typescript-eslint/no-explicit-any': 'error',
+        '@typescript-eslint/no-unused-vars': [
+          'error',
+          { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
+        ]
+      }
     },
     {
       files: ['**/*.js', '**/*.jsx'],
       rules: {
-        '@typescript-eslint/explicit-function-return-type': 'off',
-      },
-    },
-  ],
-};
+        '@typescript-eslint/explicit-function-return-type': 'off'
+      }
+    }
+  ]
+}

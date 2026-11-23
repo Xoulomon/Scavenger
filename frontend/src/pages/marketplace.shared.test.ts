@@ -6,22 +6,76 @@ import {
   respondToOffer,
   averageRating,
   type MarketplaceListing,
-  type RatingEntry,
+  type RatingEntry
 } from '@/pages/WasteMarketplacePage'
 import { sortIncentives, filterIncentives } from '@/lib/incentivesUtils'
 import { WasteType } from '@/api/types'
 import type { Incentive } from '@/api/types'
 
 const listings: MarketplaceListing[] = [
-  { id: 'l1', seller: 'Acme Recycling', wasteType: WasteType.Plastic, weight: 10, pricePerKg: 2, description: 'Clean bottles', listedAt: 1, rating: 4 },
-  { id: 'l2', seller: 'Green Co', wasteType: WasteType.Metal, weight: 50, pricePerKg: 5, description: 'Scrap aluminium', listedAt: 2, rating: 5 },
-  { id: 'l3', seller: 'Bottle Barn', wasteType: WasteType.Plastic, weight: 25, pricePerKg: 1, description: 'Mixed PET', listedAt: 3, rating: 3 },
+  {
+    id: 'l1',
+    seller: 'Acme Recycling',
+    wasteType: WasteType.Plastic,
+    weight: 10,
+    pricePerKg: 2,
+    description: 'Clean bottles',
+    listedAt: 1,
+    rating: 4
+  },
+  {
+    id: 'l2',
+    seller: 'Green Co',
+    wasteType: WasteType.Metal,
+    weight: 50,
+    pricePerKg: 5,
+    description: 'Scrap aluminium',
+    listedAt: 2,
+    rating: 5
+  },
+  {
+    id: 'l3',
+    seller: 'Bottle Barn',
+    wasteType: WasteType.Plastic,
+    weight: 25,
+    pricePerKg: 1,
+    description: 'Mixed PET',
+    listedAt: 3,
+    rating: 3
+  }
 ]
 
 const incentives: Incentive[] = [
-  { id: 1, rewarder: 'City Council', waste_type: WasteType.Paper, reward_points: 30, total_budget: 100, remaining_budget: 40, active: true, created_at: 1 },
-  { id: 2, rewarder: 'Metro Recycle', waste_type: WasteType.Metal, reward_points: 10, total_budget: 100, remaining_budget: 90, active: true, created_at: 2 },
-  { id: 3, rewarder: 'city Parks', waste_type: WasteType.Plastic, reward_points: 20, total_budget: 100, remaining_budget: 10, active: false, created_at: 3 },
+  {
+    id: 1,
+    rewarder: 'City Council',
+    waste_type: WasteType.Paper,
+    reward_points: 30,
+    total_budget: 100,
+    remaining_budget: 40,
+    active: true,
+    created_at: 1
+  },
+  {
+    id: 2,
+    rewarder: 'Metro Recycle',
+    waste_type: WasteType.Metal,
+    reward_points: 10,
+    total_budget: 100,
+    remaining_budget: 90,
+    active: true,
+    created_at: 2
+  },
+  {
+    id: 3,
+    rewarder: 'city Parks',
+    waste_type: WasteType.Plastic,
+    reward_points: 20,
+    total_budget: 100,
+    remaining_budget: 10,
+    active: false,
+    created_at: 3
+  }
 ]
 
 const noFilters = { wasteTypes: [], rewarder: '' }
@@ -65,7 +119,12 @@ describe('marketplace listing helpers (WasteMarketplacePage)', () => {
 
   it('creates a pending offer carrying the buyer and price', () => {
     const offer = makeOffer(listings[0], 'GBUYER', 1.5)
-    expect(offer).toMatchObject({ listingId: 'l1', buyer: 'GBUYER', offerPrice: 1.5, status: 'pending' })
+    expect(offer).toMatchObject({
+      listingId: 'l1',
+      buyer: 'GBUYER',
+      offerPrice: 1.5,
+      status: 'pending'
+    })
   })
 
   it('records an accept or reject decision on an offer', () => {
@@ -79,7 +138,7 @@ describe('marketplace listing helpers (WasteMarketplacePage)', () => {
     const ratings: RatingEntry[] = [
       { listingId: 'l1', rater: 'a', score: 4, comment: '' },
       { listingId: 'l1', rater: 'b', score: 2, comment: '' },
-      { listingId: 'l2', rater: 'c', score: 5, comment: '' },
+      { listingId: 'l2', rater: 'c', score: 5, comment: '' }
     ]
     expect(averageRating(ratings, 'l1')).toBe(3)
   })
@@ -112,6 +171,8 @@ describe('marketplace listing helpers shared with incentives (incentivesUtils)',
   })
 
   it('sorts by remaining budget', () => {
-    expect(sortIncentives(incentives, 'remaining_budget', 'desc').map((i) => i.id)).toEqual([2, 1, 3])
+    expect(sortIncentives(incentives, 'remaining_budget', 'desc').map((i) => i.id)).toEqual([
+      2, 1, 3
+    ])
   })
 })

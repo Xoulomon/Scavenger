@@ -40,6 +40,7 @@ This document describes the implementation of advanced search indexing with Elas
 ## Dependencies Added
 
 Added to `backend/Cargo.toml`:
+
 ```toml
 elasticsearch = "8.5.0-alpha.1"
 serde_derive = "1.0"
@@ -64,6 +65,7 @@ serde_derive = "1.0"
 ### Known Issue: dlltool.exe Missing
 
 When building on Windows, you may encounter:
+
 ```
 error: error calling dlltool 'dlltool.exe': program not found
 ```

@@ -5,7 +5,7 @@ import {
   CharityDonation,
   REGISTERED_CHARITIES,
   Charity,
-  generateDonationReceipt,
+  generateDonationReceipt
 } from '@/lib/charityStorage'
 import { useRewards } from '@/hooks/useRewards'
 
@@ -23,7 +23,11 @@ export function useCharityDonations(donorAddress: string | null | undefined) {
   const balance = stats?.total_earned ?? 0n
 
   useEffect(() => {
-    if (!donorAddress) { setDonations([]); storageRef.current = null; return }
+    if (!donorAddress) {
+      setDonations([])
+      storageRef.current = null
+      return
+    }
     storageRef.current = new CharityStorage(donorAddress)
     setDonations(storageRef.current.getAll())
   }, [donorAddress])
@@ -37,7 +41,7 @@ export function useCharityDonations(donorAddress: string | null | undefined) {
         charityName: input.charity.name,
         donorAddress,
         wasteItemIds: input.wasteItemIds ?? [],
-        tokenAmount: input.tokenAmount,
+        tokenAmount: input.tokenAmount
       })
       setDonations(storageRef.current.getAll())
       return entry
@@ -63,6 +67,6 @@ export function useCharityDonations(donorAddress: string | null | undefined) {
     donate,
     downloadReceipt,
     isPending: donateToCharity.isPending,
-    error: donateToCharity.error,
+    error: donateToCharity.error
   }
 }

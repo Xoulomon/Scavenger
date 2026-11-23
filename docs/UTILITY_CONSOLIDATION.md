@@ -11,23 +11,23 @@ about which location is canonical.
 
 ### `src/utils/` (repo root)
 
-| File | Exports | Import count (non-test) | Status |
-|------|---------|-------------------------|--------|
-| `errors.ts` | `AppError`, `ErrorCode`, `ErrorResponse`, `formatErrorMessage`, `formatErrorResponse`, `errorHandler`, `validateErrorMessage`, `createValidationError`, `createNotFoundError`, `createAuthError`, `createPermissionError`, `createDatabaseError`, `createRateLimitError` | 0 (test-only) | **Moved** → `packages/shared/src/errors.ts` |
+| File        | Exports                                                                                                                                                                                                                                                                  | Import count (non-test) | Status                                      |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------- | ------------------------------------------- |
+| `errors.ts` | `AppError`, `ErrorCode`, `ErrorResponse`, `formatErrorMessage`, `formatErrorResponse`, `errorHandler`, `validateErrorMessage`, `createValidationError`, `createNotFoundError`, `createAuthError`, `createPermissionError`, `createDatabaseError`, `createRateLimitError` | 0 (test-only)           | **Moved** → `packages/shared/src/errors.ts` |
 
 `src/utils/errors.ts` now contains only a `@deprecated` re-export shim pointing at the canonical location.
 This directory can be deleted entirely once no files import from it.
 
 ### `packages/shared/src/`
 
-| File | Exports | Consumers |
-|------|---------|-----------|
-| `logger.ts` | `StructuredLogger`, `LogLevel` | `indexer/src/utils/logger.ts` (thin wrapper) |
-| `format.ts` | `formatDate`, `formatDateTime`, `formatTokenAmount`, `formatAddress` | Available for all TS workspaces |
-| `validation.ts` | `isValidEthereumAddress`, `isValidStellarAddress`, `isValidWasteType`, `clampNumber`, `parsePositiveInt` | Available for all TS workspaces |
-| `config.ts` | `AppConfig`, `loadConfig`, `validateContractConfig` | Frontend-oriented (uses `import.meta.env`) |
-| `errors.ts` (**new**) | All error utilities from old `src/utils/errors.ts` | `__tests__/utils/errors.test.ts` |
-| `index.ts` | Re-exports all of the above | Single entrypoint for `@scavngr/shared` |
+| File                  | Exports                                                                                                  | Consumers                                    |
+| --------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `logger.ts`           | `StructuredLogger`, `LogLevel`                                                                           | `indexer/src/utils/logger.ts` (thin wrapper) |
+| `format.ts`           | `formatDate`, `formatDateTime`, `formatTokenAmount`, `formatAddress`                                     | Available for all TS workspaces              |
+| `validation.ts`       | `isValidEthereumAddress`, `isValidStellarAddress`, `isValidWasteType`, `clampNumber`, `parsePositiveInt` | Available for all TS workspaces              |
+| `config.ts`           | `AppConfig`, `loadConfig`, `validateContractConfig`                                                      | Frontend-oriented (uses `import.meta.env`)   |
+| `errors.ts` (**new**) | All error utilities from old `src/utils/errors.ts`                                                       | `__tests__/utils/errors.test.ts`             |
+| `index.ts`            | Re-exports all of the above                                                                              | Single entrypoint for `@scavngr/shared`      |
 
 ---
 
@@ -42,10 +42,10 @@ This directory can be deleted entirely once no files import from it.
 
 ## Distinction: `packages/shared` vs `src/utils`
 
-| Location | Purpose |
-|----------|---------|
+| Location               | Purpose                                                                                                                                                    |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `packages/shared/src/` | **Canonical shared utilities** for any JS/TS workspace (frontend, indexer, mobile, tests). Import via `@scavngr/shared` or direct path during development. |
-| `src/utils/` | **Deprecated / to be deleted.** Contains only the re-export shim for `errors.ts`. Should be removed in the next cleanup PR once zero files import from it. |
+| `src/utils/`           | **Deprecated / to be deleted.** Contains only the re-export shim for `errors.ts`. Should be removed in the next cleanup PR once zero files import from it. |
 
 No utility logic should ever be added to `src/utils/` going forward — place it in `packages/shared/src/` instead.
 

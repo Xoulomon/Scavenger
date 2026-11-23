@@ -7,15 +7,15 @@ vi.mock('sonner', () => ({
   toast: {
     success: vi.fn(),
     error: vi.fn(),
-    info: vi.fn(),
-  },
+    info: vi.fn()
+  }
 }))
 
 vi.mock('@/lib/contractErrors', () => ({
   getErrorMessage: vi.fn((error: unknown) => {
     if (error instanceof Error) return error.message
     return 'Unknown error'
-  }),
+  })
 }))
 
 describe('useToast', () => {

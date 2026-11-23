@@ -35,6 +35,7 @@ analytics.rs (consolidated)
 ### What Gets Removed
 
 From the current `analytics.rs`, **remove**:
+
 - `ReportType` enum (6 variants)
 - `AnalyticsDataPoint` struct
 - `AnalyticsReport` struct
@@ -47,6 +48,7 @@ From the current `analytics.rs`, **remove**:
 ### What Gets Added
 
 To the consolidated `analytics.rs`, **add**:
+
 - Storage key constructors for persisting GlobalMetrics and RecyclingStats
 - Mutation methods that also persist state
 - Migration helpers for contract upgrades
@@ -77,10 +79,12 @@ pub const ANALYTICS_BATCH_COUNT: Symbol = Symbol::from_static_str("ANAL_BAT");
 ### Storage Layout
 
 **Instance Storage** (small, frequently accessed):
+
 - `ANALYTICS_LAST_UPDATE` (u64): Ledger timestamp of last snapshot
 - `ANALYTICS_BATCH_COUNT` (u64): Counter for batching updates
 
 **Persistent Storage** (per-participant):
+
 - `("recycling_stats", address)` → `RecyclingStats`
 - `GLOBAL_METRICS_SNAPSHOT` → `GlobalMetrics` (one global record)
 
@@ -124,7 +128,7 @@ impl GlobalMetrics {
 
 impl RecyclingStats {
     // Existing functions...
-    
+
     /// Persists this participant's stats to storage (NEW).
     pub fn persist(&self, env: &Env) -> Result<(), String>;
 
@@ -193,6 +197,7 @@ persistence::try_periodic_update(env, &metrics)?;
 ### Decision: Use Periodic Batching
 
 **Rationale**:
+
 - Soroban storage fees are per-ledger-entry
 - Writing every transaction increases contract costs
 - Periodic snapshots provide sufficient audit trail
@@ -295,6 +300,7 @@ const ANALYTICS_BATCH_SIZE: u64 = 10;
 ```
 
 This can be adjusted based on deployment feedback to balance:
+
 - **Too frequent** (e.g., every tx): High storage costs
 - **Too infrequent** (e.g., every 1000 tx): Risk of data loss in contract failure
 

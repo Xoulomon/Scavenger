@@ -34,7 +34,14 @@ async fn test_waste_repository_create_success() {
             VALUES ($1, $2, $3, $4, $5, $6, NOW())
             ON CONFLICT (address) DO NOTHING
             "#,
-            &[&"WASTE_TEST_RECYCLER", &"Recycler", &"Test Recycler", &(0_i64), &(0_i64), &(1000_i64)],
+            &[
+                &"WASTE_TEST_RECYCLER",
+                &"Recycler",
+                &"Test Recycler",
+                &(0_i64),
+                &(0_i64),
+                &(1000_i64),
+            ],
         )
         .await
         .expect("Failed to insert participant");
@@ -118,7 +125,14 @@ async fn test_waste_repository_duplicate_id_idempotent() {
             VALUES ($1, $2, $3, $4, $5, $6, NOW())
             ON CONFLICT (address) DO NOTHING
             "#,
-            &[&"WASTE_DUP_TEST", &"Recycler", &"Dup Tester", &(0_i64), &(0_i64), &(1000_i64)],
+            &[
+                &"WASTE_DUP_TEST",
+                &"Recycler",
+                &"Dup Tester",
+                &(0_i64),
+                &(0_i64),
+                &(1000_i64),
+            ],
         )
         .await
         .expect("Failed to insert participant");
@@ -304,7 +318,14 @@ async fn test_participant_repository_list_by_role() {
                 VALUES ($1, $2, $3, $4, $5, $6, NOW())
                 ON CONFLICT (address) DO NOTHING
                 "#,
-                &[&addr, role, &format!("Participant {}", i), &(0_i64), &(0_i64), &(1000_i64)],
+                &[
+                    &addr,
+                    role,
+                    &format!("Participant {}", i),
+                    &(0_i64),
+                    &(0_i64),
+                    &(1000_i64),
+                ],
             )
             .await
             .expect("Failed to insert participant");
@@ -346,7 +367,14 @@ async fn test_waste_verification_repository_create_success() {
             VALUES ($1, $2, $3, $4, $5, $6, NOW())
             ON CONFLICT (address) DO NOTHING
             "#,
-            &[&"VERIFY_RECYCLER", &"Recycler", &"Verifier Test Recycler", &(0_i64), &(0_i64), &(1000_i64)],
+            &[
+                &"VERIFY_RECYCLER",
+                &"Recycler",
+                &"Verifier Test Recycler",
+                &(0_i64),
+                &(0_i64),
+                &(1000_i64),
+            ],
         )
         .await
         .expect("Failed to insert recycler");
@@ -360,7 +388,14 @@ async fn test_waste_verification_repository_create_success() {
             VALUES ($1, $2, $3, $4, $5, $6, NOW())
             ON CONFLICT (address) DO NOTHING
             "#,
-            &[&"VERIFY_VERIFIER", &"Verifier", &"Test Verifier", &(0_i64), &(0_i64), &(1000_i64)],
+            &[
+                &"VERIFY_VERIFIER",
+                &"Verifier",
+                &"Test Verifier",
+                &(0_i64),
+                &(0_i64),
+                &(1000_i64),
+            ],
         )
         .await
         .expect("Failed to insert verifier");
@@ -431,7 +466,14 @@ async fn test_waste_verification_repository_invalid_waste_fk() {
             VALUES ($1, $2, $3, $4, $5, $6, NOW())
             ON CONFLICT (address) DO NOTHING
             "#,
-            &[&"VERIFY_VERIFIER_FK", &"Verifier", &"FK Test Verifier", &(0_i64), &(0_i64), &(1000_i64)],
+            &[
+                &"VERIFY_VERIFIER_FK",
+                &"Verifier",
+                &"FK Test Verifier",
+                &(0_i64),
+                &(0_i64),
+                &(1000_i64),
+            ],
         )
         .await
         .expect("Failed to insert verifier");
@@ -448,7 +490,10 @@ async fn test_waste_verification_repository_invalid_waste_fk() {
         )
         .await;
 
-    assert!(result.is_err(), "Expected FK constraint violation for non-existent waste");
+    assert!(
+        result.is_err(),
+        "Expected FK constraint violation for non-existent waste"
+    );
 }
 
 // =============================================================================
@@ -470,7 +515,14 @@ async fn test_incentive_repository_create_success() {
             VALUES ($1, $2, $3, $4, $5, $6, NOW())
             ON CONFLICT (address) DO NOTHING
             "#,
-            &[&"INCENTIVE_ADMIN", &"Admin", &"Test Admin", &(0_i64), &(0_i64), &(1000_i64)],
+            &[
+                &"INCENTIVE_ADMIN",
+                &"Admin",
+                &"Test Admin",
+                &(0_i64),
+                &(0_i64),
+                &(1000_i64),
+            ],
         )
         .await
         .expect("Failed to insert admin");
@@ -484,13 +536,7 @@ async fn test_incentive_repository_create_success() {
             VALUES ($1, $2, $3, $4, $5, NOW())
             ON CONFLICT (admin_address, waste_type) DO NOTHING
             "#,
-            &[
-                &"INCENTIVE_ADMIN",
-                &"Plastic",
-                &(1000_f64),
-                &true,
-                &(1001_i64),
-            ],
+            &[&"INCENTIVE_ADMIN", &"Plastic", &(1000_f64), &true, &(1001_i64)],
         )
         .await
         .expect("Failed to create incentive");
@@ -527,7 +573,14 @@ async fn test_incentive_repository_list_by_waste_type() {
             VALUES ($1, $2, $3, $4, $5, $6, NOW())
             ON CONFLICT (address) DO NOTHING
             "#,
-            &[&"INCENTIVE_LIST_ADMIN", &"Admin", &"List Test Admin", &(0_i64), &(0_i64), &(1000_i64)],
+            &[
+                &"INCENTIVE_LIST_ADMIN",
+                &"Admin",
+                &"List Test Admin",
+                &(0_i64),
+                &(0_i64),
+                &(1000_i64),
+            ],
         )
         .await
         .expect("Failed to insert admin");
@@ -542,13 +595,7 @@ async fn test_incentive_repository_list_by_waste_type() {
                 VALUES ($1, $2, $3, $4, $5, NOW())
                 ON CONFLICT (admin_address, waste_type) DO NOTHING
                 "#,
-                &[
-                    &"INCENTIVE_LIST_ADMIN",
-                    waste_type,
-                    &(500_f64),
-                    &true,
-                    &(1001_i64),
-                ],
+                &[&"INCENTIVE_LIST_ADMIN", waste_type, &(500_f64), &true, &(1001_i64)],
             )
             .await
             .expect("Failed to create incentive");
@@ -585,7 +632,14 @@ async fn test_payout_repository_create_success() {
             VALUES ($1, $2, $3, $4, $5, $6, NOW())
             ON CONFLICT (address) DO NOTHING
             "#,
-            &[&"PAYOUT_RECYCLER", &"Recycler", &"Payout Test Recycler", &(0_i64), &(0_i64), &(1000_i64)],
+            &[
+                &"PAYOUT_RECYCLER",
+                &"Recycler",
+                &"Payout Test Recycler",
+                &(0_i64),
+                &(0_i64),
+                &(1000_i64),
+            ],
         )
         .await
         .expect("Failed to insert recycler");
@@ -633,7 +687,14 @@ async fn test_payout_repository_status_transition() {
             VALUES ($1, $2, $3, $4, $5, $6, NOW())
             ON CONFLICT (address) DO NOTHING
             "#,
-            &[&"PAYOUT_STATUS_TEST", &"Recycler", &"Status Test", &(0_i64), &(0_i64), &(1000_i64)],
+            &[
+                &"PAYOUT_STATUS_TEST",
+                &"Recycler",
+                &"Status Test",
+                &(0_i64),
+                &(0_i64),
+                &(1000_i64),
+            ],
         )
         .await
         .expect("Failed to insert participant");

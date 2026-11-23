@@ -6,11 +6,11 @@ the **allowed dependency direction** explicit for contributors.
 
 ## Packages
 
-| Package | Path | Purpose |
-|---------|------|---------|
-| `@scavenger/types` | `packages/types/` | Shared TypeScript types (no runtime deps, no internal deps) |
-| `@scavenger/shared` | `packages/shared/` | Shared runtime utilities (may depend on `types`) |
-| `@scavenger/sdk` | `packages/scavenger-sdk/` | Client SDK (may depend on `types` and `shared`) |
+| Package             | Path                      | Purpose                                                     |
+| ------------------- | ------------------------- | ----------------------------------------------------------- |
+| `@scavenger/types`  | `packages/types/`         | Shared TypeScript types (no runtime deps, no internal deps) |
+| `@scavenger/shared` | `packages/shared/`        | Shared runtime utilities (may depend on `types`)            |
+| `@scavenger/sdk`    | `packages/scavenger-sdk/` | Client SDK (may depend on `types` and `shared`)             |
 
 > Names above reflect intent. If a package is added or renamed, update this
 > table and the allowed-direction matrix below.
@@ -19,14 +19,14 @@ the **allowed dependency direction** explicit for contributors.
 
 Dependencies flow **downward only**:
 
-
-| From ↓ / To → | types | shared | scavenger-sdk |
-|---------------|:-----:|:------:|:-------------:|
-| **types**         |  —  | ❌ | ❌ |
-| **shared**        | ✅  | —  | ❌ |
-| **scavenger-sdk** | ✅  | ✅ | —  |
+| From ↓ / To →     | types | shared | scavenger-sdk |
+| ----------------- | :---: | :----: | :-----------: |
+| **types**         |   —   |   ❌   |      ❌       |
+| **shared**        |  ✅   |   —    |      ❌       |
+| **scavenger-sdk** |  ✅   |   ✅   |       —       |
 
 **Legend**
+
 - ✅ allowed
 - ❌ forbidden (would create a cycle or invert the dependency direction)
 - — self
@@ -43,7 +43,7 @@ Dependencies flow **downward only**:
 
 If you have [pnpm](https://pnpm.io/) installed:
 
-```bash
+````bash
 # List workspace packages
 pnpm -r list --depth -1
 
@@ -173,3 +173,4 @@ console.log(
   `[check-package-deps] ✓ OK — checked ${packages.size} package(s), no violations.`
 );
 process.exit(0);
+````

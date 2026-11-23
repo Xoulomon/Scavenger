@@ -17,11 +17,11 @@ We will keep every exported entrypoint in the `#[contractimpl]` block in `stella
 
 ## Alternatives Considered
 
-| Alternative | Why it was rejected |
-|-------------|---------------------|
+| Alternative                            | Why it was rejected                                                                                                                     |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | One `#[contractimpl]` block per domain | Splits the public interface across blocks, so the entrypoint list that SDK consumers rely on has to be reassembled from several places. |
-| Put logic directly in `lib.rs` | Makes review and unit testing of domain rules harder. |
-| Separate contracts per domain | Multiplies deployment, auth and cross-contract call cost for a single supply-chain flow. |
+| Put logic directly in `lib.rs`         | Makes review and unit testing of domain rules harder.                                                                                   |
+| Separate contracts per domain          | Multiplies deployment, auth and cross-contract call cost for a single supply-chain flow.                                                |
 
 ## Consequences
 

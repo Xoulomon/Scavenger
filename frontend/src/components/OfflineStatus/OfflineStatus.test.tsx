@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { OfflineStatus, DEFAULT_OFFLINE_MESSAGE } from './index'
 
 vi.mock('@/hooks/useOnlineStatus', () => ({
-  useOnlineStatus: vi.fn(),
+  useOnlineStatus: vi.fn()
 }))
 
 import { useOnlineStatus } from '@/hooks/useOnlineStatus'
@@ -64,7 +64,10 @@ describe('OfflineStatus', () => {
     it('calls onRetry and disables the button while retrying', async () => {
       let resolveRetry: () => void = () => {}
       const onRetry = vi.fn(
-        () => new Promise<void>((resolve) => { resolveRetry = resolve })
+        () =>
+          new Promise<void>((resolve) => {
+            resolveRetry = resolve
+          })
       )
       render(<OfflineStatus variant="banner" isOnline={false} onRetry={onRetry} />)
 

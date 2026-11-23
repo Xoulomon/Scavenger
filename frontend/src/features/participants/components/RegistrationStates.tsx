@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 /** Shown after a successful registration. */
 export function RegistrationSuccess({
   displayName,
-  role,
+  role
 }: {
   displayName: string
   role: Role | null
@@ -32,9 +32,8 @@ export function RegistrationSuccess({
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-muted-foreground">
-            Welcome to Scavngr, <span className="font-semibold">{displayName}</span>! Your
-            account has been created as a{' '}
-            <Badge variant="secondary">{role ? roleLabel(role) : ''}</Badge>.
+            Welcome to Scavngr, <span className="font-semibold">{displayName}</span>! Your account
+            has been created as a <Badge variant="secondary">{role ? roleLabel(role) : ''}</Badge>.
           </p>
           <div className="flex flex-col gap-3 pt-2">
             <div className="mx-auto grid grid-cols-3 gap-1.5" aria-hidden="true">
@@ -48,7 +47,7 @@ export function RegistrationSuccess({
                     i % 3 === 2 && 'bg-yellow-400'
                   )}
                   style={{
-                    animation: `pulse ${1 + i * 0.15}s ease-in-out infinite alternate`,
+                    animation: `pulse ${1 + i * 0.15}s ease-in-out infinite alternate`
                   }}
                 />
               ))}
@@ -67,7 +66,7 @@ export function RegistrationSuccess({
 export function ConnectWalletPrompt({
   onConnect,
   isLoading,
-  error,
+  error
 }: {
   onConnect: () => void
   isLoading: boolean

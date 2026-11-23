@@ -20,16 +20,14 @@ export interface AuthState {
 }
 
 export type AuthAction =
-  | { type: 'AUTH_LOADING' }
-  | { type: 'AUTH_LOGIN'; payload: AuthUser }
-  | { type: 'AUTH_LOGOUT' }
+  { type: 'AUTH_LOADING' } | { type: 'AUTH_LOGIN'; payload: AuthUser } | { type: 'AUTH_LOGOUT' }
 
 const STORAGE_KEY = 'scavngr_user'
 
 export const authInitialState: AuthState = {
   user: null,
   isAuthenticated: false,
-  isLoading: true,
+  isLoading: true
 }
 
 export function authReducer(state: AuthState, action: AuthAction): AuthState {
@@ -41,14 +39,14 @@ export function authReducer(state: AuthState, action: AuthAction): AuthState {
       return {
         user: action.payload,
         isAuthenticated: true,
-        isLoading: false,
+        isLoading: false
       }
 
     case 'AUTH_LOGOUT':
       return {
         user: null,
         isAuthenticated: false,
-        isLoading: false,
+        isLoading: false
       }
 
     default:

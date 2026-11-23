@@ -10,17 +10,17 @@
  * recently applied migration by executing its `_down.sql` counterpart.
  */
 
-import fs from 'fs';
-import path from 'path';
-import type { Pool } from 'pg';
-import { getPool } from './client';
+import fs from 'fs'
+import path from 'path'
+import type { Pool } from 'pg'
+import { getPool } from './client'
 
-const MIGRATIONS_DIR = path.join(__dirname, 'migrations');
+const MIGRATIONS_DIR = path.join(__dirname, 'migrations')
 
 /** Derive the base name from a migration filename, e.g.
  *  "001_initial_schema_up.sql" → "001_initial_schema" */
 function baseName(filename: string): string {
-  return filename.replace(/_(up|down)\.sql$/, '');
+  return filename.replace(/_(up|down)\.sql$/, '')
 }
 
 /** Ensure the migrations tracking table exists. */
@@ -30,7 +30,7 @@ async function ensureMigrationsTable(pool: Pool): Promise<void> {
       name       TEXT        PRIMARY KEY,
       applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
-  `);
+  `)
 }
 
 /**
@@ -39,25 +39,24 @@ async function ensureMigrationsTable(pool: Pool): Promise<void> {
  * The pool is injected so callers and tests can supply their own (#1704).
  */
 export async function migrateUp(pool: Pool = getPool()): Promise<void> {
-  await ensureMigrationsTable(pool);
+  await ensureMigrationsTable(pool)
 
   const upFiles = fs
     .readdirSync(MIGRATIONS_DIR)
-    .filter(f => f.endsWith('_up.sql'))
-    .sort();
+    .filter((f) => f.endsWith('_up.sql'))
+    .sort()
 
   for (const file of upFiles) {
-    const name = baseName(file);
-    const { rows } = await pool.query(
-      'SELECT 1 FROM migrations WHERE name = $1',
-      [name],
-    );
-    if (rows.length > 0) {continue;} // already applied
+    const name = baseName(file)
+    const { rows } = await pool.query('SELECT 1 FROM migrations WHERE name = $1', [name])
+    if (rows.length > 0) {
+      continue
+    } // already applied
 
-    const sql = fs.readFileSync(path.join(MIGRATIONS_DIR, file), 'utf8');
-    await pool.query(sql);
-    await pool.query('INSERT INTO migrations (name) VALUES ($1)', [name]);
-    console.log(`[migrate up]   ${name}`);
+    const sql = fs.readFileSync(path.join(MIGRATIONS_DIR, file), 'utf8')
+    await pool.query(sql)
+    await pool.query('INSERT INTO migrations (name) VALUES ($1)', [name])
+    console.log(`[migrate up]   ${name}`)
   }
 }
 
@@ -66,51 +65,47 @@ export async function migrateUp(pool: Pool = getPool()): Promise<void> {
  * Finds the corresponding `_down.sql` file and executes it.
  */
 export async function migrateDown(pool: Pool = getPool()): Promise<void> {
-  await ensureMigrationsTable(pool);
+  await ensureMigrationsTable(pool)
 
   // Find the last applied migration, ordered by name descending.
-  const { rows } = await pool.query(
-    'SELECT name FROM migrations ORDER BY name DESC LIMIT 1',
-  );
+  const { rows } = await pool.query('SELECT name FROM migrations ORDER BY name DESC LIMIT 1')
   if (rows.length === 0) {
-    console.log('[migrate down] Nothing to roll back.');
-    return;
+    console.log('[migrate down] Nothing to roll back.')
+    return
   }
 
-  const name: string = rows[0].name;
-  const downFile = path.join(MIGRATIONS_DIR, `${name}_down.sql`);
+  const name: string = rows[0].name
+  const downFile = path.join(MIGRATIONS_DIR, `${name}_down.sql`)
 
   if (!fs.existsSync(downFile)) {
-    throw new Error(
-      `Down migration not found for "${name}". Expected: ${downFile}`,
-    );
+    throw new Error(`Down migration not found for "${name}". Expected: ${downFile}`)
   }
 
-  const sql = fs.readFileSync(downFile, 'utf8');
-  await pool.query(sql);
-  await pool.query('DELETE FROM migrations WHERE name = $1', [name]);
-  console.log(`[migrate down] ${name}`);
+  const sql = fs.readFileSync(downFile, 'utf8')
+  await pool.query(sql)
+  await pool.query('DELETE FROM migrations WHERE name = $1', [name])
+  console.log(`[migrate down] ${name}`)
 }
 
 // ── CLI entry point ──────────────────────────────────────────────────────────
 
 if (require.main === module) {
-  require('dotenv').config();
+  require('dotenv').config()
 
-  const direction = process.argv[2] ?? 'up';
+  const direction = process.argv[2] ?? 'up'
 
-  const run = direction === 'down' ? migrateDown : migrateUp;
+  const run = direction === 'down' ? migrateDown : migrateUp
 
   run()
     .then(() => {
-      console.log(`Migrations (${direction}) complete.`);
-      process.exit(0);
+      console.log(`Migrations (${direction}) complete.`)
+      process.exit(0)
     })
-    .catch(err => {
-      console.error(err);
-      process.exit(1);
-    });
+    .catch((err) => {
+      console.error(err)
+      process.exit(1)
+    })
 }
 
 /** @deprecated Use `migrateUp()` directly. Kept for backwards compatibility. */
-export const runMigrations = migrateUp;
+export const runMigrations = migrateUp

@@ -22,13 +22,7 @@ function getRankColor(rank: number): string {
   }
 }
 
-function LeaderboardRowComponent({
-  rank,
-  address,
-  points,
-  tier,
-  children,
-}: LeaderboardRowProps) {
+function LeaderboardRowComponent({ rank, address, points, tier, children }: LeaderboardRowProps) {
   const formattedPoints = points.toLocaleString()
   const accessibleLabel = `Rank ${rank}, address ${address}, ${formattedPoints} points, tier ${tier}`
 
@@ -52,9 +46,7 @@ function LeaderboardRowComponent({
         {children}
       </div>
       <div className="text-right">
-        <div className="text-lg font-bold text-primary">
-          {formattedPoints}
-        </div>
+        <div className="text-lg font-bold text-primary">{formattedPoints}</div>
         <div className="text-xs text-muted-foreground">points</div>
       </div>
     </div>

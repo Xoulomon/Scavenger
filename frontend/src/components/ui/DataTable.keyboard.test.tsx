@@ -12,16 +12,18 @@ interface Row {
 const rows: Row[] = [
   { id: '1', name: 'Charlie', amount: 30 },
   { id: '2', name: 'Alice', amount: 10 },
-  { id: '3', name: 'Bob', amount: 20 },
+  { id: '3', name: 'Bob', amount: 20 }
 ]
 
 const columns: Column<Row>[] = [
   { key: 'name', label: 'Name', sortable: true },
-  { key: 'amount', label: 'Amount' },
+  { key: 'amount', label: 'Amount' }
 ]
 
 function firstColumnOrder() {
-  return [0, 1, 2].map(i => within(screen.getByTestId(`table-row-${i}`)).getAllByRole('cell')[0].textContent)
+  return [0, 1, 2].map(
+    (i) => within(screen.getByTestId(`table-row-${i}`)).getAllByRole('cell')[0].textContent
+  )
 }
 
 describe('DataTable keyboard and ARIA semantics (#1469)', () => {
@@ -98,7 +100,7 @@ describe('DataTable keyboard and ARIA semantics (#1469)', () => {
 
       const tabbable = screen
         .getAllByRole('cell')
-        .filter(cell => cell.getAttribute('tabindex') === '0')
+        .filter((cell) => cell.getAttribute('tabindex') === '0')
 
       expect(tabbable).toHaveLength(1)
     })

@@ -5,11 +5,11 @@
 All three issues describe refactor/cleanup work on frontend components that
 do not exist in the current `main` branch:
 
-| Issue | Target file(s) | Status on `main` |
-|---|---|---|
-| #1048 | `frontend/src/components/admin/{UsersTab,WastesTab,DisputesTab}.tsx` | Missing |
-| #1049 | `frontend/src/components/OnboardingTutorial.tsx` | Missing |
-| #1051 | `frontend/src/pages/ApiPlaygroundPage.tsx` + `components/ApiPlayground` | Missing |
+| Issue | Target file(s)                                                          | Status on `main` |
+| ----- | ----------------------------------------------------------------------- | ---------------- |
+| #1048 | `frontend/src/components/admin/{UsersTab,WastesTab,DisputesTab}.tsx`    | Missing          |
+| #1049 | `frontend/src/components/OnboardingTutorial.tsx`                        | Missing          |
+| #1051 | `frontend/src/pages/ApiPlaygroundPage.tsx` + `components/ApiPlayground` | Missing          |
 
 None of these paths exist anywhere in the current tree
 (`git log --all -- <path>` and a repo-wide grep for the component names both
@@ -44,7 +44,7 @@ fork, or a later/alternate snapshot — that doesn't match what's actually on
 
 ## Recommendation
 
-Before any of #1048 / #1049 / #1051 can be worked as *refactors*, someone
+Before any of #1048 / #1049 / #1051 can be worked as _refactors_, someone
 needs to decide how to reconcile this:
 
 - If the orphaned commits represent real, wanted work: cherry-pick or

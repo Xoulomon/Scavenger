@@ -1,10 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { WasteType } from '@/api/types'
-import {
-  calculateImpact,
-  calculateEquivalents,
-  buildShareText,
-} from '@/lib/impactCalculator'
+import { calculateImpact, calculateEquivalents, buildShareText } from '@/lib/impactCalculator'
 
 describe('calculateImpact', () => {
   it('returns zeros for empty input', () => {
@@ -37,8 +33,8 @@ describe('calculateImpact', () => {
 
   it('accumulates values across multiple waste items', () => {
     const result = calculateImpact([
-      { waste_type: WasteType.Paper, weight: 1000 },  // 0.9 kg CO2
-      { waste_type: WasteType.Metal, weight: 1000 },  // 4.0 kg CO2
+      { waste_type: WasteType.Paper, weight: 1000 }, // 0.9 kg CO2
+      { waste_type: WasteType.Metal, weight: 1000 } // 4.0 kg CO2
     ])
     expect(result.co2Kg).toBe(4.9)
   })

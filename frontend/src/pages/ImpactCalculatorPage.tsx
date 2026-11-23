@@ -4,7 +4,18 @@ import { useAppTitle } from '@/hooks/useAppTitle'
 import { useImpactCalculator } from '@/hooks/useImpactCalculator'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Leaf, Zap, Droplets, Trees, Car, Smartphone, ShowerHead, Lightbulb, Share2, Check } from 'lucide-react'
+import {
+  Leaf,
+  Zap,
+  Droplets,
+  Trees,
+  Car,
+  Smartphone,
+  ShowerHead,
+  Lightbulb,
+  Share2,
+  Check
+} from 'lucide-react'
 
 // ── Impact metric card ────────────────────────────────────────────────────────
 
@@ -13,7 +24,7 @@ function ImpactCard({
   label,
   value,
   unit,
-  color,
+  color
 }: {
   icon: React.ReactNode
   label: string
@@ -38,7 +49,7 @@ function ImpactCard({
 function EquivalentRow({
   icon,
   value,
-  label,
+  label
 }: {
   icon: React.ReactNode
   value: number
@@ -91,16 +102,27 @@ export function ImpactCalculatorPage() {
     <div className="space-y-4 px-3 py-4 xs:space-y-6 xs:px-4 xs:py-6 sm:px-0 sm:py-0">
       <div className="flex flex-col gap-3 xs:flex-row xs:items-center xs:justify-between">
         <div className="min-w-0">
-          <h1 className="text-lg font-bold xs:text-xl sm:text-2xl">{t('impactCalculator.title')}</h1>
+          <h1 className="text-lg font-bold xs:text-xl sm:text-2xl">
+            {t('impactCalculator.title')}
+          </h1>
           <p className="text-xs text-muted-foreground xs:text-sm">
             {t('impactCalculator.subtitle')}
           </p>
         </div>
-        <Button size="sm" variant="outline" onClick={handleShare} className="self-start xs:self-auto">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleShare}
+          className="self-start xs:self-auto"
+        >
           {copied ? (
-            <><Check className="mr-1 h-4 w-4 text-success" /> {t('impactCalculator.copied')}</>
+            <>
+              <Check className="mr-1 h-4 w-4 text-success" /> {t('impactCalculator.copied')}
+            </>
           ) : (
-            <><Share2 className="mr-1 h-4 w-4" /> {t('impactCalculator.share')}</>
+            <>
+              <Share2 className="mr-1 h-4 w-4" /> {t('impactCalculator.share')}
+            </>
           )}
         </Button>
       </div>
@@ -177,9 +199,15 @@ export function ImpactCalculatorPage() {
           </p>
           <Button onClick={handleShare} className="w-full xs:w-auto">
             {copied ? (
-              <><Check className="mr-1 h-4 w-4" /> {t('impactCalculator.shareSection.copiedToClipboard')}</>
+              <>
+                <Check className="mr-1 h-4 w-4" />{' '}
+                {t('impactCalculator.shareSection.copiedToClipboard')}
+              </>
             ) : (
-              <><Share2 className="mr-1 h-4 w-4" /> {t('impactCalculator.shareSection.shareOnSocialMedia')}</>
+              <>
+                <Share2 className="mr-1 h-4 w-4" />{' '}
+                {t('impactCalculator.shareSection.shareOnSocialMedia')}
+              </>
             )}
           </Button>
         </CardContent>

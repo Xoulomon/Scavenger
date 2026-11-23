@@ -13,7 +13,7 @@ expect.extend(toHaveNoViolations)
 describe('Form Components Accessibility Suite', () => {
   describe('Select/Dropdown Accessibility', () => {
     it('should have aria-label on select elements', () => {
-      const { container } = render(
+      const { _container } = render(
         <select aria-label="Choose an option">
           <option>Option 1</option>
           <option>Option 2</option>
@@ -24,7 +24,7 @@ describe('Form Components Accessibility Suite', () => {
 
     it('should support keyboard navigation in select', async () => {
       const user = userEvent.setup()
-      const { container } = render(
+      const { _container } = render(
         <select aria-label="Options">
           <option>Option 1</option>
           <option>Option 2</option>
@@ -41,7 +41,7 @@ describe('Form Components Accessibility Suite', () => {
     })
 
     it('should announce selected value to screen readers', () => {
-      const { container } = render(
+      const { _container } = render(
         <select aria-label="Choose category" defaultValue="category1">
           <option value="category1">Technology</option>
           <option value="category2">Business</option>
@@ -54,7 +54,7 @@ describe('Form Components Accessibility Suite', () => {
 
   describe('Checkbox Accessibility', () => {
     it('should associate checkbox with label', () => {
-      const { container } = render(
+      const { _container } = render(
         <div>
           <input id="agree" type="checkbox" />
           <label htmlFor="agree">I agree to terms</label>
@@ -64,16 +64,14 @@ describe('Form Components Accessibility Suite', () => {
     })
 
     it('should indicate checkbox state to screen readers', () => {
-      const { container } = render(
-        <input type="checkbox" aria-label="Subscribe" defaultChecked />
-      )
+      const { _container } = render(<input type="checkbox" aria-label="Subscribe" defaultChecked />)
       const checkbox = screen.getByLabelText('Subscribe') as HTMLInputElement
       expect(checkbox.checked).toBe(true)
     })
 
     it('should support keyboard toggle', async () => {
       const user = userEvent.setup()
-      const { container } = render(
+      const { _container } = render(
         <div>
           <input id="terms" type="checkbox" />
           <label htmlFor="terms">Accept Terms</label>
@@ -94,7 +92,7 @@ describe('Form Components Accessibility Suite', () => {
 
   describe('Radio Button Accessibility', () => {
     it('should group radio buttons with fieldset and legend', () => {
-      const { container } = render(
+      const { _container } = render(
         <fieldset>
           <legend>Choose an option</legend>
           <div>
@@ -111,8 +109,8 @@ describe('Form Components Accessibility Suite', () => {
     })
 
     it('should support arrow key navigation', async () => {
-      const user = userEvent.setup()
-      const { container } = render(
+      const _user = userEvent.setup()
+      const { _container } = render(
         <fieldset>
           <legend>Options</legend>
           <div>
@@ -131,7 +129,7 @@ describe('Form Components Accessibility Suite', () => {
 
   describe('Text Area Accessibility', () => {
     it('should have associated label with textarea', () => {
-      const { container } = render(
+      const { _container } = render(
         <div>
           <label htmlFor="message">Message</label>
           <textarea id="message" />
@@ -141,14 +139,10 @@ describe('Form Components Accessibility Suite', () => {
     })
 
     it('should indicate character count limit with aria-describedby', () => {
-      const { container } = render(
+      const { _container } = render(
         <div>
           <label htmlFor="comment">Comment</label>
-          <textarea
-            id="comment"
-            maxLength={500}
-            aria-describedby="char-count"
-          />
+          <textarea id="comment" maxLength={500} aria-describedby="char-count" />
           <span id="char-count">Max 500 characters</span>
         </div>
       )
@@ -158,9 +152,7 @@ describe('Form Components Accessibility Suite', () => {
 
     it('should support keyboard navigation', async () => {
       const user = userEvent.setup()
-      const { container } = render(
-        <textarea placeholder="Enter text" />
-      )
+      const { _container } = render(<textarea placeholder="Enter text" />)
 
       const textarea = screen.getByPlaceholderText('Enter text')
       await user.click(textarea)
@@ -172,7 +164,7 @@ describe('Form Components Accessibility Suite', () => {
 
   describe('Form-level Accessibility', () => {
     it('should announce form submission status', () => {
-      const { container } = render(
+      const { _container } = render(
         <form>
           <label htmlFor="email">Email</label>
           <input id="email" type="email" />
@@ -186,7 +178,7 @@ describe('Form Components Accessibility Suite', () => {
     })
 
     it('should handle form validation errors accessibly', () => {
-      const { container } = render(
+      const { _container } = render(
         <form>
           <label htmlFor="username">Username</label>
           <input id="username" aria-invalid="true" aria-describedby="error" />
@@ -199,7 +191,7 @@ describe('Form Components Accessibility Suite', () => {
     })
 
     it('should clearly indicate required fields', () => {
-      const { container } = render(
+      const { _container } = render(
         <form>
           <label htmlFor="required-field">
             Required Field <span aria-label="required">*</span>
@@ -230,12 +222,7 @@ describe('Form Components Accessibility Suite', () => {
       const { container } = render(
         <form>
           <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            aria-describedby="pwd-hint"
-            required
-          />
+          <input id="password" type="password" aria-describedby="pwd-hint" required />
           <span id="pwd-hint">At least 8 characters, 1 number, 1 symbol</span>
           <button type="submit">Submit</button>
         </form>
@@ -267,17 +254,15 @@ describe('Form Components Accessibility Suite', () => {
 
   describe('Focus Management', () => {
     it('should show visible focus indicator on form inputs', () => {
-      const { container } = render(
-        <input type="text" data-testid="input" />
-      )
+      const { _container } = render(<input type="text" data-testid="input" />)
       const input = screen.getByTestId('input')
       input.focus()
       expect(input).toHaveFocus()
     })
 
     it('should manage focus after form submission', async () => {
-      const user = userEvent.setup()
-      const { container } = render(
+      const _user = userEvent.setup()
+      const { _container } = render(
         <form>
           <input type="text" placeholder="Name" />
           <button type="submit">Submit</button>
@@ -289,8 +274,8 @@ describe('Form Components Accessibility Suite', () => {
     })
 
     it('should restore focus after error correction', async () => {
-      const user = userEvent.setup()
-      const { container } = render(
+      const _user = userEvent.setup()
+      const { _container } = render(
         <div>
           <label htmlFor="email">Email</label>
           <input id="email" type="email" aria-invalid="true" />

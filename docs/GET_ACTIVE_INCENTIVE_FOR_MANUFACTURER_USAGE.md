@@ -16,11 +16,11 @@ pub fn get_active_incentive_for_manufacturer(
 
 ## Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `env` | `Env` | Soroban environment context |
-| `manufacturer` | `Address` | The manufacturer's blockchain address |
-| `waste_type` | `WasteType` | The type of waste (Paper, PetPlastic, Plastic, Metal, Glass) |
+| Parameter      | Type        | Description                                                  |
+| -------------- | ----------- | ------------------------------------------------------------ |
+| `env`          | `Env`       | Soroban environment context                                  |
+| `manufacturer` | `Address`   | The manufacturer's blockchain address                        |
+| `waste_type`   | `WasteType` | The type of waste (Paper, PetPlastic, Plastic, Metal, Glass) |
 
 ## Return Value
 
@@ -66,7 +66,7 @@ if let Some(incentive) = client.get_active_incentive_for_manufacturer(
 ) {
     let weight_kg = weight_grams / 1000;
     let potential_reward = incentive.reward_points * weight_kg;
-    
+
     if potential_reward <= incentive.remaining_budget {
         println!("Can claim {} points", potential_reward);
         // Proceed with claim
@@ -146,13 +146,16 @@ The function applies three filters:
 ## Selection Criteria
 
 When multiple incentives match all filters:
+
 - Returns the incentive with the **highest `reward_points`** value
 - If multiple incentives have equal reward_points, returns one of them (deterministic but unspecified which)
 
 ## Common Use Cases
 
 ### 1. Pre-Claim Validation
+
 Check if an incentive exists before attempting to claim rewards:
+
 ```rust
 if client.get_active_incentive_for_manufacturer(&mfr, &waste_type).is_some() {
     // Proceed with claim
@@ -160,7 +163,9 @@ if client.get_active_incentive_for_manufacturer(&mfr, &waste_type).is_some() {
 ```
 
 ### 2. UI Display
+
 Show available incentives to users:
+
 ```rust
 for waste_type in all_waste_types {
     if let Some(incentive) = client.get_active_incentive_for_manufacturer(&mfr, &waste_type) {
@@ -170,7 +175,9 @@ for waste_type in all_waste_types {
 ```
 
 ### 3. Automatic Incentive Selection
+
 Automatically select the best incentive for reward distribution:
+
 ```rust
 let best_incentive = client.get_active_incentive_for_manufacturer(
     &manufacturer,
@@ -194,6 +201,7 @@ client.distribute_rewards(
 ## Error Handling
 
 The function returns `None` in these cases:
+
 - Manufacturer has no incentives
 - All incentives are inactive
 - No incentives match the waste type
@@ -202,6 +210,7 @@ The function returns `None` in these cases:
 ## Integration Points
 
 ### Works With
+
 - `create_incentive`: Creates queryable incentives
 - `deactivate_incentive`: Deactivated incentives are excluded
 - `claim_incentive_reward`: Auto-deactivated incentives are excluded
@@ -209,6 +218,7 @@ The function returns `None` in these cases:
 - `distribute_rewards`: Can use this for automatic incentive selection
 
 ### Does Not Affect
+
 - Storage state (read-only)
 - Incentive budgets
 - Active status
@@ -217,11 +227,13 @@ The function returns `None` in these cases:
 ## Testing
 
 Comprehensive test coverage available in:
+
 ```
 stellar-contract/tests/get_active_incentive_for_manufacturer_test.rs
 ```
 
 Run tests with:
+
 ```bash
 cargo test --test get_active_incentive_for_manufacturer_test
 ```

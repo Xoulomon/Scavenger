@@ -9,12 +9,13 @@ Tracks mutation testing scores for the critical frontend modules:
 - `src/features/transfers/schemas.ts` — Transfer form validation schemas
 
 Scores are appended automatically by `npm run mutation:score` after each
-Stryker run.  The minimum accepted score is **80 %**.
+Stryker run. The minimum accepted score is **80 %**.
 
 Tool: [Stryker Mutator](https://stryker-mutator.io) via `@stryker-mutator/vitest-runner`  
 Config: [`stryker.config.cjs`](./stryker.config.cjs)  
 HTML report: `reports/mutation/index.html` (generated locally, not committed)
 
-| Date (UTC)          | Score | Killed | Survived | Timeout | Total |
-|---------------------|-------|--------|----------|---------|-------|
+| Date (UTC) | Score | Killed | Survived | Timeout | Total |
+| ---------- | ----- | ------ | -------- | ------- | ----- |
+
 <!-- scores appended here by scripts/record-mutation-score.mjs -->

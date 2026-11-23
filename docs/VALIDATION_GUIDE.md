@@ -10,20 +10,20 @@ All validation logic lives in `backend/src/validation/mod.rs`. The `ValidationMi
 
 ## Field Validators
 
-| Function | Rule |
-|----------|------|
-| `validate_required(value, field)` | Value must not be blank |
-| `validate_min_length(value, field, min)` | Minimum string length |
-| `validate_range(value, field, min, max)` | Numeric range check |
-| `validate_email(email)` | Must contain `@` and `.` |
-| `validate_stellar_address(addr)` | 56 chars, starts with `G` |
-| `validate_coordinates(lat, lon)` | lat ∈ [-90, 90], lon ∈ [-180, 180] |
-| `validate_waste_weight(weight)` | 1 – 1,000,000,000 |
-| `validate_name(name)` | 1–100 chars, letters/digits/spaces/hyphens |
-| `validate_pagination(page, limit)` | page ≥ 1, limit 1–100 |
-| `validate_export_format(format)` | `csv`, `json`, or `pdf` |
-| `validate_date_range(start, end)` | `YYYY-MM-DDTHH:MM:SS` format |
-| `sanitize_string(s)` | Trim + strip control characters |
+| Function                                 | Rule                                       |
+| ---------------------------------------- | ------------------------------------------ |
+| `validate_required(value, field)`        | Value must not be blank                    |
+| `validate_min_length(value, field, min)` | Minimum string length                      |
+| `validate_range(value, field, min, max)` | Numeric range check                        |
+| `validate_email(email)`                  | Must contain `@` and `.`                   |
+| `validate_stellar_address(addr)`         | 56 chars, starts with `G`                  |
+| `validate_coordinates(lat, lon)`         | lat ∈ [-90, 90], lon ∈ [-180, 180]         |
+| `validate_waste_weight(weight)`          | 1 – 1,000,000,000                          |
+| `validate_name(name)`                    | 1–100 chars, letters/digits/spaces/hyphens |
+| `validate_pagination(page, limit)`       | page ≥ 1, limit 1–100                      |
+| `validate_export_format(format)`         | `csv`, `json`, or `pdf`                    |
+| `validate_date_range(start, end)`        | `YYYY-MM-DDTHH:MM:SS` format               |
+| `sanitize_string(s)`                     | Trim + strip control characters            |
 
 ## Error Format
 
@@ -33,7 +33,7 @@ All validation errors are returned as:
 {
   "errors": [
     { "field": "address", "message": "stellar address must be 56 characters starting with 'G'" },
-    { "field": "weight",  "message": "weight must be between 1 and 1,000,000,000" }
+    { "field": "weight", "message": "weight must be between 1 and 1,000,000,000" }
   ]
 }
 ```

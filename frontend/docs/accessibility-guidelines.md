@@ -35,7 +35,9 @@ When a dialog opens, move focus to the first interactive element inside it. When
 ```tsx
 // ✅ Radix Dialog handles focus trap and restoration automatically
 <Dialog>
-  <DialogTrigger asChild><Button>Open</Button></DialogTrigger>
+  <DialogTrigger asChild>
+    <Button>Open</Button>
+  </DialogTrigger>
   <DialogContent>…</DialogContent>
 </Dialog>
 ```
@@ -46,15 +48,15 @@ When a dialog opens, move focus to the first interactive element inside it. When
 
 Use the correct HTML element for the job before reaching for ARIA attributes.
 
-| Need                 | Use                                       |
-|----------------------|-------------------------------------------|
-| Page landmark        | `<main>`, `<nav>`, `<aside>`, `<footer>`  |
-| Heading hierarchy    | `<h1>` → `<h2>` → `<h3>` (no skipping)   |
-| Button               | `<button>` (not `<div onClick>`)          |
-| Navigation link      | `<a href="…">` via `<Link>`               |
-| Form field           | `<input>`, `<select>`, `<textarea>`       |
-| Data table           | `<table>` with `<th scope="col/row">`     |
-| List of items        | `<ul>` / `<ol>` / `<dl>`                 |
+| Need              | Use                                      |
+| ----------------- | ---------------------------------------- |
+| Page landmark     | `<main>`, `<nav>`, `<aside>`, `<footer>` |
+| Heading hierarchy | `<h1>` → `<h2>` → `<h3>` (no skipping)   |
+| Button            | `<button>` (not `<div onClick>`)         |
+| Navigation link   | `<a href="…">` via `<Link>`              |
+| Form field        | `<input>`, `<select>`, `<textarea>`      |
+| Data table        | `<table>` with `<th scope="col/row">`    |
+| List of items     | `<ul>` / `<ol>` / `<dl>`                 |
 
 ---
 
@@ -128,7 +130,10 @@ Respect the user's reduced-motion preference. Scavngr animation tokens are pre-s
 ```tsx
 <div className="flex flex-col gap-1">
   <label htmlFor="email" className="text-sm font-medium">
-    Email <span aria-hidden="true" className="text-destructive">*</span>
+    Email{' '}
+    <span aria-hidden="true" className="text-destructive">
+      *
+    </span>
   </label>
   <Input
     id="email"

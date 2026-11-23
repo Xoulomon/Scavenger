@@ -5,7 +5,7 @@ import { isValidStellarAddress } from '@/lib/validation/stellarAddress'
 
 export function DestinationStep({
   recipientAddress,
-  onRecipientChange,
+  onRecipientChange
 }: {
   recipientAddress: string
   onRecipientChange: (addr: string) => void
@@ -15,9 +15,7 @@ export function DestinationStep({
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        Enter the Stellar address of the recipient.
-      </p>
+      <p className="text-sm text-muted-foreground">Enter the Stellar address of the recipient.</p>
 
       <div className="space-y-2">
         <label htmlFor="recipient-address" className="text-sm font-medium">

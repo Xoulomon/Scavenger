@@ -2,7 +2,7 @@
 // Validates offline queue persistence, retry logic, and conflict resolution
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { SyncManager, SyncResult } from './syncManager'
+import { SyncManager } from './syncManager'
 
 interface QueuedMutation {
   id: string
@@ -18,15 +18,18 @@ interface QueuedMutation {
 vi.mock('./storage', () => ({
   getPendingMutations: vi.fn(),
   updateMutationStatus: vi.fn(),
-  deleteMutation: vi.fn(),
+  deleteMutation: vi.fn()
 }))
 
 import { getPendingMutations, updateMutationStatus, deleteMutation } from './storage'
 
 describe('SyncManager', () => {
   let syncManager: SyncManager
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- cast module fns to spies in test
   const mockGetPendingMutations = getPendingMutations as any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- cast module fns to spies in test
   const mockUpdateMutationStatus = updateMutationStatus as any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- cast module fns to spies in test
   const mockDeleteMutation = deleteMutation as any
 
   beforeEach(() => {
@@ -88,8 +91,8 @@ describe('SyncManager', () => {
           variables: { weight: 100 },
           timestamp: Date.now(),
           retries: 0,
-          status: 'pending',
-        },
+          status: 'pending'
+        }
       ]
 
       mockGetPendingMutations.mockResolvedValue(mutations)
@@ -121,7 +124,7 @@ describe('SyncManager', () => {
           variables: { weight: 100 },
           timestamp: Date.now(),
           retries: 0,
-          status: 'pending',
+          status: 'pending'
         },
         {
           id: '2',
@@ -129,8 +132,8 @@ describe('SyncManager', () => {
           variables: { wasteId: 123 },
           timestamp: Date.now(),
           retries: 0,
-          status: 'pending',
-        },
+          status: 'pending'
+        }
       ]
 
       mockGetPendingMutations.mockResolvedValue(mutations)
@@ -169,8 +172,8 @@ describe('SyncManager', () => {
           variables: {},
           timestamp: Date.now(),
           retries: 0,
-          status: 'pending',
-        },
+          status: 'pending'
+        }
       ]
 
       mockGetPendingMutations.mockResolvedValue(mutations)
@@ -193,8 +196,8 @@ describe('SyncManager', () => {
           variables: {},
           timestamp: Date.now(),
           retries: 0,
-          status: 'pending',
-        },
+          status: 'pending'
+        }
       ]
 
       mockGetPendingMutations.mockResolvedValue(mutations)
@@ -218,8 +221,8 @@ describe('SyncManager', () => {
           variables: {},
           timestamp: Date.now(),
           retries: 0,
-          status: 'pending',
-        },
+          status: 'pending'
+        }
       ]
 
       mockGetPendingMutations.mockResolvedValue(mutations)
@@ -246,8 +249,8 @@ describe('SyncManager', () => {
           variables: {},
           timestamp: Date.now(),
           retries: 2,
-          status: 'pending',
-        },
+          status: 'pending'
+        }
       ]
 
       mockGetPendingMutations.mockResolvedValue(mutations)
@@ -257,7 +260,7 @@ describe('SyncManager', () => {
       const callback = vi.fn().mockResolvedValue({})
       syncManager.registerMutationHandler('submit:material', callback)
 
-      const result = await syncManager.syncPendingMutations()
+      const _result = await syncManager.syncPendingMutations()
 
       // Retry count should be preserved in mutations
       expect(mockGetPendingMutations).toHaveBeenCalled()
@@ -271,7 +274,7 @@ describe('SyncManager', () => {
           variables: {},
           timestamp: Date.now(),
           retries: 0,
-          status: 'pending',
+          status: 'pending'
         },
         {
           id: '2',
@@ -279,8 +282,8 @@ describe('SyncManager', () => {
           variables: {},
           timestamp: Date.now(),
           retries: 0,
-          status: 'pending',
-        },
+          status: 'pending'
+        }
       ]
 
       mockGetPendingMutations.mockResolvedValue(mutations)
@@ -310,8 +313,8 @@ describe('SyncManager', () => {
           variables: {},
           timestamp: Date.now(),
           retries: 0,
-          status: 'pending',
-        },
+          status: 'pending'
+        }
       ]
 
       mockGetPendingMutations.mockResolvedValue(mutations)
@@ -336,8 +339,8 @@ describe('SyncManager', () => {
           variables: {},
           timestamp: Date.now(),
           retries: 0,
-          status: 'pending',
-        },
+          status: 'pending'
+        }
       ]
 
       mockGetPendingMutations.mockResolvedValue(mutations)
@@ -373,8 +376,8 @@ describe('SyncManager', () => {
           variables: {},
           timestamp: Date.now(),
           retries: 0,
-          status: 'pending',
-        },
+          status: 'pending'
+        }
       ]
 
       mockGetPendingMutations.mockResolvedValue(mutations)

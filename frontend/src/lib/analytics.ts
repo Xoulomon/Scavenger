@@ -14,7 +14,7 @@ export const TOP_MATERIALS: MaterialVolume[] = [
   { label: 'Metal', value: 51, color: 'bg-green-500' },
   { label: 'Glass', value: 42, color: 'bg-purple-500' },
   { label: 'Paper', value: 38, color: 'bg-orange-500' },
-  { label: 'E-Waste', value: 22, color: 'bg-red-500' },
+  { label: 'E-Waste', value: 22, color: 'bg-red-500' }
 ]
 
 export interface ParticipantContribution {
@@ -29,13 +29,13 @@ export const PARTICIPANT_CONTRIBUTIONS: ParticipantContribution[] = [
   { address: '0xEF56…GH78', role: 'Collector', items: 98, pct: 23 },
   { address: '0xIJ90…KL12', role: 'Recycler', items: 76, pct: 18 },
   { address: '0xMN34…OP56', role: 'Manufacturer', items: 54, pct: 13 },
-  { address: '0xQR78…ST90', role: 'Collector', items: 50, pct: 12 },
+  { address: '0xQR78…ST90', role: 'Collector', items: 50, pct: 12 }
 ]
 
 export const ROLE_COLORS: Record<string, string> = {
   Recycler: 'bg-blue-500',
   Collector: 'bg-green-500',
-  Manufacturer: 'bg-purple-500',
+  Manufacturer: 'bg-purple-500'
 }
 
 /** Largest `value` in a dataset; 0 for an empty one. */

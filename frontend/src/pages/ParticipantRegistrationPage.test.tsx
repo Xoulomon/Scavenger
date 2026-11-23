@@ -4,7 +4,7 @@ import { ParticipantRegistrationPage } from './ParticipantRegistrationPage'
 import { Role } from '@/api/types'
 
 vi.mock('react-router-dom', () => ({
-  useNavigate: vi.fn(),
+  useNavigate: vi.fn()
 }))
 
 vi.mock('react-dropzone', () => ({
@@ -12,28 +12,28 @@ vi.mock('react-dropzone', () => ({
     getRootProps: vi.fn(() => ({})),
     getInputProps: vi.fn(() => ({})),
     isDragActive: false,
-    acceptedFiles: [],
-  })),
+    acceptedFiles: []
+  }))
 }))
 
 vi.mock('@/context/WalletContext', () => ({
   useWallet: vi.fn(() => ({
     address: 'GABC123',
     connect: vi.fn(),
-    disconnect: vi.fn(),
-  })),
+    disconnect: vi.fn()
+  }))
 }))
 
 vi.mock('@/context/AuthContext', () => ({
   useAuth: vi.fn(() => ({
     login: vi.fn(),
     logout: vi.fn(),
-    isAuthenticated: false,
-  })),
+    isAuthenticated: false
+  }))
 }))
 
 vi.mock('@/hooks/useAppTitle', () => ({
-  useAppTitle: vi.fn(),
+  useAppTitle: vi.fn()
 }))
 
 vi.mock('@/hooks/useRegisterParticipant', () => ({
@@ -41,8 +41,8 @@ vi.mock('@/hooks/useRegisterParticipant', () => ({
     register: vi.fn(),
     isLoading: false,
     isError: false,
-    error: null,
-  })),
+    error: null
+  }))
 }))
 
 describe('ParticipantRegistrationPage', () => {
@@ -270,7 +270,7 @@ describe('ParticipantRegistrationPage', () => {
       const fileInput = screen.getByLabelText(/Upload ID Document/i) as HTMLInputElement
 
       const largeFile = new File(['x'.repeat(11 * 1024 * 1024)], 'large.pdf', {
-        type: 'application/pdf',
+        type: 'application/pdf'
       })
 
       const dataTransfer = new DataTransfer()
@@ -445,7 +445,7 @@ describe('ParticipantRegistrationPage', () => {
         register: vi.fn(),
         isLoading: true,
         isError: false,
-        error: null,
+        error: null
       })
 
       render(<ParticipantRegistrationPage />)
@@ -464,7 +464,7 @@ describe('ParticipantRegistrationPage', () => {
         register: vi.fn(),
         isLoading: false,
         isError: true,
-        error: 'Registration failed',
+        error: 'Registration failed'
       })
 
       render(<ParticipantRegistrationPage />)
@@ -479,7 +479,7 @@ describe('ParticipantRegistrationPage', () => {
         register: mockRegister,
         isLoading: false,
         isError: true,
-        error: 'Registration failed',
+        error: 'Registration failed'
       })
 
       render(<ParticipantRegistrationPage />)

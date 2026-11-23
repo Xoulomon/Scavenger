@@ -21,7 +21,7 @@ from anywhere in the tree lives here:
   the user's `address` from `WalletContext` rather than storing its own copy,
   so wallet identity and auth identity can never drift apart. `AuthProvider`
   must be mounted inside `WalletProvider` (see `main.tsx`) because it calls
-  `useWallet()` internally. `logout()` clears the profile *and* disconnects
+  `useWallet()` internally. `logout()` clears the profile _and_ disconnects
   the wallet, so both states always change together.
 - **`ContractContext`** — the active Soroban network/contract config.
 - **`ThemeProvider`** — light/dark theme, delegated to `next-themes`.

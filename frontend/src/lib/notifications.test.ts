@@ -33,7 +33,7 @@ function makeNotification(overrides: Partial<Notification> = {}): Notification {
     read: false,
     createdAt: Date.now(),
     count: 1,
-    ...overrides,
+    ...overrides
   }
 }
 
@@ -53,7 +53,7 @@ const notifArb = fc.record<Notification>({
   body: fc.string({ minLength: 0, maxLength: 200 }),
   read: fc.boolean(),
   createdAt: fc.integer({ min: 0, max: Date.now() }),
-  count: fc.integer({ min: 1, max: 100 }),
+  count: fc.integer({ min: 1, max: 100 })
 })
 
 // ---------------------------------------------------------------------------
@@ -77,10 +77,7 @@ describe('Property 20: Mark-as-read updates read state', () => {
         fc.array(notifArb, { minLength: 1, maxLength: 20 }).chain((notifs) => {
           // Ensure unique IDs
           const unique = notifs.map((n, i) => ({ ...n, id: `notif_${i}`, read: false }))
-          return fc.tuple(
-            fc.constant(unique),
-            fc.integer({ min: 0, max: unique.length - 1 })
-          )
+          return fc.tuple(fc.constant(unique), fc.integer({ min: 0, max: unique.length - 1 }))
         }),
         async ([notifs, targetIdx]) => {
           // Seed localStorage
@@ -156,7 +153,7 @@ describe('Property 21: Notification batching within window', () => {
             body: 'first',
             read: false,
             createdAt: now - 1000, // 1 second ago — within 10 s window
-            count: 1,
+            count: 1
           }
           lsSave([first])
 
@@ -181,34 +178,31 @@ describe('Property 21: Notification batching within window', () => {
 
   it('two same-type notifications outside 10 s window produce two separate entries', async () => {
     await fc.assert(
-      fc.asyncProperty(
-        notifTypeArb,
-        async (type) => {
-          localStorage.clear()
+      fc.asyncProperty(notifTypeArb, async (type) => {
+        localStorage.clear()
 
-          const now = Date.now()
-          // First notification is older than 10 s
-          const first: Notification = {
-            id: `${type}_${now - 15000}`,
-            type,
-            title: 'old',
-            body: 'old body',
-            read: false,
-            createdAt: now - 15000,
-            count: 1,
-          }
-          lsSave([first])
-
-          const store = new NotificationStore(WALLET)
-          await store.add({ type, title: 'new', body: 'new body', createdAt: now })
-
-          const items = lsLoad()
-          const ofType = items.filter((n) => n.type === type)
-
-          // Should have two separate entries
-          return ofType.length === 2
+        const now = Date.now()
+        // First notification is older than 10 s
+        const first: Notification = {
+          id: `${type}_${now - 15000}`,
+          type,
+          title: 'old',
+          body: 'old body',
+          read: false,
+          createdAt: now - 15000,
+          count: 1
         }
-      ),
+        lsSave([first])
+
+        const store = new NotificationStore(WALLET)
+        await store.add({ type, title: 'new', body: 'new body', createdAt: now })
+
+        const items = lsLoad()
+        const ofType = items.filter((n) => n.type === type)
+
+        // Should have two separate entries
+        return ofType.length === 2
+      }),
       { numRuns: 100 }
     )
   })
@@ -223,7 +217,7 @@ describe('Property 21: Notification batching within window', () => {
       body: 'body',
       read: true, // already read — should not be batched into
       createdAt: now - 500,
-      count: 1,
+      count: 1
     }
     lsSave([readNotif])
 
@@ -245,32 +239,35 @@ describe('Property 21: Notification batching within window', () => {
 // Validates: Requirements 13.2, 14.4
 // ---------------------------------------------------------------------------
 
-import { getBadgeLabel, getBadgeCount, getPanelNotifications, getRelativeTimestamp, getTypeIconName } from '@/components/ui/NotificationPanel'
+import {
+  getBadgeLabel,
+  getBadgeCount,
+  getPanelNotifications,
+  getRelativeTimestamp,
+  getTypeIconName
+} from '@/components/ui/NotificationPanel'
 
 describe('Property 17: Notification badge count accuracy', () => {
   it('badge count equals min(unread count, 99) and label is "99+" when count > 99', () => {
     // Feature: frontend-enhancements, Property 17: badge count = min(unread count, 99), displays "99+" for > 99
     fc.assert(
-      fc.property(
-        fc.array(notifArb, { minLength: 0, maxLength: 200 }),
-        (notifs) => {
-          const unread = notifs.filter((n) => !n.read).length
-          const count = getBadgeCount(unread)
-          const label = getBadgeLabel(unread)
+      fc.property(fc.array(notifArb, { minLength: 0, maxLength: 200 }), (notifs) => {
+        const unread = notifs.filter((n) => !n.read).length
+        const count = getBadgeCount(unread)
+        const label = getBadgeLabel(unread)
 
-          // count must be min(unread, 99)
-          if (count !== Math.min(unread, 99)) return false
+        // count must be min(unread, 99)
+        if (count !== Math.min(unread, 99)) return false
 
-          // label must be "99+" when unread > 99, else the string of unread
-          if (unread > 99) {
-            if (label !== '99+') return false
-          } else {
-            if (label !== String(unread)) return false
-          }
-
-          return true
+        // label must be "99+" when unread > 99, else the string of unread
+        if (unread > 99) {
+          if (label !== '99+') return false
+        } else {
+          if (label !== String(unread)) return false
         }
-      ),
+
+        return true
+      }),
       { numRuns: 100 }
     )
   })
@@ -278,7 +275,10 @@ describe('Property 17: Notification badge count accuracy', () => {
   it('badge is hidden (count=0) when all notifications are read', () => {
     fc.assert(
       fc.property(
-        fc.array(notifArb.map((n) => ({ ...n, read: true })), { minLength: 0, maxLength: 50 }),
+        fc.array(
+          notifArb.map((n) => ({ ...n, read: true })),
+          { minLength: 0, maxLength: 50 }
+        ),
         (notifs) => {
           const unread = notifs.filter((n) => !n.read).length
           return getBadgeCount(unread) === 0
@@ -299,26 +299,23 @@ describe('Property 18: Notification panel ordering and limit', () => {
   it('getPanelNotifications returns at most 20 items in descending createdAt order', () => {
     // Feature: frontend-enhancements, Property 18: panel renders ≤ 20 items in descending createdAt order
     fc.assert(
-      fc.property(
-        fc.array(notifArb, { minLength: 0, maxLength: 100 }),
-        (notifs) => {
-          const result = getPanelNotifications(notifs)
+      fc.property(fc.array(notifArb, { minLength: 0, maxLength: 100 }), (notifs) => {
+        const result = getPanelNotifications(notifs)
 
-          // Must not exceed 20
-          if (result.length > 20) return false
+        // Must not exceed 20
+        if (result.length > 20) return false
 
-          // Must be in descending createdAt order
-          for (let i = 0; i < result.length - 1; i++) {
-            if (result[i].createdAt < result[i + 1].createdAt) return false
-          }
-
-          // Must contain the 20 most recent items (by createdAt)
-          const sorted = [...notifs].sort((a, b) => b.createdAt - a.createdAt).slice(0, 20)
-          if (result.length !== sorted.length) return false
-
-          return true
+        // Must be in descending createdAt order
+        for (let i = 0; i < result.length - 1; i++) {
+          if (result[i].createdAt < result[i + 1].createdAt) return false
         }
-      ),
+
+        // Must contain the 20 most recent items (by createdAt)
+        const sorted = [...notifs].sort((a, b) => b.createdAt - a.createdAt).slice(0, 20)
+        if (result.length !== sorted.length) return false
+
+        return true
+      }),
       { numRuns: 100 }
     )
   })
@@ -334,59 +331,50 @@ describe('Property 19: Notification panel renders all required fields', () => {
   it('getTypeIconName returns a non-empty icon name for every notification type', () => {
     // Feature: frontend-enhancements, Property 19: each notification row contains type icon, title, body, relative timestamp
     fc.assert(
-      fc.property(
-        notifArb,
-        (n) => {
-          const iconName = getTypeIconName(n.type)
-          // Must return a non-empty string
-          if (!iconName || iconName.length === 0) return false
+      fc.property(notifArb, (n) => {
+        const iconName = getTypeIconName(n.type)
+        // Must return a non-empty string
+        if (!iconName || iconName.length === 0) return false
 
-          // Must be one of the known icon names
-          const validIcons = ['Bell', 'CheckCircle', 'Coins', 'Info']
-          if (!validIcons.includes(iconName)) return false
+        // Must be one of the known icon names
+        const validIcons = ['Bell', 'CheckCircle', 'Coins', 'Info']
+        if (!validIcons.includes(iconName)) return false
 
-          return true
-        }
-      ),
+        return true
+      }),
       { numRuns: 100 }
     )
   })
 
   it('getRelativeTimestamp returns a non-empty string for any createdAt timestamp', () => {
     fc.assert(
-      fc.property(
-        fc.integer({ min: 0, max: Date.now() }),
-        (createdAt) => {
-          const ts = getRelativeTimestamp(createdAt)
-          // Must be a non-empty string ending with "ago"
-          if (!ts || ts.length === 0) return false
-          if (!ts.endsWith('ago')) return false
-          return true
-        }
-      ),
+      fc.property(fc.integer({ min: 0, max: Date.now() }), (createdAt) => {
+        const ts = getRelativeTimestamp(createdAt)
+        // Must be a non-empty string ending with "ago"
+        if (!ts || ts.length === 0) return false
+        if (!ts.endsWith('ago')) return false
+        return true
+      }),
       { numRuns: 100 }
     )
   })
 
   it('each notification has title, body, type, and a valid relative timestamp', () => {
     fc.assert(
-      fc.property(
-        notifArb,
-        (n) => {
-          // title must be a non-empty string
-          if (!n.title || n.title.length === 0) return false
-          // type must be one of the valid types
-          const validTypes: NotificationType[] = ['transfer', 'confirmation', 'reward', 'system']
-          if (!validTypes.includes(n.type)) return false
-          // getTypeIconName must return a valid icon
-          const icon = getTypeIconName(n.type)
-          if (!icon) return false
-          // getRelativeTimestamp must return a string ending with "ago"
-          const ts = getRelativeTimestamp(n.createdAt)
-          if (!ts.endsWith('ago')) return false
-          return true
-        }
-      ),
+      fc.property(notifArb, (n) => {
+        // title must be a non-empty string
+        if (!n.title || n.title.length === 0) return false
+        // type must be one of the valid types
+        const validTypes: NotificationType[] = ['transfer', 'confirmation', 'reward', 'system']
+        if (!validTypes.includes(n.type)) return false
+        // getTypeIconName must return a valid icon
+        const icon = getTypeIconName(n.type)
+        if (!icon) return false
+        // getRelativeTimestamp must return a string ending with "ago"
+        const ts = getRelativeTimestamp(n.createdAt)
+        if (!ts.endsWith('ago')) return false
+        return true
+      }),
       { numRuns: 100 }
     )
   })

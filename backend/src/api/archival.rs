@@ -263,7 +263,7 @@ pub async fn get_job(service: web::Data<Arc<ArchivalService>>, job_id: web::Path
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::services::{ArchiveRecord, ArchivalError};
+    use crate::services::{ArchivalError, ArchiveRecord};
     use actix_web::{test, web, App};
     use chrono::Utc;
     use std::sync::Mutex;
@@ -480,9 +480,7 @@ mod tests {
         )
         .await;
 
-        let req = test::TestRequest::post()
-            .uri("/archives/missing/restore")
-            .to_request();
+        let req = test::TestRequest::post().uri("/archives/missing/restore").to_request();
 
         let resp = test::call_service(&app, req).await;
         assert_eq!(resp.status(), actix_web::http::StatusCode::NOT_FOUND);
@@ -499,9 +497,7 @@ mod tests {
         )
         .await;
 
-        let req = test::TestRequest::delete()
-            .uri("/archives/missing")
-            .to_request();
+        let req = test::TestRequest::delete().uri("/archives/missing").to_request();
 
         let resp = test::call_service(&app, req).await;
         assert_eq!(resp.status(), actix_web::http::StatusCode::INTERNAL_SERVER_ERROR);
@@ -687,9 +683,7 @@ mod tests {
         )
         .await;
 
-        let req = test::TestRequest::get()
-            .uri("/jobs?status=completed")
-            .to_request();
+        let req = test::TestRequest::get().uri("/jobs?status=completed").to_request();
 
         let resp = test::call_service(&app, req).await;
         assert_eq!(resp.status(), actix_web::http::StatusCode::OK);

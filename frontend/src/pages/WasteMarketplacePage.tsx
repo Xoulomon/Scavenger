@@ -9,7 +9,7 @@ import {
   XCircle,
   Clock,
   History,
-  Plus,
+  Plus
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -20,7 +20,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/Select'
 import { useAppTitle } from '@/hooks/useAppTitle'
 import { WasteType } from '@/api/types'
@@ -99,7 +99,7 @@ export function makeOffer(
     buyer,
     offerPrice,
     status: 'pending',
-    createdAt: Date.now(),
+    createdAt: Date.now()
   }
 }
 
@@ -127,7 +127,7 @@ const MOCK_LISTINGS: MarketplaceListing[] = [
     pricePerKg: 0.5,
     description: 'Clean office paper, sorted and baled.',
     listedAt: 1714000000,
-    rating: 4.5,
+    rating: 4.5
   },
   {
     id: 'l2',
@@ -137,7 +137,7 @@ const MOCK_LISTINGS: MarketplaceListing[] = [
     pricePerKg: 1.2,
     description: 'PET bottles, washed and compressed.',
     listedAt: 1714050000,
-    rating: 4.0,
+    rating: 4.0
   },
   {
     id: 'l3',
@@ -147,7 +147,7 @@ const MOCK_LISTINGS: MarketplaceListing[] = [
     pricePerKg: 2.5,
     description: 'Mixed scrap metal, mostly aluminium.',
     listedAt: 1714100000,
-    rating: 3.8,
+    rating: 3.8
   },
   {
     id: 'l4',
@@ -157,7 +157,7 @@ const MOCK_LISTINGS: MarketplaceListing[] = [
     pricePerKg: 0.3,
     description: 'Clear glass bottles, sorted by colour.',
     listedAt: 1714150000,
-    rating: 4.2,
+    rating: 4.2
   },
   {
     id: 'l5',
@@ -167,8 +167,8 @@ const MOCK_LISTINGS: MarketplaceListing[] = [
     pricePerKg: 0.9,
     description: 'Mixed rigid plastics, cleaned.',
     listedAt: 1714200000,
-    rating: 3.5,
-  },
+    rating: 3.5
+  }
 ]
 
 const MOCK_OFFERS: MarketplaceOffer[] = [
@@ -178,7 +178,7 @@ const MOCK_OFFERS: MarketplaceOffer[] = [
     buyer: 'GBUYER...001',
     offerPrice: 55,
     status: 'accepted',
-    createdAt: 1714010000,
+    createdAt: 1714010000
   },
   {
     id: 'o2',
@@ -186,7 +186,7 @@ const MOCK_OFFERS: MarketplaceOffer[] = [
     buyer: 'GBUYER...002',
     offerPrice: 90,
     status: 'pending',
-    createdAt: 1714060000,
+    createdAt: 1714060000
   },
   {
     id: 'o3',
@@ -194,8 +194,8 @@ const MOCK_OFFERS: MarketplaceOffer[] = [
     buyer: 'GBUYER...003',
     offerPrice: 480,
     status: 'rejected',
-    createdAt: 1714110000,
-  },
+    createdAt: 1714110000
+  }
 ]
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -231,7 +231,7 @@ function OfferStatusBadge({ status }: { status: OfferStatus }) {
 
 function ListingCard({
   listing,
-  onMakeOffer,
+  onMakeOffer
 }: {
   listing: MarketplaceListing
   onMakeOffer: (listing: MarketplaceListing) => void
@@ -267,7 +267,7 @@ function ListingCard({
 function MakeOfferModal({
   listing,
   onClose,
-  onSubmit,
+  onSubmit
 }: {
   listing: MarketplaceListing
   onClose: () => void
@@ -359,9 +359,7 @@ export function WasteMarketplacePage() {
   }
 
   function handleRespond(offerId: string, decision: 'accepted' | 'rejected') {
-    setOffers((prev) =>
-      prev.map((o) => (o.id === offerId ? respondToOffer(o, decision) : o))
-    )
+    setOffers((prev) => prev.map((o) => (o.id === offerId ? respondToOffer(o, decision) : o)))
   }
 
   const ALL_WASTE_TYPES = Object.values(WasteType).filter(

@@ -13,7 +13,7 @@ function useClient() {
     new ScavengerClient({
       rpcUrl: config.rpcUrl,
       networkPassphrase: networkConfig.networkPassphrase,
-      contractId: config.contractId,
+      contractId: config.contractId
     })
 }
 
@@ -33,7 +33,7 @@ export function useParticipantWastes() {
       return results.filter((w): w is Waste => w !== null && w.is_active)
     },
     enabled: !!address,
-    staleTime: 30_000,
+    staleTime: 30_000
   })
 }
 
@@ -47,7 +47,7 @@ export function useWasteTransferHistory(wasteId: bigint | null) {
       return makeClient().getWasteTransferHistory(wasteId)
     },
     enabled: wasteId !== null,
-    staleTime: 15_000,
+    staleTime: 15_000
   })
 }
 
@@ -57,24 +57,16 @@ export function useTransferWaste() {
   const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({
-      wasteId,
-      to,
-      note,
-    }: {
-      wasteId: bigint
-      to: string
-      note: string
-    }) =>
+    mutationFn: async ({ wasteId, to, note }: { wasteId: bigint; to: string; note: string }) =>
       submitWasteTransfer(makeClient(), {
         wasteId,
         from: address ?? '',
         to,
-        note,
+        note
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['participant-wastes'] })
       qc.invalidateQueries({ queryKey: ['waste-transfer-history'] })
-    },
+    }
   })
 }

@@ -7,7 +7,7 @@ describe('LeaderboardRow', () => {
     rank: 1,
     address: '0x1234567890123456789012345678901234567890',
     points: 1000,
-    tier: 'Gold',
+    tier: 'Gold'
   }
 
   describe('renders with required props', () => {

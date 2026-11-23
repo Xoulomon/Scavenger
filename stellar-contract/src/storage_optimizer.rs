@@ -43,7 +43,7 @@
 // - `optimize_waste_storage`: 1 instance-storage read + at most 1
 //   temporary-storage write (0 when the hot copy is already current).
 
-use soroban_sdk::{Address, Env, Map, Symbol, Vec, symbol_short};
+use soroban_sdk::{symbol_short, Address, Env, Map, Symbol, Vec};
 
 /// Storage cache for frequently accessed data
 pub struct StorageCache {

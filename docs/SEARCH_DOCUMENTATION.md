@@ -73,17 +73,20 @@ let config = IndexConfig {
 **Endpoint:** `GET /api/v1/search`
 
 **Query Parameters:**
+
 - `q` (string, required): Search query
 - `from` (int, default: 0): Pagination offset
 - `size` (int, default: 20): Number of results per page
 - `filters` (array): Filter conditions
 
 **Example Request:**
+
 ```bash
 curl "http://localhost:8080/api/v1/search?q=hazardous+waste&from=0&size=20"
 ```
 
 **Response:**
+
 ```json
 {
   "total": 150,
@@ -116,21 +119,20 @@ curl "http://localhost:8080/api/v1/search?q=hazardous+waste&from=0&size=20"
 **Endpoint:** `GET /api/v1/search/suggest`
 
 **Query Parameters:**
+
 - `q` (string, required): Partial search term
 
 **Example Request:**
+
 ```bash
 curl "http://localhost:8080/api/v1/search/suggest?q=haz"
 ```
 
 **Response:**
+
 ```json
 {
-  "suggestions": [
-    "hazardous waste",
-    "hazmat disposal",
-    "hazard classification"
-  ]
+  "suggestions": ["hazardous waste", "hazmat disposal", "hazard classification"]
 }
 ```
 
@@ -139,6 +141,7 @@ curl "http://localhost:8080/api/v1/search/suggest?q=haz"
 **Endpoint:** `GET /api/v1/search/config`
 
 **Response:**
+
 ```json
 {
   "max_results": 10000,

@@ -38,7 +38,9 @@ pub fn write_participant(env: &Env, participant: &Participant) {
 /// `Some(Participant)` if found, `None` otherwise
 pub fn read_participant(env: &Env, address: &Address) -> Option<Participant> {
     let key = participant_key(env, address);
-    env.storage().persistent().get::<(soroban_sdk::Symbol, Address), Participant>(&key)
+    env.storage()
+        .persistent()
+        .get::<(soroban_sdk::Symbol, Address), Participant>(&key)
 }
 
 /// Checks if a participant address is registered
@@ -118,12 +120,7 @@ pub fn update_participant_stats(
 /// - `address`: The participant address
 /// - `latitude`: New latitude in microdegrees
 /// - `longitude`: New longitude in microdegrees
-pub fn update_participant_location(
-    env: &Env,
-    address: &Address,
-    latitude: i128,
-    longitude: i128,
-) -> Result<(), Error> {
+pub fn update_participant_location(env: &Env, address: &Address, latitude: i128, longitude: i128) -> Result<(), Error> {
     let mut participant = get_or_fail(env, address)?;
     participant.latitude = latitude;
     participant.longitude = longitude;
@@ -238,10 +235,7 @@ pub fn get_participant_count(env: &Env) -> u32 {
 /// - `env`: The Soroban environment
 /// - `updates`: Vector of (address, waste_weight, tokens_earned) tuples
 #[cfg(test)]
-pub fn batch_update_stats(
-    env: &Env,
-    updates: &Vec<(Address, u64, u64)>,
-) -> Result<(), Error> {
+pub fn batch_update_stats(env: &Env, updates: &Vec<(Address, u64, u64)>) -> Result<(), Error> {
     for (address, waste_weight, tokens_earned) in updates.iter() {
         update_participant_stats(env, address, *waste_weight, *tokens_earned)?;
     }
@@ -288,9 +282,9 @@ fn participant_key(_env: &Env, address: &Address) -> (soroban_sdk::Symbol, Addre
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::types::{CertificationLevel, ParticipantRole, ParticipantTier};
     use soroban_sdk::testutils::Address as _;
     use soroban_sdk::{symbol_short, Address, Env};
-    use crate::types::{CertificationLevel, ParticipantRole, ParticipantTier};
 
     #[test]
     fn test_write_and_read_participant() {

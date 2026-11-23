@@ -1,11 +1,13 @@
 # Key Rotation Refactoring Complete (Issue #1515)
 
 ## Summary
+
 Successfully split the monolithic `stellar-contract/src/key_rotation.rs` (898 LOC) into a well-organized module structure with four focused submodules, each under 350 LOC. All functionality preserved, authorization centralized, tests expanded.
 
 ## Files Created
 
 ### Module Structure
+
 ```
 stellar-contract/src/key_rotation/
 ├── mod.rs (312 LOC) - Module documentation, re-exports, integration tests
@@ -18,12 +20,14 @@ stellar-contract/src/key_rotation/
 ## Design Decisions
 
 ### 1. Authorization Centralization (`auth.rs`)
+
 - Single `authorize()` function enforced at every mutating operation entry point
 - Admin must be in the current caller's provided admin list
 - Enables single point of security review for all key management operations
 - Prevents authorization bypass via chained function calls
 
 ### 2. Type Exports (`types.rs`)
+
 - `KeyPurpose` enum (WebhookSigning, ApiKeyHash, PiiEncryption, ZkpVerification)
 - `KeyStatus` enum (Active, Archived, Revoked)
 - `KeyRecord` struct with full metadata (installer, timestamps, status)
@@ -31,6 +35,7 @@ stellar-contract/src/key_rotation/
 - `KeyStorage` enum for typed storage keys
 
 ### 3. Read-Only Operations (`schedule.rs`)
+
 - `get_active_key()` - Returns current active KeyRecord for a purpose
 - `get_key_version()` - Retrieves specific version by ID
 - `active_version()` - Returns current version number or None
@@ -38,6 +43,7 @@ stellar-contract/src/key_rotation/
 - 7 comprehensive unit tests
 
 ### 4. Mutating Operations (`lifecycle.rs`)
+
 - `install_key()` - Creates first key for a purpose (v1 only)
 - `rotate_key()` - Archives current, creates next version (atomic)
 - `revoke_key_version()` - Marks key as compromised
@@ -47,6 +53,7 @@ stellar-contract/src/key_rotation/
 - 16 core unit tests + 8 edge case tests
 
 ### 5. Integration Tests (`mod.rs`)
+
 - `install_rotate_multiple_purposes_independently` - Verify isolation between key purposes
 - `full_lifecycle_install_rotate_revoke_purge` - Complete workflow
 - `authorization_enforced_consistently` - All operations check auth
@@ -56,17 +63,20 @@ stellar-contract/src/key_rotation/
 ## Files Modified
 
 ### `stellar-contract/src/lib.rs`
+
 - Updated module documentation comment to reference issue #1515
 - Changed from `pub mod key_rotation` (which imported key_rotation.rs) to same statement (now imports key_rotation/mod.rs)
 - No other changes needed; Rust module system handles the transition automatically
 
 ### `backend/Cargo.toml`
+
 - Fixed duplicate `actix-web` dependency declaration (lines 17 and 36)
 - Consolidated to single version declaration to fix manifest parsing error
 
 ## Files Deleted
 
 ### `stellar-contract/src/key_rotation.rs` (898 LOC)
+
 - Monolithic file replaced by module structure
 - All functionality moved to submodules
 - No content lost
@@ -74,6 +84,7 @@ stellar-contract/src/key_rotation/
 ## Verification
 
 ### Line Counts (All Under 350 LOC Limit)
+
 ```
 auth.rs      :  97 LOC
 lifecycle.rs : 347 LOC (just under limit)
@@ -85,6 +96,7 @@ Total        :1026 LOC (vs 898 in original + ~128 duplicate test code removed)
 ```
 
 ### Test Coverage
+
 - **Module-level unit tests**: 39 total
   - auth.rs: 6 tests (authorization validation)
   - types.rs: 2 tests (type serialization)
@@ -100,6 +112,7 @@ Total        :1026 LOC (vs 898 in original + ~128 duplicate test code removed)
   - Authorization bypass attempts
 
 ### Compilation Status
+
 ✅ Key rotation module compiles successfully with proper type checking
 ✅ Module imports working correctly in lib.rs
 ⚠️ Pre-existing errors in lib.rs (unrelated to refactoring)
@@ -118,13 +131,13 @@ pub fn install_key(
 ) -> Result<u32, KeyRotationError> {
     // 1. CENTRALIZED AUTHORIZATION CHECK (single point of review)
     auth::authorize(admin, current_admins)?;
-    
+
     // 2. VALIDATION (input sanitization)
     reject_zero_hash(&key_hash)?;
-    
+
     // 3. STORAGE MUTATION (only after all checks pass)
     // ...
-    
+
     // 4. EVENT EMISSION (for audit trail)
     emit_key_event(env, "key_ins", purpose, version, admin);
     Ok(version)

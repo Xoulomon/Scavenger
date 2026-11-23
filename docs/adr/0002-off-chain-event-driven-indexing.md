@@ -30,11 +30,11 @@ The contract remains the authority. The indexer is a derived, rebuildable projec
 
 ## Alternatives Considered
 
-| Alternative | Why it was rejected |
-|-------------|---------------------|
-| Query the contract directly from the frontend | Every non-trivial query becomes an on-chain iteration with metered reads. Aggregations and search are impractical. |
+| Alternative                                          | Why it was rejected                                                                                                                                                                                                        |
+| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Query the contract directly from the frontend        | Every non-trivial query becomes an on-chain iteration with metered reads. Aggregations and search are impractical.                                                                                                         |
 | Maintain query-optimised indexes in contract storage | Shifts the cost to write time and inflates rent for data that does not need consensus. Some minimal indexes exist regardless (`PART_IDX`, `("participant_wastes", …)`), but they are enumeration aids, not a query engine. |
-| Read directly from Horizon / RPC without an indexer | No aggregation, no joins, no search, and no stable schema for external consumers. |
+| Read directly from Horizon / RPC without an indexer  | No aggregation, no joins, no search, and no stable schema for external consumers.                                                                                                                                          |
 
 ## Consequences
 

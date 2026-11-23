@@ -25,7 +25,7 @@ export function saveComparison(wastes: Waste[]): void {
     id: `cmp_${Date.now()}`,
     timestamp: Date.now(),
     wasteIds: wastes.map((w) => String(w.waste_id)),
-    label: wastes.map((w) => `#${String(w.waste_id)}`).join(' vs '),
+    label: wastes.map((w) => `#${String(w.waste_id)}`).join(' vs ')
   }
   const history = getComparisonHistory().filter((s) => s.label !== snapshot.label)
   history.unshift(snapshot)

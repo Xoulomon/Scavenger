@@ -23,14 +23,14 @@ outdated pointers to this file.
 
 ## Prerequisites
 
-| Tool | Version | Why |
-|------|---------|-----|
-| Node.js | 18+ | frontend, indexer, tooling |
-| pnpm or npm | latest | package manager (see repo root `packageManager`) |
-| Rust | stable (see `rust-toolchain.toml`) | smart contracts, backend |
-| Docker + Compose | latest | local Postgres, Redis, Stellar standalone |
-| Stellar CLI (`soroban`) | latest | deploy contract, invoke functions |
-| Git | any recent | obviously |
+| Tool                    | Version                            | Why                                              |
+| ----------------------- | ---------------------------------- | ------------------------------------------------ |
+| Node.js                 | 18+                                | frontend, indexer, tooling                       |
+| pnpm or npm             | latest                             | package manager (see repo root `packageManager`) |
+| Rust                    | stable (see `rust-toolchain.toml`) | smart contracts, backend                         |
+| Docker + Compose        | latest                             | local Postgres, Redis, Stellar standalone        |
+| Stellar CLI (`soroban`) | latest                             | deploy contract, invoke functions                |
+| Git                     | any recent                         | obviously                                        |
 
 Install per your OS. Verify with:
 
@@ -70,11 +70,11 @@ Rust crates are fetched on the first `cargo build` or `cargo test`.
 Copy each example file and fill in the values you need. Each file's
 comments say which variables are required for local development.
 
-| File | Used by |
-|------|---------|
-| `.env.example` (root) | backend and Docker Compose |
+| File                    | Used by                             |
+| ----------------------- | ----------------------------------- |
+| `.env.example` (root)   | backend and Docker Compose          |
 | `frontend/.env.example` | frontend (Vite, `VITE_*` variables) |
-| `indexer/.env.example` | indexer |
+| `indexer/.env.example`  | indexer                             |
 
 ```bash
 cp .env.example .env
@@ -101,14 +101,14 @@ docker compose ps   # wait for (healthy) on every service
 
 Compose starts these services:
 
-| Service | Port | Purpose |
-|---------|------|---------|
-| `stellar` | 8000 | Standalone Stellar network (Horizon + Soroban RPC) |
+| Service    | Port | Purpose                                                                                      |
+| ---------- | ---- | -------------------------------------------------------------------------------------------- |
+| `stellar`  | 8000 | Standalone Stellar network (Horizon + Soroban RPC)                                           |
 | `postgres` | 5432 | Indexer database (`scavngr`; `scripts/seed-test-data.sql` creates the schema on first start) |
-| `redis` | 6379 | Cache |
-| `backend` | 8080 | REST API |
-| `indexer` | 3001 | Event indexer |
-| `frontend` | 5173 | Web app |
+| `redis`    | 6379 | Cache                                                                                        |
+| `backend`  | 8080 | REST API                                                                                     |
+| `indexer`  | 3001 | Event indexer                                                                                |
+| `frontend` | 5173 | Web app                                                                                      |
 
 Stellar needs about 30 seconds to initialise. The indexer and frontend wait on
 health checks, so do not start them before `stellar` is healthy.
@@ -204,11 +204,11 @@ npm run lint
 
 ### Compose files
 
-| File | Purpose |
-|------|---------|
-| `docker-compose.yml` | Core development environment |
-| `docker-compose.monitoring.yml` | Prometheus and Grafana |
-| `docker-compose.logging.yml` | Loki and Promtail log aggregation |
+| File                            | Purpose                           |
+| ------------------------------- | --------------------------------- |
+| `docker-compose.yml`            | Core development environment      |
+| `docker-compose.monitoring.yml` | Prometheus and Grafana            |
+| `docker-compose.logging.yml`    | Loki and Promtail log aggregation |
 
 Combine files with `-f`:
 
@@ -262,7 +262,7 @@ a `docker-compose.override.yml`:
 services:
   frontend:
     ports:
-      - "5174:5173"
+      - '5174:5173'
 ```
 
 Port 8000 must be free for the standalone Stellar network.

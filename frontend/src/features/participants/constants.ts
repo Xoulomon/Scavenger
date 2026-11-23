@@ -1,4 +1,4 @@
-import { Factory,Recycle, Truck } from 'lucide-react'
+import { Factory, Recycle, Truck } from 'lucide-react'
 
 import { Role } from '@/api/types'
 import { ROLE_LABELS } from '@/lib/constants'
@@ -13,12 +13,12 @@ export const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
 export const ACCEPTED_DOC_TYPES: Record<string, string[]> = {
   'application/pdf': ['.pdf'],
   'image/jpeg': ['.jpg', '.jpeg'],
-  'image/png': ['.png'],
+  'image/png': ['.png']
 }
 
 export const ACCEPTED_SELFIE_TYPES: Record<string, string[]> = {
   'image/jpeg': ['.jpg', '.jpeg'],
-  'image/png': ['.png'],
+  'image/png': ['.png']
 }
 
 export const STEP_LABELS = ['Role', 'Profile', 'KYC', 'Confirm'] as const
@@ -35,22 +35,22 @@ export const ROLE_CARDS: {
     icon: Recycle,
     title: ROLE_LABELS[Role.Recycler],
     description:
-      'Collect and submit recyclable materials to earn rewards. You are the first link in the sustainable supply chain.',
+      'Collect and submit recyclable materials to earn rewards. You are the first link in the sustainable supply chain.'
   },
   {
     role: Role.Collector,
     icon: Truck,
     title: ROLE_LABELS[Role.Collector],
     description:
-      'Transport and aggregate waste materials from recyclers. Bridge the gap between collection points and manufacturers.',
+      'Transport and aggregate waste materials from recyclers. Bridge the gap between collection points and manufacturers.'
   },
   {
     role: Role.Manufacturer,
     icon: Factory,
     title: ROLE_LABELS[Role.Manufacturer],
     description:
-      'Transform recycled materials into new products. Create incentives and drive demand for sustainable materials.',
-  },
+      'Transform recycled materials into new products. Create incentives and drive demand for sustainable materials.'
+  }
 ]
 
 export const emptyDraft: FormDraft = {
@@ -63,5 +63,5 @@ export const emptyDraft: FormDraft = {
   longitude: '',
   agreedToTerms: false,
   identityDoc: null,
-  selfiePhoto: null,
+  selfiePhoto: null
 }

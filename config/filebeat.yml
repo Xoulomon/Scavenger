@@ -36,17 +36,17 @@ filebeat.inputs:
       - /var/lib/docker/containers/*/*.log
     processors:
       - add_docker_metadata:
-          host: "unix:///var/run/docker.sock"
+          host: 'unix:///var/run/docker.sock'
 
 processors:
   - add_host_metadata: ~
   - add_cloud_metadata: ~
   - drop_fields:
-      fields: ["agent.ephemeral_id", "agent.hostname", "agent.id", "agent.version"]
+      fields: ['agent.ephemeral_id', 'agent.hostname', 'agent.id', 'agent.version']
       ignore_missing: true
 
 output.logstash:
-  hosts: ["logstash:5044"]
+  hosts: ['logstash:5044']
   bulk_max_size: 2048
 
 logging.level: warning

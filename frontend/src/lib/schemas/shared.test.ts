@@ -42,7 +42,7 @@ describe('stellarAddressSchema', () => {
     ['wrong prefix', 'S' + valid.slice(1)],
     ['too short', valid.slice(0, 55)],
     ['lowercase characters', valid.toLowerCase()],
-    ['empty string', ''],
+    ['empty string', '']
   ])('rejects %s', (_label, value) => {
     expect(stellarAddressSchema.safeParse(value).success).toBe(false)
   })

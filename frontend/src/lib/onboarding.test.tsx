@@ -10,10 +10,10 @@ const localStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
   removeItem: vi.fn(),
-  clear: vi.fn(),
+  clear: vi.fn()
 }
 Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
+  value: localStorageMock
 })
 
 describe('Onboarding Functionality', () => {
@@ -34,7 +34,7 @@ describe('Onboarding Functionality', () => {
         completed: false,
         skipped: false,
         currentStep: 0,
-        role: null,
+        role: null
       })
     })
 
@@ -43,7 +43,7 @@ describe('Onboarding Functionality', () => {
         completed: true,
         skipped: false,
         currentStep: 5,
-        role: 'Recycler' as const,
+        role: 'Recycler' as const
       }
       localStorageMock.getItem.mockReturnValue(JSON.stringify(storedState))
 
@@ -63,7 +63,7 @@ describe('Onboarding Functionality', () => {
         completed: false,
         skipped: false,
         currentStep: 0,
-        role: 'Collector',
+        role: 'Collector'
       })
       expect(localStorageMock.setItem).toHaveBeenCalled()
     })
@@ -112,7 +112,7 @@ describe('Onboarding Functionality', () => {
         completed: false,
         skipped: false,
         currentStep: 0,
-        role: null,
+        role: null
       })
       expect(localStorageMock.removeItem).toHaveBeenCalledWith('scavenger-onboarding')
     })
@@ -142,50 +142,46 @@ describe('Onboarding Functionality', () => {
 
       expect(steps.length).toBeGreaterThan(5)
       expect(steps[0].content).toContain('Welcome to Scavenger')
-      expect(steps.some(step => step.target === '[data-onboarding="submit-waste"]')).toBe(true)
+      expect(steps.some((step) => step.target === '[data-onboarding="submit-waste"]')).toBe(true)
     })
 
     it('should return steps for Collector role', () => {
       const steps = getOnboardingSteps('Collector')
 
       expect(steps.length).toBeGreaterThan(5)
-      expect(steps.some(step => step.target === '[data-onboarding="collect"]')).toBe(true)
-      expect(steps.some(step => step.target === '[data-onboarding="verify"]')).toBe(true)
+      expect(steps.some((step) => step.target === '[data-onboarding="collect"]')).toBe(true)
+      expect(steps.some((step) => step.target === '[data-onboarding="verify"]')).toBe(true)
     })
 
     it('should return steps for Manufacturer role', () => {
       const steps = getOnboardingSteps('Manufacturer')
 
       expect(steps.length).toBeGreaterThan(5)
-      expect(steps.some(step => step.target === '[data-onboarding="manufacturer-dashboard"]')).toBe(true)
-      expect(steps.some(step => step.target === '[data-onboarding="analytics"]')).toBe(true)
+      expect(
+        steps.some((step) => step.target === '[data-onboarding="manufacturer-dashboard"]')
+      ).toBe(true)
+      expect(steps.some((step) => step.target === '[data-onboarding="analytics"]')).toBe(true)
     })
 
     it('should return steps for Admin role', () => {
       const steps = getOnboardingSteps('Admin')
 
       expect(steps.length).toBeGreaterThan(5)
-      expect(steps.some(step => step.target === '[data-onboarding="admin-dashboard"]')).toBe(true)
+      expect(steps.some((step) => step.target === '[data-onboarding="admin-dashboard"]')).toBe(true)
     })
 
     it('should include common steps for all roles', () => {
       const recyclerSteps = getOnboardingSteps('Recycler')
       const collectorSteps = getOnboardingSteps('Collector')
 
-      expect(recyclerSteps.some(step => step.target === '[data-onboarding="sidebar"]')).toBe(true)
-      expect(collectorSteps.some(step => step.target === '[data-onboarding="search"]')).toBe(true)
+      expect(recyclerSteps.some((step) => step.target === '[data-onboarding="sidebar"]')).toBe(true)
+      expect(collectorSteps.some((step) => step.target === '[data-onboarding="search"]')).toBe(true)
     })
   })
 
   describe('OnboardingTutorial', () => {
     it('should show welcome dialog when visible and not completed', () => {
-      render(
-        <OnboardingTutorial
-          userRole="Recycler"
-          isVisible={true}
-          onComplete={() => {}}
-        />
-      )
+      render(<OnboardingTutorial userRole="Recycler" isVisible={true} onComplete={() => {}} />)
 
       expect(screen.getByText('Welcome to Scavenger!')).toBeInTheDocument()
       expect(screen.getByText('Start Tour')).toBeInTheDocument()
@@ -193,25 +189,13 @@ describe('Onboarding Functionality', () => {
     })
 
     it('should not show dialog when not visible', () => {
-      render(
-        <OnboardingTutorial
-          userRole="Recycler"
-          isVisible={false}
-          onComplete={() => {}}
-        />
-      )
+      render(<OnboardingTutorial userRole="Recycler" isVisible={false} onComplete={() => {}} />)
 
       expect(screen.queryByText('Welcome to Scavenger!')).not.toBeInTheDocument()
     })
 
     it('should handle "Don\'t show again" checkbox', () => {
-      render(
-        <OnboardingTutorial
-          userRole="Recycler"
-          isVisible={true}
-          onComplete={() => {}}
-        />
-      )
+      render(<OnboardingTutorial userRole="Recycler" isVisible={true} onComplete={() => {}} />)
 
       const checkbox = screen.getByLabelText("Don't show this again")
       expect(checkbox).not.toBeChecked()
@@ -223,13 +207,7 @@ describe('Onboarding Functionality', () => {
     it('should call onComplete when skipping tutorial', () => {
       const onComplete = vi.fn()
 
-      render(
-        <OnboardingTutorial
-          userRole="Recycler"
-          isVisible={true}
-          onComplete={onComplete}
-        />
-      )
+      render(<OnboardingTutorial userRole="Recycler" isVisible={true} onComplete={onComplete} />)
 
       const skipButton = screen.getByText('Skip Tutorial')
       fireEvent.click(skipButton)
@@ -238,13 +216,7 @@ describe('Onboarding Functionality', () => {
     })
 
     it('should start tutorial when clicking Start Tour', () => {
-      render(
-        <OnboardingTutorial
-          userRole="Recycler"
-          isVisible={true}
-          onComplete={() => {}}
-        />
-      )
+      render(<OnboardingTutorial userRole="Recycler" isVisible={true} onComplete={() => {}} />)
 
       const startButton = screen.getByText('Start Tour')
       fireEvent.click(startButton)
@@ -265,22 +237,16 @@ describe('Onboarding Functionality', () => {
             completed: false,
             skipped: false,
             currentStep: 0,
-            role: null,
+            role: null
           },
           startOnboarding: vi.fn(),
           completeOnboarding: vi.fn(),
           skipOnboarding: vi.fn(),
-          updateStep: vi.fn(),
-        }),
+          updateStep: vi.fn()
+        })
       }))
 
-      render(
-        <OnboardingTutorial
-          userRole="Recycler"
-          isVisible={true}
-          onComplete={onComplete}
-        />
-      )
+      render(<OnboardingTutorial userRole="Recycler" isVisible={true} onComplete={onComplete} />)
 
       // Start tutorial
       const startButton = screen.getByText('Start Tour')
@@ -306,7 +272,7 @@ describe('Onboarding Functionality', () => {
           completed: false,
           skipped: false,
           currentStep: 0,
-          role: 'Collector',
+          role: 'Collector'
         })
       )
     })

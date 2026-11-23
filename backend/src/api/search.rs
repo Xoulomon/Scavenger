@@ -36,10 +36,7 @@ fn map_service_error(err: SearchServiceError) -> actix_web::Error {
 }
 
 /// Perform a search query.
-pub async fn search(
-    service: web::Data<Arc<SearchService>>,
-    params: web::Query<SearchParams>,
-) -> Result<HttpResponse> {
+pub async fn search(service: web::Data<Arc<SearchService>>, params: web::Query<SearchParams>) -> Result<HttpResponse> {
     let fields: Vec<String> = SEARCHABLE_FIELDS.iter().map(|f| f.to_string()).collect();
 
     let response = service
@@ -98,9 +95,7 @@ mod tests {
         )
         .await;
 
-        let req = test::TestRequest::get()
-            .uri("/search/suggest?q=waste")
-            .to_request();
+        let req = test::TestRequest::get().uri("/search/suggest?q=waste").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
 
@@ -110,10 +105,7 @@ mod tests {
 
     #[actix_web::test]
     async fn config_returns_expected_shape() {
-        let app = test::init_service(
-            App::new().route("/search/config", web::get().to(get_search_config)),
-        )
-        .await;
+        let app = test::init_service(App::new().route("/search/config", web::get().to(get_search_config))).await;
 
         let req = test::TestRequest::get().uri("/search/config").to_request();
         let resp = test::call_service(&app, req).await;

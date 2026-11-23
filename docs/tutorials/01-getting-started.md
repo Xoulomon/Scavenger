@@ -9,6 +9,7 @@
 ## What You Will Build
 
 A minimal `WasteRegistry` contract that:
+
 - Stores a waste record on-chain
 - Returns it by ID
 - Emits an event on creation
@@ -74,6 +75,7 @@ impl WasteRegistry {
 ```
 
 **Key concepts:**
+
 - `#[contracttype]` — marks structs that can be stored on-chain (must implement `Clone`)
 - `env.storage().persistent()` — data survives across transactions
 - `owner.require_auth()` — asserts the transaction was signed by `owner`
@@ -188,6 +190,7 @@ stellar contract invoke \
 ## Checkpoint
 
 Verify your implementation:
+
 - [ ] `cargo test tutorial_01` passes with no errors
 - [ ] Contract builds without warnings
 - [ ] `get_waste` returns `None` for an ID that was never registered

@@ -7,10 +7,10 @@ Custom ESLint rules for the Scavenger monorepo.
 **Date:** 2026-09-30  
 **Finding:** No unused rules. All rules in this directory are actively referenced.
 
-| Rule file | Rule name | Referenced in |
-| :--- | :--- | :--- |
+| Rule file                 | Rule name                                   | Referenced in                                           |
+| :------------------------ | :------------------------------------------ | :------------------------------------------------------ |
 | `error-message-format.js` | `error-message-format/error-message-format` | `indexer/eslint.config.js`, `frontend/eslint.config.js` |
-| `no-only-tests.js` | `no-only-tests/no-only-tests` | `frontend/eslint.config.js` |
+| `no-only-tests.js`        | `no-only-tests/no-only-tests`               | `frontend/eslint.config.js`                             |
 
 No rules were removed.
 

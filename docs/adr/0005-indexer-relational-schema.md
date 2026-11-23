@@ -48,14 +48,14 @@ Supporting decisions:
 
 ## Alternatives Considered
 
-| Alternative | Why it was rejected |
-|-------------|---------------------|
-| Projected tables only, no `raw_events` | A handler bug would be unrecoverable without re-fetching history from Stellar. `raw_events` makes `POST /replay` a local operation. |
-| `raw_events` only, query the JSONB directly | No referential integrity, no cheap aggregation, and every consumer would have to know the event encoding. |
-| A document store (MongoDB, etc.) | The queries are relational — transfers join participants join wastes. Losing joins and constraints to gain schema flexibility is the wrong trade for a projection whose shape is dictated by the contract. |
-| Elasticsearch as the primary store | Kept as an optional add-on for advanced search (`docker-compose.elasticsearch.yml`), but Postgres full-text search covers the product's needs without a second stateful system in the critical path. |
-| An ORM with generated migrations | Plain SQL keeps the applied DDL reviewable and makes index and constraint intent explicit. |
-| `BIGINT` for weights | Overflows `u128` on-chain values. |
+| Alternative                                 | Why it was rejected                                                                                                                                                                                        |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Projected tables only, no `raw_events`      | A handler bug would be unrecoverable without re-fetching history from Stellar. `raw_events` makes `POST /replay` a local operation.                                                                        |
+| `raw_events` only, query the JSONB directly | No referential integrity, no cheap aggregation, and every consumer would have to know the event encoding.                                                                                                  |
+| A document store (MongoDB, etc.)            | The queries are relational — transfers join participants join wastes. Losing joins and constraints to gain schema flexibility is the wrong trade for a projection whose shape is dictated by the contract. |
+| Elasticsearch as the primary store          | Kept as an optional add-on for advanced search (`docker-compose.elasticsearch.yml`), but Postgres full-text search covers the product's needs without a second stateful system in the critical path.       |
+| An ORM with generated migrations            | Plain SQL keeps the applied DDL reviewable and makes index and constraint intent explicit.                                                                                                                 |
+| `BIGINT` for weights                        | Overflows `u128` on-chain values.                                                                                                                                                                          |
 
 ## Consequences
 

@@ -7,7 +7,7 @@ import {
   StellarNetwork,
   WASTE_TYPE_MAP,
   ROLE_MAP,
-  CERTIFICATION_MAP,
+  CERTIFICATION_MAP
 } from '../src/types'
 
 describe('Enums', () => {
@@ -114,7 +114,7 @@ describe('SDK-specific types', () => {
   it('exports SimulationResult shape', () => {
     const result: import('../src/types').SimulationResult = {
       success: true,
-      cost: { cpuInstructions: 100, memoryBytes: 200 },
+      cost: { cpuInstructions: 100, memoryBytes: 200 }
     }
     expect(result.success).toBe(true)
     expect(result.cost.cpuInstructions).toBe(100)
@@ -123,7 +123,7 @@ describe('SDK-specific types', () => {
   it('exports TransactionResult shape', () => {
     const result: import('../src/types').TransactionResult = {
       success: true,
-      transactionHash: 'abc',
+      transactionHash: 'abc'
     }
     expect(result.success).toBe(true)
   })
@@ -137,7 +137,7 @@ describe('SDK-specific types', () => {
       enableRetry: true,
       maxRetries: 3,
       enableLogging: false,
-      userAgent: 'test',
+      userAgent: 'test'
     }
     expect(opts.enableRetry).toBe(true)
     expect(opts.maxRetries).toBe(3)

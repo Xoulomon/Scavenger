@@ -5,8 +5,8 @@
 ## Overview
 
 The Scavngr backend (Rust/serde) and the frontend/indexer (TypeScript) share a
-type contract through `packages/types/src/index.ts`.  Because the two sides are
-maintained independently there is a risk of *silent contract drift*:
+type contract through `packages/types/src/index.ts`. Because the two sides are
+maintained independently there is a risk of _silent contract drift_:
 
 - A Rust field is renamed without updating the TypeScript interface.
 - A numeric enum is serialised differently (`0` vs `"recycler"` vs `"Recycler"`).
@@ -20,23 +20,24 @@ This document defines the **alignment table** (current state), the
 
 ## Key Resource Alignment Table
 
-| Resource | Rust struct (backend) | TypeScript interface (packages/types) | Status |
-|---|---|---|---|
-| Participant role | `ParticipantRole` (u32 via serde) | `ParticipantRole` enum (numeric) | ✅ Aligned |
-| Waste status | `WasteStatus` (Soroban XDR) | `WasteStatus` string enum | ✅ Aligned |
-| `VerificationStatus` | `verification::VerificationStatus` (`#[serde(rename_all = "lowercase")]`) | `"pending" \| "approved" \| "rejected" \| "under_review"` | ✅ Aligned |
-| `ArchiveStatus` | `archival::ArchiveStatus` (`#[serde(rename_all = "lowercase")]`) | `"pending" \| "in_progress" \| "completed" \| "failed" \| "restored"` | ✅ Aligned |
-| `StorageTier` | `archival::StorageTier` (`#[serde(rename_all = "snake_case")]`) | `"hot" \| "warm" \| "cold" \| "glacier"` | ✅ Aligned |
-| `RetentionPolicy` | `archival::RetentionPolicy` | `RetentionPolicy` (TS interface) | ✅ Aligned |
-| `ArchiveRecord` | `archival::ArchiveRecord` | `ArchiveRecord` (TS interface) | ✅ Aligned |
-| `ParticipantVerification` | `verification::ParticipantVerification` | `ParticipantVerificationResponse` (TS interface) | ✅ Aligned |
-| API response envelope | `api::ApiBuilder` (`data`, `error`, `meta`) | `ApiResponse<T>` in packages/types | ✅ Aligned |
+| Resource                  | Rust struct (backend)                                                     | TypeScript interface (packages/types)                                 | Status     |
+| ------------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------- | ---------- |
+| Participant role          | `ParticipantRole` (u32 via serde)                                         | `ParticipantRole` enum (numeric)                                      | ✅ Aligned |
+| Waste status              | `WasteStatus` (Soroban XDR)                                               | `WasteStatus` string enum                                             | ✅ Aligned |
+| `VerificationStatus`      | `verification::VerificationStatus` (`#[serde(rename_all = "lowercase")]`) | `"pending" \| "approved" \| "rejected" \| "under_review"`             | ✅ Aligned |
+| `ArchiveStatus`           | `archival::ArchiveStatus` (`#[serde(rename_all = "lowercase")]`)          | `"pending" \| "in_progress" \| "completed" \| "failed" \| "restored"` | ✅ Aligned |
+| `StorageTier`             | `archival::StorageTier` (`#[serde(rename_all = "snake_case")]`)           | `"hot" \| "warm" \| "cold" \| "glacier"`                              | ✅ Aligned |
+| `RetentionPolicy`         | `archival::RetentionPolicy`                                               | `RetentionPolicy` (TS interface)                                      | ✅ Aligned |
+| `ArchiveRecord`           | `archival::ArchiveRecord`                                                 | `ArchiveRecord` (TS interface)                                        | ✅ Aligned |
+| `ParticipantVerification` | `verification::ParticipantVerification`                                   | `ParticipantVerificationResponse` (TS interface)                      | ✅ Aligned |
+| API response envelope     | `api::ApiBuilder` (`data`, `error`, `meta`)                               | `ApiResponse<T>` in packages/types                                    | ✅ Aligned |
 
 ---
 
 ## Automated Contract Tests
 
 ### Rust (backend)
+
 `backend/tests/dto_contract_tests.rs` — runs with:
 
 ```bash
@@ -44,11 +45,13 @@ cargo test --test dto_contract_tests
 ```
 
 These tests:
+
 1. Serialise each Rust struct to JSON.
 2. Assert that every required field key is present with the expected name.
 3. Assert that enum variants serialise to the correct string literals.
 
 ### TypeScript (indexer ↔ frontend)
+
 `tests/contract/api-contract.test.ts` — runs with:
 
 ```bash
@@ -109,10 +112,10 @@ before merging:
 
 ## Known Mismatches / Tracked Issues
 
-| Field | Rust type | TS type | Notes |
-|---|---|---|---|
-| `total_earned` in `ParticipantStats` | `u128` (serialised as string by Soroban) | `bigint` | Frontend handles via `BigInt()` constructor — no immediate change needed but monitor |
-| `waste_id` in transfer events | `u64` | `string \| bigint` | Intentionally widened on TS side for Soroban compatibility |
+| Field                                | Rust type                                | TS type            | Notes                                                                                |
+| ------------------------------------ | ---------------------------------------- | ------------------ | ------------------------------------------------------------------------------------ |
+| `total_earned` in `ParticipantStats` | `u128` (serialised as string by Soroban) | `bigint`           | Frontend handles via `BigInt()` constructor — no immediate change needed but monitor |
+| `waste_id` in transfer events        | `u64`                                    | `string \| bigint` | Intentionally widened on TS side for Soroban compatibility                           |
 
 ---
 

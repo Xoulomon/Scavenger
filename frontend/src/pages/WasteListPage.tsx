@@ -34,7 +34,7 @@ const WASTE_LABELS: Record<WasteType, string> = {
   [WasteType.Metal]: 'Metal',
   [WasteType.Glass]: 'Glass',
   [WasteType.Organic]: 'Organic',
-  [WasteType.Electronic]: 'Electronic',
+  [WasteType.Electronic]: 'Electronic'
 }
 
 type StatusFilter = 'all' | 'active' | 'confirmed' | 'inactive'
@@ -70,7 +70,7 @@ export function WasteListPage() {
     batchConfirmWastes,
     batchVerifyWastes,
     batchTransferWastes,
-    batchDeactivateWastes,
+    batchDeactivateWastes
   } = useWasteList()
 
   const [search, setSearch] = useState('')
@@ -78,9 +78,13 @@ export function WasteListPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [page, setPage] = useState(1)
   const [selectedWasteIds, setSelectedWasteIds] = useState<number[]>([])
-  const [batchAction, setBatchAction] = useState<'confirm' | 'verify' | 'transfer' | 'deactivate' | null>(null)
+  const [batchAction, setBatchAction] = useState<
+    'confirm' | 'verify' | 'transfer' | 'deactivate' | null
+  >(null)
   const [batchTransferRecipient, setBatchTransferRecipient] = useState('')
-  const [batchProgress, setBatchProgress] = useState<{ completed: number; total: number } | null>(null)
+  const [batchProgress, setBatchProgress] = useState<{ completed: number; total: number } | null>(
+    null
+  )
   const [batchErrors, setBatchErrors] = useState<string[]>([])
   const [batchResult, setBatchResult] = useState<{ succeeded: number; failed: number } | null>(null)
   const [batchRunning, setBatchRunning] = useState(false)
@@ -131,7 +135,8 @@ export function WasteListPage() {
 
   const pageWasteIds = useMemo(() => paginated.map((w) => w.id), [paginated])
 
-  const allPageSelected = pageWasteIds.length > 0 && pageWasteIds.every((id) => selectedWasteIds.includes(id))
+  const allPageSelected =
+    pageWasteIds.length > 0 && pageWasteIds.every((id) => selectedWasteIds.includes(id))
   const hasConfirmable = selectedWastes.some((w) => w.is_active && !w.is_confirmed)
   const hasVerifiable = selectedWastes.some((w) => !w.verified)
   const hasTransferable = selectedWastes.some((w) => w.is_active)
@@ -145,7 +150,9 @@ export function WasteListPage() {
 
   const toggleSelectAll = useCallback(() => {
     setSelectedWasteIds((prev) =>
-      allPageSelected ? prev.filter((id) => !pageWasteIds.includes(id)) : [...new Set([...prev, ...pageWasteIds])]
+      allPageSelected
+        ? prev.filter((id) => !pageWasteIds.includes(id))
+        : [...new Set([...prev, ...pageWasteIds])]
     )
   }, [allPageSelected, pageWasteIds])
 
@@ -171,10 +178,13 @@ export function WasteListPage() {
     const actionMap = {
       confirm: batchConfirmWastes,
       verify: batchVerifyWastes,
-      deactivate: batchDeactivateWastes,
+      deactivate: batchDeactivateWastes
     } as const
 
-    const result = await actionMap[action](selectedWastes.map((w) => w.id), onProgress)
+    const result = await actionMap[action](
+      selectedWastes.map((w) => w.id),
+      onProgress
+    )
     setBatchResult(result)
     setBatchErrors(result.errors)
     setBatchRunning(false)
@@ -303,17 +313,30 @@ export function WasteListPage() {
               {selectedWastes.length} selected waste{selectedWastes.length !== 1 ? 's' : ''}
             </p>
             <div className="flex flex-wrap gap-2">
-              <Button size="sm" onClick={() => setBatchAction('confirm')} disabled={!hasConfirmable}>
+              <Button
+                size="sm"
+                onClick={() => setBatchAction('confirm')}
+                disabled={!hasConfirmable}
+              >
                 Confirm selected
               </Button>
               <Button size="sm" onClick={() => setBatchAction('verify')} disabled={!hasVerifiable}>
                 Verify selected
               </Button>
-              <Button size="sm" onClick={() => setBatchAction('transfer')} disabled={!hasTransferable}>
+              <Button
+                size="sm"
+                onClick={() => setBatchAction('transfer')}
+                disabled={!hasTransferable}
+              >
                 Transfer selected
               </Button>
               {isAdmin && (
-                <Button size="sm" variant="destructive" onClick={() => setBatchAction('deactivate')} disabled={!hasDeactivatable}>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => setBatchAction('deactivate')}
+                  disabled={!hasDeactivatable}
+                >
                   Deactivate selected
                 </Button>
               )}
@@ -323,7 +346,11 @@ export function WasteListPage() {
             </div>
           </div>
           {batchProgress && (
-            <div className="mt-3 rounded-md border border-border bg-background px-3 py-2 text-xs text-muted-foreground" role="status" aria-live="polite">
+            <div
+              className="mt-3 rounded-md border border-border bg-background px-3 py-2 text-xs text-muted-foreground"
+              role="status"
+              aria-live="polite"
+            >
               Processing {batchProgress.completed} of {batchProgress.total} items...
             </div>
           )}
@@ -349,13 +376,27 @@ export function WasteListPage() {
             <tbody className="divide-y">
               {Array.from({ length: 5 }).map((_, i) => (
                 <tr key={i}>
-                  <td className="px-4 py-3"><div className="h-4 w-4 rounded-sm bg-muted" /></td>
-                  <td className="px-4 py-3"><div className="h-4 w-10 rounded-sm bg-muted" /></td>
-                  <td className="px-4 py-3"><div className="h-4 w-20 rounded-sm bg-muted" /></td>
-                  <td className="px-4 py-3"><div className="h-4 w-12 rounded-sm bg-muted" /></td>
-                  <td className="px-4 py-3"><div className="h-5 w-16 rounded-full bg-muted" /></td>
-                  <td className="px-4 py-3"><div className="h-4 w-24 rounded-sm bg-muted" /></td>
-                  <td className="px-4 py-3 text-right"><div className="ml-auto h-7 w-20 rounded-sm bg-muted" /></td>
+                  <td className="px-4 py-3">
+                    <div className="h-4 w-4 rounded-sm bg-muted" />
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="h-4 w-10 rounded-sm bg-muted" />
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="h-4 w-20 rounded-sm bg-muted" />
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="h-4 w-12 rounded-sm bg-muted" />
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="h-5 w-16 rounded-full bg-muted" />
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="h-4 w-24 rounded-sm bg-muted" />
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="ml-auto h-7 w-20 rounded-sm bg-muted" />
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -386,7 +427,11 @@ export function WasteListPage() {
                     <Checkbox
                       checked={allPageSelected}
                       onCheckedChange={toggleSelectAll}
-                      aria-label={allPageSelected ? 'Deselect all visible wastes' : 'Select all visible wastes'}
+                      aria-label={
+                        allPageSelected
+                          ? 'Deselect all visible wastes'
+                          : 'Select all visible wastes'
+                      }
                     />
                   </th>
                   <th className="px-4 py-3 text-left font-medium">ID</th>
@@ -498,10 +543,14 @@ export function WasteListPage() {
               {batchAction === 'deactivate' && 'Deactivate selected wastes'}
             </DialogTitle>
             <DialogDescription>
-              {batchAction === 'transfer' && 'Send selected waste items to a new owner in one batch.'}
-              {batchAction === 'confirm' && 'Confirm the selected waste items in a single operation.'}
-              {batchAction === 'verify' && 'Verify your selected waste items with a single batch action.'}
-              {batchAction === 'deactivate' && 'Deactivate selected waste items. This action is admin-only.'}
+              {batchAction === 'transfer' &&
+                'Send selected waste items to a new owner in one batch.'}
+              {batchAction === 'confirm' &&
+                'Confirm the selected waste items in a single operation.'}
+              {batchAction === 'verify' &&
+                'Verify your selected waste items with a single batch action.'}
+              {batchAction === 'deactivate' &&
+                'Deactivate selected waste items. This action is admin-only.'}
             </DialogDescription>
           </DialogHeader>
 
@@ -526,7 +575,11 @@ export function WasteListPage() {
             )}
 
             {batchProgress && (
-              <div className="rounded-md border border-border bg-background px-3 py-2 text-sm text-muted-foreground" role="status" aria-live="polite">
+              <div
+                className="rounded-md border border-border bg-background px-3 py-2 text-sm text-muted-foreground"
+                role="status"
+                aria-live="polite"
+              >
                 Processing {batchProgress.completed} of {batchProgress.total} items...
               </div>
             )}
@@ -553,11 +606,17 @@ export function WasteListPage() {
               Cancel
             </Button>
             {batchAction === 'transfer' ? (
-              <Button onClick={handleBatchTransfer} disabled={batchRunning || !batchTransferRecipient.trim()}>
+              <Button
+                onClick={handleBatchTransfer}
+                disabled={batchRunning || !batchTransferRecipient.trim()}
+              >
                 {batchRunning ? 'Transferring...' : 'Transfer'}
               </Button>
             ) : (
-              <Button onClick={() => handleBatchAction(batchAction!)} disabled={batchRunning || selectedWastes.length === 0}>
+              <Button
+                onClick={() => handleBatchAction(batchAction!)}
+                disabled={batchRunning || selectedWastes.length === 0}
+              >
                 {batchRunning ? 'Processing...' : 'Confirm'}
               </Button>
             )}
@@ -640,11 +699,15 @@ export function WasteListPage() {
       <TransactionConfirmDialog
         open={showTransferConfirm}
         action="Transfer Waste"
-        params={transferTarget ? [
-          { label: 'Waste ID', value: `#${transferTarget.id}` },
-          { label: 'Type', value: WASTE_LABELS[transferTarget.waste_type] },
-          { label: 'Recipient', value: toAddress.trim() },
-        ] : []}
+        params={
+          transferTarget
+            ? [
+                { label: 'Waste ID', value: `#${transferTarget.id}` },
+                { label: 'Type', value: WASTE_LABELS[transferTarget.waste_type] },
+                { label: 'Recipient', value: toAddress.trim() }
+              ]
+            : []
+        }
         isPending={transferring}
         onConfirm={handleTransfer}
         onCancel={() => !transferring && setShowTransferConfirm(false)}
@@ -654,11 +717,15 @@ export function WasteListPage() {
       <TransactionConfirmDialog
         open={!!confirmTarget}
         action="Confirm Waste"
-        params={confirmTarget ? [
-          { label: 'Waste ID', value: `#${confirmTarget.id}` },
-          { label: 'Type', value: WASTE_LABELS[confirmTarget.waste_type] },
-          { label: 'Weight', value: `${confirmTarget.weight} kg` },
-        ] : []}
+        params={
+          confirmTarget
+            ? [
+                { label: 'Waste ID', value: `#${confirmTarget.id}` },
+                { label: 'Type', value: WASTE_LABELS[confirmTarget.waste_type] },
+                { label: 'Weight', value: `${confirmTarget.weight} kg` }
+              ]
+            : []
+        }
         isPending={false}
         onConfirm={handleConfirmWaste}
         onCancel={() => setConfirmTarget(null)}

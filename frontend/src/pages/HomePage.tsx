@@ -8,7 +8,7 @@ import { useAppTitle } from '@hooks/useAppTitle'
 const ROLE_ROUTES: Record<string, string> = {
   [Role.Recycler]: '/dashboard/recycler',
   [Role.Collector]: '/collect',
-  [Role.Manufacturer]: '/manufacturer',
+  [Role.Manufacturer]: '/manufacturer'
 }
 
 export function HomePage() {

@@ -593,9 +593,7 @@ mod tests {
     #[test]
     fn test_controller_export_data_csv() {
         let controller = ExportController::new(Arc::new(MockExportRepository::default()));
-        let bytes = controller
-            .export_data(ExportFormat::CSV, sample_data(), false)
-            .unwrap();
+        let bytes = controller.export_data(ExportFormat::CSV, sample_data(), false).unwrap();
         let content = String::from_utf8(bytes).unwrap();
         assert!(content.contains("waste-001"));
     }
@@ -603,9 +601,7 @@ mod tests {
     #[test]
     fn test_controller_export_data_anonymized() {
         let controller = ExportController::new(Arc::new(MockExportRepository::default()));
-        let bytes = controller
-            .export_data(ExportFormat::JSON, sample_data(), true)
-            .unwrap();
+        let bytes = controller.export_data(ExportFormat::JSON, sample_data(), true).unwrap();
         let content = String::from_utf8(bytes).unwrap();
         assert!(!content.contains("waste-001"));
     }
@@ -634,13 +630,7 @@ mod tests {
     #[test]
     fn test_controller_export_and_record_repository_failure() {
         let controller = ExportController::new(Arc::new(MockExportRepository::failing()));
-        let result = controller.export_and_record(
-            ExportFormat::JSON,
-            "waste",
-            sample_data(),
-            false,
-            None,
-        );
+        let result = controller.export_and_record(ExportFormat::JSON, "waste", sample_data(), false, None);
         assert!(result.is_err());
     }
 

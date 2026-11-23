@@ -60,22 +60,22 @@ export const FLAGS: Record<string, FeatureFlag> = {
     description: 'Platform health & status dashboard',
     defaultValue: true,
     environments: ['all'],
-    analyticsId: 'flag_health_dashboard',
+    analyticsId: 'flag_health_dashboard'
   },
   performanceSLAs: {
     key: 'performanceSLAs',
     description: 'Performance SLA monitoring and reporting',
     defaultValue: true,
     environments: ['all'],
-    analyticsId: 'flag_performance_slas',
+    analyticsId: 'flag_performance_slas'
   },
   multiLanguageSupport: {
     key: 'multiLanguageSupport',
     description: 'Full multi-language (i18n) support',
     defaultValue: true,
     environments: ['all'],
-    analyticsId: 'flag_i18n',
-  },
+    analyticsId: 'flag_i18n'
+  }
 }
 
 // ─── Storage key ─────────────────────────────────────────────────────────────
@@ -103,7 +103,7 @@ function isInRollout(percentage: number, userId?: string): boolean {
   for (let i = 0; i < seed.length; i++) {
     hash = (hash * 31 + seed.charCodeAt(i)) >>> 0
   }
-  return (hash % 100) < percentage
+  return hash % 100 < percentage
 }
 
 // ─── Core evaluation ─────────────────────────────────────────────────────────
@@ -179,9 +179,7 @@ export function getAllFlagOverrides(): FlagOverride[] {
 
 function trackFlagEvaluation(flagKey: string, value: FlagValue): void {
   try {
-    const events: FlagAnalyticsEvent[] = JSON.parse(
-      localStorage.getItem(ANALYTICS_KEY) ?? '[]'
-    )
+    const events: FlagAnalyticsEvent[] = JSON.parse(localStorage.getItem(ANALYTICS_KEY) ?? '[]')
     events.push({ flagKey, value, timestamp: Date.now() })
     // Keep only the last 500 events
     localStorage.setItem(ANALYTICS_KEY, JSON.stringify(events.slice(-500)))
@@ -205,7 +203,5 @@ export function clearFlagAnalytics(): void {
 // ─── Snapshot of all current values ──────────────────────────────────────────
 
 export function getAllFlagValues(userId?: string): Record<string, FlagValue> {
-  return Object.fromEntries(
-    Object.keys(FLAGS).map((key) => [key, evaluateFlag(key, userId)])
-  )
+  return Object.fromEntries(Object.keys(FLAGS).map((key) => [key, evaluateFlag(key, userId)]))
 }

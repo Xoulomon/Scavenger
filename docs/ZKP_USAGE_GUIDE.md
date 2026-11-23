@@ -6,14 +6,14 @@ _Issue #816 — Scavngr Soroban Contract_
 
 Full ZK proof systems (zk-SNARK, zk-STARK) require arbitrary-precision field
 arithmetic and a randomness source — neither is available in a Soroban WASM
-environment.  The `zkp` module implements a **hash-based commitment scheme**,
+environment. The `zkp` module implements a **hash-based commitment scheme**,
 the foundational building block of all practical ZKP systems.
 
 The scheme provides:
 
-| Property | Guarantee |
-|----------|-----------|
-| **Hiding** | The commitment `SHA-256(v ‖ nonce)` reveals nothing about `v`. |
+| Property    | Guarantee                                                                                                            |
+| ----------- | -------------------------------------------------------------------------------------------------------------------- |
+| **Hiding**  | The commitment `SHA-256(v ‖ nonce)` reveals nothing about `v`.                                                       |
 | **Binding** | A committer cannot find two different `(v, nonce)` pairs with the same commitment (collision resistance of SHA-256). |
 
 ---
@@ -46,7 +46,7 @@ Prover (off-chain)                 Contract (on-chain)
 
 ### `compute_commitment(env, secret, nonce) → Commitment`
 
-Computes `SHA-256(secret ‖ nonce)`.  Call this **off-chain** in your client.
+Computes `SHA-256(secret ‖ nonce)`. Call this **off-chain** in your client.
 
 ```rust
 let secret: BytesN<32> = ...; // the value you want to hide
@@ -56,7 +56,7 @@ let commitment = zkp::compute_commitment(&env, &secret, &nonce);
 
 ### `store_commitment(env, committer, commitment_id, hash, expires_at)`
 
-Stores the commitment on-chain.  `expires_at = 0` means no expiry.
+Stores the commitment on-chain. `expires_at = 0` means no expiry.
 
 ```rust
 zkp::store_commitment(&env, &caller, 1, commitment, 0);
@@ -64,7 +64,7 @@ zkp::store_commitment(&env, &caller, 1, commitment, 0);
 
 ### `reveal_commitment(env, committer, commitment_id, secret, nonce) → Result<(), CommitmentError>`
 
-Verifies the preimage.  On success marks the record `Verified`.
+Verifies the preimage. On success marks the record `Verified`.
 
 ```rust
 zkp::reveal_commitment(&env, &caller, 1, &secret, &nonce)?;
@@ -73,7 +73,7 @@ zkp::reveal_commitment(&env, &caller, 1, &secret, &nonce)?;
 
 ### `cancel_commitment(env, committer, commitment_id) → Result<(), CommitmentError>`
 
-Cancels a pending commitment.  Requires prior `committer.require_auth()`.
+Cancels a pending commitment. Requires prior `committer.require_auth()`.
 
 ### `get_commitment(env, committer, commitment_id) → Result<CommitmentRecord, CommitmentError>`
 
@@ -122,48 +122,48 @@ contract.reveal_commitment(myAddress, 1, secret, nonce);
 
 ## Error codes
 
-| Error | Meaning |
-|-------|---------|
-| `NotFound` | No commitment stored for this `(committer, id)` |
-| `HashMismatch` | Supplied preimage does not match stored commitment |
-| `AlreadyVerified` | Commitment was already revealed |
-| `Cancelled` | Commitment was cancelled |
-| `Expired` | Commitment expired before reveal |
-| `NotPending` | Cannot cancel a non-pending commitment |
+| Error             | Meaning                                            |
+| ----------------- | -------------------------------------------------- |
+| `NotFound`        | No commitment stored for this `(committer, id)`    |
+| `HashMismatch`    | Supplied preimage does not match stored commitment |
+| `AlreadyVerified` | Commitment was already revealed                    |
+| `Cancelled`       | Commitment was cancelled                           |
+| `Expired`         | Commitment expired before reveal                   |
+| `NotPending`      | Cannot cancel a non-pending commitment             |
 
 ---
 
 ## Events
 
-| Symbol | Trigger | Data |
-|--------|---------|------|
-| `com_new` | `store_commitment` | `(committer, commitment_id)` |
+| Symbol    | Trigger                     | Data                         |
+| --------- | --------------------------- | ---------------------------- |
+| `com_new` | `store_commitment`          | `(committer, commitment_id)` |
 | `com_vfy` | `reveal_commitment` success | `(committer, commitment_id)` |
-| `com_cnc` | `cancel_commitment` | `(committer, commitment_id)` |
+| `com_cnc` | `cancel_commitment`         | `(committer, commitment_id)` |
 
 ---
 
 ## Security considerations
 
 1. **Nonce must be truly random** — a weak nonce allows brute-force preimage
-   attacks.  Use `crypto.getRandomValues` in JavaScript or `OsRng` in Rust.
+   attacks. Use `crypto.getRandomValues` in JavaScript or `OsRng` in Rust.
 2. **Secret must be high-entropy** — if the secret space is small (e.g. a
    weight in grams from 100 to 10 000 000) an attacker can try all values
-   offline.  In that case encode additional private context alongside the
+   offline. In that case encode additional private context alongside the
    weight in the `secret` bytes.
 3. **Commitment ID must be unique per committer** — reusing the same `(addr,
-   id)` panics on `store_commitment`.
+id)` panics on `store_commitment`.
 4. **Set a reasonable `expires_at`** — prevents commitments from occupying
-   storage indefinitely.  Recommended: current timestamp + 86 400 (24 hours).
+   storage indefinitely. Recommended: current timestamp + 86 400 (24 hours).
 
 ---
 
 ## Performance
 
-| Operation | Approx. CPU instructions |
-|-----------|--------------------------|
-| `store_commitment` | ~500 |
+| Operation           | Approx. CPU instructions    |
+| ------------------- | --------------------------- |
+| `store_commitment`  | ~500                        |
 | `reveal_commitment` | ~900 (includes one SHA-256) |
-| `cancel_commitment` | ~600 |
+| `cancel_commitment` | ~600                        |
 
 See `ZkpCostHints` in `src/zkp.rs` for the constants used.

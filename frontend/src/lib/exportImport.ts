@@ -19,7 +19,7 @@ export function exportWasteToCSV(wastes: Waste[]): Blob {
     'recycled_timestamp',
     'is_active',
     'is_confirmed',
-    'confirmer',
+    'confirmer'
   ]
   const rows = wastes.map((w) => [
     w.waste_id.toString(),
@@ -31,7 +31,7 @@ export function exportWasteToCSV(wastes: Waste[]): Blob {
     new Date(w.recycled_timestamp * 1000).toISOString(),
     w.is_active ? 'true' : 'false',
     w.is_confirmed ? 'true' : 'false',
-    w.confirmer,
+    w.confirmer
   ])
   const csv = [headers, ...rows].map((r) => r.map(escapeCsvCell).join(',')).join('\n')
   return new Blob([csv], { type: 'text/csv;charset=utf-8;' })
@@ -48,7 +48,7 @@ export function exportWasteToJSON(wastes: Waste[]): Blob {
     recycled_timestamp: w.recycled_timestamp,
     is_active: w.is_active,
     is_confirmed: w.is_confirmed,
-    confirmer: w.confirmer,
+    confirmer: w.confirmer
   }))
   return new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
 }
@@ -151,7 +151,7 @@ export class PDFExporter {
     this.doc = new jsPDF({
       orientation: options.orientation ?? 'portrait',
       unit: 'mm',
-      format: options.format ?? 'a4',
+      format: options.format ?? 'a4'
     })
   }
 
@@ -211,7 +211,7 @@ export class PDFExporter {
       waste.weight.toFixed(2),
       waste.status,
       new Date(waste.date).toLocaleDateString(),
-      waste.verificationStatus ?? 'N/A',
+      waste.verificationStatus ?? 'N/A'
     ])
 
     ;(this.doc as unknown as { autoTable: (opts: unknown) => void }).autoTable({
@@ -221,7 +221,7 @@ export class PDFExporter {
       margin: { top: 10, right: 15, bottom: 20, left: 15 },
       styles: { fontSize: 9, cellPadding: 3 },
       headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
-      alternateRowStyles: { fillColor: [245, 245, 245] },
+      alternateRowStyles: { fillColor: [245, 245, 245] }
     })
 
     this.addFooter()
@@ -253,7 +253,7 @@ export class PDFExporter {
     const metrics = [
       `Total Waste Items: ${data.totalWaste}`,
       `Average Weight: ${data.averageWeight.toFixed(2)} kg`,
-      `Verification Rate: ${(data.verificationRate * 100).toFixed(1)}%`,
+      `Verification Rate: ${(data.verificationRate * 100).toFixed(1)}%`
     ]
 
     metrics.forEach((metric) => {
@@ -268,7 +268,7 @@ export class PDFExporter {
 
     const typeData = Object.entries(data.wasteByType).map(([type, count]) => [
       type,
-      count.toString(),
+      count.toString()
     ])
 
     ;(this.doc as unknown as { autoTable: (opts: unknown) => void }).autoTable({
@@ -277,7 +277,7 @@ export class PDFExporter {
       startY: yPosition,
       margin: { top: 10, right: 15, bottom: 20, left: 15 },
       styles: { fontSize: 9, cellPadding: 3 },
-      headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
+      headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' }
     })
 
     this.addFooter()
@@ -319,7 +319,7 @@ export class PDFExporter {
       margin: { top: 10, right: 15, bottom: 20, left: 15 },
       styles: { fontSize: 9, cellPadding: 3 },
       headStyles: { fillColor: [41, 128, 185], textColor: 255, fontStyle: 'bold' },
-      alternateRowStyles: { fillColor: [245, 245, 245] },
+      alternateRowStyles: { fillColor: [245, 245, 245] }
     })
 
     this.addFooter()
@@ -359,15 +359,13 @@ export interface ImportPreviewRow extends ImportWasteRow {
   valid: boolean
 }
 
-const VALID_WASTE_TYPES = Object.values(WasteType).filter(
-  (v): v is number => typeof v === 'number'
-)
+const VALID_WASTE_TYPES = Object.values(WasteType).filter((v): v is number => typeof v === 'number')
 
 export function parseWasteCSV(csvText: string): ParsedImportResult {
   const parseResult = Papa.parse<ImportWasteRow>(csvText, {
     header: true,
     skipEmptyLines: true,
-    transformHeader: (h) => h.trim().toLowerCase(),
+    transformHeader: (h) => h.trim().toLowerCase()
   })
 
   const errors: string[] = []
@@ -420,7 +418,7 @@ export function parseWasteCSV(csvText: string): ParsedImportResult {
       ...row,
       rowNumber,
       errors: rowErrors,
-      valid: rowErrors.length === 0,
+      valid: rowErrors.length === 0
     }
     preview.push(previewRow)
     if (rowErrors.length === 0) {
@@ -432,7 +430,7 @@ export function parseWasteCSV(csvText: string): ParsedImportResult {
     data,
     errors,
     valid: errors.length === 0 && preview.every((r) => r.valid),
-    preview,
+    preview
   }
 }
 
@@ -445,7 +443,7 @@ export function generateWasteTemplateCSV(): string {
   const exampleRows = [
     ['Plastic', '1500', '40.7128', '-74.006'],
     ['Metal', '2300', '51.5074', '-0.1278'],
-    ['Glass', '800', '35.6762', '139.6503'],
+    ['Glass', '800', '35.6762', '139.6503']
   ]
   return [headers, ...exampleRows].map((r) => r.join(',')).join('\n')
 }

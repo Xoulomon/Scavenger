@@ -8,7 +8,13 @@ interface Props {
   onChange: (f: MapFilters) => void
 }
 
-const WASTE_TYPES = [WasteType.Paper, WasteType.PetPlastic, WasteType.Plastic, WasteType.Metal, WasteType.Glass]
+const WASTE_TYPES = [
+  WasteType.Paper,
+  WasteType.PetPlastic,
+  WasteType.Plastic,
+  WasteType.Metal,
+  WasteType.Glass
+]
 
 export function WasteMapFilters({ filters, onChange }: Props) {
   return (
@@ -41,7 +47,7 @@ export function WasteMapFilters({ filters, onChange }: Props) {
           onChange={(e) =>
             onChange({
               ...filters,
-              radiusKm: e.target.value ? Number(e.target.value) : undefined,
+              radiusKm: e.target.value ? Number(e.target.value) : undefined
             })
           }
         />
@@ -59,7 +65,7 @@ export function WasteMapFilters({ filters, onChange }: Props) {
           onChange={(e) =>
             onChange({
               ...filters,
-              wasteType: e.target.value === '' ? undefined : (Number(e.target.value) as WasteType),
+              wasteType: e.target.value === '' ? undefined : (Number(e.target.value) as WasteType)
             })
           }
         >
@@ -97,11 +103,13 @@ export function WasteMapFilters({ filters, onChange }: Props) {
           id="map-date-from"
           type="date"
           className="h-8 rounded-md border bg-background px-2 text-xs focus:outline-none focus:ring-2 focus:ring-ring"
-          value={filters.dateFrom ? new Date(filters.dateFrom * 1000).toISOString().slice(0, 10) : ''}
+          value={
+            filters.dateFrom ? new Date(filters.dateFrom * 1000).toISOString().slice(0, 10) : ''
+          }
           onChange={(e) =>
             onChange({
               ...filters,
-              dateFrom: e.target.value ? new Date(e.target.value).getTime() / 1000 : undefined,
+              dateFrom: e.target.value ? new Date(e.target.value).getTime() / 1000 : undefined
             })
           }
         />
@@ -119,7 +127,7 @@ export function WasteMapFilters({ filters, onChange }: Props) {
           onChange={(e) =>
             onChange({
               ...filters,
-              dateTo: e.target.value ? new Date(e.target.value).getTime() / 1000 : undefined,
+              dateTo: e.target.value ? new Date(e.target.value).getTime() / 1000 : undefined
             })
           }
         />

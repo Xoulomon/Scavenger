@@ -8,7 +8,7 @@ const MONTHLY_DATA = [
   { month: 'Mar', plastic: 61, metal: 42, glass: 33 },
   { month: 'Apr', plastic: 58, metal: 38, glass: 31 },
   { month: 'May', plastic: 67, metal: 45, glass: 36 },
-  { month: 'Jun', plastic: 73, metal: 51, glass: 42 },
+  { month: 'Jun', plastic: 73, metal: 51, glass: 42 }
 ]
 
 const CHART_HEIGHT = 120
@@ -28,14 +28,18 @@ function MonthlyTrendsChartComponent() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex items-end gap-2 h-[120px]" role="img" aria-label="Monthly waste trends bar chart">
+        <div
+          className="flex items-end gap-2 h-[120px]"
+          role="img"
+          aria-label="Monthly waste trends bar chart"
+        >
           {MONTHLY_DATA.map((d) => (
             <div key={d.month} className="flex flex-1 flex-col items-center gap-0.5">
               <div className="flex w-full items-end gap-0.5" style={{ height: CHART_HEIGHT }}>
                 {[
                   { val: d.plastic, color: 'bg-blue-500' },
                   { val: d.metal, color: 'bg-green-500' },
-                  { val: d.glass, color: 'bg-purple-500' },
+                  { val: d.glass, color: 'bg-purple-500' }
                 ].map(({ val, color }, i) => (
                   <div
                     key={i}
@@ -53,7 +57,7 @@ function MonthlyTrendsChartComponent() {
           {[
             { color: 'bg-blue-500', label: 'Plastic' },
             { color: 'bg-green-500', label: 'Metal' },
-            { color: 'bg-purple-500', label: 'Glass' },
+            { color: 'bg-purple-500', label: 'Glass' }
           ].map(({ color, label }) => (
             <div key={label} className="flex items-center gap-1.5">
               <div className={`h-3 w-3 rounded ${color}`} />

@@ -17,14 +17,11 @@ const DEFAULT_VARIANT_MAP: Record<string, StatusVariant> = {
   [Status.DRAFT]: 'outline',
   [Status.PENDING]: 'outline',
   [Status.COMPLETED]: 'secondary',
-  [Status.FAILED]: 'destructive',
+  [Status.FAILED]: 'destructive'
 }
 
 function StatusBadgeComponent({ status, variantMap = DEFAULT_VARIANT_MAP }: StatusBadgeProps) {
-  const variant = useMemo(
-    () => variantMap[status.toLowerCase()] ?? 'outline',
-    [variantMap, status],
-  )
+  const variant = useMemo(() => variantMap[status.toLowerCase()] ?? 'outline', [variantMap, status])
 
   return (
     <Badge variant={variant} className="capitalize">

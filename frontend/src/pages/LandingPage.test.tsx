@@ -3,9 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { LandingPage } from './LandingPage'
 
 vi.mock('react-router-dom', () => ({
-  Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
-    <a href={to}>{children}</a>
-  ),
+  Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>
 }))
 
 vi.mock('@/hooks/useAppTitle', () => ({ useAppTitle: vi.fn() }))
@@ -15,8 +13,8 @@ vi.mock('@/hooks/useStats', () => ({
     totalWastes: 0n,
     totalWeight: 0n,
     totalTokens: 0n,
-    isLoading: false,
-  })),
+    isLoading: false
+  }))
 }))
 
 describe('LandingPage', () => {
@@ -26,9 +24,7 @@ describe('LandingPage', () => {
 
   it('renders the hero heading', () => {
     render(<LandingPage />)
-    expect(
-      screen.getByText('Recycling, rewarded on-chain.')
-    ).toBeInTheDocument()
+    expect(screen.getByText('Recycling, rewarded on-chain.')).toBeInTheDocument()
   })
 
   it('renders the Get Started button', () => {
@@ -43,14 +39,8 @@ describe('LandingPage', () => {
 
   it('renders all three step descriptions', () => {
     render(<LandingPage />)
-    expect(
-      screen.getByText(/Recyclers submit waste materials on-chain/)
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText(/Collectors pick up verified materials/)
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText(/Manufacturers claim materials/)
-    ).toBeInTheDocument()
+    expect(screen.getByText(/Recyclers submit waste materials on-chain/)).toBeInTheDocument()
+    expect(screen.getByText(/Collectors pick up verified materials/)).toBeInTheDocument()
+    expect(screen.getByText(/Manufacturers claim materials/)).toBeInTheDocument()
   })
 })

@@ -7,8 +7,8 @@ const meta: Meta<typeof Switch> = {
   tags: ['autodocs'],
   argTypes: {
     disabled: { control: 'boolean' },
-    defaultChecked: { control: 'boolean' },
-  },
+    defaultChecked: { control: 'boolean' }
+  }
 }
 export default meta
 type Story = StoryObj<typeof Switch>
@@ -16,15 +16,15 @@ type Story = StoryObj<typeof Switch>
 export const Default: Story = {}
 
 export const Checked: Story = {
-  args: { defaultChecked: true },
+  args: { defaultChecked: true }
 }
 
 export const Disabled: Story = {
-  args: { disabled: true },
+  args: { disabled: true }
 }
 
 export const DisabledChecked: Story = {
-  args: { disabled: true, defaultChecked: true },
+  args: { disabled: true, defaultChecked: true }
 }
 
 export const WithLabel: Story = {
@@ -35,7 +35,7 @@ export const WithLabel: Story = {
         Enable push notifications
       </label>
     </div>
-  ),
+  )
 }
 
 export const SettingsRow: Story = {
@@ -44,7 +44,7 @@ export const SettingsRow: Story = {
       {[
         { id: 'dark-mode', label: 'Dark mode', checked: true },
         { id: 'notifications', label: 'Notifications', checked: false },
-        { id: 'analytics', label: 'Share analytics', checked: true },
+        { id: 'analytics', label: 'Share analytics', checked: true }
       ].map(({ id, label, checked }) => (
         <div key={id} className="flex items-center justify-between">
           <label htmlFor={id} className="cursor-pointer text-sm">
@@ -54,5 +54,5 @@ export const SettingsRow: Story = {
         </div>
       ))}
     </div>
-  ),
+  )
 }

@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, type ReactNode } from 'r
 import {
   ThemeProvider as NextThemesProvider,
   useTheme as useNextTheme,
-  type ThemeProviderProps,
+  type ThemeProviderProps
 } from 'next-themes'
 
 export type ThemeName = 'light' | 'dark' | 'high-contrast' | 'system'
@@ -23,7 +23,10 @@ export interface ThemeContextValue {
 // should read theme state exclusively through `useTheme()`.
 export const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 
-export function resolveTheme(theme: ThemeName | undefined, resolvedTheme: string | undefined): ResolvedTheme {
+export function resolveTheme(
+  theme: ThemeName | undefined,
+  resolvedTheme: string | undefined
+): ResolvedTheme {
   if (resolvedTheme === 'dark') return 'dark'
   if (resolvedTheme === 'high-contrast' || theme === 'high-contrast') return 'high-contrast'
   return 'light'
@@ -45,7 +48,7 @@ export const themeTokens: Record<ResolvedTheme, Record<string, string>> = {
     '--color-primary-contrast': 'var(--token-color-primary-contrast)',
     '--color-danger': 'var(--token-color-danger)',
     '--color-success': 'var(--token-color-success)',
-    '--color-warning': 'var(--token-color-warning)',
+    '--color-warning': 'var(--token-color-warning)'
   },
   dark: {
     '--color-bg': 'var(--token-color-bg-dark)',
@@ -57,7 +60,7 @@ export const themeTokens: Record<ResolvedTheme, Record<string, string>> = {
     '--color-primary-contrast': 'var(--token-color-primary-contrast)',
     '--color-danger': 'var(--token-color-danger)',
     '--color-success': 'var(--token-color-success)',
-    '--color-warning': 'var(--token-color-warning)',
+    '--color-warning': 'var(--token-color-warning)'
   },
   'high-contrast': {
     '--color-bg': 'var(--token-color-bg-high-contrast)',
@@ -69,8 +72,8 @@ export const themeTokens: Record<ResolvedTheme, Record<string, string>> = {
     '--color-primary-contrast': 'var(--token-color-primary-contrast)',
     '--color-danger': 'var(--token-color-danger)',
     '--color-success': 'var(--token-color-success)',
-    '--color-warning': 'var(--token-color-warning)',
-  },
+    '--color-warning': 'var(--token-color-warning)'
+  }
 }
 
 function applyThemeTokens(resolved: ResolvedTheme) {
@@ -86,7 +89,9 @@ function ThemeContextBridge({ children }: { children: ReactNode }) {
   const { theme, resolvedTheme, setTheme } = useNextTheme()
 
   const currentTheme: ThemeName =
-    theme === 'light' || theme === 'dark' || theme === 'system' || theme === 'high-contrast' ? theme : 'system'
+    theme === 'light' || theme === 'dark' || theme === 'system' || theme === 'high-contrast'
+      ? theme
+      : 'system'
   const currentResolvedTheme = resolveTheme(currentTheme, resolvedTheme)
   const isDark = currentResolvedTheme === 'dark'
   const isHighContrast = currentResolvedTheme === 'high-contrast'
@@ -112,7 +117,7 @@ function ThemeContextBridge({ children }: { children: ReactNode }) {
       isHighContrast,
       isReady: theme !== undefined || resolvedTheme !== undefined,
       setTheme: (nextTheme) => setTheme(nextTheme),
-      toggleTheme: () => setTheme(currentResolvedTheme === 'dark' ? 'light' : 'dark'),
+      toggleTheme: () => setTheme(currentResolvedTheme === 'dark' ? 'light' : 'dark')
     }),
     [currentResolvedTheme, currentTheme, isDark, isHighContrast, resolvedTheme, setTheme, theme]
   )

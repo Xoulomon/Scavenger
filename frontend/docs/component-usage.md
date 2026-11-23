@@ -53,9 +53,16 @@ import { Input } from '@/components/ui/Input'
 ## Card
 
 ```tsx
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/Card'
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter
+} from '@/components/ui/Card'
 
-<Card>
+;<Card>
   <CardHeader>
     <CardTitle>Waste Summary</CardTitle>
     <CardDescription>Last 30 days</CardDescription>
@@ -64,7 +71,9 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
     <p className="text-3xl font-bold text-primary">124 kg</p>
   </CardContent>
   <CardFooter>
-    <Button variant="outline" size="sm">View report</Button>
+    <Button variant="outline" size="sm">
+      View report
+    </Button>
   </CardFooter>
 </Card>
 ```
@@ -87,9 +96,15 @@ import { Badge } from '@/components/ui/Badge'
 ## Select
 
 ```tsx
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/Select'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from '@/components/ui/Select'
 
-<Select>
+;<Select>
   <SelectTrigger>
     <SelectValue placeholder="Waste type" />
   </SelectTrigger>
@@ -108,11 +123,16 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 
 ```tsx
 import {
-  Dialog, DialogTrigger, DialogContent,
-  DialogHeader, DialogTitle, DialogDescription, DialogFooter
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
 } from '@/components/ui/Dialog'
 
-<Dialog>
+;<Dialog>
   <DialogTrigger asChild>
     <Button>Confirm transfer</Button>
   </DialogTrigger>
@@ -136,9 +156,11 @@ import {
 ```tsx
 import { Checkbox } from '@/components/ui/Checkbox'
 
-<div className="flex items-center gap-2">
+;<div className="flex items-center gap-2">
   <Checkbox id="agree" />
-  <label htmlFor="agree" className="text-sm">I agree to the terms</label>
+  <label htmlFor="agree" className="text-sm">
+    I agree to the terms
+  </label>
 </div>
 ```
 
@@ -149,9 +171,11 @@ import { Checkbox } from '@/components/ui/Checkbox'
 ```tsx
 import { Switch } from '@/components/ui/Switch'
 
-<div className="flex items-center gap-2">
+;<div className="flex items-center gap-2">
   <Switch id="notifications" defaultChecked />
-  <label htmlFor="notifications" className="text-sm">Email notifications</label>
+  <label htmlFor="notifications" className="text-sm">
+    Email notifications
+  </label>
 </div>
 ```
 
@@ -162,12 +186,7 @@ import { Switch } from '@/components/ui/Switch'
 ```tsx
 import { StatCard } from '@/components/ui/StatCard'
 
-<StatCard
-  title="Total collected"
-  value="2,430 kg"
-  change="+12% vs last month"
-  trend="up"
-/>
+;<StatCard title="Total collected" value="2,430 kg" change="+12% vs last month" trend="up" />
 ```
 
 ---
@@ -178,7 +197,7 @@ import { StatCard } from '@/components/ui/StatCard'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Inbox } from 'lucide-react'
 
-<EmptyState
+;<EmptyState
   icon={<Inbox className="h-10 w-10 text-muted-foreground" />}
   title="No items yet"
   description="Submit your first waste batch to get started."
@@ -211,12 +230,7 @@ import { Skeleton } from '@/components/ui/Skeletons'
 ```tsx
 import { WasteCard } from '@/components/ui/WasteCard'
 
-<WasteCard
-  wasteType="plastic"
-  weight={42}
-  status="verified"
-  submittedAt={new Date()}
-/>
+;<WasteCard wasteType="plastic" weight={42} status="verified" submittedAt={new Date()} />
 ```
 
 ---

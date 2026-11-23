@@ -25,16 +25,16 @@ const mockCsvModule = {
   exportWasteToCSV: vi.fn(),
   exportAnalyticsToCSV: vi.fn(),
   parseWasteCSV: vi.fn(),
-  generateWasteTemplateCSV: vi.fn(),
+  generateWasteTemplateCSV: vi.fn()
 }
 
 const mockJsonModule = {
-  exportWasteToJSON: vi.fn(),
+  exportWasteToJSON: vi.fn()
 }
 
 const mockPdfModule = {
   exportParticipantStatsToPDF: vi.fn(),
-  PDFExporter: vi.fn(),
+  PDFExporter: vi.fn()
 }
 
 const mockTypesModule = {
@@ -43,7 +43,7 @@ const mockTypesModule = {
   PDFExportOptions: {} as unknown,
   ParsedImportResult: {} as unknown,
   ImportWasteRow: {} as unknown,
-  ImportPreviewRow: {} as unknown,
+  ImportPreviewRow: {} as unknown
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -125,7 +125,7 @@ describe('ExportImport — Facade exports (#1214)', () => {
     PDFExportOptions: mockTypesModule.PDFExportOptions,
     ParsedImportResult: mockTypesModule.ParsedImportResult,
     ImportWasteRow: mockTypesModule.ImportWasteRow,
-    ImportPreviewRow: mockTypesModule.ImportPreviewRow,
+    ImportPreviewRow: mockTypesModule.ImportPreviewRow
   }
 
   it('exports exportWasteToCSV', () => {
@@ -199,13 +199,11 @@ describe('ExportImport — Backward compatibility (#1214)', () => {
       'PDFExporter',
       'parseWasteCSV',
       'generateWasteTemplateCSV',
-      'triggerDownload',
+      'triggerDownload'
     ]
 
     originalPublicApi.forEach((apiName) => {
-      expect(
-        typeof (eval(`facadeExports.${apiName}`)) !== 'undefined'
-      ).toBe(true)
+      expect(typeof eval(`facadeExports.${apiName}`) !== 'undefined').toBe(true)
     })
   })
 
@@ -216,7 +214,7 @@ describe('ExportImport — Backward compatibility (#1214)', () => {
       'PDFExportOptions',
       'ParsedImportResult',
       'ImportWasteRow',
-      'ImportPreviewRow',
+      'ImportPreviewRow'
     ]
 
     typeExports.forEach((typeName) => {
@@ -232,7 +230,7 @@ describe('ExportImport — Backward compatibility (#1214)', () => {
       '@/lib/exportImport/csv',
       '@/lib/exportImport/json',
       '@/lib/exportImport/pdf',
-      '@/lib/exportImport/types',
+      '@/lib/exportImport/types'
     ]
 
     expect(importPaths.length).toBe(5)
@@ -249,7 +247,7 @@ describe('ExportImport — Format separation (#1214)', () => {
       'exportWasteToCSV',
       'exportAnalyticsToCSV',
       'parseWasteCSV',
-      'generateWasteTemplateCSV',
+      'generateWasteTemplateCSV'
     ]
 
     csvFunctions.forEach((fn) => {
@@ -280,13 +278,11 @@ describe('ExportImport — Format separation (#1214)', () => {
       'PDFExportOptions',
       'ParsedImportResult',
       'ImportWasteRow',
-      'ImportPreviewRow',
+      'ImportPreviewRow'
     ]
 
     typeNames.forEach((typeName) => {
-      expect(
-        mockTypesModule[typeName as keyof typeof mockTypesModule]
-      ).toBeDefined()
+      expect(mockTypesModule[typeName as keyof typeof mockTypesModule]).toBeDefined()
     })
   })
 })
@@ -335,13 +331,11 @@ describe('ExportImport — Functionality preservation (#1214)', () => {
       'exportWasteToCSV',
       'exportAnalyticsToCSV',
       'parseWasteCSV',
-      'generateWasteTemplateCSV',
+      'generateWasteTemplateCSV'
     ]
 
     csvExports.forEach((exportName) => {
-      expect(
-        mockCsvModule[exportName as keyof typeof mockCsvModule]
-      ).toBeDefined()
+      expect(mockCsvModule[exportName as keyof typeof mockCsvModule]).toBeDefined()
     })
   })
 
@@ -353,9 +347,7 @@ describe('ExportImport — Functionality preservation (#1214)', () => {
     const pdfExports = ['exportParticipantStatsToPDF', 'PDFExporter']
 
     pdfExports.forEach((exportName) => {
-      expect(
-        mockPdfModule[exportName as keyof typeof mockPdfModule]
-      ).toBeDefined()
+      expect(mockPdfModule[exportName as keyof typeof mockPdfModule]).toBeDefined()
     })
   })
 
@@ -372,13 +364,11 @@ describe('ExportImport — Functionality preservation (#1214)', () => {
       'PDFExportOptions',
       'ParsedImportResult',
       'ImportWasteRow',
-      'ImportPreviewRow',
+      'ImportPreviewRow'
     ]
 
     typeNames.forEach((typeName) => {
-      expect(
-        mockTypesModule[typeName as keyof typeof mockTypesModule]
-      ).toBeDefined()
+      expect(mockTypesModule[typeName as keyof typeof mockTypesModule]).toBeDefined()
     })
   })
 })
@@ -394,7 +384,7 @@ describe('ExportImport — File organization (#1214)', () => {
       'exportImport/types.ts',
       'exportImport/csv.ts',
       'exportImport/json.ts',
-      'exportImport/pdf.ts',
+      'exportImport/pdf.ts'
     ]
 
     expect(expectedStructure.length).toBe(5)

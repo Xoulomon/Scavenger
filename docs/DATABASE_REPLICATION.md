@@ -1,16 +1,17 @@
 # Database Replication Configuration
 
 ## Overview
+
 This document describes the database replication setup for high availability and read scaling.
 
 ## Kubernetes Setup
 
 ### Manifests
 
-| File | Purpose |
-|------|---------|
+| File                           | Purpose                                                             |
+| ------------------------------ | ------------------------------------------------------------------- |
 | `k8s/postgres-replication.yml` | StatefulSet for primary + 2 replicas, Services, PodDisruptionBudget |
-| `k8s/backup-cronjob.yml` | Daily backup CronJob + weekly restore verification CronJob |
+| `k8s/backup-cronjob.yml`       | Daily backup CronJob + weekly restore verification CronJob          |
 
 ### Deploy
 
@@ -29,6 +30,7 @@ kubectl apply -f k8s/backup-cronjob.yml
 ```
 
 ### Architecture (K8s)
+
 - `postgres-primary` StatefulSet (1 replica) — accepts writes; WAL archiving enabled
 - `postgres-replica` StatefulSet (2 replicas) — hot-standby; initialized via `pg_basebackup`
 - Each pod includes a sidecar `postgres-exporter` that exposes metrics on port 9187
@@ -37,12 +39,14 @@ kubectl apply -f k8s/backup-cronjob.yml
 ## Architecture
 
 ### Master-Slave Replication
+
 - **Primary**: Master database (write operations)
 - **Replicas**: Read-only replicas in different AZs
 - **Replication**: PostgreSQL streaming replication
 - **Lag Target**: < 1 second
 
 ### Multi-AZ Setup
+
 - Primary in us-east-1a
 - Replica 1 in us-east-1b
 - Replica 2 in us-east-1c
@@ -53,6 +57,7 @@ kubectl apply -f k8s/backup-cronjob.yml
 ### Configuration
 
 #### Primary Database
+
 ```sql
 -- postgresql.conf
 wal_level = replica
@@ -62,6 +67,7 @@ hot_standby_feedback = on
 ```
 
 #### Replica Database
+
 ```sql
 -- recovery.conf
 standby_mode = 'on'
@@ -70,6 +76,7 @@ recovery_target_timeline = 'latest'
 ```
 
 ### Replication User
+
 ```sql
 CREATE ROLE replication WITH REPLICATION LOGIN PASSWORD 'secure_password';
 GRANT CONNECT ON DATABASE scavenger TO replication;
@@ -78,6 +85,7 @@ GRANT CONNECT ON DATABASE scavenger TO replication;
 ## Connection Pooling
 
 ### PgBouncer Configuration
+
 ```ini
 [databases]
 scavenger = host=primary.db.internal port=5432 dbname=scavenger
@@ -92,6 +100,7 @@ reserve_pool_timeout = 3
 ```
 
 ### Connection Pool Sizing
+
 - **Max Connections**: 1000
 - **Default Pool Size**: 25 per database
 - **Min Pool Size**: 10
@@ -101,12 +110,14 @@ reserve_pool_timeout = 3
 ## Automatic Failover
 
 ### RDS Failover
+
 - **Detection Time**: 30-60 seconds
 - **Failover Time**: 1-2 minutes
 - **Automatic**: Enabled
 - **Multi-AZ**: Required
 
 ### Failover Process
+
 1. Primary failure detected
 2. Replica promoted to primary
 3. DNS updated (CNAME)
@@ -116,6 +127,7 @@ reserve_pool_timeout = 3
 ## Replication Monitoring
 
 ### Key Metrics
+
 - **Replication Lag**: Target < 1 second
 - **WAL Retention**: Monitor disk usage
 - **Replica Lag**: Per replica tracking
@@ -124,8 +136,9 @@ reserve_pool_timeout = 3
 ### Queries
 
 #### Check Replication Status
+
 ```sql
-SELECT 
+SELECT
   client_addr,
   state,
   sync_state,
@@ -136,14 +149,16 @@ FROM pg_stat_replication;
 ```
 
 #### Monitor Replication Lag
+
 ```sql
-SELECT 
+SELECT
   EXTRACT(EPOCH FROM (NOW() - pg_last_xact_replay_timestamp())) as replication_lag_seconds;
 ```
 
 #### Check WAL Position
+
 ```sql
-SELECT 
+SELECT
   pg_current_wal_lsn() as current_wal,
   pg_last_wal_receive_lsn() as receive_lsn,
   pg_last_wal_replay_lsn() as replay_lsn;
@@ -152,17 +167,20 @@ SELECT
 ## Read Scaling
 
 ### Read Replica Endpoints
+
 - **Primary**: scavenger-db.c9akciq32.us-east-1.rds.amazonaws.com
 - **Replica 1**: scavenger-db-replica-1.c9akciq32.us-east-1.rds.amazonaws.com
 - **Replica 2**: scavenger-db-replica-2.c9akciq32.us-east-1.rds.amazonaws.com
 
 ### Read Distribution
+
 - **Analytics**: Route to replica 1
 - **Reporting**: Route to replica 2
 - **Real-time**: Route to primary
 - **Batch Jobs**: Route to replica with lowest lag
 
 ### Application Configuration
+
 ```python
 # Primary for writes
 PRIMARY_DB = "scavenger-db.c9akciq32.us-east-1.rds.amazonaws.com"
@@ -181,6 +199,7 @@ POOL_RECYCLE = 3600
 ## Failover Testing
 
 ### Monthly Failover Drill
+
 1. Promote read replica to primary
 2. Verify all connections work
 3. Monitor replication lag
@@ -189,6 +208,7 @@ POOL_RECYCLE = 3600
 6. Restore original configuration
 
 ### Failover Checklist
+
 - [ ] Verify replica is in sync
 - [ ] Check application connection strings
 - [ ] Monitor error rates during failover
@@ -200,12 +220,14 @@ POOL_RECYCLE = 3600
 ## Backup Strategy
 
 ### Continuous Backups
+
 - **Method**: WAL archiving to S3
 - **Frequency**: Continuous
 - **Retention**: 30 days
 - **Recovery**: Point-in-time recovery
 
 ### Snapshot Backups
+
 - **Frequency**: Daily at 03:00 UTC
 - **Retention**: 30 days
 - **Location**: Multi-region replication
@@ -214,11 +236,13 @@ POOL_RECYCLE = 3600
 ## Disaster Recovery
 
 ### RTO (Recovery Time Objective)
+
 - **Failover**: 2 minutes
 - **Restore from backup**: 15 minutes
 - **Full recovery**: 30 minutes
 
 ### RPO (Recovery Point Objective)
+
 - **Streaming replication**: < 1 second
 - **WAL archiving**: 5 minutes
 - **Snapshots**: 24 hours
@@ -226,6 +250,7 @@ POOL_RECYCLE = 3600
 ## Troubleshooting
 
 ### High Replication Lag
+
 1. Check network connectivity
 2. Monitor replica CPU/memory
 3. Check WAL generation rate
@@ -233,6 +258,7 @@ POOL_RECYCLE = 3600
 5. Consider promoting replica if lag > 5 minutes
 
 ### Replica Crash
+
 1. Check replica logs
 2. Verify disk space
 3. Restart replica service
@@ -240,6 +266,7 @@ POOL_RECYCLE = 3600
 5. Verify replication resumes
 
 ### Connection Pool Issues
+
 1. Check PgBouncer status
 2. Monitor connection count
 3. Review application logs

@@ -6,12 +6,7 @@
 use actix_web::{web, HttpResponse, Responder};
 
 // Import domain logic from compliance module
-use crate::compliance::{
-    ComplianceService,
-    ComplianceValidator,
-    CheckRequest,
-    ComplianceError,
-};
+use crate::compliance::{CheckRequest, ComplianceError, ComplianceService, ComplianceValidator};
 
 /// Compliance check endpoint - HTTP layer only
 pub async fn check_compliance(req: web::Json<CheckRequest>) -> impl Responder {
@@ -36,24 +31,18 @@ pub async fn check_compliance(req: web::Json<CheckRequest>) -> impl Responder {
 /// Map a domain error to an HTTP response (controller responsibility only).
 fn map_compliance_error(e: ComplianceError) -> HttpResponse {
     match e {
-        ComplianceError::InvalidAmount(msg) => {
-            HttpResponse::BadRequest().json(serde_json::json!({
-                "error": "Invalid request",
-                "message": msg
-            }))
-        }
-        ComplianceError::ValidationError(msg) => {
-            HttpResponse::BadRequest().json(serde_json::json!({
-                "error": "Validation error",
-                "message": msg
-            }))
-        }
-        ComplianceError::CheckFailed(msg) => {
-            HttpResponse::InternalServerError().json(serde_json::json!({
-                "error": "Compliance check failed",
-                "message": msg
-            }))
-        }
+        ComplianceError::InvalidAmount(msg) => HttpResponse::BadRequest().json(serde_json::json!({
+            "error": "Invalid request",
+            "message": msg
+        })),
+        ComplianceError::ValidationError(msg) => HttpResponse::BadRequest().json(serde_json::json!({
+            "error": "Validation error",
+            "message": msg
+        })),
+        ComplianceError::CheckFailed(msg) => HttpResponse::InternalServerError().json(serde_json::json!({
+            "error": "Compliance check failed",
+            "message": msg
+        })),
     }
 }
 
@@ -64,11 +53,9 @@ pub async fn get_compliance_status(path: web::Path<String>) -> impl Responder {
     let service = ComplianceService::new();
 
     match service.get_status(id).await {
-        Ok(status) => {
-            HttpResponse::Ok().json(serde_json::json!({
-                "status": format!("{:?}", status)
-            }))
-        }
+        Ok(status) => HttpResponse::Ok().json(serde_json::json!({
+            "status": format!("{:?}", status)
+        })),
         Err(e) => HttpResponse::NotFound().json(serde_json::json!({
             "error": "Not found",
             "message": e.to_string()
@@ -90,7 +77,7 @@ pub fn configure(cfg: &mut web::ServiceConfig) {
         web::scope("/api/compliance")
             .route("/check", web::post().to(check_compliance))
             .route("/status/{id}", web::get().to(get_compliance_status))
-            .route("/health", web::get().to(health_check))
+            .route("/health", web::get().to(health_check)),
     );
 }
 
@@ -101,24 +88,16 @@ mod tests {
 
     #[actix_web::test]
     async fn health_check_returns_ok() {
-        let app = test::init_service(
-            App::new().configure(configure)
-        )
-        .await;
+        let app = test::init_service(App::new().configure(configure)).await;
 
-        let req = test::TestRequest::get()
-            .uri("/api/compliance/health")
-            .to_request();
+        let req = test::TestRequest::get().uri("/api/compliance/health").to_request();
         let resp = test::call_service(&app, req).await;
         assert!(resp.status().is_success());
     }
 
     #[actix_web::test]
     async fn check_compliance_rejects_invalid_request() {
-        let app = test::init_service(
-            App::new().configure(configure)
-        )
-        .await;
+        let app = test::init_service(App::new().configure(configure)).await;
 
         // Empty/invalid body should be rejected at the HTTP layer (400).
         let req = test::TestRequest::post()
@@ -131,10 +110,7 @@ mod tests {
 
     #[actix_web::test]
     async fn get_status_unknown_id_returns_not_found() {
-        let app = test::init_service(
-            App::new().configure(configure)
-        )
-        .await;
+        let app = test::init_service(App::new().configure(configure)).await;
 
         let req = test::TestRequest::get()
             .uri("/api/compliance/status/does-not-exist")
@@ -158,9 +134,6 @@ mod tests {
     #[test]
     fn map_check_failed_is_internal_server_error() {
         let resp = map_compliance_error(ComplianceError::CheckFailed("boom".into()));
-        assert_eq!(
-            resp.status(),
-            actix_web::http::StatusCode::INTERNAL_SERVER_ERROR
-        );
+        assert_eq!(resp.status(), actix_web::http::StatusCode::INTERNAL_SERVER_ERROR);
     }
 }

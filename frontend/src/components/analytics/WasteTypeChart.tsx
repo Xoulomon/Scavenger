@@ -7,7 +7,7 @@ const WASTE_DATA = [
   { label: 'Metal', value: 25, color: '#22c55e' },
   { label: 'Glass', value: 20, color: '#a855f7' },
   { label: 'Paper', value: 12, color: '#f97316' },
-  { label: 'E-Waste', value: 8, color: '#ef4444' },
+  { label: 'E-Waste', value: 8, color: '#ef4444' }
 ]
 
 function WasteTypeChartComponent() {
@@ -15,8 +15,8 @@ function WasteTypeChartComponent() {
   const { total, slices } = useMemo(() => {
     const total = WASTE_DATA.reduce((sum, d) => sum + d.value, 0)
     const radius = 60
-    const cx = 80
-    const cy = 80
+    const _cx = 80
+    const _cy = 80
     const circumference = 2 * Math.PI * radius
 
     let cumulative = 0
@@ -59,10 +59,22 @@ function WasteTypeChartComponent() {
                 transform={`rotate(-90 ${cx} ${cy})`}
               />
             ))}
-            <text x={cx} y={cy - 6} textAnchor="middle" className="fill-foreground text-sm font-bold" fontSize="14">
+            <text
+              x={cx}
+              y={cy - 6}
+              textAnchor="middle"
+              className="fill-foreground text-sm font-bold"
+              fontSize="14"
+            >
               {total}
             </text>
-            <text x={cx} y={cy + 12} textAnchor="middle" className="fill-muted-foreground" fontSize="10">
+            <text
+              x={cx}
+              y={cy + 12}
+              textAnchor="middle"
+              className="fill-muted-foreground"
+              fontSize="10"
+            >
               total
             </text>
           </svg>

@@ -1,5 +1,11 @@
-import { type Control, type FieldErrors, type UseFormRegister, type UseFormSetValue, type UseFormWatch } from 'react-hook-form'
-import { WasteType } from '@/api/types'
+import {
+  type Control,
+  type FieldErrors,
+  type UseFormRegister,
+  type UseFormSetValue,
+  type UseFormWatch
+} from 'react-hook-form'
+import '@/api/types'
 import { type WeightUnit, type WasteFormValues } from '@/lib/validation/wasteSubmission'
 import { useAuth } from '@/contexts/AuthContext'
 import { useNetwork } from '@/contexts/NetworkContext'
@@ -28,7 +34,7 @@ export function WasteSubmissionFields({
   watch,
   errors,
   weightUnit,
-  setWeightUnit,
+  setWeightUnit
 }: WasteSubmissionFieldsProps) {
   // Auth, network, and theme are provided via scoped contexts rather than drilled props.
   const { user } = useAuth()

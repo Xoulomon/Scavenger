@@ -1,4 +1,11 @@
-import { AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, ListChecks, XCircle } from 'lucide-react'
+import {
+  AlertTriangle,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  ListChecks,
+  XCircle
+} from 'lucide-react'
 import { useState } from 'react'
 
 import type { Material } from '@/api/types'
@@ -13,18 +20,22 @@ export function BulkVerificationPanel({
   materials,
   onBulkAction,
   onClearSelection,
-  isPending,
+  isPending
 }: {
   selectedIds: Set<number>
   materials: Material[]
-  onBulkAction: (ids: number[], decision: 'approved' | 'rejected', form: VerificationFormData) => void
+  onBulkAction: (
+    ids: number[],
+    decision: 'approved' | 'rejected',
+    form: VerificationFormData
+  ) => void
   onClearSelection: () => void
   isPending: boolean
 }) {
   const [form, setForm] = useState<VerificationFormData>({
     grade: 'B',
     contaminated: false,
-    notes: '',
+    notes: ''
   })
   const [expanded, setExpanded] = useState(false)
 
@@ -108,7 +119,13 @@ export function BulkVerificationPanel({
             <div className="flex gap-2">
               <Button
                 className="flex-1 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
-                onClick={() => onBulkAction(pendingSelected.map((m) => m.id), 'approved', form)}
+                onClick={() =>
+                  onBulkAction(
+                    pendingSelected.map((m) => m.id),
+                    'approved',
+                    form
+                  )
+                }
                 disabled={isPending || pendingSelected.length === 0}
                 aria-label="Bulk approve selected materials"
               >
@@ -118,7 +135,13 @@ export function BulkVerificationPanel({
               <Button
                 variant="destructive"
                 className="flex-1 gap-2"
-                onClick={() => onBulkAction(pendingSelected.map((m) => m.id), 'rejected', form)}
+                onClick={() =>
+                  onBulkAction(
+                    pendingSelected.map((m) => m.id),
+                    'rejected',
+                    form
+                  )
+                }
                 disabled={isPending || pendingSelected.length === 0}
                 aria-label="Bulk reject selected materials"
               >

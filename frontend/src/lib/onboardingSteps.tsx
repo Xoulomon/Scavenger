@@ -17,7 +17,7 @@ export const getOnboardingSteps = (role: UserRole): Step[] => {
         </div>
       ),
       placement: 'center',
-      disableBeacon: true,
+      disableBeacon: true
     },
     {
       target: '[data-onboarding="sidebar"]',
@@ -25,11 +25,12 @@ export const getOnboardingSteps = (role: UserRole): Step[] => {
         <div>
           <h3 className="font-semibold mb-2">Navigation Sidebar</h3>
           <p className="text-sm text-muted-foreground">
-            This sidebar contains all the main features of the app. Each role has different available options.
+            This sidebar contains all the main features of the app. Each role has different
+            available options.
           </p>
         </div>
       ),
-      placement: 'right',
+      placement: 'right'
     },
     {
       target: '[data-onboarding="search"]',
@@ -41,8 +42,8 @@ export const getOnboardingSteps = (role: UserRole): Step[] => {
           </p>
         </div>
       ),
-      placement: 'bottom',
-    },
+      placement: 'bottom'
+    }
   ]
 
   const roleSpecificSteps: Record<UserRole, Step[]> = {
@@ -53,11 +54,12 @@ export const getOnboardingSteps = (role: UserRole): Step[] => {
           <div>
             <h3 className="font-semibold mb-2">Submit Waste</h3>
             <p className="text-sm text-muted-foreground">
-              As a recycler, you can submit waste materials here. Include photos, descriptions, and quantities.
+              As a recycler, you can submit waste materials here. Include photos, descriptions, and
+              quantities.
             </p>
           </div>
         ),
-        placement: 'right',
+        placement: 'right'
       },
       {
         target: '[data-onboarding="my-wastes"]',
@@ -69,7 +71,7 @@ export const getOnboardingSteps = (role: UserRole): Step[] => {
             </p>
           </div>
         ),
-        placement: 'right',
+        placement: 'right'
       },
       {
         target: '[data-onboarding="incentives"]',
@@ -81,8 +83,8 @@ export const getOnboardingSteps = (role: UserRole): Step[] => {
             </p>
           </div>
         ),
-        placement: 'right',
-      },
+        placement: 'right'
+      }
     ],
     Collector: [
       {
@@ -95,7 +97,7 @@ export const getOnboardingSteps = (role: UserRole): Step[] => {
             </p>
           </div>
         ),
-        placement: 'right',
+        placement: 'right'
       },
       {
         target: '[data-onboarding="verify"]',
@@ -107,7 +109,7 @@ export const getOnboardingSteps = (role: UserRole): Step[] => {
             </p>
           </div>
         ),
-        placement: 'right',
+        placement: 'right'
       },
       {
         target: '[data-onboarding="waste-map"]',
@@ -119,8 +121,8 @@ export const getOnboardingSteps = (role: UserRole): Step[] => {
             </p>
           </div>
         ),
-        placement: 'right',
-      },
+        placement: 'right'
+      }
     ],
     Manufacturer: [
       {
@@ -133,7 +135,7 @@ export const getOnboardingSteps = (role: UserRole): Step[] => {
             </p>
           </div>
         ),
-        placement: 'right',
+        placement: 'right'
       },
       {
         target: '[data-onboarding="incentives"]',
@@ -145,7 +147,7 @@ export const getOnboardingSteps = (role: UserRole): Step[] => {
             </p>
           </div>
         ),
-        placement: 'right',
+        placement: 'right'
       },
       {
         target: '[data-onboarding="analytics"]',
@@ -153,12 +155,13 @@ export const getOnboardingSteps = (role: UserRole): Step[] => {
           <div>
             <h3 className="font-semibold mb-2">Analytics</h3>
             <p className="text-sm text-muted-foreground">
-              View detailed analytics about material usage, recycling rates, and supply chain performance.
+              View detailed analytics about material usage, recycling rates, and supply chain
+              performance.
             </p>
           </div>
         ),
-        placement: 'right',
-      },
+        placement: 'right'
+      }
     ],
     Admin: [
       {
@@ -171,7 +174,7 @@ export const getOnboardingSteps = (role: UserRole): Step[] => {
             </p>
           </div>
         ),
-        placement: 'right',
+        placement: 'right'
       },
       {
         target: '[data-onboarding="analytics"]',
@@ -183,7 +186,7 @@ export const getOnboardingSteps = (role: UserRole): Step[] => {
             </p>
           </div>
         ),
-        placement: 'right',
+        placement: 'right'
       },
       {
         target: '[data-onboarding="waste-map"]',
@@ -195,9 +198,9 @@ export const getOnboardingSteps = (role: UserRole): Step[] => {
             </p>
           </div>
         ),
-        placement: 'right',
-      },
-    ],
+        placement: 'right'
+      }
+    ]
   }
 
   const finalStep: Step = {
@@ -206,14 +209,15 @@ export const getOnboardingSteps = (role: UserRole): Step[] => {
       <div className="text-center">
         <h2 className="text-xl font-bold mb-2">You're all set! 🚀</h2>
         <p className="text-sm text-muted-foreground mb-4">
-          You've completed the onboarding tutorial. Start exploring the platform and making an impact!
+          You've completed the onboarding tutorial. Start exploring the platform and making an
+          impact!
         </p>
         <div className="text-xs text-muted-foreground">
           You can always restart this tutorial from Settings if needed.
         </div>
       </div>
     ),
-    placement: 'center',
+    placement: 'center'
   }
 
   return [...baseSteps, ...roleSpecificSteps[role], finalStep]
@@ -227,33 +231,33 @@ export const getOnboardingStyles = () => ({
     overlayColor: 'rgba(0, 0, 0, 0.5)',
     spotlightShadow: '0 0 15px rgba(0, 0, 0, 0.5)',
     beaconSize: 36,
-    zIndex: 100,
+    zIndex: 100
   },
   tooltip: {
     borderRadius: 8,
-    fontSize: 14,
+    fontSize: 14
   },
   tooltipContainer: {
-    textAlign: 'left' as const,
+    textAlign: 'left' as const
   },
   buttonNext: {
     backgroundColor: '#000000',
     fontSize: 14,
     borderRadius: 6,
-    padding: '8px 16px',
+    padding: '8px 16px'
   },
   buttonBack: {
     color: '#666666',
     fontSize: 14,
     marginLeft: 'auto',
-    marginRight: 8,
+    marginRight: 8
   },
   buttonSkip: {
     color: '#666666',
-    fontSize: 14,
+    fontSize: 14
   },
   buttonClose: {
     height: 14,
-    width: 14,
-  },
+    width: 14
+  }
 })

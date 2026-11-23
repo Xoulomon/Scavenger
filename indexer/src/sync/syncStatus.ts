@@ -1,9 +1,9 @@
-import { PoolClient } from 'pg';
-import { withTransaction, getPool } from '../db/client';
+import { PoolClient } from 'pg'
+import { withTransaction, getPool } from '../db/client'
 
 export async function getSyncStatus(): Promise<{ lastLedger: number; isSyncing: boolean }> {
-  const { rows } = await getPool().query('SELECT last_ledger, is_syncing FROM sync_status LIMIT 1');
-  return { lastLedger: Number(rows[0]?.last_ledger ?? 0), isSyncing: rows[0]?.is_syncing ?? false };
+  const { rows } = await getPool().query('SELECT last_ledger, is_syncing FROM sync_status LIMIT 1')
+  return { lastLedger: Number(rows[0]?.last_ledger ?? 0), isSyncing: rows[0]?.is_syncing ?? false }
 }
 
 export async function updateSyncStatus(
@@ -14,11 +14,11 @@ export async function updateSyncStatus(
   await client.query(
     `UPDATE sync_status SET last_ledger = $1, last_ledger_close_time = $2, updated_at = NOW()`,
     [ledger, closeTime]
-  );
+  )
 }
 
 export async function setSyncing(isSyncing: boolean): Promise<void> {
-  await getPool().query('UPDATE sync_status SET is_syncing = $1', [isSyncing]);
+  await getPool().query('UPDATE sync_status SET is_syncing = $1', [isSyncing])
 }
 
 /**
@@ -33,16 +33,16 @@ export async function detectAndHandleReorg(
   const { rows } = await client.query(
     `SELECT DISTINCT transaction_hash FROM raw_events WHERE ledger_sequence = $1`,
     [ledger]
-  );
+  )
 
-  const storedHashes = new Set(rows.map((r: { transaction_hash: string }) => r.transaction_hash));
-  const hasReorg = [...storedHashes].some(h => !incomingTxHashes.has(h));
+  const storedHashes = new Set(rows.map((r: { transaction_hash: string }) => r.transaction_hash))
+  const hasReorg = [...storedHashes].some((h) => !incomingTxHashes.has(h))
 
   if (hasReorg) {
-    await rollbackFromLedger(client, ledger);
-    return true;
+    await rollbackFromLedger(client, ledger)
+    return true
   }
-  return false;
+  return false
 }
 
 /**
@@ -51,36 +51,33 @@ export async function detectAndHandleReorg(
  * For simplicity, we delete affected rows and let the re-index rebuild them.
  */
 export async function rollbackFromLedger(client: PoolClient, fromLedger: number): Promise<void> {
-  console.warn(`[reorg] Rolling back from ledger ${fromLedger}`);
+  console.warn(`[reorg] Rolling back from ledger ${fromLedger}`)
 
   // Remove raw events
-  await client.query(`DELETE FROM raw_events WHERE ledger_sequence >= $1`, [fromLedger]);
+  await client.query(`DELETE FROM raw_events WHERE ledger_sequence >= $1`, [fromLedger])
 
   // Reverse state changes: remove wastes registered at or after this ledger
-  await client.query(`DELETE FROM wastes WHERE registered_at_ledger >= $1`, [fromLedger]);
-  await client.query(`DELETE FROM participants WHERE registered_at_ledger >= $1`, [fromLedger]);
-  await client.query(`DELETE FROM waste_transfers WHERE ledger_sequence >= $1`, [fromLedger]);
-  await client.query(`DELETE FROM token_rewards WHERE ledger_sequence >= $1`, [fromLedger]);
-  await client.query(`DELETE FROM carbon_credits WHERE ledger_sequence >= $1`, [fromLedger]);
-  await client.query(`DELETE FROM auctions WHERE created_at_ledger >= $1`, [fromLedger]);
+  await client.query(`DELETE FROM wastes WHERE registered_at_ledger >= $1`, [fromLedger])
+  await client.query(`DELETE FROM participants WHERE registered_at_ledger >= $1`, [fromLedger])
+  await client.query(`DELETE FROM waste_transfers WHERE ledger_sequence >= $1`, [fromLedger])
+  await client.query(`DELETE FROM token_rewards WHERE ledger_sequence >= $1`, [fromLedger])
+  await client.query(`DELETE FROM carbon_credits WHERE ledger_sequence >= $1`, [fromLedger])
+  await client.query(`DELETE FROM auctions WHERE created_at_ledger >= $1`, [fromLedger])
 
   // Reset sync cursor
-  await client.query(
-    `UPDATE sync_status SET last_ledger = $1`,
-    [fromLedger - 1]
-  );
+  await client.query(`UPDATE sync_status SET last_ledger = $1`, [fromLedger - 1])
 }
 
 export async function storeRawEvent(
   client: PoolClient,
   event: {
-    ledgerSequence: number;
-    ledgerCloseTime: Date;
-    transactionHash: string;
-    contractId: string;
-    eventType: string;
-    topic: string[];
-    value: unknown;
+    ledgerSequence: number
+    ledgerCloseTime: Date
+    transactionHash: string
+    contractId: string
+    eventType: string
+    topic: string[]
+    value: unknown
   }
 ): Promise<void> {
   await client.query(
@@ -95,9 +92,9 @@ export async function storeRawEvent(
       event.contractId,
       event.eventType,
       event.topic,
-      JSON.stringify(event.value),
+      JSON.stringify(event.value)
     ]
-  );
+  )
 }
 
-export { withTransaction };
+export { withTransaction }

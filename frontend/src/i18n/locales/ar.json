@@ -1,35 +1,35 @@
 {
-  "common": {
-    "loading": "جارٍ التحميل...",
-    "error": "خطأ",
-    "success": "نجاح",
-    "cancel": "إلغاء",
-    "confirm": "تأكيد",
-    "save": "حفظ",
-    "delete": "حذف",
-    "edit": "تعديل",
-    "close": "إغلاق",
-    "search": "بحث",
-    "filter": "تصفية",
-    "export": "تصدير",
-    "submit": "إرسال",
-    "back": "رجوع",
-    "noData": "لا توجد بيانات"
-  },
-  "nav": {
-    "dashboard": "لوحة التحكم",
-    "settings": "الإعدادات",
-    "profile": "الملف الشخصي"
-  },
-  "errors": {
-    "network": "حدث خطأ في الشبكة",
-    "unauthorized": "وصول غير مصرح به",
-    "notFound": "المورد غير موجود",
-    "unknown": "حدث خطأ غير معروف",
-    "walletNotFound": "المحفظة غير موجودة. يرجى تثبيت Freighter."
-  },
-  "settings": {
-    "language": "اللغة",
-    "theme": "المظهر"
-  }
+    "common": {
+        "loading": "جارٍ التحميل...",
+        "error": "خطأ",
+        "success": "نجاح",
+        "cancel": "إلغاء",
+        "confirm": "تأكيد",
+        "save": "حفظ",
+        "delete": "حذف",
+        "edit": "تعديل",
+        "close": "إغلاق",
+        "search": "بحث",
+        "filter": "تصفية",
+        "export": "تصدير",
+        "submit": "إرسال",
+        "back": "رجوع",
+        "noData": "لا توجد بيانات"
+    },
+    "nav": {
+        "dashboard": "لوحة التحكم",
+        "settings": "الإعدادات",
+        "profile": "الملف الشخصي"
+    },
+    "errors": {
+        "network": "حدث خطأ في الشبكة",
+        "unauthorized": "وصول غير مصرح به",
+        "notFound": "المورد غير موجود",
+        "unknown": "حدث خطأ غير معروف",
+        "walletNotFound": "المحفظة غير موجودة. يرجى تثبيت Freighter."
+    },
+    "settings": {
+        "language": "اللغة",
+        "theme": "المظهر"
+    }
 }

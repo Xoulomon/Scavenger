@@ -18,8 +18,8 @@
  * (`importFromCSV`, `importFromJSON`, `state`) is unchanged, so existing
  * callers keep working without modification.
  */
-import { useCallback } from 'react';
-import { useAsync, type AsyncState } from './useAsync';
+import { useCallback } from 'react'
+import { useAsync, type AsyncState } from './useAsync'
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -29,10 +29,10 @@ import { useAsync, type AsyncState } from './useAsync';
  * @deprecated Kept for backwards compatibility; identical to
  * `AsyncState<T>` from `./useAsync`.
  */
-export type ImportState<T> = AsyncState<T>;
+export type ImportState<T> = AsyncState<T>
 
 /** A single parsed CSV row: header field name → cell value. */
-export type CsvRecord = Record<string, string>;
+export type CsvRecord = Record<string, string>
 
 // ── Hook ──────────────────────────────────────────────────────────────────
 
@@ -52,7 +52,7 @@ export type CsvRecord = Record<string, string>;
  *   - `state` is shared: the most recent operation wins.
  */
 export function useImport<T = unknown>() {
-  const { state, run } = useAsync<T>();
+  const { state, run } = useAsync<T>()
 
   /**
    * Parse a CSV `File` into an array of header-keyed record objects.
@@ -68,26 +68,26 @@ export function useImport<T = unknown>() {
   const importFromCSV = useCallback(
     async (file: File): Promise<CsvRecord[]> => {
       const records = await run(async () => {
-        const text = await readFileAsText(file);
+        const text = await readFileAsText(file)
         const rows = text
           .split('\n')
           .map((line) => line.trim())
-          .filter((line) => line.length > 0);
+          .filter((line) => line.length > 0)
 
         if (rows.length === 0) {
-          throw new Error('CSV file is empty');
+          throw new Error('CSV file is empty')
         }
 
-        const headers = rows[0].split(',').map((h) => h.trim());
+        const headers = rows[0].split(',').map((h) => h.trim())
         return rows.slice(1).map((row) => {
-          const cells = row.split(',').map((c) => c.trim());
-          return Object.fromEntries(headers.map((h, i) => [h, cells[i] ?? '']));
-        });
-      });
-      return records as CsvRecord[];
+          const cells = row.split(',').map((c) => c.trim())
+          return Object.fromEntries(headers.map((h, i) => [h, cells[i] ?? '']))
+        })
+      })
+      return records as CsvRecord[]
     },
     [run]
-  );
+  )
 
   /**
    * Parse a JSON `File` into a typed value.
@@ -98,23 +98,23 @@ export function useImport<T = unknown>() {
   const importFromJSON = useCallback(
     async (file: File): Promise<T> => {
       return run(async () => {
-        const text = await readFileAsText(file);
-        return JSON.parse(text) as T;
-      });
+        const text = await readFileAsText(file)
+        return JSON.parse(text) as T
+      })
     },
     [run]
-  );
+  )
 
-  return { importFromCSV, importFromJSON, state };
+  return { importFromCSV, importFromJSON, state }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
 function readFileAsText(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => resolve(e.target?.result as string ?? '');
-    reader.onerror = () => reject(new Error(`Failed to read file: ${file.name}`));
-    reader.readAsText(file, 'utf-8');
-  });
+    const reader = new FileReader()
+    reader.onload = (e) => resolve((e.target?.result as string) ?? '')
+    reader.onerror = () => reject(new Error(`Failed to read file: ${file.name}`))
+    reader.readAsText(file, 'utf-8')
+  })
 }

@@ -24,7 +24,9 @@ const RecyclerDashboard = lazy(() =>
   import('@/pages/RecyclerDashboard').then((m) => ({ default: m.RecyclerDashboard }))
 )
 const IncentivesMarketplacePage = lazy(() =>
-  import('@/pages/IncentivesMarketplacePage').then((m) => ({ default: m.IncentivesMarketplacePage }))
+  import('@/pages/IncentivesMarketplacePage').then((m) => ({
+    default: m.IncentivesMarketplacePage
+  }))
 )
 const IncentivesPage = lazy(() =>
   import('@/pages/IncentivesPage').then((m) => ({ default: m.IncentivesPage }))
@@ -34,7 +36,7 @@ const WasteListPage = lazy(() =>
 )
 const ManufacturerDashboardPage = lazy(() =>
   import('@/pages/ManufacturerDashboardPage').then((m) => ({
-    default: m.ManufacturerDashboardPage,
+    default: m.ManufacturerDashboardPage
   }))
 )
 const CollectorDashboardPage = lazy(() =>
@@ -87,7 +89,7 @@ const RecyclingGuidePage = lazy(() =>
 )
 const PerformanceMonitoringPage = lazy(() =>
   import('@/pages/PerformanceMonitoringPage').then((m) => ({
-    default: m.PerformanceMonitoringPage,
+    default: m.PerformanceMonitoringPage
   }))
 )
 const GamificationPage = lazy(() =>
@@ -113,12 +115,12 @@ const MaterialTransferPage = lazy(() =>
 )
 const WasteVerificationDashboardPage = lazy(() =>
   import('@/pages/WasteVerificationDashboardPage').then((m) => ({
-    default: m.WasteVerificationDashboardPage,
+    default: m.WasteVerificationDashboardPage
   }))
 )
 const ParticipantRegistrationPage = lazy(() =>
   import('@/pages/ParticipantRegistrationPage').then((m) => ({
-    default: m.ParticipantRegistrationPage,
+    default: m.ParticipantRegistrationPage
   }))
 )
 const TestReportsPage = lazy(() =>
@@ -138,7 +140,7 @@ const FeatureFlagsPage = lazy(() =>
 )
 const PlatformHealthDashboardPage = lazy(() =>
   import('@/pages/PlatformHealthDashboardPage').then((m) => ({
-    default: m.PlatformHealthDashboardPage,
+    default: m.PlatformHealthDashboardPage
   }))
 )
 const PerformanceSLAsPage = lazy(() =>
@@ -156,7 +158,7 @@ const CharityDonationsPage = lazy(() =>
 )
 const EnvironmentalImpactDashboardPage = lazy(() =>
   import('@/pages/EnvironmentalImpactDashboardPage').then((m) => ({
-    default: m.EnvironmentalImpactDashboardPage,
+    default: m.EnvironmentalImpactDashboardPage
   }))
 )
 const ImpactCalculatorPage = lazy(() =>
@@ -168,9 +170,7 @@ const SearchResultsPage = lazy(() =>
 const SubscriptionsPage = lazy(() =>
   import('@/pages/SubscriptionsPage').then((m) => ({ default: m.SubscriptionsPage }))
 )
-const QRCodePage = lazy(() =>
-  import('@/pages/QRCodePage').then((m) => ({ default: m.QRCodePage }))
-)
+const QRCodePage = lazy(() => import('@/pages/QRCodePage').then((m) => ({ default: m.QRCodePage })))
 const OfflineSettings = lazy(() =>
   import('@/pages/OfflineSettings').then((m) => ({ default: m.OfflineSettings }))
 )
@@ -218,57 +218,393 @@ function ProtectedLayout() {
 // exported `PROTECTED_ROUTES` shape backwards-compatible for any consumer
 // that maps over it.
 export const PROTECTED_ROUTES = [
-  { path: ROUTES.DASHBOARD, element: <LazyRoute><HomePage /></LazyRoute> },
+  {
+    path: ROUTES.DASHBOARD,
+    element: (
+      <LazyRoute>
+        <HomePage />
+      </LazyRoute>
+    )
+  },
   { path: ROUTES.SUBMIT, element: <div>Submit Waste</div> },
-  { path: ROUTES.COLLECT, element: <LazyRoute><CollectorDashboardPage /></LazyRoute> },
-  { path: ROUTES.INCENTIVES, element: <LazyRoute><IncentivesMarketplacePage /></LazyRoute> },
-  { path: ROUTES.INCENTIVES_MANAGE, element: <LazyRoute><IncentivesPage /></LazyRoute> },
-  { path: ROUTES.TRANSFER, element: <LazyRoute><MaterialTransferPage /></LazyRoute> },
+  {
+    path: ROUTES.COLLECT,
+    element: (
+      <LazyRoute>
+        <CollectorDashboardPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.INCENTIVES,
+    element: (
+      <LazyRoute>
+        <IncentivesMarketplacePage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.INCENTIVES_MANAGE,
+    element: (
+      <LazyRoute>
+        <IncentivesPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.TRANSFER,
+    element: (
+      <LazyRoute>
+        <MaterialTransferPage />
+      </LazyRoute>
+    )
+  },
   { path: ROUTES.HISTORY, element: <div>History</div> },
-  { path: ROUTES.DASHBOARD_RECYCLER, element: <LazyRoute><RecyclerDashboard /></LazyRoute> },
-  { path: ROUTES.WASTES, element: <LazyRoute><WasteListPage /></LazyRoute> },
-  { path: ROUTES.MANUFACTURER, element: <LazyRoute><ManufacturerDashboardPage /></LazyRoute> },
-  { path: ROUTES.SETTINGS, element: <LazyRoute><SettingsPage /></LazyRoute> },
-  { path: ROUTES.SETTINGS_OFFLINE, element: <LazyRoute><OfflineSettings /></LazyRoute> },
-  { path: ROUTES.REWARDS, element: <LazyRoute><RewardsPage /></LazyRoute> },
-  { path: ROUTES.TRACKER, element: <LazyRoute><SupplyChainTrackerPage /></LazyRoute> },
-  { path: ROUTES.COMMUNITY, element: <LazyRoute><CommunityPage /></LazyRoute> },
-  { path: ROUTES.GOVERNANCE, element: <LazyRoute><GovernancePage /></LazyRoute> },
-  { path: ROUTES.ANALYTICS, element: <LazyRoute><AnalyticsPage /></LazyRoute> },
-  { path: ROUTES.MAP, element: <LazyRoute><WasteMapPage /></LazyRoute> },
-  { path: ROUTES.ADMIN, element: <LazyRoute><AdminDashboardPage /></LazyRoute> },
-  { path: ROUTES.VERIFY, element: <LazyRoute><VerificationPage /></LazyRoute> },
-  { path: ROUTES.ROUTE_PLANNER, element: <LazyRoute><RoutePlannerPage /></LazyRoute> },
-  { path: ROUTES.MESSAGES, element: <LazyRoute><MessagingPage /></LazyRoute> },
-  { path: ROUTES.COMPARE, element: <LazyRoute><WasteComparisonPage /></LazyRoute> },
-  { path: ROUTES.PREDICTIONS, element: <LazyRoute><PredictiveAnalyticsPage /></LazyRoute> },
-  { path: ROUTES.MARKETPLACE, element: <LazyRoute><WasteMarketplacePage /></LazyRoute> },
-  { path: ROUTES.CERTIFICATIONS, element: <LazyRoute><WasteCertificationPage /></LazyRoute> },
-  { path: ROUTES.RECYCLING_GUIDE, element: <LazyRoute><RecyclingGuidePage /></LazyRoute> },
-  { path: ROUTES.PERFORMANCE, element: <LazyRoute><PerformanceMonitoringPage /></LazyRoute> },
-  { path: ROUTES.ACHIEVEMENTS, element: <LazyRoute><GamificationPage /></LazyRoute> },
-  { path: ROUTES.OFFLINE, element: <LazyRoute><OfflinePage /></LazyRoute> },
-  { path: ROUTES.WASTE_HISTORY, element: <LazyRoute><WasteHistoryPage /></LazyRoute> },
-  { path: ROUTES.PARTICIPANT_SEARCH, element: <LazyRoute><ParticipantSearchPage /></LazyRoute> },
-  { path: ROUTES.WASTE_STATISTICS, element: <LazyRoute><WasteStatisticsPage /></LazyRoute> },
-  { path: ROUTES.REWARD_TRACKING, element: <LazyRoute><RewardTrackingPage /></LazyRoute> },
-  { path: ROUTES.VERIFICATION_DASHBOARD, element: <LazyRoute><WasteVerificationDashboardPage /></LazyRoute> },
-  { path: ROUTES.REGISTER, element: <LazyRoute><ParticipantRegistrationPage /></LazyRoute> },
-  { path: ROUTES.TEST_REPORTS, element: <LazyRoute><TestReportsPage /></LazyRoute> },
-  { path: ROUTES.COMPLIANCE_REPORTS, element: <LazyRoute><ComplianceReportsPage /></LazyRoute> },
-  { path: ROUTES.NOTIFICATIONS, element: <LazyRoute><NotificationCenterPage /></LazyRoute> },
-  { path: ROUTES.BATCH_UPLOAD, element: <LazyRoute><BatchUploadPage /></LazyRoute> },
-  { path: ROUTES.FEATURE_FLAGS, element: <LazyRoute><FeatureFlagsPage /></LazyRoute> },
-  { path: ROUTES.HEALTH, element: <LazyRoute><PlatformHealthDashboardPage /></LazyRoute> },
-  { path: ROUTES.SLAS, element: <LazyRoute><PerformanceSLAsPage /></LazyRoute> },
+  {
+    path: ROUTES.DASHBOARD_RECYCLER,
+    element: (
+      <LazyRoute>
+        <RecyclerDashboard />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.WASTES,
+    element: (
+      <LazyRoute>
+        <WasteListPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.MANUFACTURER,
+    element: (
+      <LazyRoute>
+        <ManufacturerDashboardPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.SETTINGS,
+    element: (
+      <LazyRoute>
+        <SettingsPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.SETTINGS_OFFLINE,
+    element: (
+      <LazyRoute>
+        <OfflineSettings />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.REWARDS,
+    element: (
+      <LazyRoute>
+        <RewardsPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.TRACKER,
+    element: (
+      <LazyRoute>
+        <SupplyChainTrackerPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.COMMUNITY,
+    element: (
+      <LazyRoute>
+        <CommunityPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.GOVERNANCE,
+    element: (
+      <LazyRoute>
+        <GovernancePage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.ANALYTICS,
+    element: (
+      <LazyRoute>
+        <AnalyticsPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.MAP,
+    element: (
+      <LazyRoute>
+        <WasteMapPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.ADMIN,
+    element: (
+      <LazyRoute>
+        <AdminDashboardPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.VERIFY,
+    element: (
+      <LazyRoute>
+        <VerificationPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.ROUTE_PLANNER,
+    element: (
+      <LazyRoute>
+        <RoutePlannerPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.MESSAGES,
+    element: (
+      <LazyRoute>
+        <MessagingPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.COMPARE,
+    element: (
+      <LazyRoute>
+        <WasteComparisonPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.PREDICTIONS,
+    element: (
+      <LazyRoute>
+        <PredictiveAnalyticsPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.MARKETPLACE,
+    element: (
+      <LazyRoute>
+        <WasteMarketplacePage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.CERTIFICATIONS,
+    element: (
+      <LazyRoute>
+        <WasteCertificationPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.RECYCLING_GUIDE,
+    element: (
+      <LazyRoute>
+        <RecyclingGuidePage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.PERFORMANCE,
+    element: (
+      <LazyRoute>
+        <PerformanceMonitoringPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.ACHIEVEMENTS,
+    element: (
+      <LazyRoute>
+        <GamificationPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.OFFLINE,
+    element: (
+      <LazyRoute>
+        <OfflinePage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.WASTE_HISTORY,
+    element: (
+      <LazyRoute>
+        <WasteHistoryPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.PARTICIPANT_SEARCH,
+    element: (
+      <LazyRoute>
+        <ParticipantSearchPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.WASTE_STATISTICS,
+    element: (
+      <LazyRoute>
+        <WasteStatisticsPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.REWARD_TRACKING,
+    element: (
+      <LazyRoute>
+        <RewardTrackingPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.VERIFICATION_DASHBOARD,
+    element: (
+      <LazyRoute>
+        <WasteVerificationDashboardPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.REGISTER,
+    element: (
+      <LazyRoute>
+        <ParticipantRegistrationPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.TEST_REPORTS,
+    element: (
+      <LazyRoute>
+        <TestReportsPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.COMPLIANCE_REPORTS,
+    element: (
+      <LazyRoute>
+        <ComplianceReportsPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.NOTIFICATIONS,
+    element: (
+      <LazyRoute>
+        <NotificationCenterPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.BATCH_UPLOAD,
+    element: (
+      <LazyRoute>
+        <BatchUploadPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.FEATURE_FLAGS,
+    element: (
+      <LazyRoute>
+        <FeatureFlagsPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.HEALTH,
+    element: (
+      <LazyRoute>
+        <PlatformHealthDashboardPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.SLAS,
+    element: (
+      <LazyRoute>
+        <PerformanceSLAsPage />
+      </LazyRoute>
+    )
+  },
   // Previously unrouted pages — wired up with lazy loading
-  { path: ROUTES.PROFILE, element: <LazyRoute><ProfilePage /></LazyRoute> },
-  { path: ROUTES.DONATIONS, element: <LazyRoute><CharityDonationsPage /></LazyRoute> },
-  { path: ROUTES.ENVIRONMENTAL_IMPACT, element: <LazyRoute><EnvironmentalImpactDashboardPage /></LazyRoute> },
-  { path: ROUTES.IMPACT_CALCULATOR, element: <LazyRoute><ImpactCalculatorPage /></LazyRoute> },
-  { path: ROUTES.SEARCH, element: <LazyRoute><SearchResultsPage /></LazyRoute> },
-  { path: ROUTES.SUBSCRIPTIONS, element: <LazyRoute><SubscriptionsPage /></LazyRoute> },
-  { path: ROUTES.QR, element: <LazyRoute><QRCodePage /></LazyRoute> },
+  {
+    path: ROUTES.PROFILE,
+    element: (
+      <LazyRoute>
+        <ProfilePage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.DONATIONS,
+    element: (
+      <LazyRoute>
+        <CharityDonationsPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.ENVIRONMENTAL_IMPACT,
+    element: (
+      <LazyRoute>
+        <EnvironmentalImpactDashboardPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.IMPACT_CALCULATOR,
+    element: (
+      <LazyRoute>
+        <ImpactCalculatorPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.SEARCH,
+    element: (
+      <LazyRoute>
+        <SearchResultsPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.SUBSCRIPTIONS,
+    element: (
+      <LazyRoute>
+        <SubscriptionsPage />
+      </LazyRoute>
+    )
+  },
+  {
+    path: ROUTES.QR,
+    element: (
+      <LazyRoute>
+        <QRCodePage />
+      </LazyRoute>
+    )
+  }
 ]
 
 // Single place where the unified error boundary is attached to a route.
@@ -286,7 +622,7 @@ export const router = createBrowserRouter([
   withErrorBoundary({ path: ROUTES.ROOT, element: <LandingPage /> }),
   withErrorBoundary({
     element: <ProtectedLayout />,
-    children: PROTECTED_ROUTES.map((route) => withErrorBoundary(route)),
+    children: PROTECTED_ROUTES.map((route) => withErrorBoundary(route))
   }),
-  withErrorBoundary({ path: ROUTES.NOT_FOUND, element: <NotFoundPage /> }),
+  withErrorBoundary({ path: ROUTES.NOT_FOUND, element: <NotFoundPage /> })
 ])

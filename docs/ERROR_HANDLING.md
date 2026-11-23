@@ -28,8 +28,8 @@ All non-2xx responses have **exactly** this structure:
 ```json
 {
   "error": {
-    "code":       "NOT_FOUND",
-    "message":    "Report report-abc not found",
+    "code": "NOT_FOUND",
+    "message": "Report report-abc not found",
     "request_id": "a1b2c3d4-5678-90ab-cdef-000000000000"
   }
 }
@@ -37,44 +37,44 @@ All non-2xx responses have **exactly** this structure:
 
 ### Field semantics
 
-| Field        | Type   | Description |
-|--------------|--------|-------------|
-| `code`       | string | Machine-readable constant — see table below |
-| `message`    | string | Human-readable description safe to display in a UI |
+| Field        | Type   | Description                                               |
+| ------------ | ------ | --------------------------------------------------------- |
+| `code`       | string | Machine-readable constant — see table below               |
+| `message`    | string | Human-readable description safe to display in a UI        |
 | `request_id` | string | UUID unique to this response, correlates with server logs |
 
 ### Error codes and HTTP statuses
 
-| `ApiError` variant   | `code`                 | HTTP |
-|----------------------|------------------------|------|
-| `Validation(msg)`    | `VALIDATION_ERROR`     | 400  |
-| `Unauthorized(msg)`  | `UNAUTHORIZED`         | 401  |
-| `Forbidden(msg)`     | `FORBIDDEN`            | 403  |
-| `NotFound(msg)`      | `NOT_FOUND`            | 404  |
-| `Conflict(msg)`      | `CONFLICT`             | 409  |
-| `Internal(msg)`      | `INTERNAL_SERVER_ERROR`| 500  |
+| `ApiError` variant  | `code`                  | HTTP |
+| ------------------- | ----------------------- | ---- |
+| `Validation(msg)`   | `VALIDATION_ERROR`      | 400  |
+| `Unauthorized(msg)` | `UNAUTHORIZED`          | 401  |
+| `Forbidden(msg)`    | `FORBIDDEN`             | 403  |
+| `NotFound(msg)`     | `NOT_FOUND`             | 404  |
+| `Conflict(msg)`     | `CONFLICT`              | 409  |
+| `Internal(msg)`     | `INTERNAL_SERVER_ERROR` | 500  |
 
 ## Service error mapping
 
 Domain services use their own error enums (`ReportError`, `StorageError`,
-etc.).  `From<ServiceError> for ApiError` implementations in
+etc.). `From<ServiceError> for ApiError` implementations in
 `backend/src/errors.rs` determine how each variant maps:
 
-| Service error                       | → `ApiError` variant |
-|-------------------------------------|----------------------|
-| `ReportError::InvalidReport`        | `Validation`         |
-| `ReportError::NotFound`             | `NotFound`           |
-| `ReportError::ServiceError`         | `Internal`           |
-| `StorageError::InvalidFile`         | `Validation`         |
-| `StorageError::NotFound`            | `NotFound`           |
-| `StorageError::ServiceError`        | `Internal`           |
-| `NotificationError::InvalidToken`   | `Validation`         |
-| `NotificationError::NotFound`       | `NotFound`           |
-| `NotificationError::ServiceError`   | `Internal`           |
-| `EmailError::InvalidEmail`          | `Validation`         |
-| `EmailError::TemplateError`         | `Internal`           |
-| `EmailError::ServiceError`          | `Internal`           |
-| `anyhow::Error`                     | `Internal`           |
+| Service error                     | → `ApiError` variant |
+| --------------------------------- | -------------------- |
+| `ReportError::InvalidReport`      | `Validation`         |
+| `ReportError::NotFound`           | `NotFound`           |
+| `ReportError::ServiceError`       | `Internal`           |
+| `StorageError::InvalidFile`       | `Validation`         |
+| `StorageError::NotFound`          | `NotFound`           |
+| `StorageError::ServiceError`      | `Internal`           |
+| `NotificationError::InvalidToken` | `Validation`         |
+| `NotificationError::NotFound`     | `NotFound`           |
+| `NotificationError::ServiceError` | `Internal`           |
+| `EmailError::InvalidEmail`        | `Validation`         |
+| `EmailError::TemplateError`       | `Internal`           |
+| `EmailError::ServiceError`        | `Internal`           |
+| `anyhow::Error`                   | `Internal`           |
 
 ## Usage in handlers
 

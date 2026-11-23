@@ -23,7 +23,10 @@ export function QuickStatsCard({ stats = TOP_MATERIALS }: QuickStatsCardProps) {
               <span className="font-medium">{value}%</span>
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-              <div className={`h-full ${color} transition-all duration-500`} style={{ width: `${value}%` }} />
+              <div
+                className={`h-full ${color} transition-all duration-500`}
+                style={{ width: `${value}%` }}
+              />
             </div>
           </div>
         ))}

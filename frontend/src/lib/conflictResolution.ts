@@ -45,7 +45,7 @@ export async function handleSyncConflict(
   const conflict: ConflictData = {
     local: localData,
     remote: remoteData,
-    timestamp: Date.now(),
+    timestamp: Date.now()
   }
 
   // Log conflict for debugging

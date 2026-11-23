@@ -12,12 +12,12 @@ vi.mock('@/hooks/useGamification', () => ({
     leaderboard: [],
     newBadges: [],
     clearNewBadges: vi.fn(),
-    isLoading: false,
-  })),
+    isLoading: false
+  }))
 }))
 
 vi.mock('@/context/WalletContext', () => ({
-  useWallet: vi.fn(() => ({ address: 'GTEST' })),
+  useWallet: vi.fn(() => ({ address: 'GTEST' }))
 }))
 
 describe('GamificationPage', () => {
@@ -27,8 +27,6 @@ describe('GamificationPage', () => {
 
   it('renders the Achievements heading', () => {
     render(<GamificationPage />)
-    expect(
-      screen.getByRole('heading', { name: /achievements/i })
-    ).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /achievements/i })).toBeInTheDocument()
   })
 })

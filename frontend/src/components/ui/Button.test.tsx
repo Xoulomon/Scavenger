@@ -234,19 +234,18 @@ describe('Button', () => {
 
   describe('HTML Attributes', () => {
     it('passes through data attributes', () => {
-      render(<Button data-testid="custom-button" data-tracking="click-me">
-        Data
-      </Button>)
+      render(
+        <Button data-testid="custom-button" data-tracking="click-me">
+          Data
+        </Button>
+      )
       const button = screen.getByTestId('custom-button')
       expect(button).toHaveAttribute('data-tracking', 'click-me')
     })
 
     it('inherits standard button attributes', () => {
       render(
-        <Button
-          title="Button title"
-          aria-pressed="false"
-        >
+        <Button title="Button title" aria-pressed="false">
           Attributes
         </Button>
       )

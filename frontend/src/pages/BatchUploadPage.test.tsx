@@ -19,9 +19,7 @@ describe('BatchUploadPage', () => {
 
   it('renders the file drop zone', () => {
     render(<BatchUploadPage />)
-    expect(
-      screen.getByText('Drop your CSV here or click to browse')
-    ).toBeInTheDocument()
+    expect(screen.getByText('Drop your CSV here or click to browse')).toBeInTheDocument()
   })
 
   it('renders the Download CSV Template button', () => {

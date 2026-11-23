@@ -25,11 +25,11 @@ written in Rust, in `stellar-contract/`.
 
 ## Alternatives Considered
 
-| Alternative | Why it was rejected |
-|-------------|---------------------|
-| A JavaScript/TypeScript backend holding the authoritative state | No tamper-evidence. The custody chain and reward payouts are exactly the things participants need to be able to verify without trusting us. |
-| A different chain with a more familiar contract language | Stellar was already the target network for payments and asset issuance. Bridging to a second chain would add a trust boundary and operational surface for no gain. |
-| Thin on-chain contract with most logic off-chain | Rejected for the custody and reward paths, but *accepted* for queries and analytics — see [ADR-0002](./0002-off-chain-event-driven-indexing.md). |
+| Alternative                                                     | Why it was rejected                                                                                                                                                |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A JavaScript/TypeScript backend holding the authoritative state | No tamper-evidence. The custody chain and reward payouts are exactly the things participants need to be able to verify without trusting us.                        |
+| A different chain with a more familiar contract language        | Stellar was already the target network for payments and asset issuance. Bridging to a second chain would add a trust boundary and operational surface for no gain. |
+| Thin on-chain contract with most logic off-chain                | Rejected for the custody and reward paths, but _accepted_ for queries and analytics — see [ADR-0002](./0002-off-chain-event-driven-indexing.md).                   |
 
 ## Consequences
 

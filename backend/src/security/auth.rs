@@ -119,11 +119,7 @@ pub fn check_scope(claims: &TokenClaims, required: &str) -> Result<(), VerifyErr
 ///
 /// Returns `Err(VerifyError::Expired)` before checking scope so the caller
 /// always gets the most actionable error first.
-pub fn verify_and_check_scope(
-    claims: &TokenClaims,
-    required: &str,
-    now: DateTime<Utc>,
-) -> Result<(), VerifyError> {
+pub fn verify_and_check_scope(claims: &TokenClaims, required: &str, now: DateTime<Utc>) -> Result<(), VerifyError> {
     verify_token(claims, now)?;
     check_scope(claims, required)?;
     Ok(())
@@ -233,10 +229,7 @@ mod tests {
         let e: AuthError = VerifyError::Expired.into();
         assert!(matches!(e, AuthError::TokenExpired));
 
-        let e: AuthError = VerifyError::InsufficientScope {
-            required: "x".into(),
-        }
-        .into();
+        let e: AuthError = VerifyError::InsufficientScope { required: "x".into() }.into();
         assert!(matches!(e, AuthError::Forbidden(_)));
     }
 }

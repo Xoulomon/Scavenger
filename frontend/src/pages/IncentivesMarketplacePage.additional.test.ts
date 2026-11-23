@@ -13,7 +13,7 @@ enum WasteType {
   Metal = 3,
   Glass = 4,
   Organic = 5,
-  Electronic = 6,
+  Electronic = 6
 }
 
 type ViewMode = 'grid' | 'list'
@@ -31,7 +31,9 @@ interface Incentive {
 
 // ─── Arbitraries ────────────────────────────────────────────────────────────
 
-const wasteTypeArb: fc.Arbitrary<WasteType> = fc.integer({ min: 0, max: 6 }).map((n) => n as WasteType)
+const wasteTypeArb: fc.Arbitrary<WasteType> = fc
+  .integer({ min: 0, max: 6 })
+  .map((n) => n as WasteType)
 
 const incentiveArb: fc.Arbitrary<Incentive> = fc.record({
   id: fc.integer({ min: 1, max: 100000 }),
@@ -41,12 +43,14 @@ const incentiveArb: fc.Arbitrary<Incentive> = fc.record({
   total_budget: fc.integer({ min: 0, max: 10000000 }),
   remaining_budget: fc.integer({ min: 0, max: 10000000 }),
   active: fc.boolean(),
-  created_at: fc.integer({ min: 0, max: 2000000000 }),
+  created_at: fc.integer({ min: 0, max: 2000000000 })
 })
 
-const viewModeArb: fc.Arbitrary<ViewMode> = fc.constantFrom('grid' as const, 'list' as const)
+const _viewModeArb: fc.Arbitrary<ViewMode> = fc.constantFrom('grid' as const, 'list' as const)
 
-const addressArb: fc.Arbitrary<string> = fc.hexaString({ minLength: 40, maxLength: 42 }).map((s) => `0x${s}`)
+const addressArb: fc.Arbitrary<string> = fc
+  .hexaString({ minLength: 40, maxLength: 42 })
+  .map((s) => `0x${s}`)
 
 // ─── Utility Functions for Testing ───────────────────────────────────────────
 
@@ -157,7 +161,11 @@ describe('IncentivesMarketplacePage — localStorage claimed incentives', () => 
     fc.assert(
       fc.property(
         addressArb,
-        fc.array(fc.integer({ min: 1, max: 100000 }), { minLength: 1, maxLength: 10, uniqueBy: (x) => x }),
+        fc.array(fc.integer({ min: 1, max: 100000 }), {
+          minLength: 1,
+          maxLength: 10,
+          uniqueBy: (x) => x
+        }),
         (address, ids) => {
           ids.forEach((id) => addClaimedId(address, id))
           const claimed = getClaimedIds(address)
@@ -170,16 +178,12 @@ describe('IncentivesMarketplacePage — localStorage claimed incentives', () => 
 
   it('adding same claim twice does not duplicate', () => {
     fc.assert(
-      fc.property(
-        addressArb,
-        fc.integer({ min: 1, max: 100000 }),
-        (address, id) => {
-          addClaimedId(address, id)
-          addClaimedId(address, id)
-          const claimed = getClaimedIds(address)
-          return claimed.size === 1
-        }
-      ),
+      fc.property(addressArb, fc.integer({ min: 1, max: 100000 }), (address, id) => {
+        addClaimedId(address, id)
+        addClaimedId(address, id)
+        const claimed = getClaimedIds(address)
+        return claimed.size === 1
+      }),
       { numRuns: 50 }
     )
   })
@@ -193,10 +197,7 @@ describe('IncentivesMarketplacePage — localStorage claimed incentives', () => 
           ids.forEach((id) => addClaimedId(address, id))
           const first = getClaimedIds(address)
           const second = getClaimedIds(address)
-          return (
-            first.size === second.size &&
-            ids.every((id) => first.has(id) && second.has(id))
-          )
+          return first.size === second.size && ids.every((id) => first.has(id) && second.has(id))
         }
       ),
       { numRuns: 50 }
@@ -205,16 +206,12 @@ describe('IncentivesMarketplacePage — localStorage claimed incentives', () => 
 
   it('clearing claims removes stored data', () => {
     fc.assert(
-      fc.property(
-        addressArb,
-        fc.integer({ min: 1, max: 100000 }),
-        (address, id) => {
-          addClaimedId(address, id)
-          clearClaimedIds(address)
-          const claimed = getClaimedIds(address)
-          return claimed.size === 0
-        }
-      ),
+      fc.property(addressArb, fc.integer({ min: 1, max: 100000 }), (address, id) => {
+        addClaimedId(address, id)
+        clearClaimedIds(address)
+        const claimed = getClaimedIds(address)
+        return claimed.size === 0
+      }),
       { numRuns: 50 }
     )
   })
@@ -233,7 +230,10 @@ describe('IncentivesMarketplacePage — localStorage claimed incentives', () => 
   it('non-array data returns empty set', () => {
     fc.assert(
       fc.property(addressArb, (address) => {
-        localStorage.setItem(`${CLAIMS_KEY_PREFIX}${address}`, JSON.stringify({ invalid: 'object' }))
+        localStorage.setItem(
+          `${CLAIMS_KEY_PREFIX}${address}`,
+          JSON.stringify({ invalid: 'object' })
+        )
         const claimed = getClaimedIds(address)
         return claimed.size === 0
       }),
@@ -286,15 +286,9 @@ describe('IncentivesMarketplacePage — comparison selection', () => {
           set = toggleCompareId(set, a)
           set = toggleCompareId(set, b)
           set = toggleCompareId(set, c)
-          const before = new Set(set)
+          const _before = new Set(set)
           set = toggleCompareId(set, d)
-          return (
-            set.size === 3 &&
-            set.has(a) &&
-            set.has(b) &&
-            set.has(c) &&
-            !set.has(d)
-          )
+          return set.size === 3 && set.has(a) && set.has(b) && set.has(c) && !set.has(d)
         }
       ),
       { numRuns: 100 }
@@ -309,10 +303,9 @@ describe('IncentivesMarketplacePage — comparison selection', () => {
         (ids, newId) => {
           const original = new Set<number>(ids)
           const snapshot = new Set(original)
-          const result = toggleCompareId(original, newId)
+          const _result = toggleCompareId(original, newId)
           return (
-            original.size === snapshot.size &&
-            Array.from(original).every((id) => snapshot.has(id))
+            original.size === snapshot.size && Array.from(original).every((id) => snapshot.has(id))
           )
         }
       ),
@@ -322,15 +315,12 @@ describe('IncentivesMarketplacePage — comparison selection', () => {
 
   it('toggle is idempotent when called twice with same id', () => {
     fc.assert(
-      fc.property(
-        fc.integer({ min: 1, max: 1000 }),
-        (id) => {
-          let set = new Set<number>()
-          set = toggleCompareId(set, id)
-          set = toggleCompareId(set, id)
-          return set.size === 0
-        }
-      ),
+      fc.property(fc.integer({ min: 1, max: 1000 }), (id) => {
+        let set = new Set<number>()
+        set = toggleCompareId(set, id)
+        set = toggleCompareId(set, id)
+        return set.size === 0
+      }),
       { numRuns: 100 }
     )
   })
@@ -339,30 +329,24 @@ describe('IncentivesMarketplacePage — comparison selection', () => {
 describe('IncentivesMarketplacePage — grid layout', () => {
   it('grid rows splits items into columns correctly', () => {
     fc.assert(
-      fc.property(
-        fc.array(incentiveArb, { minLength: 0, maxLength: 20 }),
-        (items) => {
-          const rows = gridRows(items, 3)
-          return rows.every((row) => row.length <= 3)
-        }
-      ),
+      fc.property(fc.array(incentiveArb, { minLength: 0, maxLength: 20 }), (items) => {
+        const rows = gridRows(items, 3)
+        return rows.every((row) => row.length <= 3)
+      }),
       { numRuns: 50 }
     )
   })
 
   it('all items are present in grid rows', () => {
     fc.assert(
-      fc.property(
-        fc.array(incentiveArb, { minLength: 0, maxLength: 20 }),
-        (items) => {
-          const rows = gridRows(items, 3)
-          const flattened = rows.flat()
-          return (
-            flattened.length === items.length &&
-            items.every((item) => flattened.some((i) => i.id === item.id))
-          )
-        }
-      ),
+      fc.property(fc.array(incentiveArb, { minLength: 0, maxLength: 20 }), (items) => {
+        const rows = gridRows(items, 3)
+        const flattened = rows.flat()
+        return (
+          flattened.length === items.length &&
+          items.every((item) => flattened.some((i) => i.id === item.id))
+        )
+      }),
       { numRuns: 50 }
     )
   })
@@ -374,14 +358,11 @@ describe('IncentivesMarketplacePage — grid layout', () => {
 
   it('number of rows is ceil(items / cols)', () => {
     fc.assert(
-      fc.property(
-        fc.array(incentiveArb, { minLength: 0, maxLength: 20 }),
-        (items) => {
-          const rows = gridRows(items, 3)
-          const expected = Math.ceil(items.length / 3)
-          return rows.length === expected
-        }
-      ),
+      fc.property(fc.array(incentiveArb, { minLength: 0, maxLength: 20 }), (items) => {
+        const rows = gridRows(items, 3)
+        const expected = Math.ceil(items.length / 3)
+        return rows.length === expected
+      }),
       { numRuns: 50 }
     )
   })
@@ -390,43 +371,34 @@ describe('IncentivesMarketplacePage — grid layout', () => {
 describe('IncentivesMarketplacePage — list layout', () => {
   it('list rows creates single-item arrays', () => {
     fc.assert(
-      fc.property(
-        fc.array(incentiveArb, { minLength: 0, maxLength: 20 }),
-        (items) => {
-          const rows = listRows(items)
-          return rows.every((row) => row.length === 1)
-        }
-      ),
+      fc.property(fc.array(incentiveArb, { minLength: 0, maxLength: 20 }), (items) => {
+        const rows = listRows(items)
+        return rows.every((row) => row.length === 1)
+      }),
       { numRuns: 50 }
     )
   })
 
   it('list rows count equals input length', () => {
     fc.assert(
-      fc.property(
-        fc.array(incentiveArb, { minLength: 0, maxLength: 20 }),
-        (items) => {
-          const rows = listRows(items)
-          return rows.length === items.length
-        }
-      ),
+      fc.property(fc.array(incentiveArb, { minLength: 0, maxLength: 20 }), (items) => {
+        const rows = listRows(items)
+        return rows.length === items.length
+      }),
       { numRuns: 50 }
     )
   })
 
   it('all items preserved in list layout', () => {
     fc.assert(
-      fc.property(
-        fc.array(incentiveArb, { minLength: 0, maxLength: 20 }),
-        (items) => {
-          const rows = listRows(items)
-          const flattened = rows.flat()
-          return (
-            flattened.length === items.length &&
-            items.every((item) => flattened.some((i) => i.id === item.id))
-          )
-        }
-      ),
+      fc.property(fc.array(incentiveArb, { minLength: 0, maxLength: 20 }), (items) => {
+        const rows = listRows(items)
+        const flattened = rows.flat()
+        return (
+          flattened.length === items.length &&
+          items.every((item) => flattened.some((i) => i.id === item.id))
+        )
+      }),
       { numRuns: 50 }
     )
   })

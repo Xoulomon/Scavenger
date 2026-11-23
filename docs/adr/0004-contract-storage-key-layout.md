@@ -10,7 +10,7 @@
 Soroban charges for storage in two ways that pull in opposite directions:
 
 1. **Read cost.** Instance storage is a single ledger entry. Every invocation loads it
-   in full, so anything placed there is paid for on *every* call, whether or not it is
+   in full, so anything placed there is paid for on _every_ call, whether or not it is
    read.
 2. **Rent and expiry.** Every entry has a TTL. Instance storage expires as a unit;
    persistent entries expire individually and are archived; temporary entries expire
@@ -50,12 +50,12 @@ We will assign storage to tiers by access pattern, and key entries with typed tu
 
 ## Alternatives Considered
 
-| Alternative | Why it was rejected |
-|-------------|---------------------|
+| Alternative                                                       | Why it was rejected                                                                                                                                                                                                                                      |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | A single `DataKey` enum for all keys, as in many Soroban examples | Clean in principle, but every variant addition changes the enum's XDR encoding, which is a migration risk across upgrades for a contract this broad. Independent `Symbol` constants and tuple keys let features be added without touching a shared type. |
-| Put everything in persistent storage | Loses the single-entry read efficiency of instance storage for the hot config path, and multiplies the number of entries paying rent individually. |
-| Put everything in instance storage | Every invocation would load the entire contract state. Read cost grows without bound as features are added. |
-| String-concatenated keys (`"waste_" + id`) | Pays string construction and hashing on every access, and makes key collisions a runtime surprise rather than a type error. |
+| Put everything in persistent storage                              | Loses the single-entry read efficiency of instance storage for the hot config path, and multiplies the number of entries paying rent individually.                                                                                                       |
+| Put everything in instance storage                                | Every invocation would load the entire contract state. Read cost grows without bound as features are added.                                                                                                                                              |
+| String-concatenated keys (`"waste_" + id`)                        | Pays string construction and hashing on every access, and makes key collisions a runtime surprise rather than a type error.                                                                                                                              |
 
 ## Consequences
 

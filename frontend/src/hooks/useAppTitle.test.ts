@@ -19,7 +19,7 @@ describe('useAppTitle', () => {
 
   it('updates document.title when the title prop changes', () => {
     const { rerender } = renderHook(({ title }: { title: string }) => useAppTitle(title), {
-      initialProps: { title: 'Page A' },
+      initialProps: { title: 'Page A' }
     })
     expect(document.title).toBe('Page A')
 
@@ -45,7 +45,7 @@ describe('useAppTitle', () => {
 
   it('updates when rerendered with a new title', () => {
     const { rerender } = renderHook(({ t }: { t: string }) => useAppTitle(t), {
-      initialProps: { t: 'First' },
+      initialProps: { t: 'First' }
     })
     rerender({ t: 'Second' })
     rerender({ t: 'Third' })

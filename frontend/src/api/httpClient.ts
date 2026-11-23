@@ -20,7 +20,7 @@ import {
   type ApiClientOptions,
   type RequestOptions,
   type ApiResult,
-  type HttpMethod,
+  type HttpMethod
 } from '../services/apiClient'
 import { ApiError, normalizeApiError } from '../services/errorMapper'
 
@@ -49,7 +49,7 @@ export const HttpStatus = {
   InternalServerError: 500,
   BadGateway: 502,
   ServiceUnavailable: 503,
-  GatewayTimeout: 504,
+  GatewayTimeout: 504
 } as const
 
 export type HttpStatus = (typeof HttpStatus)[keyof typeof HttpStatus]
@@ -65,7 +65,7 @@ export const ApiErrorKind = {
   Timeout: 'Timeout',
   NetworkError: 'NetworkError',
   Unknown: 'Unknown',
-  Http: 'Http',
+  Http: 'Http'
 } as const
 
 export type ApiErrorKind = (typeof ApiErrorKind)[keyof typeof ApiErrorKind]
@@ -103,7 +103,7 @@ export function createApiClient(options: ApiClientOptions = {}): ApiClient {
   return createServicesApiClient({
     baseUrl: options.baseUrl ?? config.apiBaseUrl,
     timeoutMs: options.timeoutMs ?? config.apiTimeoutMs,
-    ...options,
+    ...options
   }) as ApiClient
 }
 

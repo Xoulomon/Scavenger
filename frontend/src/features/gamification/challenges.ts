@@ -18,14 +18,49 @@ export function generateChallenges(stats: UserStats, now = Date.now()): Challeng
   const weekStart = startOfWeek(now)
 
   const daily: Omit<Challenge, 'current' | 'progressPct' | 'completed'>[] = [
-    { id: 'daily_submit_3', title: 'Daily Submitter', description: 'Submit 3 waste items today', target: 3, type: 'daily', expiresAt: dayStart + 86_400_000 },
-    { id: 'daily_transfer_1', title: 'Daily Mover', description: 'Complete 1 transfer today', target: 1, type: 'daily', expiresAt: dayStart + 86_400_000 },
+    {
+      id: 'daily_submit_3',
+      title: 'Daily Submitter',
+      description: 'Submit 3 waste items today',
+      target: 3,
+      type: 'daily',
+      expiresAt: dayStart + 86_400_000
+    },
+    {
+      id: 'daily_transfer_1',
+      title: 'Daily Mover',
+      description: 'Complete 1 transfer today',
+      target: 1,
+      type: 'daily',
+      expiresAt: dayStart + 86_400_000
+    }
   ]
 
   const weekly: Omit<Challenge, 'current' | 'progressPct' | 'completed'>[] = [
-    { id: 'weekly_submit_15', title: 'Weekly Recycler', description: 'Submit 15 waste items this week', target: 15, type: 'weekly', expiresAt: weekStart + 7 * 86_400_000 },
-    { id: 'weekly_transfer_5', title: 'Weekly Mover', description: 'Complete 5 transfers this week', target: 5, type: 'weekly', expiresAt: weekStart + 7 * 86_400_000 },
-    { id: 'weekly_earn_500', title: 'Token Grinder', description: 'Earn 500 tokens this week', target: 500, type: 'weekly', expiresAt: weekStart + 7 * 86_400_000 },
+    {
+      id: 'weekly_submit_15',
+      title: 'Weekly Recycler',
+      description: 'Submit 15 waste items this week',
+      target: 15,
+      type: 'weekly',
+      expiresAt: weekStart + 7 * 86_400_000
+    },
+    {
+      id: 'weekly_transfer_5',
+      title: 'Weekly Mover',
+      description: 'Complete 5 transfers this week',
+      target: 5,
+      type: 'weekly',
+      expiresAt: weekStart + 7 * 86_400_000
+    },
+    {
+      id: 'weekly_earn_500',
+      title: 'Token Grinder',
+      description: 'Earn 500 tokens this week',
+      target: 500,
+      type: 'weekly',
+      expiresAt: weekStart + 7 * 86_400_000
+    }
   ]
 
   const resolve = (c: Omit<Challenge, 'current' | 'progressPct' | 'completed'>): Challenge => {

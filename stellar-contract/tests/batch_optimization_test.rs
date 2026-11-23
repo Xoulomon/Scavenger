@@ -7,8 +7,8 @@
 /// - Consolidation effectiveness
 use soroban_sdk::{testutils::Address as _, vec, Address, Env};
 use stellar_scavngr_contract::batch_optimizer::{
-    batch_transfer_waste, batch_update_participants, BatchAnalyzer, BatchConfig, BatchParticipantUpdate,
-    BatchValidator, BatchWasteTransfer, PerformanceMetrics, MAX_SAFE_BATCH_SIZE, validate_ceiling,
+    batch_transfer_waste, batch_update_participants, validate_ceiling, BatchAnalyzer, BatchConfig,
+    BatchParticipantUpdate, BatchValidator, BatchWasteTransfer, PerformanceMetrics, MAX_SAFE_BATCH_SIZE,
 };
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -524,8 +524,14 @@ fn test_progressive_batch_sizes_within_ceiling() {
 fn test_batch_validator_ceiling_aware() {
     // The validator's max_size parameter should be honoured for values at and
     // above MAX_SAFE_BATCH_SIZE.
-    assert!(!BatchValidator::is_batch_size_valid(MAX_SAFE_BATCH_SIZE + 1, MAX_SAFE_BATCH_SIZE));
-    assert!(BatchValidator::is_batch_size_valid(MAX_SAFE_BATCH_SIZE, MAX_SAFE_BATCH_SIZE));
+    assert!(!BatchValidator::is_batch_size_valid(
+        MAX_SAFE_BATCH_SIZE + 1,
+        MAX_SAFE_BATCH_SIZE
+    ));
+    assert!(BatchValidator::is_batch_size_valid(
+        MAX_SAFE_BATCH_SIZE,
+        MAX_SAFE_BATCH_SIZE
+    ));
 }
 
 /// Documents the resource-limit ceiling and rationale.

@@ -14,7 +14,7 @@ vi.mock('./service', async (importOriginal) => {
     getWalletPublicKey: vi.fn(),
     connectWallet: vi.fn(),
     getNetworkMismatchMessage: vi.fn(),
-    watchWalletAccount: vi.fn(() => () => {}),
+    watchWalletAccount: vi.fn(() => () => {})
   }
 })
 
@@ -55,9 +55,7 @@ describe('useWallet', () => {
 
   it('reports a network mismatch and does not request access', async () => {
     const { result } = await renderInstalledWallet()
-    vi.mocked(service.getNetworkMismatchMessage).mockResolvedValue(
-      service.NETWORK_MISMATCH_MESSAGE
-    )
+    vi.mocked(service.getNetworkMismatchMessage).mockResolvedValue(service.NETWORK_MISMATCH_MESSAGE)
 
     await act(async () => {
       await result.current.connect()

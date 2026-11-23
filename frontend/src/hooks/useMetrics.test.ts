@@ -11,19 +11,19 @@ vi.mock('@/context/ContractContext', () => ({
     config: {
       contractId: 'CTEST123',
       rpcUrl: 'https://soroban-testnet.stellar.org',
-      network: 'TESTNET',
-    },
-  }),
+      network: 'TESTNET'
+    }
+  })
 }))
 
 vi.mock('@/lib/stellar', () => ({
-  getNetworkPassphrase: () => 'Test SDF Network ; September 2015',
+  getNetworkPassphrase: () => 'Test SDF Network ; September 2015'
 }))
 
 vi.mock('@/lib/cacheKeys', () => ({
   cacheKeys: {
-    metrics: () => ['metrics'],
-  },
+    metrics: () => ['metrics']
+  }
 }))
 
 // ── Centralised ScavengerClient mock (#1546) ──────────────────────────────────
@@ -35,9 +35,9 @@ import { createMockClient } from '@/test-utils/mockScavengerClient'
 const mockGetMetrics = vi.fn()
 
 vi.mock('@/api/client', () => ({
-  ScavengerClient: vi.fn().mockImplementation(() =>
-    createMockClient({ getMetrics: mockGetMetrics })
-  ),
+  ScavengerClient: vi
+    .fn()
+    .mockImplementation(() => createMockClient({ getMetrics: mockGetMetrics }))
 }))
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -59,14 +59,11 @@ describe('useMetrics', () => {
     const mockMetrics = {
       total_participants: 42n,
       total_waste_weight: 5000n,
-      total_tokens_distributed: 10000n,
+      total_tokens_distributed: 10000n
     }
     mockGetMetrics.mockResolvedValue(mockMetrics)
 
-    const { result } = renderHook(
-      () => useMetrics(),
-      { wrapper: makeWrapper() }
-    )
+    const { result } = renderHook(() => useMetrics(), { wrapper: makeWrapper() })
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true)
@@ -80,10 +77,7 @@ describe('useMetrics', () => {
     const error = new Error('Failed to fetch metrics')
     mockGetMetrics.mockRejectedValue(error)
 
-    const { result } = renderHook(
-      () => useMetrics(),
-      { wrapper: makeWrapper() }
-    )
+    const { result } = renderHook(() => useMetrics(), { wrapper: makeWrapper() })
 
     await waitFor(() => {
       expect(result.current.isError).toBe(true)
@@ -96,10 +90,7 @@ describe('useMetrics', () => {
     const mockMetrics = { total_participants: 1n }
     mockGetMetrics.mockResolvedValue(mockMetrics)
 
-    renderHook(
-      () => useMetrics(),
-      { wrapper: makeWrapper() }
-    )
+    renderHook(() => useMetrics(), { wrapper: makeWrapper() })
 
     await waitFor(() => {
       expect(mockGetMetrics).toHaveBeenCalled()

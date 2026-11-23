@@ -33,7 +33,7 @@ const WASTE_LABEL_KEYS: Record<WasteType, string> = {
   [WasteType.Metal]: 'incentives.wasteTypes.metal',
   [WasteType.Glass]: 'incentives.wasteTypes.glass',
   [WasteType.Organic]: 'incentives.wasteTypes.organic',
-  [WasteType.Electronic]: 'incentives.wasteTypes.electronic',
+  [WasteType.Electronic]: 'incentives.wasteTypes.electronic'
 }
 
 const ALL_WASTE_TYPES = Object.values(WasteType).filter(
@@ -201,7 +201,9 @@ export function IncentivesPage() {
                         <table className="w-full text-sm">
                           <thead className="text-left text-muted-foreground">
                             <tr>
-                              <th className="pb-2 pr-2 font-medium xs:pr-4">{t('incentives.table.id')}</th>
+                              <th className="pb-2 pr-2 font-medium xs:pr-4">
+                                {t('incentives.table.id')}
+                              </th>
                               <th className="pb-2 pr-2 font-medium xs:pr-4">
                                 {t('incentives.table.rewarder')}
                               </th>
@@ -342,7 +344,11 @@ export function IncentivesPage() {
             </div>
           </div>
           <DialogFooter className="flex-col gap-2 xs:flex-row">
-            <Button variant="outline" onClick={() => setCreateOpen(false)} className="w-full xs:w-auto">
+            <Button
+              variant="outline"
+              onClick={() => setCreateOpen(false)}
+              className="w-full xs:w-auto"
+            >
               {t('common.cancel')}
             </Button>
             <Button

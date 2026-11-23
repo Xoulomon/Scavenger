@@ -13,7 +13,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
+  DialogFooter
 } from '@/components/ui/Dialog'
 import { CalendarDays, Plus, Pause, Play, X, Clock } from 'lucide-react'
 import { formatDate } from '@/lib/helpers'
@@ -21,7 +21,7 @@ import { formatDate } from '@/lib/helpers'
 const FREQUENCIES: { value: SubscriptionFrequency; label: string }[] = [
   { value: 'weekly', label: 'Weekly' },
   { value: 'bi-weekly', label: 'Bi-weekly' },
-  { value: 'monthly', label: 'Monthly' },
+  { value: 'monthly', label: 'Monthly' }
 ]
 
 const WASTE_TYPE_OPTIONS = ['Paper', 'PET Plastic', 'Plastic', 'Metal', 'Glass']
@@ -37,7 +37,7 @@ function SubscriptionRow({
   onPause,
   onResume,
   onCancel,
-  onPickup,
+  onPickup
 }: {
   sub: Subscription
   onPause: (id: string) => void
@@ -51,9 +51,7 @@ function SubscriptionRow({
         {statusBadge(sub.status)}
         <span className="font-medium">{sub.recyclerName}</span>
         <span className="text-muted-foreground capitalize">{sub.frequency}</span>
-        <span className="text-xs text-muted-foreground">
-          Next: {formatDate(sub.nextPickup)}
-        </span>
+        <span className="text-xs text-muted-foreground">Next: {formatDate(sub.nextPickup)}</span>
       </div>
       {sub.status !== 'cancelled' && (
         <div className="flex gap-2">
@@ -84,7 +82,7 @@ function SubscriptionRow({
 function CreateSubscriptionDialog({
   open,
   onClose,
-  onCreate,
+  onCreate
 }: {
   open: boolean
   onClose: () => void
@@ -100,9 +98,7 @@ function CreateSubscriptionDialog({
   const [recyclerName, setRecyclerName] = useState('')
   const [frequency, setFrequency] = useState<SubscriptionFrequency>('weekly')
   const [wasteTypes, setWasteTypes] = useState<string[]>([])
-  const [startDate, setStartDate] = useState(
-    () => new Date().toISOString().split('T')[0]
-  )
+  const [startDate, setStartDate] = useState(() => new Date().toISOString().split('T')[0])
 
   const toggleWasteType = (t: string) =>
     setWasteTypes((prev) => (prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t]))
@@ -114,7 +110,7 @@ function CreateSubscriptionDialog({
       recyclerName,
       frequency,
       wasteTypes,
-      startDate: new Date(startDate).getTime(),
+      startDate: new Date(startDate).getTime()
     })
     onClose()
   }
@@ -206,8 +202,20 @@ function CreateSubscriptionDialog({
 export function SubscriptionsPage() {
   useAppTitle('Subscriptions')
   const { address } = useWallet()
-  const { subscriptions, active, paused, cancelled, history, isLoading, error, create, pause, resume, cancel, recordPickup } =
-    useSubscriptions(address)
+  const {
+    subscriptions,
+    active,
+    paused,
+    cancelled,
+    history,
+    isLoading,
+    error,
+    create,
+    pause,
+    resume,
+    cancel,
+    recordPickup
+  } = useSubscriptions(address)
   const [showCreate, setShowCreate] = useState(false)
   const [tab, setTab] = useState<'manage' | 'calendar' | 'history'>('manage')
 
@@ -326,9 +334,7 @@ export function SubscriptionsPage() {
         </div>
       )}
 
-      {tab === 'calendar' && (
-        <SubscriptionCalendar subscriptions={active} month={new Date()} />
-      )}
+      {tab === 'calendar' && <SubscriptionCalendar subscriptions={active} month={new Date()} />}
 
       {tab === 'history' && (
         <Card>

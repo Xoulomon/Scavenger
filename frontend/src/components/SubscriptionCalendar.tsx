@@ -42,10 +42,7 @@ export function SubscriptionCalendar({ subscriptions, month = new Date() }: Prop
       aria-labelledby={headingId}
       aria-label={`Subscription calendar for ${monthLabel}`}
     >
-      <h3
-        id={headingId}
-        className="mb-2 text-xs font-semibold xs:mb-3 xs:text-sm tablet:text-base"
-      >
+      <h3 id={headingId} className="mb-2 text-xs font-semibold xs:mb-3 xs:text-sm tablet:text-base">
         {monthLabel}
       </h3>
       <CalendarGrid month={month} renderDayContent={renderDayContent} />

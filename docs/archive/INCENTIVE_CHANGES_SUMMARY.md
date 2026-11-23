@@ -11,6 +11,7 @@ This document summarizes the changes made to implement a comprehensive Incentive
 **Location:** `stellar-contract/src/lib.rs`
 
 **Structure:**
+
 ```rust
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -28,31 +29,37 @@ pub struct Incentive {
 ### 2. New Contract Functions
 
 #### Incentive Management
+
 - `create_incentive()` - Create new manufacturer incentive programs
 - `update_incentive_status()` - Activate/deactivate incentives
 - `get_incentive_by_id()` - Retrieve incentive by ID
 - `incentive_exists()` - Check if incentive exists
 
 #### Query Functions
+
 - `get_incentives_by_waste_type()` - Get all incentives for a waste type
 - `get_active_incentives()` - Get all currently active incentives
 
 #### Calculation Functions
+
 - `calculate_incentive_reward()` - Calculate reward with capping and overflow protection
 
 #### Internal Helpers
+
 - `set_incentive()` - Store incentive in persistent storage
 - `get_incentive()` - Retrieve incentive from storage
 
 ### 3. Storage Implementation
 
 **New Storage Keys:**
+
 ```rust
 ("incentive_count",)           -> u64
 ("incentive", incentive_id)    -> Incentive
 ```
 
 **Key Features:**
+
 - Separate namespace from waste records
 - No collision with existing storage
 - Deterministic key generation
@@ -61,16 +68,19 @@ pub struct Incentive {
 ### 4. Validation Logic
 
 **Creation Validation:**
+
 - Rewarder must be registered manufacturer
 - Reward must be greater than zero
 - Max waste amount must be greater than zero
 - Requires rewarder authentication
 
 **Status Update Validation:**
+
 - Requires rewarder authentication
 - Incentive must exist
 
 **Reward Calculation Validation:**
+
 - Returns 0 for inactive incentives
 - Caps waste amount at max_waste_amount
 - Uses checked arithmetic for overflow protection
@@ -112,6 +122,7 @@ Added 18 new tests covering:
 ### 6. Documentation
 
 Created comprehensive documentation:
+
 - `docs/archive/INCENTIVE_IMPLEMENTATION.md` - Complete implementation guide
 - `docs/INCENTIVE_QUICK_REFERENCE.md` - Quick reference for developers
 - `docs/archive/INCENTIVE_CHANGES_SUMMARY.md` - This document
@@ -119,17 +130,20 @@ Created comprehensive documentation:
 ## Security Enhancements
 
 ### Access Control
+
 - Only manufacturers can create incentives
 - Only rewarders can update their incentives
 - Authentication required for all write operations
 
 ### Input Validation
+
 - Prevents zero-reward incentives
 - Prevents zero-capacity incentives
 - Validates manufacturer role before creation
 - Clear error messages for invalid inputs
 
 ### Overflow Protection
+
 ```rust
 eligible_amount
     .checked_mul(incentive.reward)
@@ -138,6 +152,7 @@ eligible_amount
 ```
 
 ### State Management
+
 - Inactive incentives return 0 rewards
 - Active status enforced in calculations
 - Status changes require authentication
@@ -145,6 +160,7 @@ eligible_amount
 ## No Breaking Changes
 
 The Incentive implementation:
+
 - ✅ Uses separate storage namespace
 - ✅ Does not modify existing structures
 - ✅ Maintains backward compatibility
@@ -155,6 +171,7 @@ The Incentive implementation:
 ## Storage Layout
 
 ### Before
+
 ```
 ("waste_count",)              -> u64
 ("waste", waste_id)           -> Material
@@ -164,6 +181,7 @@ The Incentive implementation:
 ```
 
 ### After
+
 ```
 ("waste_count",)              -> u64
 ("waste", waste_id)           -> Material
@@ -268,17 +286,20 @@ if client.incentive_exists(&incentive_id) {
 ## Testing Status
 
 ### Compilation
+
 ✅ No compilation errors
 ✅ No diagnostic warnings
 ✅ All type checks pass
 
 ### Test Coverage
+
 ✅ 18 new comprehensive tests added
 ✅ All edge cases covered
 ✅ Error conditions tested
 ✅ No regressions to existing tests
 
 ### Security
+
 ✅ Access control implemented
 ✅ Input validation enforced
 ✅ Overflow protection verified
@@ -287,12 +308,14 @@ if client.incentive_exists(&incentive_id) {
 ## Performance Impact
 
 ### Gas Costs
+
 - Single storage write per incentive creation
 - Efficient ID-based lookups
 - Minimal redundant reads
 - Query functions iterate over all incentives (O(n))
 
 ### Storage
+
 - ~150 bytes per incentive
 - Efficient serialization format
 - No redundant data
@@ -303,11 +326,13 @@ if client.incentive_exists(&incentive_id) {
 ### For Manufacturers
 
 1. **Register as Manufacturer**
+
 ```rust
 client.register_participant(&address, &ParticipantRole::Manufacturer);
 ```
 
 2. **Create Incentives**
+
 ```rust
 let incentive = client.create_incentive(
     &waste_type,
@@ -318,6 +343,7 @@ let incentive = client.create_incentive(
 ```
 
 3. **Manage Incentives**
+
 ```rust
 // Deactivate when budget exhausted
 client.update_incentive_status(&incentive.id, &false);
@@ -329,11 +355,13 @@ client.update_incentive_status(&incentive.id, &true);
 ### For Collectors/Recyclers
 
 1. **Query Available Incentives**
+
 ```rust
 let active_incentives = client.get_active_incentives();
 ```
 
 2. **Calculate Potential Rewards**
+
 ```rust
 for incentive in active_incentives.iter() {
     let reward = client.calculate_incentive_reward(&incentive.id, &waste_amount);
@@ -342,6 +370,7 @@ for incentive in active_incentives.iter() {
 ```
 
 3. **Submit Material**
+
 ```rust
 let material = client.submit_material(&waste_type, &amount, &user, &desc);
 ```
@@ -349,25 +378,23 @@ let material = client.submit_material(&waste_type, &amount, &user, &desc);
 ### For Frontend Applications
 
 1. **Display Active Incentives**
+
 ```javascript
-const activeIncentives = await contract.get_active_incentives();
+const activeIncentives = await contract.get_active_incentives()
 // Show in UI with reward calculations
 ```
 
 2. **Calculate Before Submission**
+
 ```javascript
-const reward = await contract.calculate_incentive_reward(
-    incentiveId,
-    wasteAmount
-);
+const reward = await contract.calculate_incentive_reward(incentiveId, wasteAmount)
 // Show potential earnings to user
 ```
 
 3. **Filter by Waste Type**
+
 ```javascript
-const plasticIncentives = await contract.get_incentives_by_waste_type(
-    WasteType.Plastic
-);
+const plasticIncentives = await contract.get_incentives_by_waste_type(WasteType.Plastic)
 ```
 
 ## Error Handling
@@ -413,6 +440,7 @@ if !client.incentive_exists(&id) {
 ## Future Enhancements
 
 Potential improvements:
+
 1. Time-limited incentives with expiration
 2. Tiered reward structures
 3. Budget tracking and automatic deactivation

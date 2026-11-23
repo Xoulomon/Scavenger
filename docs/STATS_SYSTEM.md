@@ -4,18 +4,18 @@ The `RecyclingStats` struct provides comprehensive tracking of participant recyc
 
 ## RecyclingStats Struct
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `participant` | `Address` | Participant's address |
-| `total_submissions` | `u64` | Total materials submitted |
-| `verified_submissions` | `u64` | Number of verified materials |
-| `total_weight` | `u64` | Total weight in grams |
-| `total_points` | `u64` | Total reward points earned |
-| `paper_count` | `u64` | Number of paper submissions |
-| `pet_plastic_count` | `u64` | Number of PET plastic submissions |
-| `plastic_count` | `u64` | Number of plastic submissions |
-| `metal_count` | `u64` | Number of metal submissions |
-| `glass_count` | `u64` | Number of glass submissions |
+| Field                  | Type      | Description                       |
+| ---------------------- | --------- | --------------------------------- |
+| `participant`          | `Address` | Participant's address             |
+| `total_submissions`    | `u64`     | Total materials submitted         |
+| `verified_submissions` | `u64`     | Number of verified materials      |
+| `total_weight`         | `u64`     | Total weight in grams             |
+| `total_points`         | `u64`     | Total reward points earned        |
+| `paper_count`          | `u64`     | Number of paper submissions       |
+| `pet_plastic_count`    | `u64`     | Number of PET plastic submissions |
+| `plastic_count`        | `u64`     | Number of plastic submissions     |
+| `metal_count`          | `u64`     | Number of metal submissions       |
+| `glass_count`          | `u64`     | Number of glass submissions       |
 
 ## Key Features
 
@@ -131,8 +131,8 @@ let most_common = stats.most_submitted_type();
 
 Stats are stored in Soroban instance storage:
 
-| Key | Value |
-|-----|-------|
+| Key                              | Value                   |
+| -------------------------------- | ----------------------- |
 | `("stats", participant_address)` | `RecyclingStats` struct |
 
 ## Integration

@@ -52,26 +52,31 @@ fn next_incentive_id(env: &Env) -> u64 {
 ## Key Features
 
 ### 1. Initialization
+
 - Counters start at 0 and first ID generated is 1
 - No explicit initialization required - uses `unwrap_or(0)` pattern
 - Lazy initialization on first access
 
 ### 2. Increment Operations
+
 - Atomic read-increment-write operation
 - Returns the new ID immediately after incrementing
 - Sequential IDs: 1, 2, 3, 4, ...
 
 ### 3. No ID Reuse
+
 - Once an ID is generated, it's never reused
 - Counter only increments, never decrements
 - Persistent across contract calls
 
 ### 4. Thread-Safe Operations
+
 - Soroban's storage system ensures atomicity
 - Multiple concurrent submissions get unique IDs
 - No race conditions or collisions
 
 ### 5. Independent Counters
+
 - Waste and incentive counters operate independently
 - Each maintains its own sequence
 - No interference between counter types
@@ -105,7 +110,7 @@ pub fn submit_material(
 
     // Store waste
     Self::set_waste(&env, waste_id, &material);
-    
+
     material
 }
 ```
@@ -126,10 +131,10 @@ pub fn submit_materials_batch(
 
     for item in materials.iter() {
         let (waste_type, weight, description) = item;
-        
+
         // Each material gets a unique sequential ID
         let waste_id = Self::next_waste_id(&env);
-        
+
         let material = Material::new(
             waste_id,
             waste_type,
@@ -152,31 +157,37 @@ pub fn submit_materials_batch(
 The implementation includes comprehensive tests covering:
 
 ### Initialization Tests
+
 - Counter starts at 0
 - First ID is 1
 - Second ID is 2
 
 ### Increment Tests
+
 - Sequential increments (1, 2, 3, 4, 5)
 - Correct values returned
 - Storage updated properly
 
 ### No Reuse Tests
+
 - All IDs are unique
 - No gaps in sequence
 - No collisions between users
 
 ### Thread-Safety Tests
+
 - Concurrent submissions from multiple users
 - All IDs remain unique
 - Sequential ordering maintained
 
 ### Persistence Tests
+
 - Counter value persists across calls
 - Continues from last value
 - No reset on new operations
 
 ### Independence Tests
+
 - Waste and incentive counters don't interfere
 - Each maintains separate sequence
 - Both can increment simultaneously
@@ -184,16 +195,19 @@ The implementation includes comprehensive tests covering:
 ## Performance Considerations
 
 ### Storage Efficiency
+
 - Single u64 value per counter (8 bytes)
 - Minimal storage footprint
 - Fast read/write operations
 
 ### Gas Optimization
+
 - Single storage read per ID generation
 - Single storage write per ID generation
 - No complex computations
 
 ### Scalability
+
 - u64 supports up to 18,446,744,073,709,551,615 IDs
 - Sufficient for any realistic use case
 - No overflow concerns in practice
@@ -223,16 +237,19 @@ Potential improvements for future versions:
 ## Security Considerations
 
 ### Authorization
+
 - Counter functions are internal (not public)
 - Only accessible through authorized contract functions
 - No direct external access
 
 ### Overflow Protection
+
 - u64 provides massive ID space
 - Overflow extremely unlikely in practice
 - Could add explicit overflow checks if needed
 
 ### Atomicity
+
 - Soroban storage ensures atomic operations
 - No partial updates possible
 - Consistent state guaranteed

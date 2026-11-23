@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 
 /**
@@ -21,7 +21,7 @@ function useModal(initialOpen = false): UseModalState {
     isOpen,
     open: () => setIsOpen(true),
     close: () => setIsOpen(false),
-    toggle: () => setIsOpen((prev) => !prev),
+    toggle: () => setIsOpen((prev) => !prev)
   }
 }
 

@@ -1,10 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { renderHook } from '@testing-library/react'
-import {
-  linearRegression,
-  usePredictiveAnalytics,
-  DataPoint,
-} from '@/hooks/usePredictiveAnalytics'
+import { linearRegression, usePredictiveAnalytics, DataPoint } from '@/hooks/usePredictiveAnalytics'
 import { Waste, WasteType } from '@/api/types'
 
 // ── linearRegression tests ────────────────────────────────────────────────────
@@ -21,7 +17,7 @@ describe('linearRegression', () => {
       { x: 0, y: 1 },
       { x: 1, y: 3 },
       { x: 2, y: 5 },
-      { x: 3, y: 7 },
+      { x: 3, y: 7 }
     ]
     const { slope, intercept, r2 } = linearRegression(points)
     expect(slope).toBeCloseTo(2, 2)
@@ -33,7 +29,7 @@ describe('linearRegression', () => {
     const points: DataPoint[] = [
       { x: 0, y: 3 },
       { x: 1, y: 3 },
-      { x: 2, y: 3 },
+      { x: 2, y: 3 }
     ]
     const { r2 } = linearRegression(points)
     expect(r2).toBe(1) // perfect fit for flat line
@@ -43,7 +39,7 @@ describe('linearRegression', () => {
     const points: DataPoint[] = [
       { x: 0, y: 10 },
       { x: 1, y: 8 },
-      { x: 2, y: 6 },
+      { x: 2, y: 6 }
     ]
     expect(linearRegression(points).slope).toBeLessThan(0)
   })
@@ -53,7 +49,7 @@ describe('linearRegression', () => {
       { x: 0, y: 1 },
       { x: 1, y: 5 },
       { x: 2, y: 2 },
-      { x: 3, y: 8 },
+      { x: 3, y: 8 }
     ]
     const { r2 } = linearRegression(points)
     expect(r2).toBeGreaterThanOrEqual(0)
@@ -75,7 +71,7 @@ function makeWaste(overrides: Partial<Waste> = {}): Waste {
     is_active: true,
     is_confirmed: false,
     confirmer: '',
-    ...overrides,
+    ...overrides
   }
 }
 
@@ -95,7 +91,7 @@ describe('usePredictiveAnalytics', () => {
   it('groups wastes into weekly buckets', () => {
     const wastes = [
       makeWaste({ waste_id: 1n, recycled_timestamp: 1700000000 }),
-      makeWaste({ waste_id: 2n, recycled_timestamp: 1700000000 + 7 * 24 * 3600 }),
+      makeWaste({ waste_id: 2n, recycled_timestamp: 1700000000 + 7 * 24 * 3600 })
     ]
     const { result } = renderHook(() => usePredictiveAnalytics(wastes))
     const paperPred = result.current.predictions.find((p) => p.wasteType === WasteType.Paper)!
@@ -103,14 +99,20 @@ describe('usePredictiveAnalytics', () => {
   })
 
   it('produces 4 forecast points', () => {
-    const wastes = [makeWaste(), makeWaste({ waste_id: 2n, recycled_timestamp: 1700000000 + 7 * 24 * 3600 })]
+    const wastes = [
+      makeWaste(),
+      makeWaste({ waste_id: 2n, recycled_timestamp: 1700000000 + 7 * 24 * 3600 })
+    ]
     const { result } = renderHook(() => usePredictiveAnalytics(wastes))
     const paperPred = result.current.predictions.find((p) => p.wasteType === WasteType.Paper)!
     expect(paperPred.forecastPoints).toHaveLength(4)
   })
 
   it('confidence interval has same length as forecast', () => {
-    const wastes = [makeWaste(), makeWaste({ waste_id: 2n, recycled_timestamp: 1700000000 + 7 * 24 * 3600 })]
+    const wastes = [
+      makeWaste(),
+      makeWaste({ waste_id: 2n, recycled_timestamp: 1700000000 + 7 * 24 * 3600 })
+    ]
     const { result } = renderHook(() => usePredictiveAnalytics(wastes))
     const paperPred = result.current.predictions.find((p) => p.wasteType === WasteType.Paper)!
     expect(paperPred.confidenceInterval).toHaveLength(4)

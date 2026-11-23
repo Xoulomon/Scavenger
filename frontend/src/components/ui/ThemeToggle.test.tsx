@@ -1,18 +1,17 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe, toHaveNoViolations } from 'jest-axe'
 import { ThemeToggle, ThemeSelector } from './ThemeToggle'
-import { ThemeProvider, useTheme } from '@/context/ThemeProvider'
+import { useTheme } from '@/context/ThemeProvider'
 import { ReactNode } from 'react'
 
 expect.extend(toHaveNoViolations)
 
 // Mock the ThemeProvider context
 vi.mock('@/context/ThemeProvider', async () => {
-  const actual = await vi.importActual<typeof import('@/context/ThemeProvider')>(
-    '@/context/ThemeProvider'
-  )
+  const actual =
+    await vi.importActual<typeof import('@/context/ThemeProvider')>('@/context/ThemeProvider')
   return {
     ...actual,
     useTheme: vi.fn(() => ({
@@ -20,8 +19,8 @@ vi.mock('@/context/ThemeProvider', async () => {
       isReady: true,
       toggleTheme: vi.fn(),
       theme: 'light' as const,
-      setTheme: vi.fn(),
-    })),
+      setTheme: vi.fn()
+    }))
   }
 })
 
@@ -88,7 +87,7 @@ describe('ThemeToggle', () => {
         isReady: true,
         toggleTheme: vi.fn(),
         theme: 'dark',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       render(
@@ -107,7 +106,7 @@ describe('ThemeToggle', () => {
         isReady: true,
         toggleTheme: vi.fn(),
         theme: 'light',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       render(
@@ -126,7 +125,7 @@ describe('ThemeToggle', () => {
         isReady: false,
         toggleTheme: vi.fn(),
         theme: 'light',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       render(
@@ -145,7 +144,7 @@ describe('ThemeToggle', () => {
         isReady: true,
         toggleTheme: vi.fn(),
         theme: 'light',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       render(
@@ -173,7 +172,7 @@ describe('ThemeToggle', () => {
         isReady: true,
         toggleTheme: vi.fn(),
         theme: 'dark',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       rerender(
@@ -196,7 +195,7 @@ describe('ThemeToggle', () => {
         isReady: true,
         toggleTheme: toggleThemeMock,
         theme: 'light',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       render(
@@ -219,7 +218,7 @@ describe('ThemeToggle', () => {
         isReady: true,
         toggleTheme: toggleThemeMock,
         theme: 'light',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       render(
@@ -243,7 +242,7 @@ describe('ThemeToggle', () => {
         isReady: true,
         toggleTheme: toggleThemeMock,
         theme: 'light',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       render(
@@ -267,7 +266,7 @@ describe('ThemeToggle', () => {
         isReady: false,
         toggleTheme: toggleThemeMock,
         theme: 'light',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       render(
@@ -336,7 +335,7 @@ describe('ThemeToggle', () => {
         isReady: true,
         toggleTheme: toggleThemeMock,
         theme: 'light',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       render(
@@ -365,7 +364,7 @@ describe('ThemeToggle', () => {
         isReady: true,
         toggleTheme: vi.fn(),
         theme: 'dark',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       rerender(
@@ -388,7 +387,7 @@ describe('ThemeSelector', () => {
         isReady: true,
         toggleTheme: vi.fn(),
         theme: 'light',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       render(
@@ -409,7 +408,7 @@ describe('ThemeSelector', () => {
         isReady: true,
         toggleTheme: vi.fn(),
         theme: 'light',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       render(
@@ -429,7 +428,7 @@ describe('ThemeSelector', () => {
         isReady: true,
         toggleTheme: vi.fn(),
         theme: 'light',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       render(
@@ -452,7 +451,7 @@ describe('ThemeSelector', () => {
         isReady: true,
         toggleTheme: vi.fn(),
         theme: 'light',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       render(
@@ -473,7 +472,7 @@ describe('ThemeSelector', () => {
         isReady: true,
         toggleTheme: vi.fn(),
         theme: 'light',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       const { container } = render(
@@ -497,7 +496,7 @@ describe('ThemeSelector', () => {
         isReady: true,
         toggleTheme: vi.fn(),
         theme: 'light',
-        setTheme: setThemeMock,
+        setTheme: setThemeMock
       })
 
       render(
@@ -519,7 +518,7 @@ describe('ThemeSelector', () => {
         isReady: true,
         toggleTheme: vi.fn(),
         theme: 'light',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       render(
@@ -529,7 +528,7 @@ describe('ThemeSelector', () => {
       )
 
       const lightOption = screen.getByRole('radio', { name: /light/i })
-      const darkOption = screen.getByRole('radio', { name: /dark/i })
+      const _darkOption = screen.getByRole('radio', { name: /dark/i })
 
       lightOption.focus()
       expect(lightOption).toHaveFocus()
@@ -555,7 +554,7 @@ describe('ThemeSelector', () => {
         isReady: true,
         toggleTheme: vi.fn(),
         theme: 'dark',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       rerender(
@@ -580,7 +579,7 @@ describe('ThemeSelector', () => {
         isReady: true,
         toggleTheme: vi.fn(),
         theme: 'light',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       const { container } = render(
@@ -599,7 +598,7 @@ describe('ThemeSelector', () => {
         isReady: true,
         toggleTheme: vi.fn(),
         theme: 'light',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       render(
@@ -622,7 +621,7 @@ describe('ThemeSelector', () => {
         isReady: true,
         toggleTheme: vi.fn(),
         theme: 'light',
-        setTheme: vi.fn(),
+        setTheme: vi.fn()
       })
 
       const { container } = render(

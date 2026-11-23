@@ -41,9 +41,9 @@ If you want to revive the mobile app:
 
 The following files are kept as a starting point for a future revival:
 
-| File | Purpose |
-|------|---------|
-| `package.json` | Dependency manifest (versions will need updating) |
-| `tsconfig.json` | TypeScript compiler config |
-| `jest.config.js` | Jest test runner config |
-| `babel.config.js` | Babel transpiler config |
+| File              | Purpose                                           |
+| ----------------- | ------------------------------------------------- |
+| `package.json`    | Dependency manifest (versions will need updating) |
+| `tsconfig.json`   | TypeScript compiler config                        |
+| `jest.config.js`  | Jest test runner config                           |
+| `babel.config.js` | Babel transpiler config                           |

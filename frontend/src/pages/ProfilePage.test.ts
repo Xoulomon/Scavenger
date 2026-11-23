@@ -16,19 +16,18 @@ const wasteTypeArb = fc.constantFrom(
   WasteType.Glass
 )
 
-const wasteArb: fc.Arbitrary<Waste> = fc
-  .record({
-    waste_id: fc.bigInt({ min: 1n, max: 1_000_000n }),
-    waste_type: wasteTypeArb,
-    weight: fc.bigInt({ min: 1n, max: 100_000n }),
-    current_owner: fc.hexaString({ minLength: 56, maxLength: 56 }),
-    latitude: fc.bigInt({ min: -90_000_000n, max: 90_000_000n }),
-    longitude: fc.bigInt({ min: -180_000_000n, max: 180_000_000n }),
-    recycled_timestamp: fc.integer({ min: 0, max: 2_000_000_000 }),
-    is_active: fc.boolean(),
-    is_confirmed: fc.boolean(),
-    confirmer: fc.hexaString({ minLength: 56, maxLength: 56 }),
-  })
+const wasteArb: fc.Arbitrary<Waste> = fc.record({
+  waste_id: fc.bigInt({ min: 1n, max: 1_000_000n }),
+  waste_type: wasteTypeArb,
+  weight: fc.bigInt({ min: 1n, max: 100_000n }),
+  current_owner: fc.hexaString({ minLength: 56, maxLength: 56 }),
+  latitude: fc.bigInt({ min: -90_000_000n, max: 90_000_000n }),
+  longitude: fc.bigInt({ min: -180_000_000n, max: 180_000_000n }),
+  recycled_timestamp: fc.integer({ min: 0, max: 2_000_000_000 }),
+  is_active: fc.boolean(),
+  is_confirmed: fc.boolean(),
+  confirmer: fc.hexaString({ minLength: 56, maxLength: 56 })
+})
 
 // ── The sort function extracted from WasteTimeline ────────────────────────────
 // This mirrors the exact logic in the component:
@@ -105,10 +104,10 @@ function validateProfileName(name: string): { valid: boolean; error?: string } {
 
 describe('Property 6: Edit form rejects empty names', () => {
   // Generator for whitespace-only strings (including empty string)
-  const whitespaceOnlyArb = fc.stringOf(
-    fc.constantFrom(' ', '\t', '\n', '\r', '\u00a0'),
-    { minLength: 0, maxLength: 30 }
-  )
+  const whitespaceOnlyArb = fc.stringOf(fc.constantFrom(' ', '\t', '\n', '\r', '\u00a0'), {
+    minLength: 0,
+    maxLength: 30
+  })
 
   it('rejects any whitespace-only or empty name', () => {
     fc.assert(
@@ -152,12 +151,19 @@ const MAX_FILE_SIZE = 2_097_152 // 2 MB
 
 describe('Property 7: Profile image file validation', () => {
   const allowedMimeTypes = ['image/jpeg', 'image/png']
-  const disallowedMimeTypes = ['image/gif', 'image/webp', 'image/bmp', 'application/pdf', 'text/plain', 'video/mp4']
+  const disallowedMimeTypes = [
+    'image/gif',
+    'image/webp',
+    'image/bmp',
+    'application/pdf',
+    'text/plain',
+    'video/mp4'
+  ]
 
   it('accepts JPEG and PNG files within 2 MB', () => {
     const validFileArb = fc.record({
       type: fc.constantFrom(...allowedMimeTypes),
-      size: fc.integer({ min: 1, max: MAX_FILE_SIZE }),
+      size: fc.integer({ min: 1, max: MAX_FILE_SIZE })
     })
 
     fc.assert(
@@ -173,7 +179,7 @@ describe('Property 7: Profile image file validation', () => {
   it('rejects files with disallowed MIME types regardless of size', () => {
     const invalidTypeArb = fc.record({
       type: fc.constantFrom(...disallowedMimeTypes),
-      size: fc.integer({ min: 1, max: MAX_FILE_SIZE }),
+      size: fc.integer({ min: 1, max: MAX_FILE_SIZE })
     })
 
     fc.assert(
@@ -189,7 +195,7 @@ describe('Property 7: Profile image file validation', () => {
   it('rejects files exceeding 2 MB even if MIME type is valid', () => {
     const oversizedArb = fc.record({
       type: fc.constantFrom(...allowedMimeTypes),
-      size: fc.integer({ min: MAX_FILE_SIZE + 1, max: MAX_FILE_SIZE * 10 }),
+      size: fc.integer({ min: MAX_FILE_SIZE + 1, max: MAX_FILE_SIZE * 10 })
     })
 
     fc.assert(
@@ -205,7 +211,7 @@ describe('Property 7: Profile image file validation', () => {
   it('rejects files that are both wrong type and oversized', () => {
     const bothInvalidArb = fc.record({
       type: fc.constantFrom(...disallowedMimeTypes),
-      size: fc.integer({ min: MAX_FILE_SIZE + 1, max: MAX_FILE_SIZE * 10 }),
+      size: fc.integer({ min: MAX_FILE_SIZE + 1, max: MAX_FILE_SIZE * 10 })
     })
 
     fc.assert(

@@ -16,8 +16,8 @@ use actix_web::{web, App, HttpRequest, HttpResponse, HttpServer, ResponseError};
 use services::WebhookManager;
 // Removed unused imports: RecommendationEngine, NFTManager, ChainAbstraction (#906)
 use api::{
-    archival as archival_api, audit, compliance_api, contracts, export, openapi as openapi_api,
-    search as search_api, signing_api, verification, ws,
+    archival as archival_api, audit, compliance_api, contracts, export, openapi as openapi_api, search as search_api,
+    signing_api, verification, ws,
 };
 // #1697: Route handlers are now thin controllers that resolve their
 // service/repository dependencies from the DI container.  The `api` modules
@@ -192,7 +192,11 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(archival_service.clone()))
             .app_data(web::Data::new(stellar_client.clone()))
             // #1710: cap JSON bodies explicitly instead of relying on the framework default
-            .app_data(web::JsonConfig::default().limit(256 * 1024).error_handler(json_error_handler))
+            .app_data(
+                web::JsonConfig::default()
+                    .limit(256 * 1024)
+                    .error_handler(json_error_handler),
+            )
             .default_service(web::route().to(not_found))
             // Health
             .route("/health", web::get().to(health_check))
@@ -479,10 +483,9 @@ mod tests {
 
     #[actix_web::test]
     async fn openapi_route_serves_document() {
-        let app = test::init_service(
-            App::new().route("/api/v1/openapi.json", web::get().to(openapi_api::openapi_json)),
-        )
-        .await;
+        let app =
+            test::init_service(App::new().route("/api/v1/openapi.json", web::get().to(openapi_api::openapi_json)))
+                .await;
         let req = test::TestRequest::get().uri("/api/v1/openapi.json").to_request();
         let resp = test::call_service(&app, req).await;
         assert_eq!(resp.status(), StatusCode::OK);

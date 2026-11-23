@@ -14,7 +14,7 @@ export {
   shadows,
   animation,
   semanticTokens,
-  tokens as default,
+  tokens as default
 } from './tokens'
 
 // ── Components ────────────────────────────────────────────────────────────────

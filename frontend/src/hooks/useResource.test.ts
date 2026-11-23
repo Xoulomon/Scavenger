@@ -18,7 +18,12 @@ describe('useResource', () => {
 
   it('starts as loading (not idle) before first fetch settles', () => {
     let resolve!: (v: string) => void
-    const fetcher = vi.fn(() => new Promise<string>((r) => { resolve = r }))
+    const fetcher = vi.fn(
+      () =>
+        new Promise<string>((r) => {
+          resolve = r
+        })
+    )
 
     const { result } = renderHook(() => useResource(fetcher))
     expect(result.current.isLoading).toBe(true)
@@ -45,15 +50,14 @@ describe('useResource', () => {
   // ── reload() ─────────────────────────────────────────────────────────────
 
   it('reload() triggers a new fetch and updates data', async () => {
-    const fetcher = vi
-      .fn()
-      .mockResolvedValueOnce('initial')
-      .mockResolvedValueOnce('reloaded')
+    const fetcher = vi.fn().mockResolvedValueOnce('initial').mockResolvedValueOnce('reloaded')
 
     const { result } = renderHook(() => useResource(fetcher))
     await waitFor(() => expect(result.current.data).toBe('initial'))
 
-    await act(async () => { await result.current.reload() })
+    await act(async () => {
+      await result.current.reload()
+    })
 
     expect(result.current.data).toBe('reloaded')
     expect(fetcher).toHaveBeenCalledTimes(2)
@@ -68,7 +72,9 @@ describe('useResource', () => {
     const { result } = renderHook(() => useResource(fetcher))
     await waitFor(() => expect(result.current.status).toBe('error'))
 
-    await act(async () => { await result.current.reload() })
+    await act(async () => {
+      await result.current.reload()
+    })
 
     expect(result.current.status).toBe('success')
     expect(result.current.data).toBe('recovered')
@@ -78,10 +84,7 @@ describe('useResource', () => {
   // ── Deps array ────────────────────────────────────────────────────────────
 
   it('re-fetches when deps change', async () => {
-    const fetcher = vi
-      .fn()
-      .mockResolvedValueOnce('first')
-      .mockResolvedValueOnce('second')
+    const fetcher = vi.fn().mockResolvedValueOnce('first').mockResolvedValueOnce('second')
 
     const { result, rerender } = renderHook(
       ({ id }: { id: number }) => useResource(fetcher, [id]),
@@ -98,10 +101,9 @@ describe('useResource', () => {
   it('does NOT re-fetch when deps stay the same', async () => {
     const fetcher = vi.fn().mockResolvedValue('stable')
 
-    const { rerender } = renderHook(
-      ({ id }: { id: number }) => useResource(fetcher, [id]),
-      { initialProps: { id: 5 } }
-    )
+    const { rerender } = renderHook(({ id }: { id: number }) => useResource(fetcher, [id]), {
+      initialProps: { id: 5 }
+    })
     await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(1))
 
     // Rerender with same id
@@ -119,12 +121,19 @@ describe('useResource', () => {
     const fetcher = vi
       .fn()
       .mockResolvedValueOnce('initial')
-      .mockImplementationOnce(() => new Promise<string>((r) => { resolveReload = r }))
+      .mockImplementationOnce(
+        () =>
+          new Promise<string>((r) => {
+            resolveReload = r
+          })
+      )
 
     const { result } = renderHook(() => useResource(fetcher))
     await waitFor(() => expect(result.current.data).toBe('initial'))
 
-    act(() => { void result.current.reload() })
+    act(() => {
+      void result.current.reload()
+    })
     expect(result.current.isLoading).toBe(true)
 
     act(() => resolveReload('done'))

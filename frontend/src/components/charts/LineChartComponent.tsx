@@ -1,10 +1,25 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { DEFAULT_CHART_MARGIN, DEFAULT_GRID_PROPS, DEFAULT_RESPONSIVE_PROPS, defaultTooltipProps, defaultLegendProps } from './chartConfig';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts'
+import {
+  DEFAULT_CHART_MARGIN,
+  DEFAULT_GRID_PROPS,
+  DEFAULT_RESPONSIVE_PROPS,
+  defaultTooltipProps,
+  defaultLegendProps
+} from './chartConfig'
 
 interface LineChartProps {
-  data: Record<string, unknown>[];
-  xKey: string;
-  lines: { key: string; color: string; name?: string }[];
+  data: Record<string, unknown>[]
+  xKey: string
+  lines: { key: string; color: string; name?: string }[]
 }
 
 export function LineChartComponent({ data, xKey, lines }: LineChartProps) {
@@ -28,6 +43,5 @@ export function LineChartComponent({ data, xKey, lines }: LineChartProps) {
         ))}
       </LineChart>
     </ResponsiveContainer>
-  );
+  )
 }
-

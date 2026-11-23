@@ -584,9 +584,7 @@ fn test_performance_tracking_methodology() {
 // Regression Enforcement Tests (Issue #1271)
 // ═════════════════════════════════════════════════════════════════════════════
 
-use stellar_scavngr_contract::benchmark_regression::{
-    BenchmarkSuite, RegressionDetector, BenchmarkResult, MetricType,
-};
+use stellar_scavngr_contract::benchmark_regression::{BenchmarkResult, BenchmarkSuite, MetricType, RegressionDetector};
 
 #[test]
 fn test_assert_no_regression_passes_when_no_regression() {

@@ -8,7 +8,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/Select'
 import { useWallet } from '@/context/WalletContext'
 import { useAuth } from '@/context/AuthContext'
@@ -23,13 +23,13 @@ import { useTranslation } from '@/i18n/useTranslation'
 const client = new ScavengerClient({
   rpcUrl: networkConfig.rpcUrl,
   networkPassphrase: networkConfig.networkPassphrase,
-  contractId: config.contractId,
+  contractId: config.contractId
 })
 
 const ROLES = [
   { value: Role.Recycler, labelKey: 'login.roles.recycler' },
   { value: Role.Collector, labelKey: 'login.roles.collector' },
-  { value: Role.Manufacturer, labelKey: 'login.roles.manufacturer' },
+  { value: Role.Manufacturer, labelKey: 'login.roles.manufacturer' }
 ]
 
 export function LoginPage() {
@@ -37,7 +37,13 @@ export function LoginPage() {
   useAppTitle(t('login.title'))
 
   const navigate = useNavigate()
-  const { address, isConnected, connect, isLoading: walletLoading, error: walletError } = useWallet()
+  const {
+    address,
+    isConnected,
+    connect,
+    isLoading: walletLoading,
+    error: walletError
+  } = useWallet()
   const { login } = useAuth()
   const registerMutation = useRegisterParticipant()
 
@@ -77,7 +83,7 @@ export function LoginPage() {
         onSuccess: (participant) => {
           login({ role: participant.role, name: participant.name })
           navigate('/dashboard', { replace: true })
-        },
+        }
       }
     )
   }
@@ -93,9 +99,7 @@ export function LoginPage() {
             <Recycle className="h-5 w-5 text-primary xs:h-6 xs:w-6" />
           </div>
           <h1 className="text-xl font-bold xs:text-2xl tablet:text-3xl">{t('login.welcome')}</h1>
-          <p className="text-xs text-muted-foreground xs:text-sm">
-            {t('login.connectPrompt')}
-          </p>
+          <p className="text-xs text-muted-foreground xs:text-sm">{t('login.connectPrompt')}</p>
         </div>
 
         {/* Step 1: Connect wallet */}
@@ -106,7 +110,11 @@ export function LoginPage() {
               {walletLoading ? t('login.connecting') : t('login.connectWallet')}
             </Button>
             {walletError && (
-              <p role="alert" aria-live="assertive" className="text-center text-xs text-destructive xs:text-sm">
+              <p
+                role="alert"
+                aria-live="assertive"
+                className="text-center text-xs text-destructive xs:text-sm"
+              >
                 {walletError}
               </p>
             )}
@@ -115,7 +123,11 @@ export function LoginPage() {
 
         {/* Checking registration */}
         {isConnected && checking && (
-          <p role="status" aria-live="polite" className="text-center text-xs text-muted-foreground xs:text-sm">
+          <p
+            role="status"
+            aria-live="polite"
+            className="text-center text-xs text-muted-foreground xs:text-sm"
+          >
             {t('login.checkingRegistration')}
           </p>
         )}
@@ -165,7 +177,11 @@ export function LoginPage() {
               </p>
             )}
 
-            <Button type="submit" className="w-full" disabled={registerMutation.isPending || !name.trim()}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={registerMutation.isPending || !name.trim()}
+            >
               {registerMutation.isPending ? t('login.registering') : t('login.createAccount')}
             </Button>
           </form>

@@ -17,7 +17,7 @@ export const WASTE_SUBMISSION_SUMMARY_DEFAULT_DESCRIPTION =
 export function WasteSubmissionSummary({
   onDone,
   title,
-  description,
+  description
 }: WasteSubmissionSummaryProps) {
   const { t } = useTranslation()
 

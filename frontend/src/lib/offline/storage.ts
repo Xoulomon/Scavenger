@@ -3,51 +3,51 @@
  * Provides persistent storage for offline functionality
  */
 
-import { openDB, DBSchema, IDBPDatabase } from 'idb';
+import { openDB, DBSchema, IDBPDatabase } from 'idb'
 
 interface OfflineDBSchema extends DBSchema {
   queries: {
-    key: string;
+    key: string
     value: {
-      key: string;
-      data: unknown;
-      timestamp: number;
-    };
-  };
+      key: string
+      data: unknown
+      timestamp: number
+    }
+  }
   mutations: {
-    key: string;
+    key: string
     value: {
-      id: string;
-      mutationKey: string[];
-      variables: unknown;
-      timestamp: number;
-      retries: number;
-      status: 'pending' | 'syncing' | 'failed' | 'success';
-      error?: string;
-    };
-  };
+      id: string
+      mutationKey: string[]
+      variables: unknown
+      timestamp: number
+      retries: number
+      status: 'pending' | 'syncing' | 'failed' | 'success'
+      error?: string
+    }
+  }
   cache: {
-    key: string;
+    key: string
     value: {
-      key: string;
-      data: unknown;
-      timestamp: number;
-      expiresAt?: number;
-    };
-  };
+      key: string
+      data: unknown
+      timestamp: number
+      expiresAt?: number
+    }
+  }
   settings: {
-    key: string;
+    key: string
     value: {
-      key: string;
-      value: unknown;
-    };
-  };
+      key: string
+      value: unknown
+    }
+  }
 }
 
-const DB_NAME = 'scavenger-offline-db';
-const DB_VERSION = 1;
+const DB_NAME = 'scavenger-offline-db'
+const DB_VERSION = 1
 
-let dbPromise: Promise<IDBPDatabase<OfflineDBSchema>> | null = null;
+let dbPromise: Promise<IDBPDatabase<OfflineDBSchema>> | null = null
 
 export async function initDB(): Promise<IDBPDatabase<OfflineDBSchema>> {
   if (!dbPromise) {
@@ -55,84 +55,86 @@ export async function initDB(): Promise<IDBPDatabase<OfflineDBSchema>> {
       upgrade(db) {
         // Create object stores if they don't exist
         if (!db.objectStoreNames.contains('queries')) {
-          db.createObjectStore('queries', { keyPath: 'key' });
+          db.createObjectStore('queries', { keyPath: 'key' })
         }
         if (!db.objectStoreNames.contains('mutations')) {
-          const mutationStore = db.createObjectStore('mutations', { keyPath: 'id' });
-          mutationStore.createIndex('status', 'status');
-          mutationStore.createIndex('timestamp', 'timestamp');
+          const mutationStore = db.createObjectStore('mutations', { keyPath: 'id' })
+          mutationStore.createIndex('status', 'status')
+          mutationStore.createIndex('timestamp', 'timestamp')
         }
         if (!db.objectStoreNames.contains('cache')) {
-          db.createObjectStore('cache', { keyPath: 'key' });
+          db.createObjectStore('cache', { keyPath: 'key' })
         }
         if (!db.objectStoreNames.contains('settings')) {
-          db.createObjectStore('settings', { keyPath: 'key' });
+          db.createObjectStore('settings', { keyPath: 'key' })
         }
-      },
-    });
+      }
+    })
   }
-  return dbPromise;
+  return dbPromise
 }
 
 // Query Cache Operations
 export async function saveQuery(key: string, data: unknown): Promise<void> {
-  const db = await initDB();
+  const db = await initDB()
   await db.put('queries', {
     key,
     data,
-    timestamp: Date.now(),
-  });
+    timestamp: Date.now()
+  })
 }
 
 export async function getQuery(key: string): Promise<unknown | undefined> {
-  const db = await initDB();
-  const item = await db.get('queries', key);
-  return item?.data;
+  const db = await initDB()
+  const item = await db.get('queries', key)
+  return item?.data
 }
 
 export async function deleteQuery(key: string): Promise<void> {
-  const db = await initDB();
-  await db.delete('queries', key);
+  const db = await initDB()
+  await db.delete('queries', key)
 }
 
 export async function clearQueries(): Promise<void> {
-  const db = await initDB();
-  await db.clear('queries');
+  const db = await initDB()
+  await db.clear('queries')
 }
 
 // Mutation Queue Operations
 export interface QueuedMutation {
-  id: string;
-  mutationKey: string[];
-  variables: unknown;
-  timestamp: number;
-  retries: number;
-  status: 'pending' | 'syncing' | 'failed' | 'success';
-  error?: string;
+  id: string
+  mutationKey: string[]
+  variables: unknown
+  timestamp: number
+  retries: number
+  status: 'pending' | 'syncing' | 'failed' | 'success'
+  error?: string
 }
 
-export async function queueMutation(mutation: Omit<QueuedMutation, 'id' | 'timestamp' | 'retries' | 'status'>): Promise<string> {
-  const db = await initDB();
-  const id = `mutation-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  
+export async function queueMutation(
+  mutation: Omit<QueuedMutation, 'id' | 'timestamp' | 'retries' | 'status'>
+): Promise<string> {
+  const db = await initDB()
+  const id = `mutation-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+
   await db.put('mutations', {
     id,
     ...mutation,
     timestamp: Date.now(),
     retries: 0,
-    status: 'pending',
-  });
-  
-  return id;
+    status: 'pending'
+  })
+
+  return id
 }
 
 export async function getPendingMutations(): Promise<QueuedMutation[]> {
-  const db = await initDB();
-  const tx = db.transaction('mutations', 'readonly');
-  const index = tx.store.index('status');
-  const mutations = await index.getAll('pending');
-  await tx.done;
-  return mutations;
+  const db = await initDB()
+  const tx = db.transaction('mutations', 'readonly')
+  const index = tx.store.index('status')
+  const mutations = await index.getAll('pending')
+  await tx.done
+  return mutations
 }
 
 export async function updateMutationStatus(
@@ -140,99 +142,99 @@ export async function updateMutationStatus(
   status: QueuedMutation['status'],
   error?: string
 ): Promise<void> {
-  const db = await initDB();
-  const mutation = await db.get('mutations', id);
+  const db = await initDB()
+  const mutation = await db.get('mutations', id)
   if (mutation) {
-    mutation.status = status;
-    if (error) mutation.error = error;
-    if (status === 'syncing') mutation.retries += 1;
-    await db.put('mutations', mutation);
+    mutation.status = status
+    if (error) mutation.error = error
+    if (status === 'syncing') mutation.retries += 1
+    await db.put('mutations', mutation)
   }
 }
 
 export async function deleteMutation(id: string): Promise<void> {
-  const db = await initDB();
-  await db.delete('mutations', id);
+  const db = await initDB()
+  await db.delete('mutations', id)
 }
 
 export async function clearMutations(): Promise<void> {
-  const db = await initDB();
-  await db.clear('mutations');
+  const db = await initDB()
+  await db.clear('mutations')
 }
 
 // General Cache Operations
 export async function setCache(key: string, data: unknown, ttl?: number): Promise<void> {
-  const db = await initDB();
+  const db = await initDB()
   await db.put('cache', {
     key,
     data,
     timestamp: Date.now(),
-    expiresAt: ttl ? Date.now() + ttl : undefined,
-  });
+    expiresAt: ttl ? Date.now() + ttl : undefined
+  })
 }
 
 export async function getCache(key: string): Promise<unknown | undefined> {
-  const db = await initDB();
-  const item = await db.get('cache', key);
-  
-  if (!item) return undefined;
-  
+  const db = await initDB()
+  const item = await db.get('cache', key)
+
+  if (!item) return undefined
+
   // Check if expired
   if (item.expiresAt && item.expiresAt < Date.now()) {
-    await db.delete('cache', key);
-    return undefined;
+    await db.delete('cache', key)
+    return undefined
   }
-  
-  return item.data;
+
+  return item.data
 }
 
 export async function deleteCache(key: string): Promise<void> {
-  const db = await initDB();
-  await db.delete('cache', key);
+  const db = await initDB()
+  await db.delete('cache', key)
 }
 
 export async function clearCache(): Promise<void> {
-  const db = await initDB();
-  await db.clear('cache');
+  const db = await initDB()
+  await db.clear('cache')
 }
 
 // Settings Operations
 export async function setSetting(key: string, value: unknown): Promise<void> {
-  const db = await initDB();
-  await db.put('settings', { key, value });
+  const db = await initDB()
+  await db.put('settings', { key, value })
 }
 
 export async function getSetting(key: string): Promise<unknown | undefined> {
-  const db = await initDB();
-  const item = await db.get('settings', key);
-  return item?.value;
+  const db = await initDB()
+  const item = await db.get('settings', key)
+  return item?.value
 }
 
 // Database Management
 export async function clearAllData(): Promise<void> {
-  const db = await initDB();
+  const db = await initDB()
   await Promise.all([
     db.clear('queries'),
     db.clear('mutations'),
     db.clear('cache'),
-    db.clear('settings'),
-  ]);
+    db.clear('settings')
+  ])
 }
 
 export async function getDatabaseSize(): Promise<{ bytes: number; formatted: string }> {
   if ('storage' in navigator && 'estimate' in navigator.storage) {
-    const estimate = await navigator.storage.estimate();
-    const bytes = estimate.usage || 0;
-    const formatted = formatBytes(bytes);
-    return { bytes, formatted };
+    const estimate = await navigator.storage.estimate()
+    const bytes = estimate.usage || 0
+    const formatted = formatBytes(bytes)
+    return { bytes, formatted }
   }
-  return { bytes: 0, formatted: '0 B' };
+  return { bytes: 0, formatted: '0 B' }
 }
 
 function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
+  if (bytes === 0) return '0 B'
+  const k = 1024
+  const sizes = ['B', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`
 }

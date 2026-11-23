@@ -1,3 +1,4 @@
+use crate::api::errors::ApiError;
 /// Incentive-contract API handlers.
 ///
 /// Covers reward distribution, balance queries, claiming, and incentive
@@ -6,7 +7,6 @@
 /// and to reduce merge-conflict surface.
 use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
-use crate::api::errors::ApiError;
 
 // ── Request / response shapes ──────────────────────────────────────────────
 
@@ -59,9 +59,7 @@ pub struct IncentiveProgramme {
 /// POST /api/contracts/incentive/distribute
 ///
 /// Distributes reward tokens to a participant for a confirmed waste record.
-pub async fn distribute_rewards(
-    body: web::Json<DistributeRewardsRequest>,
-) -> Result<HttpResponse, ApiError> {
+pub async fn distribute_rewards(body: web::Json<DistributeRewardsRequest>) -> Result<HttpResponse, ApiError> {
     if body.participant_id.is_empty() {
         return Err(ApiError::validation("participant_id is required"));
     }
@@ -111,9 +109,7 @@ pub async fn get_balance(path: web::Path<String>) -> Result<HttpResponse, ApiErr
 /// POST /api/contracts/incentive/claim
 ///
 /// Triggers a withdrawal of earned rewards to the participant's wallet.
-pub async fn claim_reward(
-    body: web::Json<ClaimRewardRequest>,
-) -> Result<HttpResponse, ApiError> {
+pub async fn claim_reward(body: web::Json<ClaimRewardRequest>) -> Result<HttpResponse, ApiError> {
     if body.participant_id.is_empty() {
         return Err(ApiError::validation("participant_id is required"));
     }
@@ -187,10 +183,8 @@ mod tests {
 
     #[actix_web::test]
     async fn test_distribute_rewards_success() {
-        let app = test::init_service(
-            App::new().route("/incentive/distribute", web::post().to(distribute_rewards)),
-        )
-        .await;
+        let app =
+            test::init_service(App::new().route("/incentive/distribute", web::post().to(distribute_rewards))).await;
 
         let body = DistributeRewardsRequest {
             participant_id: "p-1".to_string(),
@@ -209,10 +203,8 @@ mod tests {
 
     #[actix_web::test]
     async fn test_distribute_rewards_zero_amount() {
-        let app = test::init_service(
-            App::new().route("/incentive/distribute", web::post().to(distribute_rewards)),
-        )
-        .await;
+        let app =
+            test::init_service(App::new().route("/incentive/distribute", web::post().to(distribute_rewards))).await;
 
         let body = DistributeRewardsRequest {
             participant_id: "p-1".to_string(),
@@ -231,11 +223,9 @@ mod tests {
 
     #[actix_web::test]
     async fn test_get_balance() {
-        let app = test::init_service(
-            App::new()
-                .route("/incentive/balance/{participant_id}", web::get().to(get_balance)),
-        )
-        .await;
+        let app =
+            test::init_service(App::new().route("/incentive/balance/{participant_id}", web::get().to(get_balance)))
+                .await;
 
         let req = test::TestRequest::get()
             .uri("/incentive/balance/participant-1")
@@ -246,10 +236,7 @@ mod tests {
 
     #[actix_web::test]
     async fn test_claim_reward_missing_wallet() {
-        let app = test::init_service(
-            App::new().route("/incentive/claim", web::post().to(claim_reward)),
-        )
-        .await;
+        let app = test::init_service(App::new().route("/incentive/claim", web::post().to(claim_reward))).await;
 
         let body = ClaimRewardRequest {
             participant_id: "p-1".to_string(),
@@ -267,14 +254,9 @@ mod tests {
 
     #[actix_web::test]
     async fn test_list_programmes() {
-        let app = test::init_service(
-            App::new().route("/incentive/programmes", web::get().to(list_programmes)),
-        )
-        .await;
+        let app = test::init_service(App::new().route("/incentive/programmes", web::get().to(list_programmes))).await;
 
-        let req = test::TestRequest::get()
-            .uri("/incentive/programmes")
-            .to_request();
+        let req = test::TestRequest::get().uri("/incentive/programmes").to_request();
         let resp = test::call_service(&app, req).await;
         assert_eq!(resp.status(), 200);
     }

@@ -23,7 +23,7 @@ export function buildTransferNote(
   const combined = [
     form.transferNotes,
     form.conditionNotes ? `Condition: ${form.conditionNotes}` : '',
-    form.handlingInstructions ? `Handling: ${form.handlingInstructions}` : '',
+    form.handlingInstructions ? `Handling: ${form.handlingInstructions}` : ''
   ]
     .filter(Boolean)
     .join(' | ')
@@ -32,10 +32,7 @@ export function buildTransferNote(
 }
 
 /** Submits a waste transfer through the given client. */
-export async function submitWasteTransfer(
-  client: TransferClient,
-  params: SubmitTransferParams
-) {
+export async function submitWasteTransfer(client: TransferClient, params: SubmitTransferParams) {
   if (!params.from) throw new Error('No wallet connected.')
   return client.transferWaste(
     params.wasteId,

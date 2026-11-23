@@ -4,7 +4,11 @@ import { useWallet } from '@/context/WalletContext'
 import { useContract } from '@/context/ContractContext'
 import { useAuth } from '@/context/AuthContext'
 import { useTheme } from '@/context/ThemeProvider'
-import { NotificationStore, type NotificationPreferences, type NotificationType } from '@/lib/notifications'
+import {
+  NotificationStore,
+  type NotificationPreferences,
+  type NotificationType
+} from '@/lib/notifications'
 import { NETWORK_CONFIGS } from '@/lib/stellar'
 import { Button } from '@/components/ui/Button'
 import { Switch } from '@/components/ui/Switch'
@@ -151,7 +155,9 @@ export function SettingsPage() {
         <Row label="High contrast mode" description="For improved accessibility">
           <Switch
             checked={theme === 'high-contrast'}
-            onCheckedChange={(checked) => setTheme(checked ? 'high-contrast' : isDark ? 'dark' : 'light')}
+            onCheckedChange={(checked) =>
+              setTheme(checked ? 'high-contrast' : isDark ? 'dark' : 'light')
+            }
             aria-label="Toggle high contrast mode"
           />
         </Row>
@@ -172,7 +178,10 @@ export function SettingsPage() {
 
       {/* Language */}
       <Section title="Language">
-        <Row label="Display language" description="Choose your preferred language (Arabic enables RTL)">
+        <Row
+          label="Display language"
+          description="Choose your preferred language (Arabic enables RTL)"
+        >
           <LanguageSelector />
         </Row>
       </Section>
@@ -220,30 +229,21 @@ export function SettingsPage() {
             aria-label="Toggle transfer notifications"
           />
         </Row>
-        <Row
-          label="Confirmation notifications"
-          description="Notify when waste is confirmed"
-        >
+        <Row label="Confirmation notifications" description="Notify when waste is confirmed">
           <Switch
             checked={notifPrefs.confirmation}
             onCheckedChange={(checked) => handleNotifToggle('confirmation', checked)}
             aria-label="Toggle confirmation notifications"
           />
         </Row>
-        <Row
-          label="Reward notifications"
-          description="Notify when you earn tokens"
-        >
+        <Row label="Reward notifications" description="Notify when you earn tokens">
           <Switch
             checked={notifPrefs.reward}
             onCheckedChange={(checked) => handleNotifToggle('reward', checked)}
             aria-label="Toggle reward notifications"
           />
         </Row>
-        <Row
-          label="System notifications"
-          description="Notify about platform announcements"
-        >
+        <Row label="System notifications" description="Notify about platform announcements">
           <Switch
             checked={notifPrefs.system}
             onCheckedChange={(checked) => handleNotifToggle('system', checked)}
@@ -254,10 +254,7 @@ export function SettingsPage() {
 
       {/* Onboarding */}
       <Section title="Onboarding">
-        <Row
-          label="Restart tutorial"
-          description="Start the interactive onboarding tutorial again"
-        >
+        <Row label="Restart tutorial" description="Start the interactive onboarding tutorial again">
           <Button
             variant="outline"
             size="sm"

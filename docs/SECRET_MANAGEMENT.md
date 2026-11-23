@@ -20,6 +20,7 @@ Scavenger uses HashiCorp Vault for secure secret management with automatic rotat
 ### Installation
 
 1. **Deploy Vault**
+
 ```bash
 helm repo add hashicorp https://helm.releases.hashicorp.com
 helm install vault hashicorp/vault \
@@ -29,11 +30,13 @@ helm install vault hashicorp/vault \
 ```
 
 2. **Initialize Vault**
+
 ```bash
 ./scripts/init-vault.sh
 ```
 
 3. **Configure Kubernetes Auth**
+
 ```bash
 vault auth enable kubernetes
 vault write auth/kubernetes/config \
@@ -46,11 +49,11 @@ vault write auth/kubernetes/config \
 
 Rotation intervals per secret type:
 
-| Secret | Interval | Policy file |
-|---|---|---|
-| API keys / Firebase | 30 days | `config/vault-rotation-policy.hcl` |
-| Stellar signing key | 90 days | `config/vault-rotation-policy.hcl` |
-| Database credentials | 7 days | `config/vault-rotation-policy.hcl` |
+| Secret               | Interval | Policy file                        |
+| -------------------- | -------- | ---------------------------------- |
+| API keys / Firebase  | 30 days  | `config/vault-rotation-policy.hcl` |
+| Stellar signing key  | 90 days  | `config/vault-rotation-policy.hcl` |
+| Database credentials | 7 days   | `config/vault-rotation-policy.hcl` |
 
 Apply rotation policy:
 

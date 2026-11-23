@@ -45,11 +45,7 @@ use crate::types::{CertificationLevel, Participant, ParticipantRole, Participant
 /// Returns `true` if `address` is currently registered and active.
 pub fn is_registered(env: &Env, address: &Address) -> bool {
     let key = participant_key(address);
-    if let Some(p) = env
-        .storage()
-        .instance()
-        .get::<(Address,), Participant>(&key)
-    {
+    if let Some(p) = env.storage().instance().get::<(Address,), Participant>(&key) {
         p.is_registered
     } else {
         false

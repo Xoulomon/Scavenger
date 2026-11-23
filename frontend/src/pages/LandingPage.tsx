@@ -10,23 +10,23 @@ const STEPS = [
   {
     icon: Recycle,
     titleKey: 'landing.steps.recycle.title',
-    descriptionKey: 'landing.steps.recycle.description',
+    descriptionKey: 'landing.steps.recycle.description'
   },
   {
     icon: Truck,
     titleKey: 'landing.steps.collect.title',
-    descriptionKey: 'landing.steps.collect.description',
+    descriptionKey: 'landing.steps.collect.description'
   },
   {
     icon: Factory,
     titleKey: 'landing.steps.manufacture.title',
-    descriptionKey: 'landing.steps.manufacture.description',
-  },
+    descriptionKey: 'landing.steps.manufacture.description'
+  }
 ]
 
 const FOOTER_LINKS = [
   { labelKey: 'landing.footer.github', href: 'https://github.com' },
-  { labelKey: 'landing.footer.twitter', href: 'https://twitter.com' },
+  { labelKey: 'landing.footer.twitter', href: 'https://twitter.com' }
 ]
 
 export function LandingPage() {
@@ -74,7 +74,9 @@ export function LandingPage() {
         {/* How it works */}
         <section className="border-t bg-muted/40 px-4 py-16 xs:px-6 xs:py-20">
           <div className="mx-auto max-w-4xl">
-            <h2 className="mb-12 text-center text-2xl font-bold">{t('landing.howItWorks.title')}</h2>
+            <h2 className="mb-12 text-center text-2xl font-bold">
+              {t('landing.howItWorks.title')}
+            </h2>
             <div className="grid gap-8 xs:grid-cols-1 tablet:grid-cols-3">
               {STEPS.map((step, i) => (
                 <div key={step.titleKey} className="flex flex-col items-center gap-3 text-center">
@@ -100,16 +102,16 @@ export function LandingPage() {
               {[
                 {
                   labelKey: 'landing.stats.wasteItems',
-                  value: isLoading ? '—' : totalWastes.toString(),
+                  value: isLoading ? '—' : totalWastes.toString()
                 },
                 {
                   labelKey: 'landing.stats.totalWeight',
-                  value: isLoading ? '—' : totalWeight.toString(),
+                  value: isLoading ? '—' : totalWeight.toString()
                 },
                 {
                   labelKey: 'landing.stats.tokensDistributed',
-                  value: isLoading ? '—' : totalTokens.toString(),
-                },
+                  value: isLoading ? '—' : totalTokens.toString()
+                }
               ].map((stat) => (
                 <div
                   key={stat.labelKey}

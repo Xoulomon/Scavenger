@@ -5,18 +5,10 @@ import {
   loadPersistedAuth,
   persistAuth,
   clearPersistedAuth,
-  type AuthState,
+  type AuthState
 } from './auth'
-import {
-  walletReducer,
-  walletInitialState,
-  type WalletState,
-} from './wallet'
-import {
-  uiReducer,
-  uiInitialState,
-  type UiState,
-} from './ui'
+import { walletReducer, walletInitialState, type WalletState } from './wallet'
+import { uiReducer, uiInitialState, type UiState } from './ui'
 
 /* ────────────────────────────────────────────────────────────────
    Auth slice
@@ -41,7 +33,7 @@ describe('authReducer', () => {
     const loggedIn: AuthState = {
       user: { address: 'GABC' },
       isAuthenticated: true,
-      isLoading: false,
+      isLoading: false
     }
     const state = authReducer(loggedIn, { type: 'AUTH_LOGOUT' })
     expect(state.user).toBeNull()
@@ -84,7 +76,7 @@ describe('walletReducer', () => {
   it('WALLET_CONNECTED sets address and isConnected', () => {
     const state = walletReducer(walletInitialState, {
       type: 'WALLET_CONNECTED',
-      payload: 'GDEF1234',
+      payload: 'GDEF1234'
     })
     expect(state.address).toBe('GDEF1234')
     expect(state.isConnected).toBe(true)
@@ -98,7 +90,7 @@ describe('walletReducer', () => {
       isConnected: true,
       isInstalled: true,
       isLoading: false,
-      error: null,
+      error: null
     }
     const state = walletReducer(connected, { type: 'WALLET_DISCONNECTED' })
     expect(state.address).toBeNull()
@@ -108,7 +100,7 @@ describe('walletReducer', () => {
   it('WALLET_ERROR stores error message and stops loading', () => {
     const state = walletReducer(walletInitialState, {
       type: 'WALLET_ERROR',
-      payload: 'Connection rejected.',
+      payload: 'Connection rejected.'
     })
     expect(state.error).toBe('Connection rejected.')
     expect(state.isLoading).toBe(false)
@@ -117,7 +109,7 @@ describe('walletReducer', () => {
   it('WALLET_INSTALLED sets isInstalled flag', () => {
     const state = walletReducer(walletInitialState, {
       type: 'WALLET_INSTALLED',
-      payload: true,
+      payload: true
     })
     expect(state.isInstalled).toBe(true)
   })
@@ -197,7 +189,7 @@ describe('uiReducer', () => {
   it('UI_LOADING_KEY_REMOVE removes a key from loadingKeys', () => {
     const withKey: UiState = {
       ...uiInitialState,
-      loadingKeys: new Set(['analytics']),
+      loadingKeys: new Set(['analytics'])
     }
     const state = uiReducer(withKey, { type: 'UI_LOADING_KEY_REMOVE', payload: 'analytics' })
     expect(state.loadingKeys.has('analytics')).toBe(false)

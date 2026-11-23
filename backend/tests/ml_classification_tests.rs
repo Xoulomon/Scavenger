@@ -74,7 +74,9 @@ fn test_register_duplicate_version() {
         accuracy: 0.85,
     };
 
-    service.register_version(version.clone(), Arc::new(DummyEngine)).unwrap();
+    service
+        .register_version(version.clone(), Arc::new(DummyEngine))
+        .unwrap();
 
     let result = service.register_version(version, Arc::new(DummyEngine));
     assert!(result.is_err());
@@ -297,8 +299,22 @@ async fn test_classify_with_specific_version() {
         accuracy: 0.92,
     };
 
-    service.register_version(v1, Arc::new(TestEngine { category: WasteCategory::Plastic })).unwrap();
-    service.register_version(v2, Arc::new(TestEngine { category: WasteCategory::Metal })).unwrap();
+    service
+        .register_version(
+            v1,
+            Arc::new(TestEngine {
+                category: WasteCategory::Plastic,
+            }),
+        )
+        .unwrap();
+    service
+        .register_version(
+            v2,
+            Arc::new(TestEngine {
+                category: WasteCategory::Metal,
+            }),
+        )
+        .unwrap();
 
     let request = ClassificationRequest {
         image: "test_data".to_string(),
@@ -413,7 +429,10 @@ async fn test_evaluate_success() {
         },
     ];
 
-    let result = service.evaluate("v1", samples).await.expect("Evaluation should succeed");
+    let result = service
+        .evaluate("v1", samples)
+        .await
+        .expect("Evaluation should succeed");
     assert_eq!(result.model_version_id, "v1");
     assert_eq!(result.total_samples, 3);
     assert_eq!(result.correct, 3);
@@ -588,6 +607,6 @@ async fn test_predictions_sorted_by_confidence() {
 
     // Verify all predictions are sorted descending by confidence
     for i in 1..result.all_predictions.len() {
-        assert!(result.all_predictions[i-1].confidence >= result.all_predictions[i].confidence);
+        assert!(result.all_predictions[i - 1].confidence >= result.all_predictions[i].confidence);
     }
 }

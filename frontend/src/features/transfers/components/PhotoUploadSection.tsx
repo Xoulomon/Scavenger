@@ -5,7 +5,7 @@ export function PhotoUploadSection({
   label,
   photos,
   onPhotosChange,
-  inputId,
+  inputId
 }: {
   label: string
   photos: File[]
@@ -79,9 +79,7 @@ export function PhotoUploadSection({
         onChange={handleFileChange}
         aria-label={`Upload ${label.toLowerCase()}`}
       />
-      <p className="text-xs text-muted-foreground">
-        Up to 5 photos. Accepted: JPEG, PNG, WebP.
-      </p>
+      <p className="text-xs text-muted-foreground">Up to 5 photos. Accepted: JPEG, PNG, WebP.</p>
     </div>
   )
 }

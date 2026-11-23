@@ -97,16 +97,19 @@ We build on **Stellar** and use **Soroban** for smart contracts.
 ## Consequences
 
 ### Positive
+
 - Low, predictable settlement fees for micro-rewards.
 - Fast finality for user-visible flows.
 - Native support for the asset and anchor flows we need.
 
 ### Negative
+
 - Smaller hiring pool of Soroban developers.
 - Longer audit lead times than EVM equivalents.
 - Ecosystem tooling moves on a different cadence than we may want.
 
 ### Neutral
+
 - We may add L2-style batching or rollup patterns later if throughput
   demands it; the ADR is compatible with that.
 

@@ -1,6 +1,4 @@
 {
-  "comment": "Dependency checker configuration to identify unused packages",
-  "ignoreMatches": [
-    "@storybook/react"
-  ]
+    "comment": "Dependency checker configuration to identify unused packages",
+    "ignoreMatches": ["@storybook/react"]
 }

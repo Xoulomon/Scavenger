@@ -10,12 +10,12 @@
 
 ### Current State (Before)
 
-| Component | Storage Writes | Data Persisted | Notes |
-|-----------|---|---|---|
-| GlobalMetrics helpers | 0 | No | In-memory mutations only |
-| RecyclingStats helpers | 0 | No | In-memory mutations only |
-| Complex reporting types | 0 | No | Types never instantiated |
-| **Total** | **0** | **No** | Module completely unused |
+| Component               | Storage Writes | Data Persisted | Notes                    |
+| ----------------------- | -------------- | -------------- | ------------------------ |
+| GlobalMetrics helpers   | 0              | No             | In-memory mutations only |
+| RecyclingStats helpers  | 0              | No             | In-memory mutations only |
+| Complex reporting types | 0              | No             | Types never instantiated |
+| **Total**               | **0**          | **No**         | Module completely unused |
 
 **Ledger Cost**: Zero (no storage operations)  
 **WASM Size Impact**: contract_analytics.rs contributes ~2KB to WASM (removed)
@@ -121,6 +121,7 @@ Increase over baseline: +0.5 stroops per transaction (~10%)
 ### Fee Structure
 
 Soroban charges for:
+
 1. **Base fee**: Per contract invocation
 2. **Storage fee**: Per ledger entry written/modified
 3. **CPU fee**: Based on execution
@@ -128,11 +129,13 @@ Soroban charges for:
 ### Cost Calculation
 
 **Soroban storage fee** (typical):
+
 - ~1 strop per 32 bytes per ledger entry
 - GlobalMetrics (88 bytes) ≈ 3 stroops
 - Timestamp (8 bytes) ≈ 0.25 stroops per write
 
 **Per-batch cost** (every 10 transactions):
+
 ```
 GlobalMetrics write:    3 stroops
 Timestamp write:        0.25 stroops
@@ -142,6 +145,7 @@ Per-transaction amortized: 3.25 stroops / 10 = 0.325 stroops
 ```
 
 **Monthly estimate** (assuming 1000 transactions/day):
+
 ```
 30 days × 1000 tx/day × 0.325 stroops/tx = 9,750 stroops
 = ~$0.024 USD (at typical Stellar XLM price ~$0.13)
@@ -155,18 +159,19 @@ Per-transaction amortized: 3.25 stroops / 10 = 0.325 stroops
 
 ### Code Size Impact
 
-| Component | Before | After | Delta |
-|-----------|---|---|---|
-| contract_analytics.rs | 65 LOC | Deleted | -65 LOC |
-| analytics.rs | 348 LOC | 550 LOC | +202 LOC |
-| Tests added | 0 | 13 tests | +137 LOC |
-| WASM binary | TBD | TBD | ~-2KB (deleted module) |
+| Component             | Before  | After    | Delta                  |
+| --------------------- | ------- | -------- | ---------------------- |
+| contract_analytics.rs | 65 LOC  | Deleted  | -65 LOC                |
+| analytics.rs          | 348 LOC | 550 LOC  | +202 LOC               |
+| Tests added           | 0       | 13 tests | +137 LOC               |
+| WASM binary           | TBD     | TBD      | ~-2KB (deleted module) |
 
 **Net WASM impact**: Slightly smaller (~2KB) due to complex reporting types removal
 
 ### Runtime Memory
 
 No significant increase:
+
 - GlobalMetrics: 88 bytes (one instance per contract lifetime)
 - RecyclingStats: ~60 bytes (only when loaded)
 - Batch counter: 8 bytes
@@ -202,10 +207,12 @@ Disadvantages:
 **Scenario**: Contract fails at transaction 7
 
 **Without analytics persistence**:
+
 - No on-chain data loss (module unused anyway)
 - Off-chain indexer captures events and rebuilds metrics
 
 **With analytics persistence**:
+
 - Transactions 1-7 mutations lost (in-memory only)
 - Last snapshot (from transaction 0) persists on-chain
 - Off-chain indexer is authoritative source
@@ -219,6 +226,7 @@ Disadvantages:
 ### Configurable Batch Size
 
 Currently hardcoded to:
+
 ```rust
 const ANALYTICS_BATCH_SIZE: u64 = 10;
 ```
@@ -226,11 +234,11 @@ const ANALYTICS_BATCH_SIZE: u64 = 10;
 Can be adjusted based on deployment feedback:
 
 | Batch Size | Writes per 1000 tx | Storage Cost | Data Recency |
-|---|---|---|---|
-| 5 | 200 | High | Very recent |
-| 10 | 100 | Medium | ~10 tx lag |
-| 20 | 50 | Low | ~20 tx lag |
-| 50 | 20 | Very Low | ~50 tx lag |
+| ---------- | ------------------ | ------------ | ------------ |
+| 5          | 200                | High         | Very recent  |
+| 10         | 100                | Medium       | ~10 tx lag   |
+| 20         | 50                 | Low          | ~20 tx lag   |
+| 50         | 20                 | Very Low     | ~50 tx lag   |
 
 **Recommendation**: Start with 10, monitor costs, adjust if needed
 
@@ -321,6 +329,7 @@ Cons:
 ## Conclusion
 
 The consolidated analytics module provides:
+
 - ✅ **Low storage overhead**: ~10% increase vs baseline (0.325 stroops/tx amortized)
 - ✅ **Configurable batching**: Tune batch size for cost/freshness tradeoff
 - ✅ **Audit trail**: Snapshots with timestamps for tracking
@@ -336,6 +345,7 @@ The consolidated analytics module provides:
 ### All Storage Keys in Use
 
 Instance Storage (Soroban Symbol, ≤9 chars):
+
 - ADMINS, CHARITY, RWD_CFG, TOT_WGT, TOT_TKN
 - RE_GUARD, TKN_ADDR, PART_IDX, PAUSED, MS_THRESH
 - PROP_CNT, MIN_WGT, CHAL_CNT, PXFR_CNT, MLSTONES
@@ -346,6 +356,7 @@ Instance Storage (Soroban Symbol, ≤9 chars):
 - REQ_APPR, XFR_APPR, **GMTR_SNAP, ANAL_UPD, ANAL_BAT** (new)
 
 Persistent Storage (Tuple keys):
+
 - ("waste", id), ("waste_v2", id), ("grade_history", id)
 - ("stats", address), ("transfer_history", id)
 - ("waste_count",), ("incentive_count",)

@@ -19,13 +19,13 @@ and boundaries.
 
 ### Service boundaries
 
-| Service | Responsibility | Technology |
-|---|---|---|
-| `stellar-contract/` | On-chain state: participants, waste, incentives, rewards | Rust / Soroban |
-| `indexer/` | Off-chain projection of contract events into queryable storage | TypeScript (Node) |
-| `backend/` | Authenticated API, business logic, off-chain persistence | Rust |
-| `frontend/` | Web UI consumed by recyclers, collectors, manufacturers | React / TypeScript |
-| `mobile/` | Mobile companion (currently unmaintained) | React Native |
+| Service             | Responsibility                                                 | Technology         |
+| ------------------- | -------------------------------------------------------------- | ------------------ |
+| `stellar-contract/` | On-chain state: participants, waste, incentives, rewards       | Rust / Soroban     |
+| `indexer/`          | Off-chain projection of contract events into queryable storage | TypeScript (Node)  |
+| `backend/`          | Authenticated API, business logic, off-chain persistence       | Rust               |
+| `frontend/`         | Web UI consumed by recyclers, collectors, manufacturers        | React / TypeScript |
+| `mobile/`           | Mobile companion (currently unmaintained)                      | React Native       |
 
 ### Why these boundaries
 

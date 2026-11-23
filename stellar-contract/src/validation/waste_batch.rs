@@ -3,7 +3,7 @@
 //! Split out of the monolithic `validation.rs` so waste submission rules can
 //! be located and unit tested independently of participant/transfer rules.
 
-use super::{MAX_LAT, MAX_LON, MAX_TAGS, MAX_TAG_LEN, MAX_WASTE_WEIGHT, MIN_WASTE_WEIGHT, ValidationError};
+use super::{ValidationError, MAX_LAT, MAX_LON, MAX_TAGS, MAX_TAG_LEN, MAX_WASTE_WEIGHT, MIN_WASTE_WEIGHT};
 
 /// Validates a waste submission: weight range and coordinates.
 pub fn validate_submission(weight: u128, latitude: i128, longitude: i128) -> Result<(), ValidationError> {
@@ -84,7 +84,10 @@ mod tests {
     fn submission_rejects_weight_below_minimum() {
         assert!(matches!(
             validate_submission(1, 0, 0),
-            Err(ValidationError::OutOfRange { field: "waste weight", .. })
+            Err(ValidationError::OutOfRange {
+                field: "waste weight",
+                ..
+            })
         ));
     }
 
@@ -92,7 +95,10 @@ mod tests {
     fn submission_rejects_weight_above_maximum() {
         assert!(matches!(
             validate_submission(MAX_WASTE_WEIGHT + 1, 0, 0),
-            Err(ValidationError::OutOfRange { field: "waste weight", .. })
+            Err(ValidationError::OutOfRange {
+                field: "waste weight",
+                ..
+            })
         ));
     }
 
@@ -124,7 +130,10 @@ mod tests {
     fn tag_count_rejects_over_limit() {
         assert_eq!(
             validate_tag_count(MAX_TAGS + 1),
-            Err(ValidationError::CollectionTooLarge { field: "waste tags", max: MAX_TAGS })
+            Err(ValidationError::CollectionTooLarge {
+                field: "waste tags",
+                max: MAX_TAGS
+            })
         );
     }
 

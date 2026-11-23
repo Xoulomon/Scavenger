@@ -9,7 +9,7 @@ merely executing the code paths.
 
 We use [`cargo-mutants`](https://github.com/sourcefrog/cargo-mutants), a Rust
 mutation testing tool that introduces small changes (mutants) into the source
-and checks whether the test suite fails for each one. A mutant that is *not*
+and checks whether the test suite fails for each one. A mutant that is _not_
 caught by any test is called a **surviving mutant** and indicates a gap in test
 coverage.
 
@@ -36,17 +36,17 @@ cargo mutants --file 'stellar-contract/src/validation.rs' --output mutants.out
 
 ## Baseline
 
-| Metric | Value |
-| --- | --- |
-| Target file | `stellar-contract/src/validation.rs` |
-| Tool | `cargo-mutants` |
-| Mutants generated | _to be filled in on first CI run_ |
-| Mutants caught | _to be filled in on first CI run_ |
-| Surviving mutants | _to be filled in on first CI run_ |
-| **Mutation score** | _to be filled in on first CI run_ |
+| Metric             | Value                                |
+| ------------------ | ------------------------------------ |
+| Target file        | `stellar-contract/src/validation.rs` |
+| Tool               | `cargo-mutants`                      |
+| Mutants generated  | _to be filled in on first CI run_    |
+| Mutants caught     | _to be filled in on first CI run_    |
+| Surviving mutants  | _to be filled in on first CI run_    |
+| **Mutation score** | _to be filled in on first CI run_    |
 
 > The mutation score is `caught / (caught + survived)`. Update this table after
-each pilot run so regressions in test effectiveness are visible in review.
+> each pilot run so regressions in test effectiveness are visible in review.
 
 ## Handling surviving mutants
 

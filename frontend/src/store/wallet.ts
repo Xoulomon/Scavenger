@@ -30,7 +30,7 @@ export const walletInitialState: WalletState = {
   isConnected: false,
   isInstalled: false,
   isLoading: true,
-  error: null,
+  error: null
 }
 
 export function walletReducer(state: WalletState, action: WalletAction): WalletState {
@@ -47,7 +47,7 @@ export function walletReducer(state: WalletState, action: WalletAction): WalletS
         address: action.payload,
         isConnected: true,
         isLoading: false,
-        error: null,
+        error: null
       }
 
     case 'WALLET_DISCONNECTED':
@@ -56,7 +56,7 @@ export function walletReducer(state: WalletState, action: WalletAction): WalletS
         address: null,
         isConnected: false,
         isLoading: false,
-        error: null,
+        error: null
       }
 
     case 'WALLET_ERROR':

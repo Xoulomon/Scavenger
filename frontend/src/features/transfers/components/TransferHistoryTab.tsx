@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Badge } from '@/components/ui/Badge'
 import { Card, CardContent } from '@/components/ui/Card'
 import { useWallet } from '@/context/WalletContext'
-import { formatAddress,formatDate } from '@/lib/helpers'
+import { formatAddress, formatDate } from '@/lib/helpers'
 
 import { STATUS_CONFIG } from '../constants'
 import { getTransferHistory } from '../transferHistory'
@@ -59,9 +59,7 @@ export function TransferHistoryTab() {
                 </div>
               </div>
 
-              {record.notes && (
-                <p className="text-xs text-muted-foreground">{record.notes}</p>
-              )}
+              {record.notes && <p className="text-xs text-muted-foreground">{record.notes}</p>}
 
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>{formatDate(record.transferredAt)}</span>

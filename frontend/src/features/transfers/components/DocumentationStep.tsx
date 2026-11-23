@@ -3,16 +3,14 @@ import { PhotoUploadSection } from './PhotoUploadSection'
 
 export function DocumentationStep({
   form,
-  onChange,
+  onChange
 }: {
   form: TransferFormData
   onChange: (updates: Partial<TransferFormData>) => void
 }) {
   return (
     <div className="space-y-5">
-      <p className="text-sm text-muted-foreground">
-        Add notes and documentation for the transfer.
-      </p>
+      <p className="text-sm text-muted-foreground">Add notes and documentation for the transfer.</p>
 
       <div className="space-y-2">
         <label htmlFor="transfer-notes" className="text-sm font-medium">

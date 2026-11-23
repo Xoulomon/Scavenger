@@ -21,15 +21,12 @@ export function useAnalytics(userId?: string) {
     (
       category: EventCategory,
       action: string,
-      options: { label?: string; value?: number; metadata?: Record<string, unknown> } = {},
+      options: { label?: string; value?: number; metadata?: Record<string, unknown> } = {}
     ) => analytics.track(category, action, { ...options, userId }),
-    [userId],
+    [userId]
   )
 
-  const pageView = useCallback(
-    (page: string) => analytics.pageView(page, userId),
-    [userId],
-  )
+  const pageView = useCallback((page: string) => analytics.pageView(page, userId), [userId])
 
   return useMemo(() => ({ track, pageView }), [track, pageView])
 }

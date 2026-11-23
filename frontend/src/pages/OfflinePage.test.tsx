@@ -5,7 +5,7 @@ import { OfflinePage } from './OfflinePage'
 vi.mock('@/hooks/useAppTitle', () => ({ useAppTitle: vi.fn() }))
 
 vi.mock('@/hooks/useOnlineStatus', () => ({
-  useOnlineStatus: vi.fn(() => true),
+  useOnlineStatus: vi.fn(() => true)
 }))
 
 const mockGetPendingMutations = vi.fn().mockResolvedValue([])
@@ -17,7 +17,7 @@ vi.mock('@/lib/indexedDB', () => ({
   getPendingMutations: (...args: unknown[]) => mockGetPendingMutations(...args),
   updateMutationStatus: (...args: unknown[]) => mockUpdateMutationStatus(...args),
   removeMutationFromQueue: (...args: unknown[]) => mockRemoveMutationFromQueue(...args),
-  clearOldMutations: (...args: unknown[]) => mockClearOldMutations(...args),
+  clearOldMutations: (...args: unknown[]) => mockClearOldMutations(...args)
 }))
 
 describe('OfflinePage', () => {

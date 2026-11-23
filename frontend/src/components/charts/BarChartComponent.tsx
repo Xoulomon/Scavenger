@@ -1,10 +1,25 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { DEFAULT_CHART_MARGIN, DEFAULT_GRID_PROPS, DEFAULT_RESPONSIVE_PROPS, defaultTooltipProps, defaultLegendProps } from './chartConfig';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts'
+import {
+  DEFAULT_CHART_MARGIN,
+  DEFAULT_GRID_PROPS,
+  DEFAULT_RESPONSIVE_PROPS,
+  defaultTooltipProps,
+  defaultLegendProps
+} from './chartConfig'
 
 interface BarChartProps {
-  data: Record<string, unknown>[];
-  xKey: string;
-  bars: { key: string; color: string; name?: string }[];
+  data: Record<string, unknown>[]
+  xKey: string
+  bars: { key: string; color: string; name?: string }[]
 }
 
 export function BarChartComponent({ data, xKey, bars }: BarChartProps) {
@@ -21,6 +36,5 @@ export function BarChartComponent({ data, xKey, bars }: BarChartProps) {
         ))}
       </BarChart>
     </ResponsiveContainer>
-  );
+  )
 }
-

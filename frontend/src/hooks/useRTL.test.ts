@@ -9,11 +9,11 @@ import { useRTL } from './useRTL'
 const mockI18n = { language: 'en' }
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ i18n: mockI18n }),
+  useTranslation: () => ({ i18n: mockI18n })
 }))
 
 vi.mock('../i18n/config', () => ({
-  RTL_LANGUAGES: new Set(['ar', 'he', 'fa', 'ur']),
+  RTL_LANGUAGES: new Set(['ar', 'he', 'fa', 'ur'])
 }))
 
 describe('useRTL', () => {

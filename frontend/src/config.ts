@@ -34,7 +34,12 @@ const envSchema = z.object({
   VITE_API_TIMEOUT: z
     .union([z.number(), z.string()])
     .transform((val) => (typeof val === 'number' ? val : Number(val)))
-    .pipe(z.number().int('VITE_API_TIMEOUT must be an integer').positive('VITE_API_TIMEOUT must be positive'))
+    .pipe(
+      z
+        .number()
+        .int('VITE_API_TIMEOUT must be an integer')
+        .positive('VITE_API_TIMEOUT must be positive')
+    )
     .optional(),
   VITE_OFFLINE_MODE: booleanFromString.optional(),
   VITE_ANALYTICS: booleanFromString.optional(),

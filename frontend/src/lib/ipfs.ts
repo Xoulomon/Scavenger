@@ -11,7 +11,9 @@ export async function uploadToIPFS(
   if (!jwt) {
     // Dev fallback: return a deterministic fake CID so the form still works
     onProgress?.(100)
-    return `bafydev${btoa(file.name).replace(/[^a-z0-9]/gi, '').slice(0, 32)}`
+    return `bafydev${btoa(file.name)
+      .replace(/[^a-z0-9]/gi, '')
+      .slice(0, 32)}`
   }
 
   const body = new FormData()

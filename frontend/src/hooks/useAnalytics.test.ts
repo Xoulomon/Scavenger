@@ -12,8 +12,8 @@ const mockPageView = vi.fn()
 vi.mock('@/lib/analyticsService', () => ({
   analytics: {
     track: mockTrack,
-    pageView: mockPageView,
-  },
+    pageView: mockPageView
+  }
 }))
 
 describe('useAnalytics', () => {
@@ -33,7 +33,7 @@ describe('useAnalytics', () => {
     expect(mockTrack).toHaveBeenCalledWith('user', 'click', {
       label: 'button',
       value: 1,
-      userId: 'user-123',
+      userId: 'user-123'
     })
   })
 
@@ -41,7 +41,7 @@ describe('useAnalytics', () => {
     const { result } = renderHook(() => useAnalytics())
     result.current.track('contract', 'submit_waste')
     expect(mockTrack).toHaveBeenCalledWith('contract', 'submit_waste', {
-      userId: undefined,
+      userId: undefined
     })
   })
 
@@ -50,7 +50,7 @@ describe('useAnalytics', () => {
     result.current.track('user', 'view', { metadata: { page: 'home' } })
     expect(mockTrack).toHaveBeenCalledWith('user', 'view', {
       metadata: { page: 'home' },
-      userId: 'u1',
+      userId: 'u1'
     })
   })
 
@@ -68,7 +68,7 @@ describe('useAnalytics', () => {
 
   it('track and pageView are stable between renders (no new fn reference)', () => {
     const { result, rerender } = renderHook(({ userId }) => useAnalytics(userId), {
-      initialProps: { userId: 'u1' },
+      initialProps: { userId: 'u1' }
     })
     const track1 = result.current.track
     const pv1 = result.current.pageView
@@ -80,7 +80,7 @@ describe('useAnalytics', () => {
 
   it('track and pageView update when userId changes', () => {
     const { result, rerender } = renderHook(({ userId }) => useAnalytics(userId), {
-      initialProps: { userId: 'u1' },
+      initialProps: { userId: 'u1' }
     })
     const track1 = result.current.track
 

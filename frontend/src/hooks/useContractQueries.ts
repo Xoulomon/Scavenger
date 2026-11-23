@@ -31,7 +31,7 @@ export function useParticipantById(address: string | undefined) {
     queryKey: cacheKeys.participant(address ?? ''),
     queryFn: (client) => client.getParticipant(address!),
     enabled: !!address,
-    ...queryCachePolicy.participant,
+    ...queryCachePolicy.participant
   })
 }
 
@@ -60,7 +60,7 @@ export function useWaste(id: bigint | undefined) {
     queryKey: cacheKeys.waste(id?.toString() ?? ''),
     queryFn: (client) => client.getWaste(id!),
     enabled: id !== undefined,
-    ...queryCachePolicy.waste,
+    ...queryCachePolicy.waste
   })
 }
 
@@ -82,7 +82,7 @@ export function useIncentives(wasteType: WasteType | undefined) {
     queryKey: cacheKeys.incentives(wasteType),
     queryFn: (client) => client.getIncentives(wasteType!),
     enabled: wasteType !== undefined,
-    ...queryCachePolicy.incentives,
+    ...queryCachePolicy.incentives
   })
 }
 

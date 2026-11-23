@@ -3,7 +3,11 @@ import { Bell, Trash2, CheckCheck, Volume2, VolumeX, Settings } from 'lucide-rea
 import { useAppTitle } from '@/hooks/useAppTitle'
 import { useNotifications } from '@/hooks/useNotifications'
 import { useWallet } from '@/context/WalletContext'
-import { NotificationStore, type NotificationType, type NotificationPreferences } from '@/lib/notifications'
+import {
+  NotificationStore,
+  type NotificationType,
+  type NotificationPreferences
+} from '@/lib/notifications'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Switch } from '@/components/ui/Switch'
@@ -14,7 +18,7 @@ const NOTIFICATION_TYPES: { type: NotificationType; label: string; description: 
   { type: 'transfer', label: 'Transfers', description: 'Waste transfer updates' },
   { type: 'confirmation', label: 'Confirmations', description: 'Waste confirmation status' },
   { type: 'reward', label: 'Rewards', description: 'Token rewards and incentives' },
-  { type: 'system', label: 'System', description: 'Platform announcements' },
+  { type: 'system', label: 'System', description: 'Platform announcements' }
 ]
 
 function getRelativeTime(ts: number): string {
@@ -30,7 +34,7 @@ function typeColor(type: NotificationType) {
     transfer: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
     confirmation: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
     reward: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-    system: 'bg-muted text-muted-foreground',
+    system: 'bg-muted text-muted-foreground'
   }[type]
 }
 
@@ -46,7 +50,8 @@ export function NotificationCenterPage() {
   )
   const [filter, setFilter] = useState<NotificationType | 'all'>('all')
 
-  const displayed = filter === 'all' ? notifications : notifications.filter((n) => n.type === filter)
+  const displayed =
+    filter === 'all' ? notifications : notifications.filter((n) => n.type === filter)
 
   function togglePref(type: NotificationType) {
     const next = { ...prefs, [type]: !prefs[type] }
@@ -75,7 +80,11 @@ export function NotificationCenterPage() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={toggleSound} aria-label="Toggle sound">
-            {soundEnabled ? <Volume2 className="h-4 w-4 mr-1.5" /> : <VolumeX className="h-4 w-4 mr-1.5" />}
+            {soundEnabled ? (
+              <Volume2 className="h-4 w-4 mr-1.5" />
+            ) : (
+              <VolumeX className="h-4 w-4 mr-1.5" />
+            )}
             Sound {soundEnabled ? 'On' : 'Off'}
           </Button>
           <Button variant="outline" size="sm" onClick={() => void markAllRead()}>
@@ -96,9 +105,7 @@ export function NotificationCenterPage() {
                 onClick={() => setFilter(t)}
                 className={cn(
                   'rounded-full px-3 py-1 text-xs font-medium transition-colors',
-                  filter === t
-                    ? 'bg-primary text-primary-foreground'
-                    : 'border hover:bg-accent'
+                  filter === t ? 'bg-primary text-primary-foreground' : 'border hover:bg-accent'
                 )}
               >
                 {t === 'all' ? 'All' : NOTIFICATION_TYPES.find((x) => x.type === t)?.label}
@@ -125,7 +132,12 @@ export function NotificationCenterPage() {
                         !n.read && 'bg-accent/20'
                       )}
                     >
-                      <span className={cn('mt-0.5 rounded px-1.5 py-0.5 text-[10px] font-medium shrink-0', typeColor(n.type))}>
+                      <span
+                        className={cn(
+                          'mt-0.5 rounded px-1.5 py-0.5 text-[10px] font-medium shrink-0',
+                          typeColor(n.type)
+                        )}
+                      >
                         {n.type}
                       </span>
                       <div className="flex-1 min-w-0">
@@ -136,7 +148,9 @@ export function NotificationCenterPage() {
                           )}
                         </p>
                         <p className="text-xs text-muted-foreground line-clamp-2">{n.body}</p>
-                        <p className="mt-1 text-[10px] text-muted-foreground">{getRelativeTime(n.createdAt)}</p>
+                        <p className="mt-1 text-[10px] text-muted-foreground">
+                          {getRelativeTime(n.createdAt)}
+                        </p>
                       </div>
                       <div className="flex items-center gap-1 shrink-0">
                         {!n.read && (

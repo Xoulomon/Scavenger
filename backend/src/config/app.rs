@@ -46,10 +46,8 @@ impl AppConfig {
     pub fn from_env() -> Self {
         Self {
             log_format: std::env::var("LOG_FORMAT").unwrap_or_else(|_| "pretty".to_string()),
-            csrf_secret: std::env::var("CSRF_SECRET")
-                .unwrap_or_else(|_| "change-me-in-production".to_string()),
-            allowed_origins: std::env::var("ALLOWED_ORIGINS")
-                .unwrap_or_else(|_| "http://localhost:3000".to_string()),
+            csrf_secret: std::env::var("CSRF_SECRET").unwrap_or_else(|_| "change-me-in-production".to_string()),
+            allowed_origins: std::env::var("ALLOWED_ORIGINS").unwrap_or_else(|_| "http://localhost:3000".to_string()),
             redis_url: std::env::var("REDIS_URL").ok(),
         }
     }
@@ -75,11 +73,9 @@ impl AppConfig {
             .unwrap_or(false);
 
         if self.csrf_secret == "change-me-in-production" && !allow_insecure {
-            return Err(
-                "CSRF_SECRET is set to the insecure default. \
+            return Err("CSRF_SECRET is set to the insecure default. \
                  Set a strong secret or set ALLOW_INSECURE_CSRF=1 to suppress this check."
-                    .to_string(),
-            );
+                .to_string());
         }
 
         let normalized_format = self.log_format.to_lowercase();
@@ -96,10 +92,7 @@ impl AppConfig {
         for origin in self.allowed_origins.split(',') {
             let origin = origin.trim();
             if origin.is_empty() {
-                return Err(
-                    "ALLOWED_ORIGINS contains an empty entry (check for stray commas)."
-                        .to_string(),
-                );
+                return Err("ALLOWED_ORIGINS contains an empty entry (check for stray commas).".to_string());
             }
             if !origin.starts_with("http://") && !origin.starts_with("https://") {
                 return Err(format!(
@@ -111,10 +104,7 @@ impl AppConfig {
 
         if let Some(ref url) = self.redis_url {
             if !url.starts_with("redis://") && !url.starts_with("rediss://") {
-                return Err(format!(
-                    "REDIS_URL {:?} is not a valid redis:// or rediss:// URL.",
-                    url
-                ));
+                return Err(format!("REDIS_URL {:?} is not a valid redis:// or rediss:// URL.", url));
             }
         }
 

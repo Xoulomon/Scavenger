@@ -45,7 +45,7 @@ should:
 1. Move definitions (not just re-exports) into `types/waste.rs`,
    `types/participant.rs`, `types/rewards.rs`.
 2. Turn `types.rs` into `pub use types_domains::{waste::*, participant::*,
-   rewards::*};` for backward compatibility.
+rewards::*};` for backward compatibility.
 3. Sweep internal imports across the crate to import from the new domain
    modules directly where it improves readability.
 

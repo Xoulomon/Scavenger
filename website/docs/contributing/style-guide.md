@@ -64,9 +64,9 @@ Every page must include:
 
 ```yaml
 ---
-id: my-page          # URL slug (lowercase, hyphens)
+id: my-page # URL slug (lowercase, hyphens)
 title: My Page Title # Page title (sentence case)
-sidebar_position: 1  # Order within its sidebar category
+sidebar_position: 1 # Order within its sidebar category
 ---
 ```
 

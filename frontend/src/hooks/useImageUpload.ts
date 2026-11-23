@@ -49,9 +49,9 @@ export function useImageUpload(config: ImageUploadConfig = {}): UseImageUploadRe
     compressionOptions = {
       maxSizeMB: 1,
       maxWidthOrHeight: 1920,
-      useWebWorker: true,
+      useWebWorker: true
     },
-    onUpload,
+    onUpload
   } = config
 
   const [images, setImages] = useState<ImageFile[]>([])
@@ -94,7 +94,7 @@ export function useImageUpload(config: ImageUploadConfig = {}): UseImageUploadRe
         id: `${file.name}-${Date.now()}-${Math.random()}`,
         file,
         preview: URL.createObjectURL(file),
-        progress: 0,
+        progress: 0
       }))
 
       setImages((prev) => [...prev, ...newEntries])
@@ -106,30 +106,22 @@ export function useImageUpload(config: ImageUploadConfig = {}): UseImageUploadRe
           const uploadId = onUpload
             ? await onUpload(compressed, (pct) => {
                 setImages((prev) =>
-                  prev.map((img) =>
-                    img.id === entry.id ? { ...img, progress: pct } : img
-                  )
+                  prev.map((img) => (img.id === entry.id ? { ...img, progress: pct } : img))
                 )
               })
             : await uploadToIPFS(compressed, (pct) => {
                 setImages((prev) =>
-                  prev.map((img) =>
-                    img.id === entry.id ? { ...img, progress: pct } : img
-                  )
+                  prev.map((img) => (img.id === entry.id ? { ...img, progress: pct } : img))
                 )
               })
 
           setImages((prev) =>
-            prev.map((img) =>
-              img.id === entry.id ? { ...img, uploadId, progress: 100 } : img
-            )
+            prev.map((img) => (img.id === entry.id ? { ...img, uploadId, progress: 100 } : img))
           )
         } catch (e) {
           const error = e instanceof Error ? e.message : 'Upload failed'
           setImages((prev) =>
-            prev.map((img) =>
-              img.id === entry.id ? { ...img, error, progress: 0 } : img
-            )
+            prev.map((img) => (img.id === entry.id ? { ...img, error, progress: 0 } : img))
           )
         }
       }

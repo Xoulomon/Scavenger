@@ -36,9 +36,9 @@ storage reads for the already-in-scope data changed.
 
 ## Before / after (instance storage reads per `transfer_waste` call)
 
-| | Before | After | Reduction |
-|---|---|---|---|
-| Participant storage reads (`from` + `to`, registration + role check) | 4 | 2 | 50% |
+|                                                                      | Before | After | Reduction |
+| -------------------------------------------------------------------- | ------ | ----- | --------- |
+| Participant storage reads (`from` + `to`, registration + role check) | 4      | 2     | 50%       |
 
 This removes 2 of the ~4-6 total instance-storage reads `transfer_waste`
 performs per call (the remainder being the waste/material record read and

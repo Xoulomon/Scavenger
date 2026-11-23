@@ -10,18 +10,18 @@ Use this guide to diagnose symptoms. For active incidents follow [incident-respo
 
 ## Symptom Index
 
-| Symptom | Section |
-|---------|---------|
-| HTTP error rate spike | [Error Rate Spike](#1-error-rate-spike) |
-| High API latency | [Latency Spike](#2-latency-spike) |
-| WebSocket connections dropping | [WebSocket Issues](#3-websocket-issues) |
-| Contract calls failing | [Contract Call Failures](#4-contract-call-failures) |
-| Export jobs hanging | [Export Timeouts](#5-export-timeouts) |
-| Email delivery failures | [Email Failures](#6-email-failures) |
+| Symptom                                   | Section                                                   |
+| ----------------------------------------- | --------------------------------------------------------- |
+| HTTP error rate spike                     | [Error Rate Spike](#1-error-rate-spike)                   |
+| High API latency                          | [Latency Spike](#2-latency-spike)                         |
+| WebSocket connections dropping            | [WebSocket Issues](#3-websocket-issues)                   |
+| Contract calls failing                    | [Contract Call Failures](#4-contract-call-failures)       |
+| Export jobs hanging                       | [Export Timeouts](#5-export-timeouts)                     |
+| Email delivery failures                   | [Email Failures](#6-email-failures)                       |
 | Rate limit errors from legitimate traffic | [False Rate Limit Triggers](#7-false-rate-limit-triggers) |
-| CSRF errors in browser | [CSRF Errors](#8-csrf-errors) |
-| Pod crash-looping | [Pod Crash Loop](#9-pod-crash-loop) |
-| Missing audit logs | [Missing Audit Logs](#10-missing-audit-logs) |
+| CSRF errors in browser                    | [CSRF Errors](#8-csrf-errors)                             |
+| Pod crash-looping                         | [Pod Crash Loop](#9-pod-crash-loop)                       |
+| Missing audit logs                        | [Missing Audit Logs](#10-missing-audit-logs)              |
 
 ---
 
@@ -61,12 +61,12 @@ If a recent deploy correlates with the spike, trigger [Rollback](./deployment.md
 
 ### Resolution paths
 
-| Root cause | Action |
-|-----------|--------|
-| Stellar network outage | Wait for network recovery; errors will self-resolve |
-| Database unreachable | See [Pod Crash Loop](#9-pod-crash-loop) for DB connection exhaustion |
-| Bad deploy | Rollback — see [deployment.md](./deployment.md) |
-| Bug in request handling | Hotfix deploy after reproducing locally |
+| Root cause              | Action                                                               |
+| ----------------------- | -------------------------------------------------------------------- |
+| Stellar network outage  | Wait for network recovery; errors will self-resolve                  |
+| Database unreachable    | See [Pod Crash Loop](#9-pod-crash-loop) for DB connection exhaustion |
+| Bad deploy              | Rollback — see [deployment.md](./deployment.md)                      |
+| Bug in request handling | Hotfix deploy after reproducing locally                              |
 
 ---
 
@@ -327,12 +327,12 @@ kubectl logs <pod-name> -n scavenger-backend --previous
 
 Common causes:
 
-| Log message | Action |
-|------------|--------|
-| `connection refused` to DB | Check RDS security group allows pod CIDR |
-| `SENDGRID_API_KEY not set` | Add missing env var to deployment |
-| `address already in use :8080` | Another process; restart the node |
-| `SIGSEGV` / `signal 11` | Likely OOM — increase memory limit |
+| Log message                    | Action                                   |
+| ------------------------------ | ---------------------------------------- |
+| `connection refused` to DB     | Check RDS security group allows pod CIDR |
+| `SENDGRID_API_KEY not set`     | Add missing env var to deployment        |
+| `address already in use :8080` | Another process; restart the node        |
+| `SIGSEGV` / `signal 11`        | Likely OOM — increase memory limit       |
 
 ---
 

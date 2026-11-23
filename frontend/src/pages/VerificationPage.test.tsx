@@ -41,7 +41,7 @@ function makeRecord(overrides: Partial<VerificationRecord> = {}): VerificationRe
     grade: 'B',
     verifiedAt: 1700000000,
     verifier: 'GABCDEF',
-    ...overrides,
+    ...overrides
   }
 }
 
@@ -153,7 +153,9 @@ function QueueNavStub({ total }: { total: number }) {
       >
         Prev
       </button>
-      <span data-testid="idx">{idx + 1}/{total}</span>
+      <span data-testid="idx">
+        {idx + 1}/{total}
+      </span>
       <button
         aria-label="Next item"
         disabled={idx >= total - 1}
@@ -335,7 +337,7 @@ describe('VerificationPage — decision submission', () => {
   })
 
   it('shows different results for different decisions', () => {
-    const { rerender } = render(<DecisionFormStub />)
+    const { _rerender } = render(<DecisionFormStub />)
     fireEvent.click(screen.getByLabelText('Approve'))
     expect(screen.getByTestId('result').textContent).toContain('approved')
   })

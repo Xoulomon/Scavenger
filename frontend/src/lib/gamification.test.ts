@@ -6,7 +6,7 @@ import {
   computeLevel,
   generateChallenges,
   buildLeaderboard,
-  UserStats,
+  UserStats
 } from '@/lib/gamification'
 
 const empty: UserStats = { materialsSubmitted: 0, transfersCount: 0, totalEarned: 0n }
@@ -136,7 +136,7 @@ describe('buildLeaderboard', () => {
   it('sorts by XP descending', () => {
     const entries = [
       { address: 'A', stats: { ...empty, materialsSubmitted: 5 } },
-      { address: 'B', stats: { ...empty, materialsSubmitted: 10 } },
+      { address: 'B', stats: { ...empty, materialsSubmitted: 10 } }
     ]
     const lb = buildLeaderboard(entries)
     expect(lb[0].address).toBe('B')

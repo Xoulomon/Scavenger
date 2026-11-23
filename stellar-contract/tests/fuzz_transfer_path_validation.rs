@@ -1,7 +1,7 @@
 use proptest::prelude::*;
 use soroban_sdk::{testutils::Address as _, Address, Env};
-use stellar_scavngr_contract::{Contract, ContractClient};
 use stellar_scavngr_contract::types::ParticipantRole;
+use stellar_scavngr_contract::{Contract, ContractClient};
 
 // Strategy for generating valid participant roles
 fn valid_role_strategy() -> impl Strategy<Value = i32> {
@@ -46,7 +46,7 @@ proptest! {
         // Recycler (0) -> Collector (1): valid
         // Recycler (0) -> Manufacturer (2): valid
         // Collector (1) -> Manufacturer (2): valid
-        let is_valid = (from_role == 0 && (to_role == 1 || to_role == 2)) || 
+        let is_valid = (from_role == 0 && (to_role == 1 || to_role == 2)) ||
                       (from_role == 1 && to_role == 2);
 
         if is_valid {
@@ -74,7 +74,7 @@ proptest! {
         client.register_participant(&to, &to_role, &to_role.to_string(), &40i32, &-74i32);
 
         // Valid pairs: (0→1), (0→2), (1→2)
-        let is_valid = (from_role == 0 && (to_role == 1 || to_role == 2)) || 
+        let is_valid = (from_role == 0 && (to_role == 1 || to_role == 2)) ||
                       (from_role == 1 && to_role == 2);
 
         let result = client.is_valid_transfer(&from, &to);
@@ -109,7 +109,7 @@ proptest! {
         let result = client.is_valid_transfer(&from, &to);
 
         // Valid only if both are registered AND route is valid
-        let is_valid_route = (from_role == 0 && (to_role == 1 || to_role == 2)) || 
+        let is_valid_route = (from_role == 0 && (to_role == 1 || to_role == 2)) ||
                             (from_role == 1 && to_role == 2);
         let should_be_valid = from_reg && to_reg && is_valid_route;
 
@@ -264,7 +264,7 @@ proptest! {
         if from_role == 0 {
             let waste_id = client.recycle_waste(&0i32, &1000u128, &from, &40i32, &-74i32);
 
-            let is_valid_path = (from_role == 0 && (to_role == 1 || to_role == 2)) || 
+            let is_valid_path = (from_role == 0 && (to_role == 1 || to_role == 2)) ||
                                (from_role == 1 && to_role == 2);
 
             let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
@@ -273,7 +273,7 @@ proptest! {
 
             if !is_valid_path {
                 // Invalid path should fail
-                prop_assert!(result.is_err() || !result.unwrap(), 
+                prop_assert!(result.is_err() || !result.unwrap(),
                             "Invalid transfer path should fail");
             }
         }

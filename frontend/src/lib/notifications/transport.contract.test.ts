@@ -6,14 +6,16 @@ import { LocalStorageNotificationTransport } from './localStorageTransport'
 
 const ADDR = 'GCONTRACT'
 
-function item(overrides: Partial<Notification> & Pick<Notification, 'id' | 'createdAt'>): Notification {
+function item(
+  overrides: Partial<Notification> & Pick<Notification, 'id' | 'createdAt'>
+): Notification {
   return { type: 'transfer', title: 't', body: 'b', read: false, count: 1, ...overrides }
 }
 
 // The same behavioural contract runs against every transport implementation.
 const implementations: Array<[string, () => NotificationTransport]> = [
   ['in-memory', () => new InMemoryNotificationTransport()],
-  ['localStorage', () => new LocalStorageNotificationTransport()],
+  ['localStorage', () => new LocalStorageNotificationTransport()]
 ]
 
 describe.each(implementations)('NotificationTransport contract: %s', (_name, make) => {
@@ -86,7 +88,7 @@ describe.each(implementations)('NotificationTransport contract: %s', (_name, mak
     return Promise.all([
       t.insert(ADDR, item({ id: 'old', createdAt: 1 })),
       t.insert(ADDR, item({ id: 'mid', createdAt: 2 })),
-      t.insert(ADDR, item({ id: 'new', createdAt: 3 })),
+      t.insert(ADDR, item({ id: 'new', createdAt: 3 }))
     ]).then(() => {
       vi.advanceTimersByTime(3_000)
       stop()

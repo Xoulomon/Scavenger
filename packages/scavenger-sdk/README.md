@@ -23,7 +23,14 @@ npm install @stellar/freighter-api
 ## Getting Started
 
 ```ts
-import { ScavengerClient, Network, resolveNetwork, Role, WasteType, FreighterSigningStrategy } from '@scavngr/sdk'
+import {
+  ScavengerClient,
+  Network,
+  resolveNetwork,
+  Role,
+  WasteType,
+  FreighterSigningStrategy
+} from '@scavngr/sdk'
 
 // 1. Initialize network configuration
 const network = resolveNetwork(Network.Testnet)
@@ -32,7 +39,7 @@ const network = resolveNetwork(Network.Testnet)
 const client = new ScavengerClient({
   rpcUrl: network.rpcUrl,
   networkPassphrase: network.networkPassphrase,
-  contractId: 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZLKE...',
+  contractId: 'CA3D5KRYM6CB7OWQ6TWYRR3Z4T7GNZLKERYNZLKE...'
 })
 
 // 3. (Optional) Configure browser signing strategy for state-mutating calls
@@ -81,8 +88,8 @@ const options: ClientOptions = {
   rpcUrl: 'https://soroban-testnet.stellar.org',
   networkPassphrase: 'Test SDF Network ; September 2025',
   contractId: 'C...',
-  pollTimeoutMs: 30000,   // Optional: transaction polling timeout in ms (default: 30000)
-  pollIntervalMs: 1500,   // Optional: polling interval in ms (default: 1500)
+  pollTimeoutMs: 30000, // Optional: transaction polling timeout in ms (default: 30000)
+  pollIntervalMs: 1500 // Optional: polling interval in ms (default: 1500)
 }
 
 const client = new ScavengerClient(options)
@@ -137,6 +144,7 @@ client.setSigningStrategy(new MyCustomSigner())
 ### Participants
 
 #### `registerParticipant(address, role, name, lat, lon, signer)`
+
 Registers a participant in the recycling ecosystem.
 
 ```ts
@@ -146,13 +154,14 @@ const participant = await client.registerParticipant(
   'GABC...1234',
   Role.Recycler,
   'Green Leaf Recycling',
-  40712800,   // Latitude * 10^6
-  -74006000,  // Longitude * 10^6
+  40712800, // Latitude * 10^6
+  -74006000, // Longitude * 10^6
   'GABC...1234'
 )
 ```
 
 #### `getParticipant(address)`
+
 Retrieves registered participant data or returns `null`.
 
 ```ts
@@ -163,6 +172,7 @@ if (participant) {
 ```
 
 #### `getParticipantInfo(address)`
+
 Returns participant details along with their aggregate recycling stats.
 
 ```ts
@@ -174,6 +184,7 @@ if (info) {
 ```
 
 #### `updateRole(address, newRole, signer)`
+
 Updates a participant's role.
 
 ```ts
@@ -181,6 +192,7 @@ await client.updateRole('GABC...1234', Role.Collector, 'GADMIN...9999')
 ```
 
 #### `isParticipantRegistered(address)`
+
 Checks registration status.
 
 ```ts
@@ -192,6 +204,7 @@ const isRegistered = await client.isParticipantRegistered('GABC...1234')
 ### Materials & Waste
 
 #### `submitMaterial(submitter, wasteType, weight, lat, lon, signer)`
+
 Submits a single waste material record.
 
 ```ts
@@ -200,14 +213,15 @@ import { WasteType } from '@scavngr/sdk'
 const material = await client.submitMaterial(
   'GABC...1234',
   WasteType.Plastic,
-  5000n,       // weight in grams
-  40712800n,   // lat (scaled)
-  -74006000n,  // lon (scaled)
+  5000n, // weight in grams
+  40712800n, // lat (scaled)
+  -74006000n, // lon (scaled)
   'GABC...1234'
 )
 ```
 
 #### `submitMaterialsBatch(submitter, materials, signer)`
+
 Batch submission of multiple materials.
 
 ```ts
@@ -215,13 +229,14 @@ const materials = await client.submitMaterialsBatch(
   'GABC...1234',
   [
     { wasteType: WasteType.Paper, weight: 2500n },
-    { wasteType: WasteType.Glass, weight: 1200n },
+    { wasteType: WasteType.Glass, weight: 1200n }
   ],
   'GABC...1234'
 )
 ```
 
 #### `verifyMaterial(materialId, verifier, signer)`
+
 Verifies a submitted material batch item.
 
 ```ts
@@ -229,6 +244,7 @@ await client.verifyMaterial(1n, 'GVERIFIER...', 'GVERIFIER...')
 ```
 
 #### `transferWaste(wasteId, from, to, lat, lon, note, signer)`
+
 Transfers waste custody across participants in the supply chain.
 
 ```ts
@@ -244,6 +260,7 @@ await client.transferWaste(
 ```
 
 #### `getWaste(wasteId)`
+
 Fetches details of a registered waste asset.
 
 ```ts
@@ -251,6 +268,7 @@ const waste = await client.getWaste(42n)
 ```
 
 #### `getWasteTransferHistory(wasteId)`
+
 Fetches chronological transfer history for a waste asset.
 
 ```ts
@@ -265,19 +283,21 @@ history.forEach((tx) => {
 ### Incentives & Rewards
 
 #### `createIncentive(rewarder, wasteType, rewardPoints, budget, signer)`
+
 Creates a manufacturer incentive pool.
 
 ```ts
 const incentive = await client.createIncentive(
   'GMFG...5678',
   WasteType.PetPlastic,
-  100n,   // points per kg
+  100n, // points per kg
   50000n, // total points budget
   'GMFG...5678'
 )
 ```
 
 #### `getActiveIncentives()`
+
 Returns all active incentive programs.
 
 ```ts
@@ -285,6 +305,7 @@ const activeIncentives = await client.getActiveIncentives()
 ```
 
 #### `distributeRewards(wasteId, incentiveId, manufacturer, signer)`
+
 Distributes token rewards for a confirmed waste recycling batch.
 
 ```ts
@@ -361,13 +382,13 @@ console.log(getNetworkLabel(Network.Standalone)) // "Standalone (Local)"
 
 The SDK provides specific typed error classes derived from `Error`:
 
-| Error Class | Origin | Description |
-| :--- | :--- | :--- |
-| `ContractError` | Contract Simulation / Execution | Soroban contract execution failed or rejected the invocation (includes numeric `code`). |
-| `TransactionError` | Stellar RPC / On-Chain | Transaction failed during submission or failed on-chain (includes `txHash` and `resultXdr`). |
-| `SigningError` | Wallet / Keypair | Wallet extension unavailable or signing rejected by user. |
-| `NetworkError` | RPC / Connection | Invalid network parameters or unreachable Soroban RPC server. |
-| `TimeoutError` | Polling | Polling for on-chain transaction confirmation timed out. |
+| Error Class        | Origin                          | Description                                                                                  |
+| :----------------- | :------------------------------ | :------------------------------------------------------------------------------------------- |
+| `ContractError`    | Contract Simulation / Execution | Soroban contract execution failed or rejected the invocation (includes numeric `code`).      |
+| `TransactionError` | Stellar RPC / On-Chain          | Transaction failed during submission or failed on-chain (includes `txHash` and `resultXdr`). |
+| `SigningError`     | Wallet / Keypair                | Wallet extension unavailable or signing rejected by user.                                    |
+| `NetworkError`     | RPC / Connection                | Invalid network parameters or unreachable Soroban RPC server.                                |
+| `TimeoutError`     | Polling                         | Polling for on-chain transaction confirmation timed out.                                     |
 
 ### Recommended Error Handling Pattern
 

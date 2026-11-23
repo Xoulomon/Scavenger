@@ -20,7 +20,7 @@ function CalendarGridComponent({
   onDayHover,
   renderDayContent,
   dayClassName,
-  loading = false,
+  loading = false
 }: Props) {
   const { t } = useTranslation()
   const year = month.getFullYear()
@@ -32,7 +32,7 @@ function CalendarGridComponent({
     return {
       cells: buildCalendarCells(year, monthIdx) as (number | null)[],
       todayDay: todayDay ?? -1,
-      daysInMonth,
+      daysInMonth
     }
   }, [year, monthIdx])
 
@@ -52,7 +52,9 @@ function CalendarGridComponent({
   }
 
   if (daysInMonth === 0) {
-    return <EmptyState title={t('calendar.empty.title')} description={t('calendar.empty.description')} />
+    return (
+      <EmptyState title={t('calendar.empty.title')} description={t('calendar.empty.description')} />
+    )
   }
 
   return (

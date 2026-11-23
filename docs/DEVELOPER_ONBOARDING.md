@@ -77,14 +77,14 @@ Scavenger/
 
 ### Key Files to Read First
 
-| File | Why |
-|---|---|
-| `stellar-contract/src/lib.rs` | All contract functions — start here |
-| `stellar-contract/src/types.rs` | Data structures (`Waste`, `Participant`, `Incentive`) |
-| `stellar-contract/src/validation.rs` | Shared validation utilities |
-| `frontend/src/api/` | How the frontend talks to the contract |
-| `docs/ARCHITECTURE.md` | System design and data flow |
-| `docs/API_REFERENCE.md` | All public contract functions documented |
+| File                                 | Why                                                   |
+| ------------------------------------ | ----------------------------------------------------- |
+| `stellar-contract/src/lib.rs`        | All contract functions — start here                   |
+| `stellar-contract/src/types.rs`      | Data structures (`Waste`, `Participant`, `Incentive`) |
+| `stellar-contract/src/validation.rs` | Shared validation utilities                           |
+| `frontend/src/api/`                  | How the frontend talks to the contract                |
+| `docs/ARCHITECTURE.md`               | System design and data flow                           |
+| `docs/API_REFERENCE.md`              | All public contract functions documented              |
 
 ---
 
@@ -195,18 +195,18 @@ const result = await contractClient.register_participant({
   role: ParticipantRole.Recycler,
   name: 'My Org',
   latitude: BigInt(52_520_000),
-  longitude: BigInt(13_405_000),
-});
+  longitude: BigInt(13_405_000)
+})
 
 // ✅ Handle loading and error states
-const { data, isLoading, error } = useContractQuery('get_participant', address);
+const { data, isLoading, error } = useContractQuery('get_participant', address)
 
 // ✅ Use existing hooks — don't re-implement wallet logic
-const { walletAddress, isConnected } = useWallet();
+const { walletAddress, isConnected } = useWallet()
 
 // ❌ Don't hardcode network URLs
-const RPC_URL = import.meta.env.VITE_RPC_URL; // ✅
-const RPC_URL = 'https://soroban-testnet.stellar.org'; // ❌
+const RPC_URL = import.meta.env.VITE_RPC_URL // ✅
+const RPC_URL = 'https://soroban-testnet.stellar.org' // ❌
 ```
 
 ---
@@ -341,6 +341,7 @@ docker compose ps
 ### Opening an Issue
 
 Before starting work, ensure an issue exists. If not, create one describing:
+
 - What you want to add/fix
 - Why it's needed
 - Acceptance criteria
@@ -358,11 +359,11 @@ Every PR must:
 
 ### PR Size Guidelines
 
-| Size | Lines Changed | Approach |
-|---|---|---|
-| Small | < 200 | Single PR, fast review |
-| Medium | 200–500 | Split if possible |
-| Large | > 500 | Must split into smaller PRs |
+| Size   | Lines Changed | Approach                    |
+| ------ | ------------- | --------------------------- |
+| Small  | < 200         | Single PR, fast review      |
+| Medium | 200–500       | Split if possible           |
+| Large  | > 500         | Must split into smaller PRs |
 
 ### Code Review Etiquette
 
@@ -388,15 +389,15 @@ Closes #NNN
 
 ### Types
 
-| Type | When to Use |
-|---|---|
-| `feat` | New feature or function |
-| `fix` | Bug fix |
-| `docs` | Documentation only |
+| Type       | When to Use                                             |
+| ---------- | ------------------------------------------------------- |
+| `feat`     | New feature or function                                 |
+| `fix`      | Bug fix                                                 |
+| `docs`     | Documentation only                                      |
 | `refactor` | Code change that neither fixes a bug nor adds a feature |
-| `test` | Adding or improving tests |
-| `chore` | Build process, tooling, dependencies |
-| `perf` | Performance improvement |
+| `test`     | Adding or improving tests                               |
+| `chore`    | Build process, tooling, dependencies                    |
+| `perf`     | Performance improvement                                 |
 
 ### Examples
 
@@ -456,14 +457,14 @@ alias scav-metrics='soroban contract invoke \
 
 ### Common Pitfalls
 
-| Pitfall | Solution |
-|---|---|
-| Tests fail with "admin not set" | Call `initialize_admin` in test setup |
-| Contract not found after restart | Docker volumes cleared — redeploy |
-| Frontend shows stale data | Hard-refresh (Ctrl+Shift+R) or clear localStorage |
-| `cargo clippy` fails on new code | Run `cargo clippy --fix` for auto-fixes |
-| WASM too large | Ensure `[profile.release]` has `opt-level = "z"` in Cargo.toml |
+| Pitfall                          | Solution                                                       |
+| -------------------------------- | -------------------------------------------------------------- |
+| Tests fail with "admin not set"  | Call `initialize_admin` in test setup                          |
+| Contract not found after restart | Docker volumes cleared — redeploy                              |
+| Frontend shows stale data        | Hard-refresh (Ctrl+Shift+R) or clear localStorage              |
+| `cargo clippy` fails on new code | Run `cargo clippy --fix` for auto-fixes                        |
+| WASM too large                   | Ensure `[profile.release]` has `opt-level = "z"` in Cargo.toml |
 
 ---
 
-*Last updated: June 2026 | Questions? Open a GitHub Discussion.*
+_Last updated: June 2026 | Questions? Open a GitHub Discussion._

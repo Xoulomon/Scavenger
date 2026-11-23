@@ -16,9 +16,21 @@ export function ComplianceReportsPage() {
   const [activeTab, setActiveTab] = useState<Tab>('builder')
 
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
-    { id: 'builder', label: t('complianceReports.tabs.builder'), icon: <ClipboardList className="h-4 w-4" /> },
-    { id: 'history', label: t('complianceReports.tabs.history'), icon: <History className="h-4 w-4" /> },
-    { id: 'scheduling', label: t('complianceReports.tabs.scheduling'), icon: <Clock className="h-4 w-4" /> },
+    {
+      id: 'builder',
+      label: t('complianceReports.tabs.builder'),
+      icon: <ClipboardList className="h-4 w-4" />
+    },
+    {
+      id: 'history',
+      label: t('complianceReports.tabs.history'),
+      icon: <History className="h-4 w-4" />
+    },
+    {
+      id: 'scheduling',
+      label: t('complianceReports.tabs.scheduling'),
+      icon: <Clock className="h-4 w-4" />
+    }
   ]
 
   return (

@@ -1,9 +1,7 @@
 // Test suite for i18n locale key validation (#1220)
 // Validates detection and removal of unused translation keys
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import * as fs from 'fs'
-import * as path from 'path'
+import { describe, it, expect, beforeEach } from 'vitest'
 
 interface LocaleKeyValidatorOptions {
   sourceDir: string
@@ -78,7 +76,7 @@ class LocaleKeyValidator {
       usedKeys,
       unusedKeys,
       totalKeys,
-      totalUsed,
+      totalUsed
     }
   }
 
@@ -138,7 +136,7 @@ describe('LocaleKeyValidator', () => {
   beforeEach(() => {
     validator = new LocaleKeyValidator({
       sourceDir: '/test/src',
-      localeDir: '/test/locales',
+      localeDir: '/test/locales'
     })
   })
 
@@ -152,7 +150,7 @@ describe('LocaleKeyValidator', () => {
       const customValidator = new LocaleKeyValidator({
         sourceDir: '/test/src',
         localeDir: '/test/locales',
-        patterns: [/translate\(['"`]([^'"`]+)['"`]\)/g],
+        patterns: [/translate\(['"`]([^'"`]+)['"`]\)/g]
       })
 
       const keys = customValidator.extractUsedKeys()
@@ -302,7 +300,7 @@ describe('LocaleKeyValidator', () => {
     it('should handle empty source directory', () => {
       const emptyValidator = new LocaleKeyValidator({
         sourceDir: '/nonexistent',
-        localeDir: '/test/locales',
+        localeDir: '/test/locales'
       })
       const result = emptyValidator.findUnusedKeys()
       expect(result.usedKeys.size).toBeGreaterThanOrEqual(0)
@@ -311,7 +309,7 @@ describe('LocaleKeyValidator', () => {
     it('should handle missing locale files', () => {
       const validator2 = new LocaleKeyValidator({
         sourceDir: '/test/src',
-        localeDir: '/nonexistent',
+        localeDir: '/nonexistent'
       })
       const result = validator2.findUnusedKeys()
       expect(result.unusedKeys).toBeInstanceOf(Map)

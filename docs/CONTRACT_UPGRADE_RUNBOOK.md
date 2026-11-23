@@ -50,10 +50,11 @@ let report = svc.validate(&plan.id).await?;
 ```
 
 **What is checked:**
-| Check | Description |
-|---|---|
-| `version_increment` | `to_version > from_version` |
-| `wasm_hash_present` | WASM hash is non-empty |
+
+| Check                     | Description                   |
+| ------------------------- | ----------------------------- |
+| `version_increment`       | `to_version > from_version`   |
+| `wasm_hash_present`       | WASM hash is non-empty        |
 | `migration_version_match` | Migration plan versions align |
 
 ### 3. Take rollback snapshot
@@ -130,6 +131,7 @@ soroban contract invoke --id <contract_id> --fn get_contract_version
 ## Monitoring
 
 After a completed upgrade:
+
 - Watch Prometheus alert `contract_upgrade_failed` (config/prometheus-rules.yml)
 - Check backend logs for `[contract_upgrades]` tracing spans
 - Query `svc.get_plan(plan_id)` to inspect the full event log
@@ -138,9 +140,9 @@ After a completed upgrade:
 
 ## Common Errors
 
-| Error | Cause | Fix |
-|---|---|---|
-| `ValidationFailed` | `to_version ≤ from_version` | Increment `to_version` |
-| `MigrationError: must be in migration_ready` | Skipped validation step | Run `validate()` first |
-| `RollbackError: No snapshot found` | Snapshot not created | Always call `create_snapshot()` before migration |
-| `InvalidTransition` | Plan is already terminal | Create a new plan |
+| Error                                        | Cause                       | Fix                                              |
+| -------------------------------------------- | --------------------------- | ------------------------------------------------ |
+| `ValidationFailed`                           | `to_version ≤ from_version` | Increment `to_version`                           |
+| `MigrationError: must be in migration_ready` | Skipped validation step     | Run `validate()` first                           |
+| `RollbackError: No snapshot found`           | Snapshot not created        | Always call `create_snapshot()` before migration |
+| `InvalidTransition`                          | Plan is already terminal    | Create a new plan                                |
