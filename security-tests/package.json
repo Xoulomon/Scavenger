@@ -9,7 +9,8 @@
     "test:security": "vitest run && npm run scan:zap",
     "scan:zap": "node scripts/zap-scan.js",
     "lint": "eslint . --ext ts",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.1.5",

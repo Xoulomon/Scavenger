@@ -1,15 +1,9 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import axios from 'axios';
 
 const API_URL = process.env.API_URL || 'http://localhost:3000/api';
 
 describe('Contract-Backend Integration', () => {
-  let testUserId: string;
-
-  beforeAll(() => {
-    testUserId = `backend_test_${Date.now()}`;
-  });
-
   it('should sync participant data from contract to backend', async () => {
     const userId = `sync_test_${Date.now()}`;
 

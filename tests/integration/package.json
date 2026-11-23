@@ -12,7 +12,8 @@
     "test:e2e": "vitest run --include '**/*.e2e.test.ts'",
     "test:all": "vitest run",
     "lint": "eslint . --ext ts",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.1.5",

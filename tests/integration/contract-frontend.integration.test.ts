@@ -1,8 +1,7 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import axios from 'axios';
 
 const API_URL = process.env.API_URL || 'http://localhost:3000/api';
-const CONTRACT_ID = process.env.CONTRACT_ID || 'test-contract-id';
 
 describe('Contract-Frontend Integration', () => {
   let testUserId: string;
