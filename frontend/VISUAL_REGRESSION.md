@@ -6,11 +6,11 @@ See also: [Snapshot Review Process](e2e/__snapshots__/SNAPSHOT_REVIEW.md) for co
 
 ## Test coverage (32 tests)
 
-| Group | Tests |
-|---|---|
-| Public pages | Landing (desktop/tablet/mobile), Login (desktop/mobile), 404 |
+| Group               | Tests                                                                                                                                                                                                                                                                           |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Public pages        | Landing (desktop/tablet/mobile), Login (desktop/mobile), 404                                                                                                                                                                                                                    |
 | Authenticated pages | Dashboard, Recycler, Waste List (desktop/mobile), Incentives, Collector, Manufacturer, Analytics, Rewards, Supply Chain, Map, Admin, Verification, Settings, Community, Recycling Guide, Marketplace, Certification, Predictive Analytics, Route Planner, Messaging, Comparison |
-| Dark mode | Landing, Dashboard, Settings |
+| Dark mode           | Landing, Dashboard, Settings                                                                                                                                                                                                                                                    |
 
 Each test runs across 3 browser projects: `visual-chromium`, `visual-firefox`, `visual-mobile` (Pixel 5).
 
@@ -39,7 +39,7 @@ npm run visual:update:chromium   # or :firefox / :mobile
 ### Who may update snapshots
 
 Snapshots may only be updated by the **author of the PR that introduces the
-intentional UI change**.  Reviewers must not regenerate snapshots on behalf of
+intentional UI change**. Reviewers must not regenerate snapshots on behalf of
 a contributor.
 
 ### Required evidence
@@ -49,7 +49,7 @@ A snapshot update PR must include in its description:
 1. **Reason** — which UI change caused the diff and why it is intentional.
 2. **Diff review** — confirmation that the contributor ran `npm run visual:report`
    and inspected every changed screenshot side-by-side.
-3. **Scope** — only the affected project(s) were updated.  Use the per-project
+3. **Scope** — only the affected project(s) were updated. Use the per-project
    scripts (`npm run visual:update:chromium`, `:firefox`, `:mobile`) instead of
    `npm run visual:update` when only one browser is affected.
 4. **No unrelated changes** — snapshots for pages you did not modify must be
@@ -57,7 +57,7 @@ A snapshot update PR must include in its description:
 
 ### Updating only one project
 
-Cross-browser diffs are a common source of noise.  When a change only affects
+Cross-browser diffs are a common source of noise. When a change only affects
 one browser, update that project's baselines in isolation:
 
 ```bash
@@ -72,7 +72,7 @@ Repeat for `:firefox` or `:mobile` only if those projects are also affected.
 
 The `visual-regression.spec.ts` file masks known dynamic regions (wallet
 addresses, timestamps, transaction IDs) using the Playwright `mask` option so
-they never cause spurious diffs.  The list of masked selectors lives in the
+they never cause spurious diffs. The list of masked selectors lives in the
 `DYNAMIC_SELECTORS` constant at the top of that file.
 
 If a new dynamic region causes a flaky test, add its CSS selector to
@@ -81,7 +81,9 @@ If a new dynamic region causes a flaky test, add its CSS selector to
 ## Baseline workflow
 
 ### First-time setup
+
 Baselines don't exist yet — generate them:
+
 ```bash
 npm run visual:update
 git add e2e/__snapshots__
@@ -89,6 +91,7 @@ git commit -m "chore: add visual regression baselines"
 ```
 
 ### After intentional UI changes
+
 1. Make your UI changes.
 2. Run `npm run visual` — tests will fail showing the diff.
 3. Review diffs in `playwright-report/` (`npm run visual:report`).
@@ -101,6 +104,7 @@ git commit -m "chore: add visual regression baselines"
 5. Push — CI will now pass.
 
 ### Approving baselines via CI (no local Playwright install)
+
 1. Go to **Actions → Visual Regression** in GitHub.
 2. Click **Run workflow**, set `update_baselines` to `true`.
 3. The workflow regenerates snapshots and commits them back to the branch automatically.
@@ -120,11 +124,13 @@ When reviewing visual regression changes in a PR:
 - [ ] No screenshots show sensitive data (tokens, addresses, real user data)
 
 ### When to Update Snapshots
+
 - Intentional UI styling, layout, or color changes
 - New or modified UI components in visual test coverage
 - Page structure changes affecting visual appearance
 
 ### When to Reject Snapshot Changes
+
 - Snapshots changed for code you didn't modify
 - Visual regressions in unrelated components
 - New snapshots for deleted/renamed flows
@@ -134,11 +140,13 @@ When reviewing visual regression changes in a PR:
 ## CI integration
 
 The `visual-regression.yml` workflow runs on every PR that touches `frontend/src/**`. It:
+
 - Runs all 3 browser projects in parallel.
 - Uploads diff reports as artifacts (retained 30 days) when tests fail.
 - Blocks the PR via the `Visual Regression Gate` job if any diff is detected.
 
 ### Reviewing a failure
+
 1. Open the failed PR → **Actions** tab → click the failed run.
 2. Download the `visual-diff-<project>` artifact.
 3. Open `playwright-report/index.html` to see side-by-side diffs.
@@ -148,10 +156,10 @@ The `visual-regression.yml` workflow runs on every PR that touches `frontend/src
 
 Key settings in `playwright.config.ts`:
 
-| Setting | Value | Reason |
-|---|---|---|
-| `maxDiffPixelRatio` | `0.002` (0.2%) | Tolerates minor anti-aliasing differences across OS/GPU |
-| `animations` | `disabled` | Prevents flaky diffs from in-flight CSS transitions |
-| Snapshot path | `e2e/__snapshots__/{projectName}/` | Keeps per-browser baselines separate |
+| Setting             | Value                              | Reason                                                  |
+| ------------------- | ---------------------------------- | ------------------------------------------------------- |
+| `maxDiffPixelRatio` | `0.002` (0.2%)                     | Tolerates minor anti-aliasing differences across OS/GPU |
+| `animations`        | `disabled`                         | Prevents flaky diffs from in-flight CSS transitions     |
+| Snapshot path       | `e2e/__snapshots__/{projectName}/` | Keeps per-browser baselines separate                    |
 
 To tighten or loosen the threshold, edit `expect.toHaveScreenshot.maxDiffPixelRatio` in `playwright.config.ts`.

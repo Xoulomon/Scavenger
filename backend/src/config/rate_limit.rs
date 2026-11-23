@@ -1,5 +1,5 @@
 //! Rate limit configuration module
-//! 
+//!
 //! This module provides configurable rate limiting for the API.
 //! All limits can be tuned via environment variables per environment.
 
@@ -47,40 +47,36 @@ impl RateLimitConfig {
             .ok()
             .and_then(|v| v.parse().ok())
             .unwrap_or(100);
-        
+
         let default_window_secs = std::env::var("RATE_LIMIT_WINDOW")
             .ok()
             .and_then(|v| v.parse().ok())
             .unwrap_or(60);
-        
-        let admin_limit = std::env::var("RATE_LIMIT_ADMIN")
-            .ok()
-            .and_then(|v| {
-                let parts: Vec<&str> = v.split(',').collect();
-                if parts.len() == 2 {
-                    Some(RateLimitSettings {
-                        limit: parts[0].parse().unwrap_or(500),
-                        window_secs: parts[1].parse().unwrap_or(60),
-                    })
-                } else {
-                    None
-                }
-            });
-        
-        let auth_limit = std::env::var("RATE_LIMIT_AUTH")
-            .ok()
-            .and_then(|v| {
-                let parts: Vec<&str> = v.split(',').collect();
-                if parts.len() == 2 {
-                    Some(RateLimitSettings {
-                        limit: parts[0].parse().unwrap_or(200),
-                        window_secs: parts[1].parse().unwrap_or(60),
-                    })
-                } else {
-                    None
-                }
-            });
-        
+
+        let admin_limit = std::env::var("RATE_LIMIT_ADMIN").ok().and_then(|v| {
+            let parts: Vec<&str> = v.split(',').collect();
+            if parts.len() == 2 {
+                Some(RateLimitSettings {
+                    limit: parts[0].parse().unwrap_or(500),
+                    window_secs: parts[1].parse().unwrap_or(60),
+                })
+            } else {
+                None
+            }
+        });
+
+        let auth_limit = std::env::var("RATE_LIMIT_AUTH").ok().and_then(|v| {
+            let parts: Vec<&str> = v.split(',').collect();
+            if parts.len() == 2 {
+                Some(RateLimitSettings {
+                    limit: parts[0].parse().unwrap_or(200),
+                    window_secs: parts[1].parse().unwrap_or(60),
+                })
+            } else {
+                None
+            }
+        });
+
         let unauth_limit = std::env::var("RATE_LIMIT_UNAUTH")
             .ok()
             .and_then(|v| {
@@ -98,7 +94,7 @@ impl RateLimitConfig {
                 limit: 20,
                 window_secs: 60,
             });
-        
+
         // Parse route overrides from env
         let mut route_overrides = HashMap::new();
         if let Ok(overrides_str) = std::env::var("RATE_LIMIT_ROUTES") {
@@ -125,7 +121,7 @@ impl RateLimitConfig {
                 }
             }
         }
-        
+
         Self {
             default_limit,
             default_window_secs,
@@ -135,7 +131,7 @@ impl RateLimitConfig {
             unauth_limit,
         }
     }
-    
+
     /// Get the rate limit for a specific route and user type
     pub fn get_limit(&self, route: &str, method: &str, is_admin: bool, is_auth: bool) -> RateLimitSettings {
         // Check for route-specific override
@@ -147,24 +143,24 @@ impl RateLimitConfig {
                 };
             }
         }
-        
+
         // Check for user type-specific limits
         if is_admin {
             if let Some(admin_limit) = &self.admin_limit {
                 return admin_limit.clone();
             }
         }
-        
+
         if is_auth {
             if let Some(auth_limit) = &self.auth_limit {
                 return auth_limit.clone();
             }
         }
-        
+
         // Unauthenticated user (strictest)
         self.unauth_limit.clone()
     }
-    
+
     /// Get default window as Duration
     pub fn default_window(&self) -> Duration {
         Duration::from_secs(self.default_window_secs)
@@ -206,7 +202,7 @@ pub mod env_vars {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_default_config() {
         let config = RateLimitConfig::default();
@@ -214,7 +210,7 @@ mod tests {
         assert_eq!(config.default_window_secs, 60);
         assert_eq!(config.unauth_limit.limit, 20);
     }
-    
+
     #[test]
     fn test_get_limit_unauth() {
         let config = RateLimitConfig::default();
@@ -222,7 +218,7 @@ mod tests {
         assert_eq!(limit.limit, 20);
         assert_eq!(limit.window_secs, 60);
     }
-    
+
     #[test]
     fn test_get_limit_auth() {
         let config = RateLimitConfig::default();
@@ -230,7 +226,7 @@ mod tests {
         assert_eq!(limit.limit, 200);
         assert_eq!(limit.window_secs, 60);
     }
-    
+
     #[test]
     fn test_get_limit_admin() {
         let config = RateLimitConfig::default();
@@ -238,7 +234,7 @@ mod tests {
         assert_eq!(limit.limit, 500);
         assert_eq!(limit.window_secs, 60);
     }
-    
+
     #[test]
     fn test_route_override() {
         let mut config = RateLimitConfig::default();
@@ -251,7 +247,7 @@ mod tests {
                 exclude_patterns: None,
             },
         );
-        
+
         let limit = config.get_limit("/api/sensitive", "POST", false, true);
         assert_eq!(limit.limit, 10);
         assert_eq!(limit.window_secs, 60);

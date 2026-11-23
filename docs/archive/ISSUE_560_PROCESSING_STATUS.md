@@ -1,10 +1,13 @@
 # Issue #560: Waste Processing Status Tracking
 
 ## Overview
+
 Track processing status of waste through the supply chain with comprehensive history tracking to enable visibility into waste lifecycle and processing progress.
 
 ## Problem Statement
+
 The recycling system needs to:
+
 - Track waste through different processing stages
 - Maintain immutable history of status changes
 - Enable status-based queries and filtering
@@ -14,17 +17,19 @@ The recycling system needs to:
 ## Solution Architecture
 
 ### State Machine
+
 ```
 Collected → Sorted → Processed → Recycled → Manufactured
    ↓         ↓          ↓           ↓           ↓
   (1)       (2)        (3)         (4)         (5)
-  
+
 Forward-only progression (no backwards movement)
 ```
 
 ### Data Structures
 
 #### ProcessingStatus Enum
+
 ```rust
 pub enum ProcessingStatus {
     Collected = 0,      // Initial collection
@@ -36,6 +41,7 @@ pub enum ProcessingStatus {
 ```
 
 #### ProcessingRecord Struct
+
 ```rust
 pub struct ProcessingRecord {
     pub status: ProcessingStatus,   // Status at this point
@@ -45,6 +51,7 @@ pub struct ProcessingRecord {
 ```
 
 #### Waste Struct Fields
+
 ```rust
 pub struct Waste {
     // ... existing fields ...
@@ -56,6 +63,7 @@ pub struct Waste {
 ### Core Functions
 
 #### 1. update_processing_status()
+
 ```rust
 pub fn update_processing_status(
     env: Env,
@@ -68,18 +76,21 @@ pub fn update_processing_status(
 **Purpose**: Update waste processing status with history tracking
 
 **Parameters**:
+
 - `env`: Soroban environment
 - `waste_id`: ID of waste to update
 - `caller`: Address making update (must be owner)
 - `new_status`: New processing status
 
 **Validation**:
+
 - Caller must be registered participant
 - Caller must be waste owner
 - New status must be > current status (forward-only)
 - Waste must be active
 
 **Side Effects**:
+
 - Updates `processing_status`
 - Appends new record to `processing_history`
 - Records timestamp and updater address
@@ -91,11 +102,13 @@ pub fn update_processing_status(
 **Returns**: Updated Waste struct
 
 **Errors**:
+
 - "Waste not found" - waste_id doesn't exist
 - "Only current owner can update processing status" - not owner
 - "Status must progress forward" - invalid transition
 
 #### 2. get_wastes_by_status()
+
 ```rust
 pub fn get_wastes_by_status(
     env: Env,
@@ -106,6 +119,7 @@ pub fn get_wastes_by_status(
 **Purpose**: Query all wastes with a specific processing status
 
 **Parameters**:
+
 - `env`: Soroban environment
 - `status`: Processing status to filter by
 
@@ -116,6 +130,7 @@ pub fn get_wastes_by_status(
 ### Event Emissions
 
 #### processing_status_changed Event
+
 ```
 Topic: symbol_short!("proc_status")
 Data: (waste_id: u128, new_status: u32, updater: Address, timestamp: u64)
@@ -125,6 +140,7 @@ Emitted by: update_processing_status()
 ## Usage Examples
 
 ### Example 1: Basic Status Progression
+
 ```rust
 // Waste starts as Collected
 let waste_id = client.recycle_waste(
@@ -148,6 +164,7 @@ assert_eq!(final_waste.processing_status, ProcessingStatus::Manufactured);
 ```
 
 ### Example 2: History Tracking
+
 ```rust
 // Submit waste
 let waste_id = client.recycle_waste(
@@ -177,6 +194,7 @@ assert_eq!(second.updated_by, recycler);
 ```
 
 ### Example 3: Status-Based Queries
+
 ```rust
 // Submit multiple wastes
 let id1 = client.recycle_waste(&WasteType::Plastic, &1000, &recycler, &lat, &lon);
@@ -196,6 +214,7 @@ assert!(!sorted.contains(&id1));
 ```
 
 ### Example 4: Invalid Transitions
+
 ```rust
 // Submit waste (starts as Collected)
 let waste_id = client.recycle_waste(
@@ -217,26 +236,31 @@ client.update_processing_status(&waste_id, &recycler, &ProcessingStatus::Manufac
 ## Integration Points
 
 ### With Confirmation System (#557)
+
 - Confirmation can be tied to specific processing stages
 - Confirmed waste has higher processing priority
 - Status history includes confirmation events
 
 ### With Transfer Approval (#558)
+
 - Transfer moves waste between processing stages
 - Status affects transfer eligibility
 - Transfer history correlates with status changes
 
 ### With Hashing System (#559)
+
 - Hashes updated at different processing stages
 - Status history includes hash references
 - Final product has manufacturing documentation
 
 ### With Reputation System
+
 - Status updates award reputation
 - Reaching Recycled status awards bonus reputation
 - Processing speed affects reputation
 
 ### With Recycling Goals
+
 - Status updates progress toward goals
 - Reaching Recycled status counts toward goals
 - Goal achievement tracked with status
@@ -244,17 +268,20 @@ client.update_processing_status(&waste_id, &recycler, &ProcessingStatus::Manufac
 ## Security Considerations
 
 ### Access Control
+
 - Only waste owner can update status
 - Status updates require authentication
 - Prevents unauthorized status changes
 
 ### State Integrity
+
 - Forward-only progression enforced
 - Cannot skip stages
 - Cannot go backwards
 - Status changes are immutable
 
 ### Audit Trail
+
 - All status changes recorded with timestamp
 - Updater address recorded
 - Complete history preserved
@@ -263,6 +290,7 @@ client.update_processing_status(&waste_id, &recycler, &ProcessingStatus::Manufac
 ## Testing Strategy
 
 ### Unit Tests
+
 1. New waste starts with Collected status
 2. Initial history entry creation
 3. Owner can advance status
@@ -277,6 +305,7 @@ client.update_processing_status(&waste_id, &recycler, &ProcessingStatus::Manufac
 12. History records correct updater
 
 ### Integration Tests
+
 1. Status + confirmation flow
 2. Status + transfer flow
 3. Status + hashing flow
@@ -285,6 +314,7 @@ client.update_processing_status(&waste_id, &recycler, &ProcessingStatus::Manufac
 6. Status + recycling goals
 
 ### Edge Cases
+
 1. Non-existent waste
 2. Unregistered updater
 3. Deactivated waste
@@ -294,16 +324,19 @@ client.update_processing_status(&waste_id, &recycler, &ProcessingStatus::Manufac
 ## Performance Characteristics
 
 ### Gas Usage
+
 - Update status: ~5,000 gas (storage write + event)
 - Query by status: ~50,000 gas (scan all wastes)
 - Get history: ~1,000 gas (storage read)
 
 ### Storage
+
 - Per status record: ~40 bytes
 - History grows with waste lifecycle
 - Typical waste: 5-10 records = 200-400 bytes
 
 ### Scalability
+
 - Status queries scale with waste count
 - Can be optimized with indexing
 - History storage is linear with updates
@@ -311,6 +344,7 @@ client.update_processing_status(&waste_id, &recycler, &ProcessingStatus::Manufac
 ## Status Lifecycle
 
 ### Typical Flow
+
 ```
 1. Collected (0)
    ↓ Waste collected from source
@@ -325,6 +359,7 @@ client.update_processing_status(&waste_id, &recycler, &ProcessingStatus::Manufac
 ```
 
 ### Timing Expectations
+
 - Collected → Sorted: 1-7 days
 - Sorted → Processed: 1-14 days
 - Processed → Recycled: 1-30 days
@@ -333,6 +368,7 @@ client.update_processing_status(&waste_id, &recycler, &ProcessingStatus::Manufac
 ## Future Enhancements
 
 ### Potential Improvements
+
 1. **Status Expiry**: Auto-expire wastes at certain status
 2. **Status Notifications**: Event-based notifications
 3. **Status Conditions**: Conditional status transitions

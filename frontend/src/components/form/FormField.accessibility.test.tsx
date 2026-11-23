@@ -24,9 +24,7 @@ describe('FormField Accessibility', () => {
     })
 
     it('should include aria-label when visible label is not available', () => {
-      const { _container } = render(
-        <input type="text" aria-label="Test input field" />
-      )
+      const { _container } = render(<input type="text" aria-label="Test input field" />)
       const input = screen.getByLabelText('Test input field')
       expect(input).toBeInTheDocument()
     })
@@ -47,9 +45,7 @@ describe('FormField Accessibility', () => {
 
   describe('Required Field Indicators', () => {
     it('should indicate required fields with aria-required', () => {
-      const { _container } = render(
-        <input type="text" aria-required="true" required />
-      )
+      const { _container } = render(<input type="text" aria-required="true" required />)
       const input = screen.getByRole('textbox')
       expect(input).toHaveAttribute('required')
     })
@@ -67,9 +63,7 @@ describe('FormField Accessibility', () => {
     })
 
     it('should use aria-required attribute for optional fields', () => {
-      const { _container } = render(
-        <input type="text" aria-required="false" />
-      )
+      const { _container } = render(<input type="text" aria-required="false" />)
       const input = screen.getByRole('textbox')
       expect(input).toHaveAttribute('aria-required', 'false')
     })
@@ -80,11 +74,7 @@ describe('FormField Accessibility', () => {
       const { _container } = render(
         <div>
           <label htmlFor="email-input">Email</label>
-          <input
-            id="email-input"
-            type="email"
-            aria-describedby="email-error"
-          />
+          <input id="email-input" type="email" aria-describedby="email-error" />
           <span id="email-error" role="alert">
             Please enter a valid email
           </span>
@@ -95,16 +85,12 @@ describe('FormField Accessibility', () => {
     })
 
     it('should use role="alert" for error messages', () => {
-      const { _container } = render(
-        <div role="alert">This field is required</div>
-      )
+      const { _container } = render(<div role="alert">This field is required</div>)
       expect(screen.getByRole('alert')).toBeInTheDocument()
     })
 
     it('should have aria-invalid attribute on invalid inputs', () => {
-      const { _container } = render(
-        <input type="email" aria-invalid="true" />
-      )
+      const { _container } = render(<input type="email" aria-invalid="true" />)
       const input = screen.getByRole('textbox')
       expect(input).toHaveAttribute('aria-invalid', 'true')
     })
@@ -112,11 +98,7 @@ describe('FormField Accessibility', () => {
     it('should announce error messages to screen readers', () => {
       const { _container } = render(
         <div>
-          <input
-            type="text"
-            aria-invalid="true"
-            aria-describedby="error-msg"
-          />
+          <input type="text" aria-invalid="true" aria-describedby="error-msg" />
           <div id="error-msg" role="alert">
             Username must be at least 3 characters
           </div>
@@ -131,11 +113,7 @@ describe('FormField Accessibility', () => {
       const { _container } = render(
         <div>
           <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            aria-describedby="password-hint"
-          />
+          <input id="password" type="password" aria-describedby="password-hint" />
           <span id="password-hint">At least 8 characters required</span>
         </div>
       )
@@ -147,11 +125,7 @@ describe('FormField Accessibility', () => {
       const { _container } = render(
         <div>
           <label htmlFor="bio">Bio</label>
-          <input
-            id="bio"
-            type="text"
-            aria-describedby="bio-hint bio-error"
-          />
+          <input id="bio" type="text" aria-describedby="bio-hint bio-error" />
           <span id="bio-hint">Max 500 characters</span>
           <span id="bio-error" role="alert">
             Currently exceeds limit
@@ -232,9 +206,7 @@ describe('FormField Accessibility', () => {
     })
 
     it('should have proper contrast for placeholder text', () => {
-      const { _container } = render(
-        <input type="text" placeholder="Enter text here" />
-      )
+      const { _container } = render(<input type="text" placeholder="Enter text here" />)
       const input = screen.getByPlaceholderText('Enter text here')
       expect(input).toBeInTheDocument()
     })
@@ -256,12 +228,7 @@ describe('FormField Accessibility', () => {
       const { container } = render(
         <div>
           <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            aria-invalid="true"
-            aria-describedby="error"
-          />
+          <input id="email" type="email" aria-invalid="true" aria-describedby="error" />
           <span id="error" role="alert">
             Invalid email format
           </span>
@@ -288,11 +255,7 @@ describe('FormField Accessibility', () => {
       const { container } = render(
         <div>
           <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            aria-describedby="hint"
-          />
+          <input id="password" type="password" aria-describedby="hint" />
           <span id="hint">At least 8 characters</span>
         </div>
       )

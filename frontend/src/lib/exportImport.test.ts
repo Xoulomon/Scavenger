@@ -7,7 +7,7 @@ import {
   generateWasteTemplateCSV,
   triggerDownload,
   PDFExporter,
-  type AnalyticsMonthlyRow,
+  type AnalyticsMonthlyRow
 } from './exportImport'
 import { WasteType, Role } from '@/api/types'
 import type { Waste, Participant, ParticipantStats } from '@/api/types'
@@ -24,7 +24,7 @@ const mockWaste: Waste = {
   recycled_timestamp: 1_700_000_000,
   is_active: true,
   is_confirmed: true,
-  confirmer: 'GDEF5678',
+  confirmer: 'GDEF5678'
 }
 
 const mockParticipant: Participant = {
@@ -33,19 +33,19 @@ const mockParticipant: Participant = {
   name: 'Alice',
   latitude: 40,
   longitude: -74,
-  registered_at: 1_680_000_000,
+  registered_at: 1_680_000_000
 }
 
 const mockStats: ParticipantStats = {
   address: 'GABC1234',
   total_earned: 5000n,
   materials_submitted: 10,
-  transfers_count: 3,
+  transfers_count: 3
 }
 
 const mockMonthlyData: AnalyticsMonthlyRow[] = [
   { month: 'Jan', plastic: 45, metal: 30, glass: 25 },
-  { month: 'Feb', plastic: 52, metal: 35, glass: 28 },
+  { month: 'Feb', plastic: 52, metal: 35, glass: 28 }
 ]
 
 // ── CSV export ─────────────────────────────────────────────────────────────────
@@ -106,7 +106,7 @@ describe('exportWasteToJSON', () => {
       waste_id: '1',
       waste_type: 'Plastic',
       weight: '1500',
-      current_owner: 'GABC1234',
+      current_owner: 'GABC1234'
     })
   })
 })
@@ -256,8 +256,8 @@ describe('PDFExporter', () => {
         weight: 1.5,
         status: 'active',
         date: new Date(),
-        verificationStatus: 'verified',
-      },
+        verificationStatus: 'verified'
+      }
     ])
     const blob = exporter.getBlob()
     expect(blob).toBeInstanceOf(Blob)
@@ -270,7 +270,7 @@ describe('PDFExporter', () => {
       totalWaste: 10,
       wasteByType: { Plastic: 5, Metal: 5 },
       verificationRate: 0.8,
-      averageWeight: 1.2,
+      averageWeight: 1.2
     })
     const blob = exporter.getBlob()
     expect(blob).toBeInstanceOf(Blob)

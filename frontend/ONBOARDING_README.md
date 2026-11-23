@@ -5,33 +5,39 @@ This document describes the interactive onboarding tutorial implemented for new 
 ## Features
 
 ### 1. Welcome Screen
+
 - **App Overview**: Introduces users to the Scavenger platform and its purpose
 - **Role-Specific Content**: Tailored messaging based on user role (Recycler, Collector, Manufacturer, Admin)
 - **Skip Option**: Users can skip the tutorial entirely
 - **"Don't Show Again"**: Option to permanently disable the tutorial
 
 ### 2. Interactive Tooltips
+
 - **Step-by-Step Guidance**: Sequential tooltips highlighting key features
 - **Contextual Content**: Each tooltip explains the purpose and usage of specific UI elements
 - **Visual Indicators**: Clear highlighting of target elements during tutorial
 
 ### 3. Navigation Controls
+
 - **Next/Previous**: Standard navigation between tutorial steps
 - **Skip**: Jump to the end of the tutorial at any time
 - **Progress Indicator**: Visual progress bar showing completion status
 
 ### 4. Role-Specific Tutorials
+
 - **Recycler**: Focuses on waste submission, incentives, and tracking
 - **Collector**: Emphasizes collection routes, verification, and waste mapping
 - **Manufacturer**: Highlights supply chain monitoring and incentive creation
 - **Admin**: Covers platform-wide analytics and management features
 
 ### 5. Persistent State
+
 - **localStorage**: Tutorial completion status stored locally
 - **Role Awareness**: Different tutorials for different user roles
 - **Restart Option**: Available in Settings page
 
 ### 6. Mobile Responsive
+
 - **Touch-Friendly**: Optimized for mobile devices
 - **Responsive Design**: Adapts to different screen sizes
 - **Accessible**: Proper ARIA labels and keyboard navigation
@@ -41,13 +47,16 @@ This document describes the interactive onboarding tutorial implemented for new 
 ### Core Components
 
 #### `useOnboarding` Hook
+
 Manages onboarding state and persistence:
 
 ```typescript
-const { state, startOnboarding, completeOnboarding, skipOnboarding, resetOnboarding } = useOnboarding()
+const { state, startOnboarding, completeOnboarding, skipOnboarding, resetOnboarding } =
+  useOnboarding()
 ```
 
 #### `OnboardingTutorial` Component
+
 Main tutorial component using react-joyride:
 
 ```typescript
@@ -59,6 +68,7 @@ Main tutorial component using react-joyride:
 ```
 
 #### `getOnboardingSteps` Function
+
 Generates role-specific tutorial steps:
 
 ```typescript
@@ -95,6 +105,7 @@ Onboarding state is stored in localStorage:
 ### Automatic Display
 
 The tutorial automatically shows when:
+
 1. User is authenticated
 2. User has not completed or skipped the tutorial
 3. User's role matches the stored tutorial role (or no role is stored)
@@ -102,6 +113,7 @@ The tutorial automatically shows when:
 ### Manual Restart
 
 Users can restart the tutorial from Settings:
+
 1. Navigate to Settings page
 2. Find "Onboarding" section
 3. Click "Restart Tutorial"
@@ -135,11 +147,13 @@ return (
 To add steps for a new feature:
 
 1. Add data attribute to the target element:
+
 ```html
-<div data-onboarding="new-feature">
+<div data-onboarding="new-feature"></div>
 ```
 
 2. Add step to the appropriate role in `getOnboardingSteps()`:
+
 ```typescript
 {
   target: '[data-onboarding="new-feature"]',
@@ -170,6 +184,7 @@ npm test src/lib/onboarding.test.tsx
 ```
 
 Tests cover:
+
 - Hook state management
 - localStorage persistence
 - Step generation for different roles

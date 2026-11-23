@@ -32,10 +32,10 @@ export const ROUTES = {
   USERS: '/users',
   USER_DETAIL: '/users/:id',
   ADMIN: '/admin',
-  NOT_FOUND: '/404',
-} as const;
+  NOT_FOUND: '/404'
+} as const
 
-export type Route = (typeof ROUTES)[keyof typeof ROUTES];
+export type Route = (typeof ROUTES)[keyof typeof ROUTES]
 
 /**
  * Build a concrete path from a route template by replacing `:param`
@@ -46,12 +46,12 @@ export type Route = (typeof ROUTES)[keyof typeof ROUTES];
  */
 export function buildRoute(
   route: Route | string,
-  params: Record<string, string | number> = {},
+  params: Record<string, string | number> = {}
 ): string {
   return Object.entries(params).reduce(
     (path, [key, value]) => path.replace(`:${key}`, String(value)),
-    route,
-  );
+    route
+  )
 }
 
 /* -------------------------------------------------------------------------- */
@@ -63,10 +63,10 @@ export const ROLES = {
   MANAGER: 'manager',
   COLLECTOR: 'collector',
   CITIZEN: 'citizen',
-  USER: 'user',
-} as const;
+  USER: 'user'
+} as const
 
-export type Role = (typeof ROLES)[keyof typeof ROLES];
+export type Role = (typeof ROLES)[keyof typeof ROLES]
 
 /* -------------------------------------------------------------------------- */
 /*                                Waste types                                 */
@@ -78,10 +78,10 @@ export const WASTE_TYPES = {
   HAZARDOUS: 'hazardous',
   ELECTRONIC: 'electronic',
   GENERAL: 'general',
-  CONSTRUCTION: 'construction',
-} as const;
+  CONSTRUCTION: 'construction'
+} as const
 
-export type WasteType = (typeof WASTE_TYPES)[keyof typeof WASTE_TYPES];
+export type WasteType = (typeof WASTE_TYPES)[keyof typeof WASTE_TYPES]
 
 /* -------------------------------------------------------------------------- */
 /*                                  Statuses                                  */
@@ -95,29 +95,27 @@ export const STATUSES = {
   CANCELLED: 'cancelled',
   FAILED: 'failed',
   ACTIVE: 'active',
-  INACTIVE: 'inactive',
-} as const;
+  INACTIVE: 'inactive'
+} as const
 
-export type Status = (typeof STATUSES)[keyof typeof STATUSES];
+export type Status = (typeof STATUSES)[keyof typeof STATUSES]
 
 /* -------------------------------------------------------------------------- */
 /*                              Derived helpers                               */
 /* -------------------------------------------------------------------------- */
 
-export const ROLE_VALUES: readonly Role[] = Object.values(ROLES);
-export const WASTE_TYPE_VALUES: readonly WasteType[] = Object.values(WASTE_TYPES);
-export const STATUS_VALUES: readonly Status[] = Object.values(STATUSES);
+export const ROLE_VALUES: readonly Role[] = Object.values(ROLES)
+export const WASTE_TYPE_VALUES: readonly WasteType[] = Object.values(WASTE_TYPES)
+export const STATUS_VALUES: readonly Status[] = Object.values(STATUSES)
 
 export function isRole(value: unknown): value is Role {
-  return typeof value === 'string' && (ROLE_VALUES as readonly string[]).includes(value);
+  return typeof value === 'string' && (ROLE_VALUES as readonly string[]).includes(value)
 }
 
 export function isWasteType(value: unknown): value is WasteType {
-  return (
-    typeof value === 'string' && (WASTE_TYPE_VALUES as readonly string[]).includes(value)
-  );
+  return typeof value === 'string' && (WASTE_TYPE_VALUES as readonly string[]).includes(value)
 }
 
 export function isStatus(value: unknown): value is Status {
-  return typeof value === 'string' && (STATUS_VALUES as readonly string[]).includes(value);
+  return typeof value === 'string' && (STATUS_VALUES as readonly string[]).includes(value)
 }

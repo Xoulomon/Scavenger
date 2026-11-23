@@ -26,7 +26,7 @@ export function AnalyticsPage() {
   const { exportToCSV, exportToPDF } = useAnalyticsExport()
   const [dateRange, setDateRange] = useState<{ start: Date | null; end: Date | null }>({
     start: null,
-    end: null,
+    end: null
   })
 
   // Memoize callback handlers to prevent unnecessary re-renders of child components
@@ -50,9 +50,7 @@ export function AnalyticsPage() {
       <div className="flex flex-col gap-3 tablet:flex-row tablet:items-start tablet:justify-between">
         <div className="min-w-0">
           <h1 className="text-2xl font-bold xs:text-3xl">{t('analytics.dashboard')}</h1>
-          <p className="mt-1 text-muted-foreground">
-            {t('analytics.subtitle')}
-          </p>
+          <p className="mt-1 text-muted-foreground">{t('analytics.subtitle')}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <DateRangeSelector value={dateRange} onChange={handleDateRangeChange} />

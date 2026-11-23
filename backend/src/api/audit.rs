@@ -6,9 +6,7 @@ use actix_web::{web, HttpResponse};
 use chrono::DateTime;
 
 use crate::services::api::ApiBuilder;
-use crate::services::audit::{
-    AlertRule, AuditAction, AuditEventType, AuditQuery, AuditService, RetentionPolicy,
-};
+use crate::services::audit::{AlertRule, AuditAction, AuditEventType, AuditQuery, AuditService, RetentionPolicy};
 use crate::validation::{error_response, validate_pagination};
 
 #[derive(Debug, Deserialize)]

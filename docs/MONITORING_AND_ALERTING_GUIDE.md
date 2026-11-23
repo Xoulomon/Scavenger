@@ -26,36 +26,36 @@ docker-compose -f docker-compose.monitoring.yml up -d
 
 ### Contract Metrics
 
-| Metric | Description | Type | Alert Threshold |
-|--------|-------------|------|-----------------|
-| `scavenger_participants_total` | Total registered participants | Gauge | N/A |
-| `scavenger_waste_submitted_total` | Total waste submissions | Counter | N/A |
-| `scavenger_waste_verified_total` | Total verified waste | Counter | N/A |
-| `scavenger_incentives_active` | Active incentives count | Gauge | < 5 |
-| `scavenger_tokens_distributed_total` | Total tokens distributed | Counter | N/A |
-| `scavenger_contract_calls_total` | Total contract calls | Counter | N/A |
-| `scavenger_contract_errors_total` | Total contract errors | Counter | > 10/min |
-| `scavenger_gas_used_total` | Total gas consumed | Counter | N/A |
+| Metric                               | Description                   | Type    | Alert Threshold |
+| ------------------------------------ | ----------------------------- | ------- | --------------- |
+| `scavenger_participants_total`       | Total registered participants | Gauge   | N/A             |
+| `scavenger_waste_submitted_total`    | Total waste submissions       | Counter | N/A             |
+| `scavenger_waste_verified_total`     | Total verified waste          | Counter | N/A             |
+| `scavenger_incentives_active`        | Active incentives count       | Gauge   | < 5             |
+| `scavenger_tokens_distributed_total` | Total tokens distributed      | Counter | N/A             |
+| `scavenger_contract_calls_total`     | Total contract calls          | Counter | N/A             |
+| `scavenger_contract_errors_total`    | Total contract errors         | Counter | > 10/min        |
+| `scavenger_gas_used_total`           | Total gas consumed            | Counter | N/A             |
 
 ### System Metrics
 
-| Metric | Description | Alert Threshold |
-|--------|-------------|-----------------|
-| `node_cpu_seconds_total` | CPU usage | > 80% |
-| `node_memory_MemAvailable_bytes` | Available memory | < 20% |
-| `node_disk_avail_bytes` | Disk space | < 10% |
-| `node_network_receive_bytes_total` | Network in | N/A |
-| `node_network_transmit_bytes_total` | Network out | N/A |
+| Metric                              | Description      | Alert Threshold |
+| ----------------------------------- | ---------------- | --------------- |
+| `node_cpu_seconds_total`            | CPU usage        | > 80%           |
+| `node_memory_MemAvailable_bytes`    | Available memory | < 20%           |
+| `node_disk_avail_bytes`             | Disk space       | < 10%           |
+| `node_network_receive_bytes_total`  | Network in       | N/A             |
+| `node_network_transmit_bytes_total` | Network out      | N/A             |
 
 ### Application Metrics
 
-| Metric | Description | Alert Threshold |
-|--------|-------------|-----------------|
-| `http_requests_total` | HTTP requests | N/A |
-| `http_request_duration_seconds` | Request latency | > 5s (p95) |
-| `http_errors_total` | HTTP errors | > 5% error rate |
-| `database_connections_active` | Active DB connections | > 80 |
-| `database_query_duration_seconds` | Query latency | > 1s (p95) |
+| Metric                            | Description           | Alert Threshold |
+| --------------------------------- | --------------------- | --------------- |
+| `http_requests_total`             | HTTP requests         | N/A             |
+| `http_request_duration_seconds`   | Request latency       | > 5s (p95)      |
+| `http_errors_total`               | HTTP errors           | > 5% error rate |
+| `database_connections_active`     | Active DB connections | > 80            |
+| `database_query_duration_seconds` | Query latency         | > 1s (p95)      |
 
 ## Dashboard Setup
 
@@ -70,6 +70,7 @@ docker-compose -f docker-compose.monitoring.yml up -d
 #### Dashboard 1: Contract Overview
 
 **Panels:**
+
 - Participants growth (time series)
 - Waste submissions (gauge)
 - Active incentives (stat)
@@ -79,6 +80,7 @@ docker-compose -f docker-compose.monitoring.yml up -d
 #### Dashboard 2: System Health
 
 **Panels:**
+
 - CPU usage (graph)
 - Memory usage (gauge)
 - Disk usage (gauge)
@@ -88,6 +90,7 @@ docker-compose -f docker-compose.monitoring.yml up -d
 #### Dashboard 3: Performance
 
 **Panels:**
+
 - Request latency (heatmap)
 - Error rate (graph)
 - Throughput (graph)
@@ -135,15 +138,15 @@ groups:
         expr: rate(scavenger_contract_errors_total[5m]) > 0.1
         for: 5m
         annotations:
-          summary: "High contract error rate"
-          description: "Error rate: {{ $value }}"
+          summary: 'High contract error rate'
+          description: 'Error rate: {{ $value }}'
 
       - alert: ScavengerActiveIncentivesLow
         expr: scavenger_incentives_active < 5
         for: 10m
         annotations:
-          summary: "Low active incentives"
-          description: "Active incentives: {{ $value }}"
+          summary: 'Low active incentives'
+          description: 'Active incentives: {{ $value }}'
 
   - name: scavenger_system
     interval: 30s
@@ -152,15 +155,15 @@ groups:
         expr: node_cpu_seconds_total > 0.8
         for: 5m
         annotations:
-          summary: "High CPU usage"
-          description: "CPU: {{ $value }}%"
+          summary: 'High CPU usage'
+          description: 'CPU: {{ $value }}%'
 
       - alert: ScavengerDiskSpaceLow
         expr: node_disk_avail_bytes / node_disk_size_bytes < 0.1
         for: 5m
         annotations:
-          summary: "Low disk space"
-          description: "Available: {{ $value }}%"
+          summary: 'Low disk space'
+          description: 'Available: {{ $value }}%'
 
   - name: scavenger_application
     interval: 30s
@@ -169,21 +172,21 @@ groups:
         expr: histogram_quantile(0.95, http_request_duration_seconds) > 5
         for: 5m
         annotations:
-          summary: "High request latency"
-          description: "P95 latency: {{ $value }}s"
+          summary: 'High request latency'
+          description: 'P95 latency: {{ $value }}s'
 ```
 
 ### Alert Thresholds
 
-| Alert | Threshold | Duration | Severity |
-|-------|-----------|----------|----------|
-| Contract Error Rate | > 10/min | 5m | Critical |
-| Low Incentives | < 5 active | 10m | Warning |
-| High CPU | > 80% | 5m | Warning |
-| Low Memory | < 20% | 5m | Warning |
-| Low Disk | < 10% | 5m | Critical |
-| High Latency | P95 > 5s | 5m | Warning |
-| DB Connection Pool | > 80 | 5m | Warning |
+| Alert               | Threshold  | Duration | Severity |
+| ------------------- | ---------- | -------- | -------- |
+| Contract Error Rate | > 10/min   | 5m       | Critical |
+| Low Incentives      | < 5 active | 10m      | Warning  |
+| High CPU            | > 80%      | 5m       | Warning  |
+| Low Memory          | < 20%      | 5m       | Warning  |
+| Low Disk            | < 10%      | 5m       | Critical |
+| High Latency        | P95 > 5s   | 5m       | Warning  |
+| DB Connection Pool  | > 80       | 5m       | Warning  |
 
 ## AlertManager Configuration
 
@@ -242,6 +245,7 @@ receivers:
 ### Critical Alert Response
 
 **High Contract Error Rate:**
+
 1. Check contract logs: `docker logs scavenger-contract`
 2. Verify network connectivity
 3. Check Stellar network status
@@ -249,6 +253,7 @@ receivers:
 5. Escalate if errors persist
 
 **Low Disk Space:**
+
 1. Check disk usage: `df -h`
 2. Identify large files: `du -sh /*`
 3. Archive old logs: `tar -czf logs-archive-$(date +%Y%m%d).tar.gz logs/`
@@ -256,6 +261,7 @@ receivers:
 5. Monitor recovery
 
 **High Latency:**
+
 1. Check database performance: `EXPLAIN ANALYZE` on slow queries
 2. Monitor CPU/memory: `top`, `free -h`
 3. Check network: `iftop`, `nethogs`
@@ -266,11 +272,13 @@ receivers:
 #### Issue: Contract Deployment Failed
 
 **Symptoms:**
+
 - Contract calls failing
 - Error rate spike
 - Participants unable to register
 
 **Resolution:**
+
 1. Check contract logs: `docker logs scavenger-contract`
 2. Verify contract address: `soroban contract info --id <CONTRACT_ID>`
 3. Redeploy if necessary:
@@ -286,11 +294,13 @@ receivers:
 #### Issue: Database Connection Pool Exhausted
 
 **Symptoms:**
+
 - Slow queries
 - Connection timeout errors
 - High latency
 
 **Resolution:**
+
 1. Check active connections: `SELECT count(*) FROM pg_stat_activity;`
 2. Identify long-running queries: `SELECT * FROM pg_stat_statements ORDER BY mean_time DESC;`
 3. Kill idle connections: `SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE state = 'idle';`
@@ -300,11 +310,13 @@ receivers:
 #### Issue: Memory Leak
 
 **Symptoms:**
+
 - Increasing memory usage over time
 - OOM killer events
 - Performance degradation
 
 **Resolution:**
+
 1. Monitor memory: `watch -n 1 'free -h'`
 2. Check process memory: `ps aux | grep scavenger`
 3. Enable memory profiling
@@ -316,12 +328,12 @@ receivers:
 
 ### Service Level Objectives
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| Availability | 99.9% | Monthly uptime |
-| Latency (P95) | < 500ms | API response time |
-| Error Rate | < 0.1% | Failed requests |
-| Contract Success | > 99% | Successful transactions |
+| Metric           | Target  | Measurement             |
+| ---------------- | ------- | ----------------------- |
+| Availability     | 99.9%   | Monthly uptime          |
+| Latency (P95)    | < 500ms | API response time       |
+| Error Rate       | < 0.1%  | Failed requests         |
+| Contract Success | > 99%   | Successful transactions |
 
 ### Maintenance Windows
 

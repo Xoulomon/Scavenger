@@ -40,12 +40,14 @@ pub enum WasteStatus {
 ### 1. Soroban Storage Compatibility
 
 **#[contracttype] Annotation:**
+
 - Enables automatic implementation of `TryFromVal` and `TryIntoVal` traits
 - Provides deterministic serialization for storage
 - Ensures type-safe conversions between Rust types and Soroban values
 - Maintains consistent field ordering
 
 **Deterministic Serialization:**
+
 - All fields serialize in a consistent, predictable order
 - No implicit defaults or truncation
 - Exact value preservation across storage operations
@@ -54,12 +56,14 @@ pub enum WasteStatus {
 ### 2. Type Safety
 
 **Explicit Conversions:**
+
 - `TryFromVal` handles conversion from Soroban values to Rust types
 - `TryIntoVal` handles conversion from Rust types to Soroban values
 - All conversions are explicit and type-checked
 - Errors are handled gracefully without panics
 
 **Field Validation:**
+
 - Weight must be greater than zero
 - Minimum weight requirement (100g)
 - Status transitions validated
@@ -68,16 +72,19 @@ pub enum WasteStatus {
 ### 3. Storage Operations
 
 **Store Waste:**
+
 ```rust
 env.storage().instance().set(&("waste", id), &waste);
 ```
 
 **Retrieve Waste:**
+
 ```rust
 let waste: Waste = env.storage().instance().get(&("waste", id)).unwrap();
 ```
 
 **Check Existence:**
+
 ```rust
 let exists: bool = env.storage().instance().has(&("waste", id));
 ```
@@ -85,12 +92,14 @@ let exists: bool = env.storage().instance().has(&("waste", id));
 ### 4. Status Management
 
 **Status Transitions:**
+
 - Pending → Processing → Processed
 - Pending → Rejected
 - Processing → Processed
 - Processing → Rejected
 
 **Status Properties:**
+
 - `is_modifiable()` - Returns true for Pending and Processing
 - `is_final()` - Returns true for Processed and Rejected
 - Final statuses cannot be changed
@@ -98,6 +107,7 @@ let exists: bool = env.storage().instance().has(&("waste", id));
 ### 5. Validation
 
 **Field Validation:**
+
 ```rust
 pub fn validate(&self) -> Result<(), &'static str> {
     if self.weight == 0 {
@@ -111,6 +121,7 @@ pub fn validate(&self) -> Result<(), &'static str> {
 ```
 
 **Weight Validation:**
+
 - Minimum weight: 100g
 - Maximum weight: u64::MAX
 - Zero weight rejected
@@ -120,6 +131,7 @@ pub fn validate(&self) -> Result<(), &'static str> {
 ### Waste Methods
 
 #### `new()`
+
 ```rust
 pub fn new(
     id: u64,
@@ -130,68 +142,89 @@ pub fn new(
     location: String,
 ) -> Self
 ```
+
 Creates a new Waste instance with Pending status.
 
 #### `update_status()`
+
 ```rust
 pub fn update_status(&mut self, new_status: WasteStatus) -> bool
 ```
+
 Updates the status if current status is not final. Returns true if updated.
 
 #### `meets_minimum_weight()`
+
 ```rust
 pub fn meets_minimum_weight(&self) -> bool
 ```
+
 Checks if weight is at least 100g.
 
 #### `is_processable()`
+
 ```rust
 pub fn is_processable(&self) -> bool
 ```
+
 Returns true if status is Pending or Processing.
 
 #### `validate()`
+
 ```rust
 pub fn validate(&self) -> Result<(), &'static str>
 ```
+
 Validates all fields for correctness.
 
 ### WasteStatus Methods
 
 #### `is_valid()`
+
 ```rust
 pub fn is_valid(value: u32) -> bool
 ```
+
 Validates if a u32 value is a valid WasteStatus variant.
 
 #### `from_u32()`
+
 ```rust
 pub fn from_u32(value: u32) -> Option<Self>
 ```
+
 Converts u32 to WasteStatus, returns None if invalid.
 
 #### `to_u32()`
+
 ```rust
 pub fn to_u32(&self) -> u32
 ```
+
 Converts WasteStatus to u32.
 
 #### `as_str()`
+
 ```rust
 pub fn as_str(&self) -> &'static str
 ```
+
 Returns string representation of the status.
 
 #### `is_modifiable()`
+
 ```rust
 pub fn is_modifiable(&self) -> bool
 ```
+
 Returns true if status can be changed.
 
 #### `is_final()`
+
 ```rust
 pub fn is_final(&self) -> bool
 ```
+
 Returns true if status is Processed or Rejected.
 
 ## Storage Patterns
@@ -247,6 +280,7 @@ if waste.update_status(WasteStatus::Processed) {
 ### Field Ordering
 
 Fields are serialized in declaration order:
+
 1. id (u64)
 2. waste_type (WasteType)
 3. weight (u64)
@@ -368,6 +402,7 @@ All tests pass with no errors or warnings.
 ### Storage Footprint
 
 Approximate storage size per Waste instance:
+
 - id: 8 bytes
 - waste_type: 4 bytes (enum discriminant)
 - weight: 8 bytes
@@ -413,9 +448,9 @@ let mut waste: Waste = env.storage().instance().get(&("waste", id)).unwrap();
 if waste.is_processable() {
     waste.update_status(WasteStatus::Processing);
     env.storage().instance().set(&("waste", id), &waste);
-    
+
     // Process the waste...
-    
+
     waste.update_status(WasteStatus::Processed);
     env.storage().instance().set(&("waste", id), &waste);
 }
@@ -444,6 +479,7 @@ for i in 1..=10 {
 ### No Breaking Changes
 
 The Waste struct implementation:
+
 - ✅ Uses separate storage namespace
 - ✅ Does not modify existing Material struct
 - ✅ Maintains backward compatibility
@@ -452,6 +488,7 @@ The Waste struct implementation:
 ### Coexistence with Material
 
 Both Waste and Material structs can coexist:
+
 - Material: Used for verified recyclable materials
 - Waste: Used for general waste tracking
 - Different storage keys prevent conflicts
@@ -462,6 +499,7 @@ Both Waste and Material structs can coexist:
 ### Storage Keys
 
 Use consistent key patterns:
+
 ```rust
 // By ID
 ("waste", id)
@@ -479,6 +517,7 @@ Use consistent key patterns:
 ### Error Handling
 
 Always handle storage operations safely:
+
 ```rust
 match env.storage().instance().get::<_, Waste>(&key) {
     Some(waste) => {
@@ -493,6 +532,7 @@ match env.storage().instance().get::<_, Waste>(&key) {
 ### Validation
 
 Validate before storing:
+
 ```rust
 let waste = Waste::new(...);
 waste.validate().expect("Invalid waste");
@@ -502,6 +542,7 @@ env.storage().instance().set(&key, &waste);
 ### Status Updates
 
 Check return value:
+
 ```rust
 if !waste.update_status(new_status) {
     panic!("Cannot update final status");

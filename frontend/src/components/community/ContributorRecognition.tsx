@@ -13,24 +13,68 @@ import {
   computeBadges,
   addNomination,
   generateTransparencyReport,
-  type ContributorTier,
+  type ContributorTier
 } from '@/lib/contributorRecognition'
 
 // ── Mock data ─────────────────────────────────────────────────────────────────
 
 const MOCK_CONTRIBUTORS: Contributor[] = [
-  { address: 'GAXYZ…001', name: 'Alice', points: 52000, wasteCount: 310, tier: 'legend', badges: computeBadges(310, 35, 1), joinedAt: Date.now() - 86400000 * 120, streak: 35 },
-  { address: 'GBDEF…002', name: 'Bob', points: 18500, wasteCount: 210, tier: 'platinum', badges: computeBadges(210, 28, 2), joinedAt: Date.now() - 86400000 * 90, streak: 28 },
-  { address: 'GCHIJ…003', points: 7200, wasteCount: 95, tier: 'gold', badges: computeBadges(95, 12, 3), joinedAt: Date.now() - 86400000 * 60, streak: 12 },
-  { address: 'GDKLM…004', points: 2800, wasteCount: 48, tier: 'silver', badges: computeBadges(48, 5, 4), joinedAt: Date.now() - 86400000 * 30, streak: 5 },
-  { address: 'GENOP…005', points: 450, wasteCount: 12, tier: 'bronze', badges: computeBadges(12, 2, 5), joinedAt: Date.now() - 86400000 * 10, streak: 2 },
+  {
+    address: 'GAXYZ…001',
+    name: 'Alice',
+    points: 52000,
+    wasteCount: 310,
+    tier: 'legend',
+    badges: computeBadges(310, 35, 1),
+    joinedAt: Date.now() - 86400000 * 120,
+    streak: 35
+  },
+  {
+    address: 'GBDEF…002',
+    name: 'Bob',
+    points: 18500,
+    wasteCount: 210,
+    tier: 'platinum',
+    badges: computeBadges(210, 28, 2),
+    joinedAt: Date.now() - 86400000 * 90,
+    streak: 28
+  },
+  {
+    address: 'GCHIJ…003',
+    points: 7200,
+    wasteCount: 95,
+    tier: 'gold',
+    badges: computeBadges(95, 12, 3),
+    joinedAt: Date.now() - 86400000 * 60,
+    streak: 12
+  },
+  {
+    address: 'GDKLM…004',
+    points: 2800,
+    wasteCount: 48,
+    tier: 'silver',
+    badges: computeBadges(48, 5, 4),
+    joinedAt: Date.now() - 86400000 * 30,
+    streak: 5
+  },
+  {
+    address: 'GENOP…005',
+    points: 450,
+    wasteCount: 12,
+    tier: 'bronze',
+    badges: computeBadges(12, 2, 5),
+    joinedAt: Date.now() - 86400000 * 10,
+    streak: 2
+  }
 ].map((c) => ({ ...c, tier: getTier(c.points) }))
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 function TierBadge({ tier }: { tier: ContributorTier }) {
   return (
-    <span className={`rounded px-2 py-0.5 text-xs font-semibold capitalize ${TIER_COLORS[tier]} ${TIER_BG[tier]}`}>
+    <span
+      className={`rounded px-2 py-0.5 text-xs font-semibold capitalize ${TIER_COLORS[tier]} ${TIER_BG[tier]}`}
+    >
       {tier}
     </span>
   )
@@ -55,14 +99,20 @@ function TierProgressCard({ contributor }: { contributor: Contributor }) {
       <CardContent className="space-y-3">
         <div className="flex items-center justify-between">
           <TierBadge tier={contributor.tier} />
-          {next && <span className="text-xs text-muted-foreground">{needed.toLocaleString()} pts to {next}</span>}
+          {next && (
+            <span className="text-xs text-muted-foreground">
+              {needed.toLocaleString()} pts to {next}
+            </span>
+          )}
         </div>
         <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
           <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
         </div>
         <div className="flex flex-wrap gap-2">
           {contributor.badges.map((b) => (
-            <span key={b.id} title={b.description} className="text-lg cursor-help">{b.icon}</span>
+            <span key={b.id} title={b.description} className="text-lg cursor-help">
+              {b.icon}
+            </span>
           ))}
           {contributor.badges.length === 0 && (
             <span className="text-xs text-muted-foreground">No badges yet — start recycling!</span>
@@ -102,7 +152,9 @@ function NominationForm() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <label className="text-xs text-muted-foreground" htmlFor="nominee-addr">Nominee Address</label>
+              <label className="text-xs text-muted-foreground" htmlFor="nominee-addr">
+                Nominee Address
+              </label>
               <input
                 id="nominee-addr"
                 value={address}
@@ -113,7 +165,9 @@ function NominationForm() {
               />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground" htmlFor="nominee-reason">Reason</label>
+              <label className="text-xs text-muted-foreground" htmlFor="nominee-reason">
+                Reason
+              </label>
               <textarea
                 id="nominee-reason"
                 value={reason}
@@ -124,7 +178,9 @@ function NominationForm() {
                 required
               />
             </div>
-            <Button type="submit" size="sm">Submit Nomination</Button>
+            <Button type="submit" size="sm">
+              Submit Nomination
+            </Button>
           </form>
         )}
       </CardContent>
@@ -150,8 +206,13 @@ export function ContributorRecognition() {
         </CardHeader>
         <CardContent className="space-y-3">
           {MOCK_CONTRIBUTORS.map((c, i) => (
-            <div key={c.address} className="flex items-center gap-4 rounded-lg border p-3 hover:bg-accent transition-colors">
-              <span className="w-6 text-center font-bold text-muted-foreground text-sm">#{i + 1}</span>
+            <div
+              key={c.address}
+              className="flex items-center gap-4 rounded-lg border p-3 hover:bg-accent transition-colors"
+            >
+              <span className="w-6 text-center font-bold text-muted-foreground text-sm">
+                #{i + 1}
+              </span>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-mono text-xs">{c.address}</span>
@@ -160,7 +221,9 @@ export function ContributorRecognition() {
                 </div>
                 <div className="flex gap-1 mt-1">
                   {c.badges.slice(0, 4).map((b) => (
-                    <span key={b.id} title={b.name} className="text-sm cursor-help">{b.icon}</span>
+                    <span key={b.id} title={b.name} className="text-sm cursor-help">
+                      {b.icon}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -212,11 +275,13 @@ export function ContributorRecognition() {
             </p>
           </div>
           <div className="mt-3 flex items-center gap-2 flex-wrap">
-            {(Object.entries(report.tierBreakdown) as [ContributorTier, number][]).map(([tier, count]) => (
-              <Badge key={tier} variant="secondary" className={`capitalize ${TIER_COLORS[tier]}`}>
-                {tier}: {count}
-              </Badge>
-            ))}
+            {(Object.entries(report.tierBreakdown) as [ContributorTier, number][]).map(
+              ([tier, count]) => (
+                <Badge key={tier} variant="secondary" className={`capitalize ${TIER_COLORS[tier]}`}>
+                  {tier}: {count}
+                </Badge>
+              )
+            )}
           </div>
         </CardContent>
       </Card>

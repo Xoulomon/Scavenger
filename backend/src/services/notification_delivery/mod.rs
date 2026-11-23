@@ -1,4 +1,3 @@
-use chrono::{DateTime, Utc};
 /// #802 - Notification Delivery Service
 /// Multi-channel (email, SMS, push, webhook) with retry logic, delivery
 /// tracking, and templates.
@@ -14,6 +13,7 @@ use chrono::{DateTime, Utc};
 /// be added, tested, and reasoned about independently instead of as one
 /// monolithic file.
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};

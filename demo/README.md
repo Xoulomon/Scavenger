@@ -4,10 +4,10 @@ This directory contains everything needed to run an interactive, end-to-end walk
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `demo-script.md` | Complete step-by-step demo walkthrough (~25-30 min) covering all seven demo stages: account setup, participant registration, incentive creation, waste submission, supply chain transfers, reward distribution, and statistics |
-| `demo-accounts.json.example` | Template for recording demo account keypairs and addresses — copy to `demo-accounts.json` (git-ignored) before starting |
+| File                         | Description                                                                                                                                                                                                                    |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `demo-script.md`             | Complete step-by-step demo walkthrough (~25-30 min) covering all seven demo stages: account setup, participant registration, incentive creation, waste submission, supply chain transfers, reward distribution, and statistics |
+| `demo-accounts.json.example` | Template for recording demo account keypairs and addresses — copy to `demo-accounts.json` (git-ignored) before starting                                                                                                        |
 
 ## Prerequisites
 

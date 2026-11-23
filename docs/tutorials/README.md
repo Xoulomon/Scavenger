@@ -25,13 +25,13 @@ curl "https://friendbot.stellar.org?addr=$(soroban keys address dev-key)"
 
 ## Tutorial Path
 
-| # | Tutorial | Level | Topics |
-|---|----------|-------|--------|
-| [01](./01-getting-started.md) | Getting Started | Beginner | Project setup, first contract, basic state |
-| [02](./02-intermediate-contracts.md) | Intermediate Contracts | Intermediate | Events, access control, upgrades |
-| [03](./03-advanced-patterns.md) | Advanced Patterns | Advanced | Multi-contract calls, optimisation, security |
-| [04](./04-practice-exercises.md) | Practice Exercises | All levels | Hands-on challenges |
-| [05](./05-solutions.md) | Solution Guide | Reference | Worked solutions with explanations |
+| #                                    | Tutorial               | Level        | Topics                                       |
+| ------------------------------------ | ---------------------- | ------------ | -------------------------------------------- |
+| [01](./01-getting-started.md)        | Getting Started        | Beginner     | Project setup, first contract, basic state   |
+| [02](./02-intermediate-contracts.md) | Intermediate Contracts | Intermediate | Events, access control, upgrades             |
+| [03](./03-advanced-patterns.md)      | Advanced Patterns      | Advanced     | Multi-contract calls, optimisation, security |
+| [04](./04-practice-exercises.md)     | Practice Exercises     | All levels   | Hands-on challenges                          |
+| [05](./05-solutions.md)              | Solution Guide         | Reference    | Worked solutions with explanations           |
 
 ---
 

@@ -9,10 +9,10 @@ export type {
   ApiRequest,
   ApiResponse,
   HistoryEntry,
-  ExampleRequest,
-} from '@greenledger/packages/api-playground-types';
+  ExampleRequest
+} from '@greenledger/packages/api-playground-types'
 
-import type { ExampleRequest } from '@greenledger/packages/api-playground-types';
+import type { ExampleRequest } from '@greenledger/packages/api-playground-types'
 
 export const EXAMPLE_REQUESTS: ExampleRequest[] = [
   {
@@ -26,11 +26,11 @@ export const EXAMPLE_REQUESTS: ExampleRequest[] = [
       headers: [{ key: 'Accept', value: 'application/json', enabled: true }],
       queryParams: [
         { key: 'page', value: '1', enabled: true },
-        { key: 'limit', value: '20', enabled: true },
+        { key: 'limit', value: '20', enabled: true }
       ],
       body: '',
-      auth: { type: 'none' },
-    },
+      auth: { type: 'none' }
+    }
   },
   {
     id: 'ex-2',
@@ -43,8 +43,8 @@ export const EXAMPLE_REQUESTS: ExampleRequest[] = [
       headers: [{ key: 'Accept', value: 'application/json', enabled: true }],
       queryParams: [],
       body: '',
-      auth: { type: 'none' },
-    },
+      auth: { type: 'none' }
+    }
   },
   {
     id: 'ex-3',
@@ -57,8 +57,8 @@ export const EXAMPLE_REQUESTS: ExampleRequest[] = [
       headers: [{ key: 'Accept', value: 'application/json', enabled: true }],
       queryParams: [{ key: 'participant_id', value: 'GXXXX...', enabled: true }],
       body: '',
-      auth: { type: 'bearer' },
-    },
+      auth: { type: 'bearer' }
+    }
   },
   {
     id: 'ex-4',
@@ -70,12 +70,12 @@ export const EXAMPLE_REQUESTS: ExampleRequest[] = [
       url: '/api/export',
       headers: [
         { key: 'Content-Type', value: 'application/json', enabled: true },
-        { key: 'Accept', value: 'application/json', enabled: true },
+        { key: 'Accept', value: 'application/json', enabled: true }
       ],
       queryParams: [],
       body: JSON.stringify({ format: 'csv', data_type: 'wastes', anonymize: false }, null, 2),
-      auth: { type: 'bearer' },
-    },
+      auth: { type: 'bearer' }
+    }
   },
   {
     id: 'ex-5',
@@ -88,11 +88,11 @@ export const EXAMPLE_REQUESTS: ExampleRequest[] = [
       headers: [{ key: 'Accept', value: 'application/json', enabled: true }],
       queryParams: [
         { key: 'page', value: '1', enabled: true },
-        { key: 'limit', value: '50', enabled: true },
+        { key: 'limit', value: '50', enabled: true }
       ],
       body: '',
-      auth: { type: 'bearer' },
-    },
+      auth: { type: 'bearer' }
+    }
   },
   {
     id: 'ex-6',
@@ -104,11 +104,11 @@ export const EXAMPLE_REQUESTS: ExampleRequest[] = [
       url: '/api/verification/verify',
       headers: [
         { key: 'Content-Type', value: 'application/json', enabled: true },
-        { key: 'X-CSRF-Token', value: '<csrf-token>', enabled: true },
+        { key: 'X-CSRF-Token', value: '<csrf-token>', enabled: true }
       ],
       queryParams: [],
       body: JSON.stringify({ record_id: 'waste-001', verifier_id: 'GXXXX...' }, null, 2),
-      auth: { type: 'bearer' },
-    },
-  },
-];
+      auth: { type: 'bearer' }
+    }
+  }
+]

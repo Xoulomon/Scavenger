@@ -18,7 +18,7 @@ export function FilterBar({
   onDateFromChange,
   onDateToChange,
   showFilters,
-  onToggleFilters,
+  onToggleFilters
 }: {
   searchQuery: string
   onSearchChange: (q: string) => void

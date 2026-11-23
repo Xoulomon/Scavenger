@@ -320,10 +320,7 @@ async fn send_webhook(
     }
 }
 
-fn sign_payload(
-    secret: &str,
-    body: &[u8],
-) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+fn sign_payload(secret: &str, body: &[u8]) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
     let mut mac = Hmac::<Sha256>::new_from_slice(secret.as_bytes())?;
     mac.update(body);
     Ok(hex::encode(mac.finalize().into_bytes()))
@@ -335,11 +332,7 @@ mod tests {
 
     #[test]
     fn signs_payload_with_hmac_sha256() {
-        let signature = sign_payload(
-            "key",
-            b"The quick brown fox jumps over the lazy dog",
-        )
-        .unwrap();
+        let signature = sign_payload("key", b"The quick brown fox jumps over the lazy dog").unwrap();
 
         assert_eq!(
             signature,

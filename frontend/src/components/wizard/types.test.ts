@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  WasteSubmissionFormData,
-  TransferFormData,
-} from './types'
+import { WasteSubmissionFormData, TransferFormData } from './types'
 import { WasteType } from '@/api/types'
 
 describe('Wizard Types', () => {
@@ -13,7 +10,7 @@ describe('Wizard Types', () => {
         weight: 10,
         latitude: '40.7128',
         longitude: '-74.0060',
-        notes: 'Test waste',
+        notes: 'Test waste'
       }
       expect(data.wasteType).toBe(WasteType.Paper)
       expect(data.weight).toBe(10)
@@ -30,7 +27,7 @@ describe('Wizard Types', () => {
         recipientAddress: 'GXYZ123ABC',
         latitude: '40.7128',
         longitude: '-74.0060',
-        notes: 'Transfer test',
+        notes: 'Transfer test'
       }
       expect(data.wasteId).toBe('W123')
       expect(data.recipientAddress).toBe('GXYZ123ABC')

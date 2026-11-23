@@ -146,10 +146,7 @@ impl NotificationService for FirebaseNotificationService {
         Ok(())
     }
 
-    async fn get_preferences(
-        &self,
-        user_id: &str,
-    ) -> Result<NotificationPreference, NotificationError> {
+    async fn get_preferences(&self, user_id: &str) -> Result<NotificationPreference, NotificationError> {
         if user_id.is_empty() {
             log::warn!(
                 service = "notifications",

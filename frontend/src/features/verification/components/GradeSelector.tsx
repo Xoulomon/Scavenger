@@ -1,11 +1,11 @@
 import { cn } from '@/lib/utils'
 
-import { GRADE_COLORS,GRADES } from '../constants'
+import { GRADE_COLORS, GRADES } from '../constants'
 import type { QualityGrade } from '../types'
 
 export function GradeSelector({
   value,
-  onChange,
+  onChange
 }: {
   value: QualityGrade
   onChange: (g: QualityGrade) => void

@@ -1,10 +1,10 @@
 //! Comprehensive integration tests for the audit service module
 //! Tests for audit entries, queries, summaries, and report generation
 
-use scavenger_backend::services::audit::{
-    AuditEntry, AuditEventType, AuditAction, AuditQuery, AuditSummary, AuditReport,
-};
 use chrono::Utc;
+use scavenger_backend::services::audit::{
+    AuditAction, AuditEntry, AuditEventType, AuditQuery, AuditReport, AuditSummary,
+};
 use std::collections::HashMap;
 
 // ── Helper functions for test data ───────────────────────────────────────────
@@ -257,13 +257,7 @@ fn test_audit_entry_timestamp_validity() {
 
 #[test]
 fn test_audit_entry_ip_address_variations() {
-    let ip_addresses = vec![
-        "192.168.1.1",
-        "10.0.0.1",
-        "127.0.0.1",
-        "::1",
-        "2001:db8::1",
-    ];
+    let ip_addresses = vec!["192.168.1.1", "10.0.0.1", "127.0.0.1", "::1", "2001:db8::1"];
 
     for ip in ip_addresses {
         let mut entry = valid_audit_entry();
@@ -276,8 +270,7 @@ fn test_audit_entry_ip_address_variations() {
 fn test_audit_entry_serialization() {
     let entry = valid_audit_entry();
     let json = serde_json::to_string(&entry).expect("serialization should work");
-    let deserialized: AuditEntry = serde_json::from_str(&json)
-        .expect("deserialization should work");
+    let deserialized: AuditEntry = serde_json::from_str(&json).expect("deserialization should work");
 
     assert_eq!(entry.id, deserialized.id);
     assert_eq!(entry.event_type, deserialized.event_type);
@@ -421,8 +414,7 @@ fn test_audit_summary_empty_aggregations() {
 fn test_audit_summary_serialization() {
     let summary = valid_audit_summary();
     let json = serde_json::to_string(&summary).expect("serialization should work");
-    let deserialized: AuditSummary = serde_json::from_str(&json)
-        .expect("deserialization should work");
+    let deserialized: AuditSummary = serde_json::from_str(&json).expect("deserialization should work");
 
     assert_eq!(summary.total_entries, deserialized.total_entries);
     assert_eq!(summary.by_event_type, deserialized.by_event_type);
@@ -467,8 +459,7 @@ fn test_audit_report_serialization() {
     };
 
     let json = serde_json::to_string(&report).expect("serialization should work");
-    let _deserialized: AuditReport = serde_json::from_str(&json)
-        .expect("deserialization should work");
+    let _deserialized: AuditReport = serde_json::from_str(&json).expect("deserialization should work");
 }
 
 // ── Integration tests combining multiple types ──────────────────────────────

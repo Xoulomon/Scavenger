@@ -48,13 +48,7 @@ pub struct VerificationOutcome {
 /// can be unit-tested against a mock and future persistence can be added
 /// without touching the HTTP layer.
 pub trait SigningService: Send + Sync {
-    fn verify(
-        &self,
-        transaction_id: &str,
-        signature: &str,
-        signer_id: &str,
-        data: &str,
-    ) -> VerificationOutcome;
+    fn verify(&self, transaction_id: &str, signature: &str, signer_id: &str, data: &str) -> VerificationOutcome;
 
     fn documentation(&self) -> serde_json::Value;
 }
@@ -72,16 +66,11 @@ impl<R: SigningRepository> DefaultSigningService<R> {
 }
 
 impl<R: SigningRepository> SigningService for DefaultSigningService<R> {
-    fn verify(
-        &self,
-        transaction_id: &str,
-        signature: &str,
-        signer_id: &str,
-        data: &str,
-    ) -> VerificationOutcome {
+    fn verify(&self, transaction_id: &str, signature: &str, signer_id: &str, data: &str) -> VerificationOutcome {
         // Data access goes through the repository so persistence can be added
         // later without changing this signature.
-        self.repository.record_verification(transaction_id, signature, signer_id, data);
+        self.repository
+            .record_verification(transaction_id, signature, signer_id, data);
 
         VerificationOutcome {
             signer_id: signer_id.to_string(),
@@ -120,13 +109,7 @@ impl<R: SigningRepository> SigningService for DefaultSigningService<R> {
 pub trait SigningRepository: Send + Sync {
     /// Record that a verification was performed. Implementations may be
     /// no-ops (the current stateless behaviour) or persist an audit trail.
-    fn record_verification(
-        &self,
-        transaction_id: &str,
-        signature: &str,
-        signer_id: &str,
-        data: &str,
-    );
+    fn record_verification(&self, transaction_id: &str, signature: &str, signer_id: &str, data: &str);
 }
 
 /// In-memory repository used by default; performs no persistence.
@@ -221,13 +204,7 @@ mod tests {
     }
 
     impl SigningService for MockSigningService {
-        fn verify(
-            &self,
-            _transaction_id: &str,
-            _signature: &str,
-            signer_id: &str,
-            _data: &str,
-        ) -> VerificationOutcome {
+        fn verify(&self, _transaction_id: &str, _signature: &str, signer_id: &str, _data: &str) -> VerificationOutcome {
             self.verify_calls.fetch_add(1, Ordering::SeqCst);
             *self.last_signer.lock().unwrap() = Some(signer_id.to_string());
             VerificationOutcome {

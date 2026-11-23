@@ -11,12 +11,12 @@ vi.mock('@/hooks/useImpactCalculator', () => ({
       carKm: 0,
       smartphoneCharges: 0,
       showerMinutes: 0,
-      lightbulbHours: 0,
+      lightbulbHours: 0
     },
     shareText: '',
     isLoading: false,
-    isError: false,
-  })),
+    isError: false
+  }))
 }))
 
 describe('ImpactCalculatorPage', () => {

@@ -81,6 +81,7 @@ let audit_policy = RetentionPolicy {
 ### Retention Policy Management
 
 #### Create Policy
+
 ```
 POST /api/v1/archival/policies
 Content-Type: application/json
@@ -98,6 +99,7 @@ Content-Type: application/json
 ```
 
 Response:
+
 ```json
 {
   "policy_id": "550e8400-e29b-41d4-a716-446655440000",
@@ -106,11 +108,13 @@ Response:
 ```
 
 #### List Policies
+
 ```
 GET /api/v1/archival/policies
 ```
 
 Response:
+
 ```json
 [
   {
@@ -128,11 +132,13 @@ Response:
 ```
 
 #### Get Policy
+
 ```
 GET /api/v1/archival/policies/{policy_id}
 ```
 
 #### Update Policy
+
 ```
 PUT /api/v1/archival/policies/{policy_id}
 Content-Type: application/json
@@ -144,6 +150,7 @@ Content-Type: application/json
 ```
 
 #### Delete Policy
+
 ```
 DELETE /api/v1/archival/policies/{policy_id}
 ```
@@ -151,6 +158,7 @@ DELETE /api/v1/archival/policies/{policy_id}
 ### Archive Operations
 
 #### Archive Data
+
 ```
 POST /api/v1/archival/archives
 Content-Type: application/json
@@ -164,6 +172,7 @@ Content-Type: application/json
 ```
 
 Response:
+
 ```json
 {
   "archive_id": "archive-abc-123",
@@ -172,11 +181,13 @@ Response:
 ```
 
 #### Query Archives
+
 ```
 GET /api/v1/archival/archives?data_type=wastes&status=completed&limit=50
 ```
 
 Query Parameters:
+
 - `data_type`: Filter by data type
 - `status`: pending, in_progress, completed, failed, restored
 - `from_date`: ISO 8601 date
@@ -186,6 +197,7 @@ Query Parameters:
 - `offset`: Pagination offset
 
 Response:
+
 ```json
 [
   {
@@ -205,11 +217,13 @@ Response:
 ```
 
 #### Restore Archive
+
 ```
 POST /api/v1/archival/archives/{archive_id}/restore
 ```
 
 Response:
+
 ```json
 {
   "archive_id": "archive-abc-123",
@@ -219,6 +233,7 @@ Response:
 ```
 
 #### Delete Archive
+
 ```
 DELETE /api/v1/archival/archives/{archive_id}
 ```
@@ -226,11 +241,13 @@ DELETE /api/v1/archival/archives/{archive_id}
 ### Statistics
 
 #### Get Archive Statistics
+
 ```
 GET /api/v1/archival/stats
 ```
 
 Response:
+
 ```json
 {
   "total_archives": 1500,
@@ -257,11 +274,13 @@ Response:
 ### Job Management
 
 #### List Jobs
+
 ```
 GET /api/v1/archival/jobs?status=completed
 ```
 
 Response:
+
 ```json
 [
   {
@@ -280,6 +299,7 @@ Response:
 ```
 
 #### Get Job Status
+
 ```
 GET /api/v1/archival/jobs/{job_id}
 ```
@@ -332,7 +352,6 @@ let query = ArchiveQuery {
 };
 let archives = service.query_archives(query)?;
 ```
-
 
 ### Automated Archival Job
 
@@ -388,6 +407,7 @@ let storage = FileSystemArchivalStorage::new(
 ```
 
 Directory structure:
+
 ```
 /var/scavenger/archives/
 ├── wastes/
@@ -413,6 +433,7 @@ let storage = S3ArchivalStorage::new(
 ```
 
 S3 benefits:
+
 - Automatic lifecycle transitions
 - Built-in durability and redundancy
 - Glacier and Deep Archive support
@@ -449,6 +470,7 @@ All archived data is automatically compressed using gzip compression:
 - **Level**: Configurable (default: 6)
 
 Example compression results:
+
 ```
 Original: 1,024 KB JSON
 Compressed: 256 KB (75% reduction)
@@ -517,9 +539,9 @@ Always test restoration before relying on archives:
 async fn test_archive_integrity() {
     let original_data = generate_test_data();
     let archive_id = service.archive_data(..., original_data.clone()).await?;
-    
+
     let restored_data = service.restore_data(&archive_id).await?;
-    
+
     assert_eq!(original_data, restored_data);
 }
 ```
@@ -572,6 +594,7 @@ Glacier   | 1-5 hours     | ¢
 ### Batch Operations
 
 For best performance:
+
 - Archive in batches of 100-1000 records
 - Use parallel processing for large jobs
 - Schedule archival during off-peak hours
@@ -608,7 +631,8 @@ Error: Checksum validation failed
 Error: Failed to store archive: disk full
 ```
 
-**Solution**: 
+**Solution**:
+
 - Increase storage capacity
 - Delete old archives past retention period
 - Migrate to higher capacity tier
@@ -625,6 +649,7 @@ The archival system supports compliance with:
 ## Future Enhancements
 
 Planned features:
+
 1. Encryption at rest for archived data
 2. Automated tier migration based on access patterns
 3. Cross-region replication for disaster recovery

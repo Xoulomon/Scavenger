@@ -4,20 +4,46 @@ import { StatCard } from '@/components/ui/StatCard'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { usePerformanceMonitoring } from '@/hooks/usePerformanceMonitoring'
-import { initWebVitals, validatePerformanceBudgets, type WebVital, type PerformanceMetrics } from '@/lib/webVitals'
+import {
+  initWebVitals,
+  validatePerformanceBudgets,
+  type WebVital,
+  type PerformanceMetrics
+} from '@/lib/webVitals'
 
 const METRIC_CONFIG: Record<string, { label: string; unit: string; description: string }> = {
-  LCP: { label: 'Largest Contentful Paint', unit: 'ms', description: 'Time until the largest content element renders' },
-  FCP: { label: 'First Contentful Paint', unit: 'ms', description: 'Time until first content appears on screen' },
-  INP: { label: 'Interaction to Next Paint', unit: 'ms', description: 'Responsiveness to user interactions' },
-  CLS: { label: 'Cumulative Layout Shift', unit: '', description: 'Visual stability — unexpected layout shifts' },
-  TTFB: { label: 'Time to First Byte', unit: 'ms', description: 'Server response time to first byte' },
+  LCP: {
+    label: 'Largest Contentful Paint',
+    unit: 'ms',
+    description: 'Time until the largest content element renders'
+  },
+  FCP: {
+    label: 'First Contentful Paint',
+    unit: 'ms',
+    description: 'Time until first content appears on screen'
+  },
+  INP: {
+    label: 'Interaction to Next Paint',
+    unit: 'ms',
+    description: 'Responsiveness to user interactions'
+  },
+  CLS: {
+    label: 'Cumulative Layout Shift',
+    unit: '',
+    description: 'Visual stability — unexpected layout shifts'
+  },
+  TTFB: {
+    label: 'Time to First Byte',
+    unit: 'ms',
+    description: 'Server response time to first byte'
+  }
 }
 
 const RATING_STYLES: Record<string, string> = {
   good: 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400',
-  'needs-improvement': 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400',
-  poor: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400',
+  'needs-improvement':
+    'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400',
+  poor: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400'
 }
 
 function RatingIcon({ rating }: { rating?: string }) {
@@ -30,15 +56,16 @@ function MetricCard({ name, metric }: { name: string; metric?: WebVital }) {
   const config = METRIC_CONFIG[name]
   if (!metric || !config) return null
 
-  const displayValue = name === 'CLS'
-    ? metric.value.toFixed(3)
-    : `${metric.value.toFixed(0)}${config.unit}`
+  const displayValue =
+    name === 'CLS' ? metric.value.toFixed(3) : `${metric.value.toFixed(0)}${config.unit}`
 
   return (
     <Card>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium text-muted-foreground">{config.label}</CardTitle>
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            {config.label}
+          </CardTitle>
           {metric.rating && <RatingIcon rating={metric.rating} />}
         </div>
       </CardHeader>
@@ -78,7 +105,9 @@ export function PerformanceMonitoringPage() {
   }, [metrics])
 
   const goodCount = Object.values(metrics).filter((m) => m?.rating === 'good').length
-  const needsImprovementCount = Object.values(metrics).filter((m) => m?.rating === 'needs-improvement').length
+  const needsImprovementCount = Object.values(metrics).filter(
+    (m) => m?.rating === 'needs-improvement'
+  ).length
   const poorCount = Object.values(metrics).filter((m) => m?.rating === 'poor').length
   const totalMetrics = goodCount + needsImprovementCount + poorCount
   const overallScore = totalMetrics > 0 ? Math.round((goodCount / totalMetrics) * 100) : null
@@ -88,7 +117,8 @@ export function PerformanceMonitoringPage() {
       <div>
         <h1 className="text-2xl font-bold">Performance Monitoring</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Real-time Core Web Vitals and performance metrics · Last updated {lastUpdated.toLocaleTimeString()}
+          Real-time Core Web Vitals and performance metrics · Last updated{' '}
+          {lastUpdated.toLocaleTimeString()}
         </p>
       </div>
 
@@ -98,7 +128,13 @@ export function PerformanceMonitoringPage() {
           icon={<Gauge className="h-4 w-4" />}
           label="Overall Score"
           value={overallScore !== null ? `${overallScore}%` : '—'}
-          variant={overallScore !== null && overallScore >= 80 ? 'success' : overallScore !== null && overallScore >= 50 ? 'warning' : 'default'}
+          variant={
+            overallScore !== null && overallScore >= 80
+              ? 'success'
+              : overallScore !== null && overallScore >= 50
+                ? 'warning'
+                : 'default'
+          }
         />
         <StatCard
           icon={<CheckCircle2 className="h-4 w-4" />}
@@ -148,7 +184,9 @@ export function PerformanceMonitoringPage() {
           <Card>
             <CardContent className="flex items-center gap-3 py-8 text-muted-foreground">
               <Activity className="h-5 w-5 animate-pulse" />
-              <span className="text-sm">Collecting metrics — interact with the page to generate data…</span>
+              <span className="text-sm">
+                Collecting metrics — interact with the page to generate data…
+              </span>
             </CardContent>
           </Card>
         ) : (
@@ -198,11 +236,36 @@ export function PerformanceMonitoringPage() {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                <tr><td className="py-2 font-medium">LCP</td><td className="py-2 text-green-600">≤ 2,500 ms</td><td className="py-2 text-yellow-600">≤ 4,000 ms</td><td className="py-2 text-destructive">&gt; 4,000 ms</td></tr>
-                <tr><td className="py-2 font-medium">FCP</td><td className="py-2 text-green-600">≤ 1,800 ms</td><td className="py-2 text-yellow-600">≤ 3,000 ms</td><td className="py-2 text-destructive">&gt; 3,000 ms</td></tr>
-                <tr><td className="py-2 font-medium">INP</td><td className="py-2 text-green-600">≤ 200 ms</td><td className="py-2 text-yellow-600">≤ 500 ms</td><td className="py-2 text-destructive">&gt; 500 ms</td></tr>
-                <tr><td className="py-2 font-medium">CLS</td><td className="py-2 text-green-600">≤ 0.1</td><td className="py-2 text-yellow-600">≤ 0.25</td><td className="py-2 text-destructive">&gt; 0.25</td></tr>
-                <tr><td className="py-2 font-medium">TTFB</td><td className="py-2 text-green-600">≤ 600 ms</td><td className="py-2 text-yellow-600">≤ 1,800 ms</td><td className="py-2 text-destructive">&gt; 1,800 ms</td></tr>
+                <tr>
+                  <td className="py-2 font-medium">LCP</td>
+                  <td className="py-2 text-green-600">≤ 2,500 ms</td>
+                  <td className="py-2 text-yellow-600">≤ 4,000 ms</td>
+                  <td className="py-2 text-destructive">&gt; 4,000 ms</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium">FCP</td>
+                  <td className="py-2 text-green-600">≤ 1,800 ms</td>
+                  <td className="py-2 text-yellow-600">≤ 3,000 ms</td>
+                  <td className="py-2 text-destructive">&gt; 3,000 ms</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium">INP</td>
+                  <td className="py-2 text-green-600">≤ 200 ms</td>
+                  <td className="py-2 text-yellow-600">≤ 500 ms</td>
+                  <td className="py-2 text-destructive">&gt; 500 ms</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium">CLS</td>
+                  <td className="py-2 text-green-600">≤ 0.1</td>
+                  <td className="py-2 text-yellow-600">≤ 0.25</td>
+                  <td className="py-2 text-destructive">&gt; 0.25</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium">TTFB</td>
+                  <td className="py-2 text-green-600">≤ 600 ms</td>
+                  <td className="py-2 text-yellow-600">≤ 1,800 ms</td>
+                  <td className="py-2 text-destructive">&gt; 1,800 ms</td>
+                </tr>
               </tbody>
             </table>
           </div>

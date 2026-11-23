@@ -2,7 +2,7 @@ import { CheckCircle2, Clock } from 'lucide-react'
 
 import type { Material } from '@/api/types'
 import { Badge } from '@/components/ui/Badge'
-import { formatAddress,formatDate, wasteTypeLabel } from '@/lib/helpers'
+import { formatAddress, formatDate, wasteTypeLabel } from '@/lib/helpers'
 import { cn } from '@/lib/utils'
 
 export function WasteListItem({
@@ -10,7 +10,7 @@ export function WasteListItem({
   isSelected,
   isChecked,
   onSelect,
-  onCheck,
+  onCheck
 }: {
   material: Material
   isSelected: boolean

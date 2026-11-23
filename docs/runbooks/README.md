@@ -17,18 +17,18 @@ docs/runbooks/
 
 ## Quick Reference
 
-| Situation | Runbook | Section |
-|-----------|---------|---------|
-| Service is down | [Incident Response](./incident-response.md) | Declare incident |
-| High error rate | [Troubleshooting](./troubleshooting.md) | Error spike |
-| Deploy a new release | [Deployment](./deployment.md) | Standard deploy |
-| Roll back a bad deploy | [Deployment](./deployment.md) | Rollback |
-| Rotate secrets | [Common Procedures](./common-procedures.md) | Secret rotation |
-| Scale up backend pods | [Common Procedures](./common-procedures.md) | Horizontal scaling |
-| Database backup | [Common Procedures](./common-procedures.md) | Backup and restore |
-| Contract upgrade | [Common Procedures](./common-procedures.md) | Contract upgrade |
-| High latency | [Troubleshooting](./troubleshooting.md) | Latency spike |
-| Stuck WebSocket connections | [Troubleshooting](./troubleshooting.md) | WebSocket issues |
+| Situation                   | Runbook                                     | Section            |
+| --------------------------- | ------------------------------------------- | ------------------ |
+| Service is down             | [Incident Response](./incident-response.md) | Declare incident   |
+| High error rate             | [Troubleshooting](./troubleshooting.md)     | Error spike        |
+| Deploy a new release        | [Deployment](./deployment.md)               | Standard deploy    |
+| Roll back a bad deploy      | [Deployment](./deployment.md)               | Rollback           |
+| Rotate secrets              | [Common Procedures](./common-procedures.md) | Secret rotation    |
+| Scale up backend pods       | [Common Procedures](./common-procedures.md) | Horizontal scaling |
+| Database backup             | [Common Procedures](./common-procedures.md) | Backup and restore |
+| Contract upgrade            | [Common Procedures](./common-procedures.md) | Contract upgrade   |
+| High latency                | [Troubleshooting](./troubleshooting.md)     | Latency spike      |
+| Stuck WebSocket connections | [Troubleshooting](./troubleshooting.md)     | WebSocket issues   |
 
 ---
 

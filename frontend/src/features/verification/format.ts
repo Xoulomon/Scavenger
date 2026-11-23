@@ -1,5 +1,5 @@
 import type { Material } from '@/api/types'
-import { formatDate,wasteTypeLabel } from '@/lib/helpers'
+import { formatDate, wasteTypeLabel } from '@/lib/helpers'
 
 import type { VerificationRecord } from './types'
 
@@ -19,7 +19,7 @@ export function exportVerificationCsv(materials: Material[], history: Verificati
     'Grade',
     'Contaminated',
     'Notes',
-    'Verified At',
+    'Verified At'
   ]
 
   const rows = materials.map((m) => {
@@ -35,7 +35,7 @@ export function exportVerificationCsv(materials: Material[], history: Verificati
       record?.grade ?? '',
       record?.contaminated ? 'Yes' : 'No',
       `"${(record?.notes ?? '').replace(/"/g, '""')}"`,
-      record ? formatDate(record.verifiedAt) : '',
+      record ? formatDate(record.verifiedAt) : ''
     ]
   })
 

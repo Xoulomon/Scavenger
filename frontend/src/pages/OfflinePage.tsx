@@ -9,7 +9,7 @@ import {
   getPendingMutations,
   updateMutationStatus,
   removeMutationFromQueue,
-  clearOldMutations,
+  clearOldMutations
 } from '@/lib/indexedDB'
 
 interface QueuedMutation {
@@ -75,7 +75,13 @@ export function OfflinePage() {
       </div>
 
       {/* Status banner */}
-      <Card className={isOnline ? 'border-green-500/50 bg-green-50/50 dark:bg-green-900/10' : 'border-red-500/50 bg-red-50/50 dark:bg-red-900/10'}>
+      <Card
+        className={
+          isOnline
+            ? 'border-green-500/50 bg-green-50/50 dark:bg-green-900/10'
+            : 'border-red-500/50 bg-red-50/50 dark:bg-red-900/10'
+        }
+      >
         <CardContent className="flex items-center gap-3 py-4">
           {isOnline ? (
             <Wifi className="h-5 w-5 text-green-600" />
@@ -150,13 +156,14 @@ export function OfflinePage() {
         </CardHeader>
         <CardContent>
           {queue.length === 0 ? (
-            <p className="text-center text-sm text-muted-foreground py-8">
-              No queued actions
-            </p>
+            <p className="text-center text-sm text-muted-foreground py-8">No queued actions</p>
           ) : (
             <div className="space-y-2">
               {queue.map((m) => (
-                <div key={m.id} className="flex items-center justify-between rounded-md border px-4 py-3">
+                <div
+                  key={m.id}
+                  className="flex items-center justify-between rounded-md border px-4 py-3"
+                >
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium truncate">
                       {m.mutationKey.join(' › ') || 'Unknown action'}
@@ -168,8 +175,11 @@ export function OfflinePage() {
                   <div className="flex items-center gap-2 ml-3">
                     <Badge
                       variant={
-                        m.status === 'synced' ? 'default' :
-                        m.status === 'failed' ? 'destructive' : 'secondary'
+                        m.status === 'synced'
+                          ? 'default'
+                          : m.status === 'failed'
+                            ? 'destructive'
+                            : 'secondary'
                       }
                     >
                       {m.status}

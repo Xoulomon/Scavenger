@@ -7,7 +7,7 @@ import {
   latitudeFieldSchema,
   longitudeFieldSchema,
   convertWeight,
-  toWeightInGrams,
+  toWeightInGrams
 } from './wasteSubmission'
 
 const validInput = {
@@ -15,7 +15,7 @@ const validInput = {
   weight: '250',
   latitude: '6.5',
   longitude: '3.4',
-  notes: '',
+  notes: ''
 }
 
 describe('wasteTypeFieldSchema', () => {

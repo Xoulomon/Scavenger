@@ -25,18 +25,21 @@ Comprehensive guide for deploying Scavenger across all environments.
 ### Setup Steps
 
 1. **Clone and navigate to project:**
+
 ```bash
 git clone https://github.com/Xoulomon/Scavenger.git
 cd Scavenger
 ```
 
 2. **Start Stellar standalone network:**
+
 ```bash
 docker run --rm -it -p 8000:8000 \
   stellar/quickstart:latest --standalone --enable-soroban-rpc
 ```
 
 3. **Build the contract:**
+
 ```bash
 cd stellar-contract
 cargo build --target wasm32-unknown-unknown --release
@@ -45,6 +48,7 @@ soroban contract optimize \
 ```
 
 4. **Deploy contract locally:**
+
 ```bash
 soroban contract deploy \
   --wasm target/wasm32-unknown-unknown/release/stellar_scavngr_contract.optimized.wasm \
@@ -53,11 +57,13 @@ soroban contract deploy \
 ```
 
 5. **Start backend services:**
+
 ```bash
 docker-compose up -d
 ```
 
 6. **Initialize frontend:**
+
 ```bash
 cd frontend
 npm install
@@ -69,6 +75,7 @@ npm run dev
 ### Local Environment Variables
 
 Create `frontend/.env`:
+
 ```
 VITE_CONTRACT_ID=<deployed-contract-id>
 VITE_NETWORK=STANDALONE
@@ -93,16 +100,19 @@ VITE_FIREBASE_MEASUREMENT_ID=G-ABC123
 ### Manual Deployment
 
 1. **Generate or use existing keypair:**
+
 ```bash
 soroban keys generate testnet-deployer
 ```
 
 2. **Fund account via Friendbot:**
+
 ```bash
 curl "https://friendbot.stellar.org?addr=$(soroban keys address testnet-deployer)"
 ```
 
 3. **Build optimized WASM:**
+
 ```bash
 cd stellar-contract
 cargo build --target wasm32-unknown-unknown --release
@@ -111,6 +121,7 @@ soroban contract optimize \
 ```
 
 4. **Deploy to testnet:**
+
 ```bash
 soroban contract deploy \
   --wasm target/wasm32-unknown-unknown/release/stellar_scavngr_contract.optimized.wasm \
@@ -119,6 +130,7 @@ soroban contract deploy \
 ```
 
 5. **Record contract ID:**
+
 ```bash
 # Save the returned contract ID for frontend configuration
 export TESTNET_CONTRACT_ID=<contract-id>
@@ -127,6 +139,7 @@ export TESTNET_CONTRACT_ID=<contract-id>
 ### Testnet Environment Variables
 
 Create `frontend/.env.testnet`:
+
 ```
 VITE_CONTRACT_ID=<testnet-contract-id>
 VITE_NETWORK=TESTNET
@@ -143,6 +156,7 @@ VITE_FIREBASE_MEASUREMENT_ID=<your-measurement-id>
 ### Automated Testnet Deployment
 
 GitHub Actions workflow (`.github/workflows/deploy-testnet.yml`):
+
 ```yaml
 name: Deploy to Testnet
 on:
@@ -195,18 +209,21 @@ jobs:
 ### Deployment Steps
 
 1. **Prepare mainnet keypair:**
+
 ```bash
 soroban keys generate mainnet-deployer
 # Store securely in vault/secrets manager
 ```
 
 2. **Fund account:**
+
 ```bash
 # Transfer XLM from exchange or existing account
 # Ensure sufficient balance for deployment + operations
 ```
 
 3. **Build and optimize:**
+
 ```bash
 cd stellar-contract
 cargo build --target wasm32-unknown-unknown --release
@@ -215,6 +232,7 @@ soroban contract optimize \
 ```
 
 4. **Deploy to mainnet:**
+
 ```bash
 soroban contract deploy \
   --wasm target/wasm32-unknown-unknown/release/stellar_scavngr_contract.optimized.wasm \
@@ -223,6 +241,7 @@ soroban contract deploy \
 ```
 
 5. **Verify deployment:**
+
 ```bash
 soroban contract info \
   --id <contract-id> \
@@ -249,6 +268,7 @@ VITE_FIREBASE_MEASUREMENT_ID=<production-measurement-id>
 ### Configuration Files
 
 **soroban.toml:**
+
 ```toml
 [build]
 workspace = true
@@ -268,13 +288,13 @@ network_passphrase = "Public Global Stellar Network ; September 2015"
 
 ### Environment Variables Reference
 
-| Variable | Environment | Required | Description |
-|----------|-------------|----------|-------------|
-| `VITE_CONTRACT_ID` | All | ✅ | Deployed contract ID |
-| `VITE_NETWORK` | All | ✅ | Network: STANDALONE, TESTNET, MAINNET |
-| `VITE_RPC_URL` | All | ✅ | Soroban RPC endpoint |
-| `SOROBAN_SECRET_KEY` | CI/CD | ✅ | Private key for deployment |
-| `VITE_FIREBASE_*` | All | ✅ | Firebase configuration |
+| Variable             | Environment | Required | Description                           |
+| -------------------- | ----------- | -------- | ------------------------------------- |
+| `VITE_CONTRACT_ID`   | All         | ✅       | Deployed contract ID                  |
+| `VITE_NETWORK`       | All         | ✅       | Network: STANDALONE, TESTNET, MAINNET |
+| `VITE_RPC_URL`       | All         | ✅       | Soroban RPC endpoint                  |
+| `SOROBAN_SECRET_KEY` | CI/CD       | ✅       | Private key for deployment            |
+| `VITE_FIREBASE_*`    | All         | ✅       | Firebase configuration                |
 
 ## Deployment Verification
 
@@ -330,23 +350,27 @@ curl <VITE_RPC_URL>/health
 ### Common Issues
 
 **Contract deployment fails with "insufficient balance"**
+
 - Ensure account has enough XLM for deployment fee
 - Check network fees: `soroban network info --network <network>`
 - Fund account with additional XLM
 
 **RPC endpoint unreachable**
+
 - Verify RPC URL is correct
 - Check network connectivity
 - Try alternative RPC endpoint
 - Check Stellar network status
 
 **Frontend cannot connect to contract**
+
 - Verify `VITE_CONTRACT_ID` is correct
 - Confirm `VITE_RPC_URL` is accessible
 - Check browser console for CORS errors
 - Verify contract exists on network
 
 **Transaction timeout**
+
 - Increase timeout in soroban CLI: `--timeout-secs 300`
 - Check network congestion
 - Retry deployment
@@ -386,12 +410,14 @@ soroban contract read \
 ### Rollback Steps
 
 1. **Identify previous stable version:**
+
 ```bash
 # Check deployment history
 git log --oneline | grep "deploy"
 ```
 
 2. **Redeploy previous contract:**
+
 ```bash
 # Build previous version
 git checkout <previous-commit>
@@ -408,6 +434,7 @@ soroban contract deploy \
 ```
 
 3. **Update frontend configuration:**
+
 ```bash
 # Update VITE_CONTRACT_ID to previous contract
 # Redeploy frontend
@@ -416,6 +443,7 @@ npm run build
 ```
 
 4. **Verify rollback:**
+
 ```bash
 # Test critical functions
 soroban contract invoke \
@@ -426,6 +454,7 @@ soroban contract invoke \
 ```
 
 5. **Post-rollback analysis:**
+
 - Document what went wrong
 - Create issue for fix
 - Plan re-deployment

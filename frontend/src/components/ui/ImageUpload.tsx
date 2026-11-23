@@ -15,7 +15,9 @@ interface Props {
 
 export function ImageUpload({ images, onAdd, onRemove, validationError, disabled }: Props) {
   const onDrop = useCallback(
-    (accepted: File[]) => { if (!disabled) onAdd(accepted) },
+    (accepted: File[]) => {
+      if (!disabled) onAdd(accepted)
+    },
     [onAdd, disabled]
   )
 
@@ -23,7 +25,7 @@ export function ImageUpload({ images, onAdd, onRemove, validationError, disabled
     onDrop,
     accept: { 'image/jpeg': [], 'image/png': [], 'image/webp': [], 'image/gif': [] },
     maxFiles: MAX_IMAGES,
-    disabled,
+    disabled
   })
 
   const canAdd = images.length < MAX_IMAGES && !disabled
@@ -67,7 +69,10 @@ export function ImageUpload({ images, onAdd, onRemove, validationError, disabled
       {images.length > 0 && (
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
           {images.map((img) => (
-            <div key={img.id} className="group relative aspect-square overflow-hidden rounded-md border bg-muted">
+            <div
+              key={img.id}
+              className="group relative aspect-square overflow-hidden rounded-md border bg-muted"
+            >
               <img
                 src={img.cid ? ipfsGatewayUrl(img.cid) : img.preview}
                 alt={`Preview of ${img.file.name}`}

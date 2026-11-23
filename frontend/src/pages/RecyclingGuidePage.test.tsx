@@ -3,11 +3,7 @@
 
 import { describe, it, expect } from 'vitest'
 import { WasteType } from '@/api/types'
-import {
-  searchGuides,
-  getGuideByWasteType,
-  RECYCLING_GUIDES,
-} from './RecyclingGuidePage'
+import { searchGuides, getGuideByWasteType, RECYCLING_GUIDES } from './RecyclingGuidePage'
 
 describe('RecyclingGuidePage — RECYCLING_GUIDES data', () => {
   it('has a guide for every WasteType', () => {

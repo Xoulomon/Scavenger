@@ -6,7 +6,7 @@ import {
   addNomination,
   getNominations,
   generateTransparencyReport,
-  TIER_THRESHOLDS,
+  TIER_THRESHOLDS
 } from './contributorRecognition'
 
 beforeEach(() => {
@@ -17,7 +17,8 @@ describe('getTier', () => {
   it('returns bronze for 0 points', () => expect(getTier(0)).toBe('bronze'))
   it('returns silver at threshold', () => expect(getTier(TIER_THRESHOLDS.silver)).toBe('silver'))
   it('returns gold at threshold', () => expect(getTier(TIER_THRESHOLDS.gold)).toBe('gold'))
-  it('returns platinum at threshold', () => expect(getTier(TIER_THRESHOLDS.platinum)).toBe('platinum'))
+  it('returns platinum at threshold', () =>
+    expect(getTier(TIER_THRESHOLDS.platinum)).toBe('platinum'))
   it('returns legend at threshold', () => expect(getTier(TIER_THRESHOLDS.legend)).toBe('legend'))
   it('returns bronze below silver', () => expect(getTier(999)).toBe('bronze'))
 })
@@ -91,8 +92,26 @@ describe('nominations', () => {
 describe('generateTransparencyReport', () => {
   it('counts contributors correctly', () => {
     const contributors = [
-      { address: 'G1', points: 100, wasteCount: 5, tier: getTier(100), badges: computeBadges(5, 0), joinedAt: Date.now(), streak: 0, name: undefined },
-      { address: 'G2', points: 2000, wasteCount: 30, tier: getTier(2000), badges: computeBadges(30, 0), joinedAt: Date.now(), streak: 0, name: undefined },
+      {
+        address: 'G1',
+        points: 100,
+        wasteCount: 5,
+        tier: getTier(100),
+        badges: computeBadges(5, 0),
+        joinedAt: Date.now(),
+        streak: 0,
+        name: undefined
+      },
+      {
+        address: 'G2',
+        points: 2000,
+        wasteCount: 30,
+        tier: getTier(2000),
+        badges: computeBadges(30, 0),
+        joinedAt: Date.now(),
+        streak: 0,
+        name: undefined
+      }
     ]
     const report = generateTransparencyReport(contributors)
     expect(report.totalContributors).toBe(2)

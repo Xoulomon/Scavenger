@@ -100,7 +100,7 @@ describe('analytics.getDailycounts', () => {
     expect(counts.length).toBe(7)
   })
 
-  it('counts today\'s events', () => {
+  it("counts today's events", () => {
     analytics.pageView('/home')
     const counts = analytics.getDailycounts('page_view')
     const today = new Date().toISOString().slice(0, 10)

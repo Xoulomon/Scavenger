@@ -24,24 +24,22 @@ const statusArb = fc.constantFrom(
   'inactive' as const
 )
 
-const isoDateArb = fc
-  .integer({ min: 2020, max: 2030 })
-  .chain((year) =>
-    fc.integer({ min: 1, max: 12 }).chain((month) =>
-      fc.integer({ min: 1, max: 28 }).map((day) => {
-        const mm = String(month).padStart(2, '0')
-        const dd = String(day).padStart(2, '0')
-        return `${year}-${mm}-${dd}`
-      })
-    )
+const isoDateArb = fc.integer({ min: 2020, max: 2030 }).chain((year) =>
+  fc.integer({ min: 1, max: 12 }).chain((month) =>
+    fc.integer({ min: 1, max: 28 }).map((day) => {
+      const mm = String(month).padStart(2, '0')
+      const dd = String(day).padStart(2, '0')
+      return `${year}-${mm}-${dd}`
+    })
   )
+)
 
 const searchFiltersArb: fc.Arbitrary<SearchFilters> = fc.record({
   wasteTypes: fc.array(wasteTypeArb, { minLength: 0, maxLength: 5 }),
   status: statusArb,
   dateFrom: fc.option(isoDateArb, { nil: null }),
   dateTo: fc.option(isoDateArb, { nil: null }),
-  location: fc.string({ minLength: 0, maxLength: 50 }),
+  location: fc.string({ minLength: 0, maxLength: 50 })
 })
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -105,20 +103,17 @@ describe('SearchPanel — Property 11: active filter count matches applied filte
       status: 'confirmed',
       dateFrom: '2024-01-01',
       dateTo: '2024-12-31',
-      location: 'Nairobi',
+      location: 'Nairobi'
     }
     expect(countActiveFilters(allActive)).toBe(5)
   })
 
   it('location with only whitespace is treated as default (not active)', () => {
     fc.assert(
-      fc.property(
-        fc.stringMatching(/^\s+$/),
-        (whitespaceOnly) => {
-          const filters: SearchFilters = { ...DEFAULT_FILTERS, location: whitespaceOnly }
-          return countActiveFilters(filters) === 0
-        }
-      ),
+      fc.property(fc.stringMatching(/^\s+$/), (whitespaceOnly) => {
+        const filters: SearchFilters = { ...DEFAULT_FILTERS, location: whitespaceOnly }
+        return countActiveFilters(filters) === 0
+      }),
       { numRuns: 50 }
     )
   })

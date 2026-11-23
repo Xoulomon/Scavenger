@@ -3,7 +3,7 @@ import {
   resolveNetwork,
   isValidStellarAddress,
   getAvailableNetworks,
-  getNetworkLabel,
+  getNetworkLabel
 } from '../src/network'
 import { Network } from '../src/types'
 
@@ -32,7 +32,7 @@ describe('resolveNetwork', () => {
   it('accepts custom config object', () => {
     const config = resolveNetwork({
       rpcUrl: 'http://custom:8000',
-      networkPassphrase: 'Custom Passphrase',
+      networkPassphrase: 'Custom Passphrase'
     })
     expect(config.rpcUrl).toBe('http://custom:8000')
     expect(config.networkPassphrase).toBe('Custom Passphrase')
@@ -42,7 +42,7 @@ describe('resolveNetwork', () => {
     expect(() =>
       resolveNetwork({
         rpcUrl: '',
-        networkPassphrase: 'test',
+        networkPassphrase: 'test'
       })
     ).toThrow()
   })
@@ -50,11 +50,9 @@ describe('resolveNetwork', () => {
 
 describe('isValidStellarAddress', () => {
   it('validates correct G address', () => {
-    expect(
-      isValidStellarAddress(
-        'GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN'
-      )
-    ).toBe(true)
+    expect(isValidStellarAddress('GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN')).toBe(
+      true
+    )
   })
 
   it('rejects invalid addresses', () => {

@@ -1,48 +1,48 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react'
 import {
   getUserPreferences,
   saveUserPreferences,
   resetUserPreferences,
   exportPreferences,
   importPreferences,
-  type UserPreferences,
-} from '../lib/userPreferences';
+  type UserPreferences
+} from '../lib/userPreferences'
 
 export function useUserPreferences() {
-  const [preferences, setPreferences] = useState<UserPreferences>(getUserPreferences());
+  const [preferences, setPreferences] = useState<UserPreferences>(getUserPreferences())
 
   useEffect(() => {
-    const stored = getUserPreferences();
-    setPreferences(stored);
-  }, []);
+    const stored = getUserPreferences()
+    setPreferences(stored)
+  }, [])
 
   const updatePreferences = useCallback((updates: Partial<UserPreferences>) => {
-    saveUserPreferences(updates);
-    setPreferences(getUserPreferences());
-  }, []);
+    saveUserPreferences(updates)
+    setPreferences(getUserPreferences())
+  }, [])
 
   const reset = useCallback(() => {
-    resetUserPreferences();
-    setPreferences(getUserPreferences());
-  }, []);
+    resetUserPreferences()
+    setPreferences(getUserPreferences())
+  }, [])
 
   const exportToJson = useCallback(() => {
-    return exportPreferences();
-  }, []);
+    return exportPreferences()
+  }, [])
 
   const importFromJson = useCallback((json: string) => {
-    const success = importPreferences(json);
+    const success = importPreferences(json)
     if (success) {
-      setPreferences(getUserPreferences());
+      setPreferences(getUserPreferences())
     }
-    return success;
-  }, []);
+    return success
+  }, [])
 
   return {
     preferences,
     updatePreferences,
     reset,
     exportToJson,
-    importFromJson,
-  };
+    importFromJson
+  }
 }

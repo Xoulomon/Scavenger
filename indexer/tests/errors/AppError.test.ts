@@ -6,7 +6,7 @@ import {
   NetworkError,
   handleError,
   isAppError,
-  ErrorCode,
+  ErrorCode
 } from '../../src/errors/AppError'
 import { ErrorCode as SharedErrorCode } from '@scavngr/sdk'
 
@@ -22,7 +22,7 @@ describe('AppError', () => {
       code: ErrorCode.VALIDATION_ERROR,
       message: 'bad input',
       statusCode: 400,
-      details: { field: 'x' },
+      details: { field: 'x' }
     })
   })
 
@@ -30,7 +30,7 @@ describe('AppError', () => {
     [new ValidationError('v'), ErrorCode.VALIDATION_ERROR, 400],
     [new DatabaseError('d'), ErrorCode.DATABASE_ERROR, 500],
     [new NotFoundError('thing', '42'), ErrorCode.NOT_FOUND, 404],
-    [new NetworkError('n'), ErrorCode.NETWORK_ERROR, 503],
+    [new NetworkError('n'), ErrorCode.NETWORK_ERROR, 503]
   ])('maps %p to the right code and status', (err, code, status) => {
     expect(err.code).toBe(code)
     expect(err.statusCode).toBe(status)

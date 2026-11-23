@@ -1,5 +1,13 @@
 import { useMemo, useState } from 'react'
-import { Shield, AlertTriangle, CheckCircle2, XCircle, ChevronDown, ChevronUp, Info } from 'lucide-react'
+import {
+  Shield,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  ChevronDown,
+  ChevronUp,
+  Info
+} from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import {
@@ -11,7 +19,7 @@ import {
   type SLATarget,
   type SLAReport,
   type SLAStatus,
-  type SLACategory,
+  type SLACategory
 } from '@/lib/performanceSLAs'
 
 // ─── Status icon ──────────────────────────────────────────────────────────────
@@ -26,7 +34,8 @@ function SLAStatusIcon({ status }: { status: SLAStatus }) {
 
 function ComplianceBar({ percent, target }: { percent: number; target: number }) {
   const width = Math.min(100, percent)
-  const color = percent >= target ? 'bg-green-500' : percent >= target - 1 ? 'bg-yellow-500' : 'bg-red-500'
+  const color =
+    percent >= target ? 'bg-green-500' : percent >= target - 1 ? 'bg-yellow-500' : 'bg-red-500'
   return (
     <div className="flex items-center gap-2">
       <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
@@ -74,10 +83,16 @@ function SLARow({ target, report }: { target: SLATarget; report: SLAReport }) {
         <span>Threshold: {thresholdLabel}</span>
         <span>Period: {target.period}</span>
         {report.violations > 0 && (
-          <span className="text-red-600 font-medium">{report.violations} violation{report.violations > 1 ? 's' : ''}</span>
+          <span className="text-red-600 font-medium">
+            {report.violations} violation{report.violations > 1 ? 's' : ''}
+          </span>
         )}
-        <span>Avg: {report.avgValue.toFixed(target.category === 'error_rate' ? 3 : 0)} {target.unit}</span>
-        <span>P95: {report.p95Value.toFixed(target.category === 'error_rate' ? 3 : 0)} {target.unit}</span>
+        <span>
+          Avg: {report.avgValue.toFixed(target.category === 'error_rate' ? 3 : 0)} {target.unit}
+        </span>
+        <span>
+          P95: {report.p95Value.toFixed(target.category === 'error_rate' ? 3 : 0)} {target.unit}
+        </span>
       </div>
 
       {expanded && (
@@ -94,7 +109,13 @@ function SLARow({ target, report }: { target: SLATarget; report: SLAReport }) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
-const CATEGORIES: SLACategory[] = ['availability', 'latency', 'web_vitals', 'error_rate', 'throughput']
+const CATEGORIES: SLACategory[] = [
+  'availability',
+  'latency',
+  'web_vitals',
+  'error_rate',
+  'throughput'
+]
 
 export function PerformanceSLAsPage() {
   const [activeCategory, setActiveCategory] = useState<SLACategory | 'all'>('all')
@@ -196,7 +217,8 @@ export function PerformanceSLAsPage() {
         <p>
           Measurements shown are simulated samples. In production, connect this page to your
           Prometheus / Grafana metrics pipeline. See{' '}
-          <code className="font-mono text-xs">docs/PERFORMANCE_SLA_GUIDE.md</code> for configuration.
+          <code className="font-mono text-xs">docs/PERFORMANCE_SLA_GUIDE.md</code> for
+          configuration.
         </p>
       </div>
     </main>

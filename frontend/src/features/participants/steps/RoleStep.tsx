@@ -9,7 +9,7 @@ import { ROLE_CARDS } from '../constants'
 export function RoleStep({
   selectedRole,
   onSelect,
-  error,
+  error
 }: {
   selectedRole: Role | null
   onSelect: (role: Role) => void
@@ -20,8 +20,7 @@ export function RoleStep({
       <div className="text-center">
         <h2 className="text-lg font-semibold">Choose Your Role</h2>
         <p className="text-sm text-muted-foreground">
-          Select the role that best describes your participation in the waste management
-          ecosystem.
+          Select the role that best describes your participation in the waste management ecosystem.
         </p>
       </div>
 
@@ -63,7 +62,11 @@ export function RoleStep({
       </div>
 
       {error && (
-        <p role="alert" aria-live="assertive" className="flex items-center justify-center gap-1.5 text-sm text-destructive">
+        <p
+          role="alert"
+          aria-live="assertive"
+          className="flex items-center justify-center gap-1.5 text-sm text-destructive"
+        >
           <AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
           {error}
         </p>

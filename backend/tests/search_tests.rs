@@ -1,6 +1,6 @@
 use scavenger_backend::search::{
     field_builders, Facet, FacetType, FacetedSearch, IndexConfig, IndexMapping, IndexingPipeline, SearchClient,
-    SearchClientConfig, SearchFilter, SearchIndex, SearchQueryBuilder, SearchField, SortOrder,
+    SearchClientConfig, SearchField, SearchFilter, SearchIndex, SearchQueryBuilder, SortOrder,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::json;

@@ -6,12 +6,12 @@ Scavenger uses automated daily backups with verification to protect against data
 
 ## Backup Schedule
 
-| Backup type | Schedule | Retention |
-|---|---|---|
-| Full database dump | Daily at 02:00 UTC | 30 days |
-| RDS automated snapshots | Daily (AWS managed) | 7 days |
-| Restore verification | Daily (after backup) | — |
-| Full restore test | Weekly (Sunday 02:00 UTC) | — |
+| Backup type             | Schedule                  | Retention |
+| ----------------------- | ------------------------- | --------- |
+| Full database dump      | Daily at 02:00 UTC        | 30 days   |
+| RDS automated snapshots | Daily (AWS managed)       | 7 days    |
+| Restore verification    | Daily (after backup)      | —         |
+| Full restore test       | Weekly (Sunday 02:00 UTC) | —         |
 
 ## Backup Storage
 
@@ -62,6 +62,7 @@ gunzip -c /tmp/restore.sql.gz | psql -h "$DB_HOST" -U postgres -d scavenger
 ## Backup Monitoring
 
 CloudWatch alarms trigger if:
+
 - No successful backup in 24 hours (`scavenger-backup-failure-<env>`)
 - Backup verification failed (`scavenger-backup-verify-failure-<env>`)
 

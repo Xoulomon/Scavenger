@@ -45,7 +45,11 @@ export function linearRegression(points: DataPoint[]): RegressionResult {
   const ssRes = points.reduce((s, p) => s + (p.y - (slope * p.x + intercept)) ** 2, 0)
   const r2 = ssTot === 0 ? 1 : Math.max(0, 1 - ssRes / ssTot)
 
-  return { slope: Math.round(slope * 1000) / 1000, intercept: Math.round(intercept * 1000) / 1000, r2: Math.round(r2 * 1000) / 1000 }
+  return {
+    slope: Math.round(slope * 1000) / 1000,
+    intercept: Math.round(intercept * 1000) / 1000,
+    r2: Math.round(r2 * 1000) / 1000
+  }
 }
 
 /** Group wastes by waste type and week, returning volume (kg) per period */
@@ -65,7 +69,7 @@ function groupByWeek(wastes: Waste[], type: WasteType): DataPoint[] {
   const maxWeek = Math.max(...buckets.keys())
   return Array.from({ length: maxWeek + 1 }, (_, i) => ({
     x: i,
-    y: Math.round((buckets.get(i) ?? 0) * 100) / 100,
+    y: Math.round((buckets.get(i) ?? 0) * 100) / 100
   }))
 }
 
@@ -77,7 +81,13 @@ function computeStdDev(points: DataPoint[], reg: RegressionResult): number {
   return Math.sqrt(variance)
 }
 
-const WASTE_TYPES = [WasteType.Paper, WasteType.PetPlastic, WasteType.Plastic, WasteType.Metal, WasteType.Glass]
+const WASTE_TYPES = [
+  WasteType.Paper,
+  WasteType.PetPlastic,
+  WasteType.Plastic,
+  WasteType.Metal,
+  WasteType.Glass
+]
 const FORECAST_PERIODS = 4
 
 export function usePredictiveAnalytics(wastes: Waste[]) {
@@ -86,22 +96,30 @@ export function usePredictiveAnalytics(wastes: Waste[]) {
       const historicalPoints = groupByWeek(wastes, type)
       const reg = linearRegression(historicalPoints)
       const stdDev = computeStdDev(historicalPoints, reg)
-      const lastX = historicalPoints.length > 0 ? historicalPoints[historicalPoints.length - 1].x : 0
+      const lastX =
+        historicalPoints.length > 0 ? historicalPoints[historicalPoints.length - 1].x : 0
 
       const forecastPoints: DataPoint[] = Array.from({ length: FORECAST_PERIODS }, (_, i) => ({
         x: lastX + i + 1,
-        y: Math.max(0, Math.round((reg.slope * (lastX + i + 1) + reg.intercept) * 100) / 100),
+        y: Math.max(0, Math.round((reg.slope * (lastX + i + 1) + reg.intercept) * 100) / 100)
       }))
 
       const confidenceInterval = forecastPoints.map((p) => ({
         lower: Math.max(0, Math.round((p.y - 1.96 * stdDev) * 100) / 100),
-        upper: Math.round((p.y + 1.96 * stdDev) * 100) / 100,
+        upper: Math.round((p.y + 1.96 * stdDev) * 100) / 100
       }))
 
       const trend: Prediction['trend'] =
         Math.abs(reg.slope) < 0.01 ? 'flat' : reg.slope > 0 ? 'up' : 'down'
 
-      return { wasteType: type, historicalPoints, regression: reg, forecastPoints, trend, confidenceInterval }
+      return {
+        wasteType: type,
+        historicalPoints,
+        regression: reg,
+        forecastPoints,
+        trend,
+        confidenceInterval
+      }
     })
   }, [wastes])
 
@@ -109,12 +127,20 @@ export function usePredictiveAnalytics(wastes: Waste[]) {
     return predictions
       .filter((p) => p.historicalPoints.length > 0)
       .map((p) => {
-        const bestForecast = p.forecastPoints.reduce((best, cur) => (cur.y > best.y ? cur : best), p.forecastPoints[0])
+        const bestForecast = p.forecastPoints.reduce(
+          (best, cur) => (cur.y > best.y ? cur : best),
+          p.forecastPoints[0]
+        )
         const period = `Week +${bestForecast?.x - (p.historicalPoints.length > 0 ? p.historicalPoints[p.historicalPoints.length - 1].x : 0)}`
         return {
           wasteType: p.wasteType,
           suggestedPeriod: period,
-          reason: p.trend === 'up' ? 'Volume is increasing' : p.trend === 'down' ? 'Collect before volume drops further' : 'Stable volume',
+          reason:
+            p.trend === 'up'
+              ? 'Volume is increasing'
+              : p.trend === 'down'
+                ? 'Collect before volume drops further'
+                : 'Stable volume'
         }
       })
   }, [predictions])

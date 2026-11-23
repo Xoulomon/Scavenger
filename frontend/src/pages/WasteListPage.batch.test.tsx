@@ -14,7 +14,7 @@ describe('WasteListPage — Batch Operations Selection', () => {
     const items = [
       { id: 1, name: 'Waste 1' },
       { id: 2, name: 'Waste 2' },
-      { id: 3, name: 'Waste 3' },
+      { id: 3, name: 'Waste 3' }
     ]
     const pageItems = items.slice(0, 3)
     const allPageSelected = pageItems.length > 0 && pageItems.every((i) => selected.includes(i.id))
@@ -97,11 +97,19 @@ describe('WasteListPage — Batch Operations Selection', () => {
 
 describe('WasteListPage — Batch Action Results', () => {
   function BatchResultStub() {
-    const [result, setResult] = useState<{ succeeded: number; failed: number; errors: string[] } | null>(null)
+    const [result, setResult] = useState<{
+      succeeded: number
+      failed: number
+      errors: string[]
+    } | null>(null)
     const [progress, setProgress] = useState<{ completed: number; total: number } | null>(null)
     const [_running, setRunning] = useState(false)
 
-    const simulateBatchAction = async (succeedCount: number, failCount: number, errorMessages: string[]) => {
+    const simulateBatchAction = async (
+      succeedCount: number,
+      failCount: number,
+      errorMessages: string[]
+    ) => {
       setRunning(true)
       const total = succeedCount + failCount
       setProgress({ completed: 0, total })
@@ -120,7 +128,10 @@ describe('WasteListPage — Batch Action Results', () => {
         <button onClick={() => simulateBatchAction(3, 0, [])} data-testid="action-all-succeed">
           All succeed
         </button>
-        <button onClick={() => simulateBatchAction(2, 1, ['Item 3 failed'])} data-testid="action-partial-fail">
+        <button
+          onClick={() => simulateBatchAction(2, 1, ['Item 3 failed'])}
+          data-testid="action-partial-fail"
+        >
           Partial fail
         </button>
 
@@ -157,30 +168,39 @@ describe('WasteListPage — Batch Action Results', () => {
       expect(screen.getByTestId('progress-indicator')).toBeInTheDocument()
     })
 
-    await waitFor(() => {
-      expect(screen.getByTestId('progress-indicator')).toHaveTextContent('3/3')
-    }, { timeout: 3000 })
+    await waitFor(
+      () => {
+        expect(screen.getByTestId('progress-indicator')).toHaveTextContent('3/3')
+      },
+      { timeout: 3000 }
+    )
   })
 
   it('displays all-succeed result with 0 failed', async () => {
     render(<BatchResultStub />)
     fireEvent.click(screen.getByTestId('action-all-succeed'))
 
-    await waitFor(() => {
-      expect(screen.getByTestId('result-succeeded')).toHaveTextContent('3')
-      expect(screen.getByTestId('result-failed')).toHaveTextContent('0')
-    }, { timeout: 3000 })
+    await waitFor(
+      () => {
+        expect(screen.getByTestId('result-succeeded')).toHaveTextContent('3')
+        expect(screen.getByTestId('result-failed')).toHaveTextContent('0')
+      },
+      { timeout: 3000 }
+    )
   })
 
   it('displays partial-fail result with error list', async () => {
     render(<BatchResultStub />)
     fireEvent.click(screen.getByTestId('action-partial-fail'))
 
-    await waitFor(() => {
-      expect(screen.getByTestId('result-succeeded')).toHaveTextContent('2')
-      expect(screen.getByTestId('result-failed')).toHaveTextContent('1')
-      expect(screen.getByTestId('error-0')).toHaveTextContent('Item 3 failed')
-    }, { timeout: 3000 })
+    await waitFor(
+      () => {
+        expect(screen.getByTestId('result-succeeded')).toHaveTextContent('2')
+        expect(screen.getByTestId('result-failed')).toHaveTextContent('1')
+        expect(screen.getByTestId('error-0')).toHaveTextContent('Item 3 failed')
+      },
+      { timeout: 3000 }
+    )
   })
 
   it('lists up to 3 errors and shows count for additional', async () => {
@@ -223,10 +243,7 @@ describe('WasteListPage — Batch Toolbar', () => {
           )}
         </div>
 
-        <button
-          onClick={() => setSelected([1, 2])}
-          data-testid="select-items"
-        >
+        <button onClick={() => setSelected([1, 2])} data-testid="select-items">
           Select 2 items
         </button>
         <button onClick={() => setIsAdmin(!isAdmin)} data-testid="toggle-admin">
@@ -296,7 +313,12 @@ describe('WasteListPage — Batch Button States', () => {
     const { hasConfirmable } = getActionStates([waste], false)
     expect(hasConfirmable).toBe(true)
 
-    const confirmed: SelectableWaste = { id: 1, is_active: true, is_confirmed: true, verified: true }
+    const confirmed: SelectableWaste = {
+      id: 1,
+      is_active: true,
+      is_confirmed: true,
+      verified: true
+    }
     const { hasConfirmable: hasConfirmable2 } = getActionStates([confirmed], false)
     expect(hasConfirmable2).toBe(false)
   })
@@ -306,7 +328,12 @@ describe('WasteListPage — Batch Button States', () => {
     const { hasVerifiable } = getActionStates([waste], false)
     expect(hasVerifiable).toBe(true)
 
-    const verified: SelectableWaste = { id: 1, is_active: true, is_confirmed: false, verified: true }
+    const verified: SelectableWaste = {
+      id: 1,
+      is_active: true,
+      is_confirmed: false,
+      verified: true
+    }
     const { hasVerifiable: hasVerifiable2 } = getActionStates([verified], false)
     expect(hasVerifiable2).toBe(false)
   })
@@ -316,7 +343,12 @@ describe('WasteListPage — Batch Button States', () => {
     const { hasTransferable } = getActionStates([waste], false)
     expect(hasTransferable).toBe(true)
 
-    const inactive: SelectableWaste = { id: 1, is_active: false, is_confirmed: false, verified: true }
+    const inactive: SelectableWaste = {
+      id: 1,
+      is_active: false,
+      is_confirmed: false,
+      verified: true
+    }
     const { hasTransferable: hasTransferable2 } = getActionStates([inactive], false)
     expect(hasTransferable2).toBe(false)
   })
@@ -334,7 +366,7 @@ describe('WasteListPage — Batch Button States', () => {
   it('mixed selection shows only common capabilities', () => {
     const wastes: SelectableWaste[] = [
       { id: 1, is_active: true, is_confirmed: true, verified: true },
-      { id: 2, is_active: true, is_confirmed: false, verified: false },
+      { id: 2, is_active: true, is_confirmed: false, verified: false }
     ]
     const { hasConfirmable, hasVerifiable, hasTransferable } = getActionStates(wastes, false)
     expect(hasConfirmable).toBe(true) // Item 2 is confirmable
@@ -377,7 +409,7 @@ describe('WasteListPage — Batch Modal Inputs', () => {
   it('batch transfer button enabled when recipient provided', () => {
     render(<BatchTransferModalStub />)
     fireEvent.change(screen.getByTestId('transfer-recipient'), {
-      target: { value: 'GADDRESSHERE' },
+      target: { value: 'GADDRESSHERE' }
     })
     expect(screen.getByTestId('submit-batch-transfer')).not.toBeDisabled()
   })
@@ -385,7 +417,7 @@ describe('WasteListPage — Batch Modal Inputs', () => {
   it('batch transfer button disabled when recipient is whitespace only', () => {
     render(<BatchTransferModalStub />)
     fireEvent.change(screen.getByTestId('transfer-recipient'), {
-      target: { value: '   ' },
+      target: { value: '   ' }
     })
     expect(screen.getByTestId('submit-batch-transfer')).toBeDisabled()
   })

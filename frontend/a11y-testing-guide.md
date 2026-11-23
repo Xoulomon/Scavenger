@@ -22,6 +22,7 @@ npm run e2e e2e/accessibility.spec.ts
 ### Test Coverage
 
 #### 1. **Homepage Accessibility** (4 tests)
+
 - No accessibility violations
 - Proper heading hierarchy
 - Alt text for all images
@@ -29,6 +30,7 @@ npm run e2e e2e/accessibility.spec.ts
 - Keyboard navigation
 
 #### 2. **Form Accessibility** (5 tests)
+
 - Proper form labels
 - ARIA labels for form fields
 - Accessible error messages
@@ -36,23 +38,27 @@ npm run e2e e2e/accessibility.spec.ts
 - Keyboard form submission
 
 #### 3. **Navigation Accessibility** (4 tests)
+
 - Skip to main content link
 - Navigation landmarks
 - Breadcrumb navigation
 - Current page indication
 
 #### 4. **Screen Reader Support** (4 tests)
+
 - Descriptive button text
 - Descriptive link text
 - Dynamic content announcements
 - Proper list semantics
 
 #### 5. **WCAG 2.1 AA Compliance** (3 tests)
+
 - Full WCAG 2.1 AA compliance
 - Focus indicators
 - Text resizing support
 
 #### 6. **Keyboard Navigation** (8 tests)
+
 - Tab navigation through forms
 - Enter key button activation
 - Space key button activation
@@ -67,24 +73,28 @@ npm run e2e e2e/accessibility.spec.ts
 ### Screen Reader Testing
 
 #### NVDA (Windows)
+
 ```bash
 # Download from https://www.nvaccess.org/
 # Test with Firefox or Chrome
 ```
 
 #### JAWS (Windows)
+
 ```bash
 # Commercial screen reader
 # Test with Internet Explorer, Firefox, Chrome
 ```
 
 #### VoiceOver (macOS/iOS)
+
 ```bash
 # Built-in screen reader
 # Enable: System Preferences > Accessibility > VoiceOver
 ```
 
 #### TalkBack (Android)
+
 ```bash
 # Built-in screen reader
 # Enable: Settings > Accessibility > TalkBack
@@ -115,11 +125,13 @@ npm run e2e e2e/accessibility.spec.ts
 ### Color Contrast Testing
 
 Use tools like:
+
 - [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
 - [Contrast Ratio](https://contrast-ratio.com/)
 - Browser DevTools (Lighthouse)
 
 **Minimum Requirements:**
+
 - Normal text: 4.5:1
 - Large text (18pt+): 3:1
 - UI components: 3:1
@@ -134,12 +146,14 @@ Use tools like:
 ## Accessibility Checklist
 
 ### Structure
+
 - [ ] Proper heading hierarchy (h1 → h2 → h3)
 - [ ] Semantic HTML (nav, main, aside, footer)
 - [ ] List markup for lists
 - [ ] Table markup for tables
 
 ### Forms
+
 - [ ] All inputs have labels
 - [ ] Labels associated with inputs (for/id)
 - [ ] Error messages linked to inputs
@@ -147,30 +161,35 @@ Use tools like:
 - [ ] Instructions provided
 
 ### Images
+
 - [ ] All images have alt text
 - [ ] Alt text is descriptive
 - [ ] Decorative images have empty alt
 - [ ] Complex images have long descriptions
 
 ### Links and Buttons
+
 - [ ] Descriptive link text
 - [ ] No "click here" links
 - [ ] Buttons have accessible names
 - [ ] Icon buttons have labels
 
 ### Color and Contrast
+
 - [ ] 4.5:1 contrast for normal text
 - [ ] 3:1 contrast for large text
 - [ ] 3:1 contrast for UI components
 - [ ] Color not sole means of conveying info
 
 ### Keyboard Navigation
+
 - [ ] All functionality keyboard accessible
 - [ ] Logical tab order
 - [ ] Focus visible
 - [ ] No keyboard traps
 
 ### ARIA
+
 - [ ] Proper ARIA roles
 - [ ] Proper ARIA states
 - [ ] Proper ARIA properties
@@ -179,12 +198,14 @@ Use tools like:
 ## Tools
 
 ### Automated Testing
+
 - **axe DevTools**: Browser extension for accessibility testing
 - **Lighthouse**: Built into Chrome DevTools
 - **WAVE**: Browser extension for accessibility evaluation
 - **Playwright + axe**: Automated testing in CI/CD
 
 ### Manual Testing
+
 - **Screen readers**: NVDA, JAWS, VoiceOver, TalkBack
 - **Keyboard navigation**: Tab, Enter, Space, Arrow keys
 - **Browser zoom**: Test at 200% zoom
@@ -193,6 +214,7 @@ Use tools like:
 ## CI/CD Integration
 
 Accessibility tests run automatically on:
+
 - Pull requests (smoke test)
 - Merges to main (full suite)
 - Scheduled nightly runs
@@ -210,6 +232,7 @@ Failures block deployment if critical issues found.
 ## Common Issues and Fixes
 
 ### Missing Alt Text
+
 ```html
 <!-- Bad -->
 <img src="waste.jpg" />
@@ -219,6 +242,7 @@ Failures block deployment if critical issues found.
 ```
 
 ### Missing Form Labels
+
 ```html
 <!-- Bad -->
 <input type="email" />
@@ -229,6 +253,7 @@ Failures block deployment if critical issues found.
 ```
 
 ### Poor Color Contrast
+
 ```css
 /* Bad */
 color: #999; /* 4.3:1 on white */
@@ -238,6 +263,7 @@ color: #666; /* 7.5:1 on white */
 ```
 
 ### Missing Focus Indicator
+
 ```css
 /* Bad */
 button:focus {
@@ -252,6 +278,7 @@ button:focus {
 ```
 
 ### Non-Semantic HTML
+
 ```html
 <!-- Bad -->
 <div onclick="submitForm()">Submit</div>
@@ -263,6 +290,7 @@ button:focus {
 ## Reporting Issues
 
 When reporting accessibility issues, include:
+
 1. Page URL
 2. Issue description
 3. WCAG criterion violated

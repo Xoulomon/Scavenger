@@ -16,7 +16,7 @@ const form = (overrides: Partial<TransferFormData> = {}): TransferFormData => ({
   beforePhotos: [],
   afterPhotos: [],
   senderConfirmed: false,
-  ...overrides,
+  ...overrides
 })
 
 describe('buildTransferNote', () => {
@@ -30,7 +30,7 @@ describe('buildTransferNote', () => {
         form({
           transferNotes: 'Handover at depot',
           conditionNotes: 'Dry',
-          handlingInstructions: 'Keep sealed',
+          handlingInstructions: 'Keep sealed'
         })
       )
     ).toBe('Handover at depot | Condition: Dry | Handling: Keep sealed')
@@ -40,10 +40,12 @@ describe('buildTransferNote', () => {
 describe('submitWasteTransfer', () => {
   it('calls transferWaste with the sender, recipient and zero fees', async () => {
     const transferWaste = vi.fn().mockResolvedValue('ok')
-    const result = await submitWasteTransfer(
-      { transferWaste } as never,
-      { wasteId: 9n, from: 'GSENDER', to: VALID_ADDRESS, note: 'note' }
-    )
+    const result = await submitWasteTransfer({ transferWaste } as never, {
+      wasteId: 9n,
+      from: 'GSENDER',
+      to: VALID_ADDRESS,
+      note: 'note'
+    })
 
     expect(result).toBe('ok')
     expect(transferWaste).toHaveBeenCalledWith(
@@ -64,7 +66,7 @@ describe('submitWasteTransfer', () => {
         wasteId: 9n,
         from: '',
         to: VALID_ADDRESS,
-        note: 'note',
+        note: 'note'
       })
     ).rejects.toThrow('No wallet connected.')
     expect(transferWaste).not.toHaveBeenCalled()
@@ -77,7 +79,7 @@ describe('submitWasteTransfer', () => {
         wasteId: 1n,
         from: 'GSENDER',
         to: VALID_ADDRESS,
-        note: 'n',
+        note: 'n'
       })
     ).rejects.toThrow('RPC is unavailable.')
   })
@@ -85,7 +87,9 @@ describe('submitWasteTransfer', () => {
 
 describe('transferDestinationSchema', () => {
   it('accepts a 56-character address starting with G', () => {
-    expect(transferDestinationSchema.safeParse({ recipientAddress: VALID_ADDRESS }).success).toBe(true)
+    expect(transferDestinationSchema.safeParse({ recipientAddress: VALID_ADDRESS }).success).toBe(
+      true
+    )
   })
 
   it('rejects addresses that are not valid Stellar public keys', () => {

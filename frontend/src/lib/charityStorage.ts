@@ -29,7 +29,7 @@ export const REGISTERED_CHARITIES: Charity[] = [
     description: 'Promoting sustainable recycling in underserved communities.',
     category: 'Environment',
     address: 'GAECO123FOUNDATION',
-    website: 'https://ecofoundation.example',
+    website: 'https://ecofoundation.example'
   },
   {
     id: 'green-schools',
@@ -37,7 +37,7 @@ export const REGISTERED_CHARITIES: Charity[] = [
     description: 'Funding recycling programs in public schools.',
     category: 'Education',
     address: 'GGREENSCHOOLS456',
-    website: 'https://greenschools.example',
+    website: 'https://greenschools.example'
   },
   {
     id: 'ocean-cleanup',
@@ -45,15 +45,15 @@ export const REGISTERED_CHARITIES: Charity[] = [
     description: 'Removing plastic waste from oceans and coastlines.',
     category: 'Environment',
     address: 'GOCEAN789CLEANUP',
-    website: 'https://oceancleanup.example',
+    website: 'https://oceancleanup.example'
   },
   {
     id: 'community-recyclers',
     name: 'Community Recyclers Network',
     description: 'Supporting local recycling cooperatives worldwide.',
     category: 'Community',
-    address: 'GCOMMUNITY012NET',
-  },
+    address: 'GCOMMUNITY012NET'
+  }
 ]
 
 const LS_KEY = (address: string) => `scavngr_charity_donations_${address}`
@@ -62,7 +62,9 @@ function load(address: string): CharityDonation[] {
   try {
     const raw = localStorage.getItem(LS_KEY(address))
     if (!raw) return []
-    const parsed = JSON.parse(raw) as Array<Omit<CharityDonation, 'tokenAmount'> & { tokenAmount: string }>
+    const parsed = JSON.parse(raw) as Array<
+      Omit<CharityDonation, 'tokenAmount'> & { tokenAmount: string }
+    >
     return parsed.map((d) => ({ ...d, tokenAmount: BigInt(d.tokenAmount) }))
   } catch {
     return []
@@ -91,7 +93,7 @@ export class CharityStorage {
       ...donation,
       id: `don_${now}`,
       timestamp: now,
-      receiptNumber: `RCP-${now.toString(36).toUpperCase()}`,
+      receiptNumber: `RCP-${now.toString(36).toUpperCase()}`
     }
     save(this.address, [entry, ...load(this.address)])
     return entry

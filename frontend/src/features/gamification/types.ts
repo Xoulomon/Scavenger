@@ -23,7 +23,7 @@ export interface Level {
 
 export const CHALLENGE_TYPE = {
   DAILY: 'daily',
-  WEEKLY: 'weekly',
+  WEEKLY: 'weekly'
 } as const
 
 export type ChallengeType = (typeof CHALLENGE_TYPE)[keyof typeof CHALLENGE_TYPE]

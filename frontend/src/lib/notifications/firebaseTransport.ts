@@ -12,7 +12,7 @@ import {
   where,
   orderBy,
   limit,
-  increment,
+  increment
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import type { Notification, NotificationType } from './types'
@@ -29,8 +29,8 @@ export function createFirebaseTransport(): NotificationTransport {
           where('type', '==', type),
           where('read', '==', false),
           where('createdAt', '>=', since),
-          orderBy('createdAt', 'desc'),
-        ),
+          orderBy('createdAt', 'desc')
+        )
       )
       return snap.empty ? undefined : (snap.docs[0].data() as Notification)
     },
@@ -61,8 +61,8 @@ export function createFirebaseTransport(): NotificationTransport {
       return onSnapshot(
         q,
         (snapshot) => onItems(snapshot.docs.map((d) => d.data() as Notification)),
-        (error) => onError?.(error),
+        (error) => onError?.(error)
       )
-    },
+    }
   }
 }

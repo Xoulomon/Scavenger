@@ -19,9 +19,9 @@ entrypoint with its arguments, auth requirements and error codes.
 
 Generated from `stellar-contract/src/lib.rs`. 1 entrypoints are documented as internal-only and are excluded from the consumer reference in [sdk-api-reference.md](./sdk-api-reference.md). Do not edit this table by hand.
 
-| Entrypoint | Arguments | Returns | Requires auth | Errors | Note |
-|---|---|---|---|---|---|
-| `record_performance_metric` | `admin: Address`, `gas_used: u64`, `is_success: bool` | `()` | `admin` | — | Record a performance metric (internal helper or admin-only). |
+| Entrypoint                  | Arguments                                             | Returns | Requires auth | Errors | Note                                                         |
+| --------------------------- | ----------------------------------------------------- | ------- | ------------- | ------ | ------------------------------------------------------------ |
+| `record_performance_metric` | `admin: Address`, `gas_used: u64`, `is_success: bool` | `()`    | `admin`       | —      | Record a performance metric (internal helper or admin-only). |
 
 <!-- END GENERATED: internal-entrypoints -->
 
@@ -48,6 +48,7 @@ python3 scripts/generate-contract-reference.py --check   # fail if they are stal
 #### Why
 
 Both modules were unused in production:
+
 - `contract_analytics.rs` (65 LOC): Debug-only helpers with no callers
 - `analytics.rs` (348 LOC): Complex reporting framework exported but never instantiated
 
@@ -55,27 +56,28 @@ Neither module persisted data to storage, making them ineffective for their inte
 
 #### What's Different Now
 
-| Aspect | Before | After |
-|--------|--------|-------|
-| Modules | 2 duplicate modules | 1 unified module |
-| Public exports | 6 unused types | 0 (module is private) |
-| Storage integration | None | Periodic batching (every 10 tx) |
-| Per-tx overhead | 0 stroops | +0.325 stroops (10% increase, amortized) |
-| Tests | 0 | 13 unit tests + 3 storage key tests |
-| Breaking changes | N/A | None (removed types were unused) |
+| Aspect              | Before              | After                                    |
+| ------------------- | ------------------- | ---------------------------------------- |
+| Modules             | 2 duplicate modules | 1 unified module                         |
+| Public exports      | 6 unused types      | 0 (module is private)                    |
+| Storage integration | None                | Periodic batching (every 10 tx)          |
+| Per-tx overhead     | 0 stroops           | +0.325 stroops (10% increase, amortized) |
+| Tests               | 0                   | 13 unit tests + 3 storage key tests      |
+| Breaking changes    | N/A                 | None (removed types were unused)         |
 
 #### Storage Keys Added
 
 New storage keys for issue #1514 (all in `stellar-contract/src/storage_keys.rs`):
 
-| Key | Type | Purpose |
-|-----|------|---------|
-| `GLOBAL_METRICS_SNAPSHOT` | Symbol | On-chain analytics snapshot |
-| `ANALYTICS_LAST_UPDATE` | Symbol | Snapshot timestamp |
-| `ANALYTICS_BATCH_COUNT` | Symbol | Batching counter |
-| `recycling_stats_key(address)` | Tuple | Per-participant stats |
+| Key                            | Type   | Purpose                     |
+| ------------------------------ | ------ | --------------------------- |
+| `GLOBAL_METRICS_SNAPSHOT`      | Symbol | On-chain analytics snapshot |
+| `ANALYTICS_LAST_UPDATE`        | Symbol | Snapshot timestamp          |
+| `ANALYTICS_BATCH_COUNT`        | Symbol | Batching counter            |
+| `recycling_stats_key(address)` | Tuple  | Per-participant stats       |
 
 All keys follow naming conventions:
+
 - Symbol keys: ≤9 chars (Soroban limit)
 - Tuple keys: `("recycling_stats", address)` format
 - No collisions (verified by tests)

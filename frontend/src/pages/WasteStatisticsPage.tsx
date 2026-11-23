@@ -37,7 +37,7 @@ export function WasteStatisticsPage() {
       type,
       count: data.count,
       weight: data.weight,
-      percentage: total > 0n ? Number((data.weight * 100n) / total) : 0,
+      percentage: total > 0n ? Number((data.weight * 100n) / total) : 0
     }))
   }, [wastes])
 
@@ -52,7 +52,12 @@ export function WasteStatisticsPage() {
   const exportStats = () => {
     const data = [
       ['Waste Type', 'Count', 'Weight (kg)', 'Percentage'],
-      ...wasteStats.map((s) => [wasteTypeLabel(s.type), s.count, s.weight.toString(), `${s.percentage.toFixed(2)}%`]),
+      ...wasteStats.map((s) => [
+        wasteTypeLabel(s.type),
+        s.count,
+        s.weight.toString(),
+        `${s.percentage.toFixed(2)}%`
+      ])
     ]
       .map((row) => row.join(','))
       .join('\n')

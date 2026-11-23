@@ -55,10 +55,7 @@ pub struct BatchResult {
 ///
 /// # Returns
 /// Result indicating success count and estimated gas savings
-pub fn batch_update_participants(
-    updates: &Vec<BatchParticipantUpdate>,
-    config: BatchConfig,
-) -> BatchResult {
+pub fn batch_update_participants(updates: &Vec<BatchParticipantUpdate>, config: BatchConfig) -> BatchResult {
     let mut processed_count = 0u32;
 
     // Consolidate reads: fetch all affected participants at once
@@ -72,11 +69,21 @@ pub fn batch_update_participants(
     }
 
     // Estimate gas savings based on consolidated writes
-    let estimated_reads = if config.consolidate_reads { 1 } else { updates.len() as u32 };
-    let estimated_writes = if config.consolidate_writes { 1 } else { updates.len() as u32 };
+    let estimated_reads = if config.consolidate_reads {
+        1
+    } else {
+        updates.len() as u32
+    };
+    let estimated_writes = if config.consolidate_writes {
+        1
+    } else {
+        updates.len() as u32
+    };
 
     let individual_gas = PerformanceMetrics::estimate_individual_gas(updates.len() as u32);
-    let batch_gas = estimated_writes.saturating_mul(5000).saturating_add(estimated_reads.saturating_mul(2000));
+    let batch_gas = estimated_writes
+        .saturating_mul(5000)
+        .saturating_add(estimated_reads.saturating_mul(2000));
 
     let gas_saved_percentage = if individual_gas > batch_gas {
         ((individual_gas - batch_gas) * 100) / individual_gas
@@ -99,10 +106,7 @@ pub fn batch_update_participants(
 ///
 /// # Returns
 /// Result indicating success count and estimated gas savings
-pub fn batch_transfer_waste(
-    transfers: &Vec<BatchWasteTransfer>,
-    config: BatchConfig,
-) -> BatchResult {
+pub fn batch_transfer_waste(transfers: &Vec<BatchWasteTransfer>, config: BatchConfig) -> BatchResult {
     let mut processed_count = 0u32;
 
     // Consolidate operations: batch process all transfers
@@ -183,10 +187,7 @@ impl BatchAnalyzer {
     }
 
     /// Calculates estimated gas savings for a batch operation
-    pub fn calculate_gas_savings(
-        item_count: u32,
-        consolidation_factor: f64,
-    ) -> u64 {
+    pub fn calculate_gas_savings(item_count: u32, consolidation_factor: f64) -> u64 {
         let individual_gas = PerformanceMetrics::estimate_individual_gas(item_count);
         let batch_gas = PerformanceMetrics::estimate_batch_gas(item_count, consolidation_factor);
         individual_gas.saturating_sub(batch_gas)
@@ -257,7 +258,10 @@ mod tests {
 
     #[test]
     fn analyze_optimal_batch_size_above_limit() {
-        let config = BatchConfig { max_batch_size: 100, ..Default::default() };
+        let config = BatchConfig {
+            max_batch_size: 100,
+            ..Default::default()
+        };
         let size = BatchAnalyzer::analyze_optimal_batch_size(200, &config);
         assert!(size <= config.max_batch_size);
     }
@@ -298,11 +302,26 @@ mod tests {
 
     #[test]
     fn batch_update_participants_respects_max_batch_size() {
-        let config = BatchConfig { max_batch_size: 2, ..Default::default() };
+        let config = BatchConfig {
+            max_batch_size: 2,
+            ..Default::default()
+        };
         let updates = vec![
-            BatchParticipantUpdate { address: Address::generate(&Env::default()), waste_added: 0, tokens_added: 0 },
-            BatchParticipantUpdate { address: Address::generate(&Env::default()), waste_added: 0, tokens_added: 0 },
-            BatchParticipantUpdate { address: Address::generate(&Env::default()), waste_added: 0, tokens_added: 0 },
+            BatchParticipantUpdate {
+                address: Address::generate(&Env::default()),
+                waste_added: 0,
+                tokens_added: 0,
+            },
+            BatchParticipantUpdate {
+                address: Address::generate(&Env::default()),
+                waste_added: 0,
+                tokens_added: 0,
+            },
+            BatchParticipantUpdate {
+                address: Address::generate(&Env::default()),
+                waste_added: 0,
+                tokens_added: 0,
+            },
         ];
         let result = batch_update_participants(&updates, config);
         assert_eq!(result.processed_count, 2);
@@ -325,11 +344,29 @@ mod tests {
 
     #[test]
     fn batch_transfer_waste_respects_max_batch_size() {
-        let config = BatchConfig { max_batch_size: 2, ..Default::default() };
+        let config = BatchConfig {
+            max_batch_size: 2,
+            ..Default::default()
+        };
         let transfers = vec![
-            BatchWasteTransfer { waste_id: 1, from: Address::generate(&Env::default()), to: Address::generate(&Env::default()), timestamp: 100 },
-            BatchWasteTransfer { waste_id: 2, from: Address::generate(&Env::default()), to: Address::generate(&Env::default()), timestamp: 100 },
-            BatchWasteTransfer { waste_id: 3, from: Address::generate(&Env::default()), to: Address::generate(&Env::default()), timestamp: 100 },
+            BatchWasteTransfer {
+                waste_id: 1,
+                from: Address::generate(&Env::default()),
+                to: Address::generate(&Env::default()),
+                timestamp: 100,
+            },
+            BatchWasteTransfer {
+                waste_id: 2,
+                from: Address::generate(&Env::default()),
+                to: Address::generate(&Env::default()),
+                timestamp: 100,
+            },
+            BatchWasteTransfer {
+                waste_id: 3,
+                from: Address::generate(&Env::default()),
+                to: Address::generate(&Env::default()),
+                timestamp: 100,
+            },
         ];
         let result = batch_transfer_waste(&transfers, config);
         assert_eq!(result.processed_count, 2);

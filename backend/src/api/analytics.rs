@@ -106,10 +106,7 @@ impl<S: AnalyticsService> AnalyticsController<S> {
     ///
     /// Parses and validates the query, delegates computation to the service,
     /// and returns the response payload unchanged.
-    pub fn handle(
-        &self,
-        query: AnalyticsQuery,
-    ) -> Result<AnalyticsResponse, AnalyticsError> {
+    pub fn handle(&self, query: AnalyticsQuery) -> Result<AnalyticsResponse, AnalyticsError> {
         Self::validate(&query)?;
         self.service.get_analytics(&query)
     }
@@ -137,10 +134,7 @@ mod tests {
     }
 
     impl AnalyticsService for MockAnalyticsService {
-        fn get_analytics(
-            &self,
-            query: &AnalyticsQuery,
-        ) -> Result<AnalyticsResponse, AnalyticsError> {
+        fn get_analytics(&self, query: &AnalyticsQuery) -> Result<AnalyticsResponse, AnalyticsError> {
             *self.last_query.borrow_mut() = Some(query.clone());
             self.response.clone()
         }
@@ -180,9 +174,7 @@ mod tests {
 
     #[test]
     fn handle_propagates_service_error() {
-        let service = MockAnalyticsService::new(Err(AnalyticsError::Internal(
-            "boom".to_string(),
-        )));
+        let service = MockAnalyticsService::new(Err(AnalyticsError::Internal("boom".to_string())));
         let controller = AnalyticsController::new(service);
 
         let result = controller.handle(AnalyticsQuery::default());

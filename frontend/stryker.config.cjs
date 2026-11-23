@@ -26,7 +26,7 @@ module.exports = {
   testRunner: 'vitest',
   vitest: {
     // Use the existing vite.config.ts; Stryker will pick up the `test` block.
-    configFile: 'vite.config.ts',
+    configFile: 'vite.config.ts'
   },
 
   // ── Scope ───────────────────────────────────────────────────────────────────
@@ -37,7 +37,7 @@ module.exports = {
     'src/api/client.ts',
     'src/lib/validation/wasteSubmission.ts',
     'src/features/transfers/service.ts',
-    'src/features/transfers/schemas.ts',
+    'src/features/transfers/schemas.ts'
   ],
 
   // ── Mutators ────────────────────────────────────────────────────────────────
@@ -48,10 +48,7 @@ module.exports = {
     // Exclude patterns that generate noise without value:
     //   - string literals in error messages (covered by integration tests)
     //   - constant initial-state objects
-    excludedMutations: [
-      'StringLiteralMutation',
-      'ObjectLiteralMutation',
-    ],
+    excludedMutations: ['StringLiteralMutation', 'ObjectLiteralMutation']
   },
 
   // ── TypeScript checking ──────────────────────────────────────────────────────
@@ -69,16 +66,16 @@ module.exports = {
   thresholds: {
     high: 80,
     low: 75,
-    break: 80,
+    break: 80
   },
 
   // ── Reporters ────────────────────────────────────────────────────────────────
   reporters: ['html', 'json', 'clear-text', 'progress'],
   htmlReporter: {
-    fileName: 'reports/mutation/index.html',
+    fileName: 'reports/mutation/index.html'
   },
   jsonReporter: {
-    fileName: 'reports/mutation/mutation.json',
+    fileName: 'reports/mutation/mutation.json'
   },
 
   // ── Misc ─────────────────────────────────────────────────────────────────────
@@ -87,5 +84,5 @@ module.exports = {
   timeoutFactor: 2.5,
 
   // Only show coverage for mutated files to keep output concise.
-  coverageAnalysis: 'perTest',
-};
+  coverageAnalysis: 'perTest'
+}

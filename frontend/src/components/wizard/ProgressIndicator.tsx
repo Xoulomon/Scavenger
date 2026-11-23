@@ -1,13 +1,13 @@
-import { Check } from 'lucide-react';
+import { Check } from 'lucide-react'
 
 interface Step {
-  id: number;
-  title: string;
+  id: number
+  title: string
 }
 
 interface ProgressIndicatorProps {
-  steps: Step[];
-  currentStep: number;
+  steps: Step[]
+  currentStep: number
 }
 
 export function ProgressIndicator({ steps, currentStep }: ProgressIndicatorProps) {
@@ -21,8 +21,8 @@ export function ProgressIndicator({ steps, currentStep }: ProgressIndicatorProps
                 step.id < currentStep
                   ? 'bg-green-500 text-white'
                   : step.id === currentStep
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 text-gray-500'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-200 text-gray-500'
               }`}
             >
               {step.id < currentStep ? <Check className="h-5 w-5" /> : step.id}
@@ -39,5 +39,5 @@ export function ProgressIndicator({ steps, currentStep }: ProgressIndicatorProps
         </div>
       ))}
     </div>
-  );
+  )
 }

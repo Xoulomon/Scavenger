@@ -44,18 +44,21 @@ soroban contract deploy \
 ### 3. Data Migration
 
 #### Participant Data
+
 - All participant records are preserved
 - Role information is maintained
 - Registration timestamps are kept
 - Stats are recalculated if needed
 
 #### Waste Data
+
 - All waste records are preserved
 - Transfer history is maintained
 - Metadata is kept intact
 - Deactivation status is preserved
 
 #### Incentive Data
+
 - Active incentives are preserved
 - Budget information is maintained
 - Reward points are kept
@@ -64,6 +67,7 @@ soroban contract deploy \
 ### 4. Backward Compatibility
 
 The contract maintains backward compatibility with:
+
 - Old API function signatures
 - Existing data structures
 - Previous storage layouts
@@ -96,6 +100,7 @@ cargo test --test contract_upgrade_test
 ## Version History
 
 ### v1.0.0 (Current)
+
 - Initial release
 - Participant management
 - Waste tracking
@@ -103,6 +108,7 @@ cargo test --test contract_upgrade_test
 - Token rewards
 
 ### v1.1.0 (Planned)
+
 - Enhanced query functions
 - Improved storage efficiency
 - Additional security checks
@@ -119,6 +125,7 @@ cargo test --test contract_upgrade_test
 ```
 
 Tests cover:
+
 - State preservation
 - Data migration
 - Backward compatibility
@@ -148,7 +155,8 @@ After upgrade, monitor:
 
 ### Issue: State Not Preserved
 
-**Solution**: 
+**Solution**:
+
 - Verify backup was created
 - Check storage migration logic
 - Restore from backup if needed
@@ -156,6 +164,7 @@ After upgrade, monitor:
 ### Issue: Old API Calls Failing
 
 **Solution**:
+
 - Verify backward compatibility layer
 - Check function signatures
 - Update client code if needed
@@ -163,6 +172,7 @@ After upgrade, monitor:
 ### Issue: Performance Degradation
 
 **Solution**:
+
 - Profile contract execution
 - Optimize hot paths
 - Consider storage restructuring
@@ -170,6 +180,7 @@ After upgrade, monitor:
 ## Support
 
 For upgrade issues:
+
 1. Check this guide
 2. Review test results
 3. Contact development team

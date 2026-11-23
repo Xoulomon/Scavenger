@@ -15,14 +15,15 @@ checklist for each upgrade path.
 ## Version Compatibility Matrix
 
 | From Version | To Version | Breaking Changes | Data Migration | Downtime | Effort |
-|---|---|---|---|---|---|
-| v1.0.x | v1.1.x | No  | Optional | None    | Low  |
-| v1.1.x | v1.2.x | No  | Optional | None    | Low  |
-| v1.0.x | v2.0.0 | Yes | Required | ~1 hour | High |
-| v2.0.x | v2.1.x | No  | Optional | None    | Low  |
-| v2.1.x | v2.2.x | No  | Optional | None    | Low  |
+| ------------ | ---------- | ---------------- | -------------- | -------- | ------ |
+| v1.0.x       | v1.1.x     | No               | Optional       | None     | Low    |
+| v1.1.x       | v1.2.x     | No               | Optional       | None     | Low    |
+| v1.0.x       | v2.0.0     | Yes              | Required       | ~1 hour  | High   |
+| v2.0.x       | v2.1.x     | No               | Optional       | None     | Low    |
+| v2.1.x       | v2.2.x     | No               | Optional       | None     | Low    |
 
 **Legend:**
+
 - **Breaking Changes**: API or data-structure incompatibilities that require client updates
 - **Data Migration**: Whether on-chain state must be transformed
 - **Downtime**: Expected period of reduced availability
@@ -35,21 +36,25 @@ checklist for each upgrade path.
 ### v2.0.0 (Major Release)
 
 **Participant Storage Format**
+
 - Old: Flat structure with inline stats
 - New: Separated `Participant` and `RecyclingStats` storage
 - Impact: All participant records require transformation
 
 **Incentive Budget Tracking**
+
 - Old: Single `budget` field
 - New: `total_budget` + `remaining_budget` dual-field tracking
 - Impact: Budget recalculation required for all existing incentives
 
 **Transfer History**
+
 - Old: Transfer history stored inside each waste record
 - New: Separate `("transfer_history", waste_id)` storage key
 - Impact: History must be extracted and re-inserted
 
 **Waste struct (v1 → v2)**
+
 - Old: `Material` struct with flat fields
 - New: `Waste` struct with extended fields (grade, tags, tracking_code, expires_at, etc.)
 - Impact: All materials must be migrated to the new `Waste` format
@@ -57,21 +62,25 @@ checklist for each upgrade path.
 ### v1.1.0 (Minor Release)
 
 **Waste Type Enum**
+
 - Added: `Organic` waste type (discriminant 5) and `Electronic` (discriminant 6)
 - Impact: No breaking changes; backward compatible
 
 **Reward Distribution**
+
 - Added: Configurable collector/owner split percentages
 - Impact: No breaking changes; defaults to 50/50 split
 
 ### v2.1.0 (Minor Release)
 
 **Waste Expiration System**
+
 - Added: `expires_at` field on `Waste`, `set_waste_ttl`, `cleanup_expired_wastes`
 - Impact: New wastes automatically receive an expiry; existing wastes default to `expires_at = 0`
   (no expiry) and require no migration
 
 **Waste Grading System**
+
 - Added: `WasteGrade` enum, `grade` field on `Waste`, `set_waste_grade`, `get_grade_history`
 - Impact: Existing wastes default to `WasteGrade::C`; no migration required
 
@@ -603,32 +612,32 @@ All of the following must pass before cutover to production.
 
 ### Functional Tests
 
-| Test Case | Expected Result |
-|-----------|----------------|
-| Register participant (all 3 roles) | Participant stored and retrievable |
-| Submit waste (all 7 types) | Waste stored with correct `expires_at` |
-| Transfer Recycler → Collector | Ownership transferred; transfer history updated |
-| Transfer Collector → Manufacturer | Ownership transferred |
-| Confirm waste | `is_confirmed = true` |
-| Create incentive | Incentive active; budget tracked |
-| Claim incentive reward | Budget decremented; tokens queued |
-| Set waste TTL | TTL stored per type |
-| Expired waste blocked on transfer | Transfer returns `WasteExpired` error |
-| Cleanup expired wastes | Expired items deactivated; count returned |
-| Grade waste (Collector) | `grade` updated; history appended |
-| Grade waste (Recycler) | Panics with auth error |
-| Get wastes by grade | Correct filter applied |
-| Admin operations | Admin-only functions reject non-admins |
+| Test Case                          | Expected Result                                 |
+| ---------------------------------- | ----------------------------------------------- |
+| Register participant (all 3 roles) | Participant stored and retrievable              |
+| Submit waste (all 7 types)         | Waste stored with correct `expires_at`          |
+| Transfer Recycler → Collector      | Ownership transferred; transfer history updated |
+| Transfer Collector → Manufacturer  | Ownership transferred                           |
+| Confirm waste                      | `is_confirmed = true`                           |
+| Create incentive                   | Incentive active; budget tracked                |
+| Claim incentive reward             | Budget decremented; tokens queued               |
+| Set waste TTL                      | TTL stored per type                             |
+| Expired waste blocked on transfer  | Transfer returns `WasteExpired` error           |
+| Cleanup expired wastes             | Expired items deactivated; count returned       |
+| Grade waste (Collector)            | `grade` updated; history appended               |
+| Grade waste (Recycler)             | Panics with auth error                          |
+| Get wastes by grade                | Correct filter applied                          |
+| Admin operations                   | Admin-only functions reject non-admins          |
 
 ### Data Integrity Tests
 
-| Check | Command |
-|-------|---------|
-| Participant count matches old contract | `get_all_participants \| jq 'length'` |
-| Total waste count matches | `get_metrics \| jq '.total_wastes_count'` |
-| Incentive count matches | `get_all_incentives \| jq 'length'` |
-| Transfer history preserved | `get_transfer_history <waste_id>` |
-| Stats accurate | `get_stats <participant_address>` |
+| Check                                  | Command                                   |
+| -------------------------------------- | ----------------------------------------- |
+| Participant count matches old contract | `get_all_participants \| jq 'length'`     |
+| Total waste count matches              | `get_metrics \| jq '.total_wastes_count'` |
+| Incentive count matches                | `get_all_incentives \| jq 'length'`       |
+| Transfer history preserved             | `get_transfer_history <waste_id>`         |
+| Stats accurate                         | `get_stats <participant_address>`         |
 
 ### Performance Tests
 
@@ -737,24 +746,28 @@ to `expires_at = 0` (no expiry) and `grade = C`. No state transformation is need
 ## Version-Specific Notes
 
 ### v1.0.x → v1.1.x
+
 - No data migration required
 - New waste type (Organic) available for new submissions only
 - Configurable reward percentages — run `set_percentages` once after upgrade
 - Backward compatible with existing clients
 
 ### v1.1.x → v1.2.x
+
 - No data migration required
 - Performance improvements in storage layout
 - New query functions (search, filtering)
 - Backward compatible
 
 ### v1.x → v2.0.0
+
 - **BREAKING**: Storage format changed for participants, wastes, and incentives
 - **REQUIRED**: Run migration scripts in order (participants → wastes → incentives)
 - **REQUIRED**: Update all frontend and indexer configuration
 - **REQUIRED**: Verify all data with the Verification Checklist
 
 ### v2.0.x → v2.1.x
+
 - Expiration system added: new `set_waste_ttl`, `get_waste_ttl`, `cleanup_expired_wastes`
 - Grading system added: `WasteGrade`, `set_waste_grade`, `get_grade_history`, `get_wastes_by_grade`
 - Existing waste items: `expires_at = 0` (no expiry), `grade = C` (default)

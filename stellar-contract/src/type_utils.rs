@@ -137,14 +137,12 @@ pub fn waste_type_as_str(value: crate::types::WasteType) -> &'static str {
     }
 }
 
-
-
 // ─── Edge-case conversion tests ───────────────────────────────────────
 
 #[cfg(test)]
 mod edge_case_tests {
     use super::*;
-    use crate::types::{TransferItemType, TransferStatus, ParticipantRole, CertificationLevel, WasteType};
+    use crate::types::{CertificationLevel, ParticipantRole, TransferItemType, TransferStatus, WasteType};
 
     #[test]
     fn transfer_item_type_from_u32_edge_cases() {

@@ -41,7 +41,7 @@ export function RouteErrorBoundary() {
       title: isChunkLoadError ? 'Failed to load this page' : 'Something went wrong on this page',
       description: isChunkLoadError
         ? 'The page could not be loaded, possibly due to a network error or a new deployment.'
-        : description,
+        : description
     })
   }, [toast, isChunkLoadError, description])
 
@@ -51,7 +51,9 @@ export function RouteErrorBoundary() {
         role="alert"
         title={t('errors.chunkLoad.title')}
         description={t('errors.chunkLoad.description')}
-        action={<Button onClick={() => window.location.reload()}>{t('errors.chunkLoad.reload')}</Button>}
+        action={
+          <Button onClick={() => window.location.reload()}>{t('errors.chunkLoad.reload')}</Button>
+        }
       />
     )
   }
@@ -63,7 +65,9 @@ export function RouteErrorBoundary() {
       description={description}
       action={
         <>
-          <Button variant="outline" onClick={() => navigate(0)}>{t('errors.route.tryAgain')}</Button>
+          <Button variant="outline" onClick={() => navigate(0)}>
+            {t('errors.route.tryAgain')}
+          </Button>
           <Button onClick={() => navigate('/dashboard')}>{t('errors.route.goToDashboard')}</Button>
         </>
       }

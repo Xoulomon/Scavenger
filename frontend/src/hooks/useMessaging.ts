@@ -10,7 +10,7 @@ import {
   doc,
   serverTimestamp,
   Timestamp,
-  getDocs,
+  getDocs
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 
@@ -46,7 +46,7 @@ function toMessage(id: string, data: Record<string, unknown>): Message {
     read: (data.read as boolean) ?? false,
     archived: (data.archived as boolean) ?? false,
     createdAt: ts ? ts.toMillis() : 0,
-    threadId: (data.threadId as string) ?? id,
+    threadId: (data.threadId as string) ?? id
   }
 }
 
@@ -58,7 +58,10 @@ export function useMessaging(userAddress: string | null) {
   const [blockedUsers, setBlockedUsers] = useState<string[]>([])
 
   useEffect(() => {
-    if (!userAddress) { setIsLoading(false); return }
+    if (!userAddress) {
+      setIsLoading(false)
+      return
+    }
 
     const col = collection(db, 'messages')
 
@@ -77,7 +80,9 @@ export function useMessaging(userAddress: string | null) {
     )
 
     let loaded = 0
-    const done = () => { if (++loaded === 3) setIsLoading(false) }
+    const done = () => {
+      if (++loaded === 3) setIsLoading(false)
+    }
 
     const unsub1 = onSnapshot(inboxQ, (snap) => {
       setInbox(snap.docs.map((d) => toMessage(d.id, d.data() as Record<string, unknown>)))
@@ -92,23 +97,31 @@ export function useMessaging(userAddress: string | null) {
       done()
     })
 
-    return () => { unsub1(); unsub2(); unsub3() }
+    return () => {
+      unsub1()
+      unsub2()
+      unsub3()
+    }
   }, [userAddress])
 
-  const sendMessage = useCallback(async (data: ComposeData) => {
-    if (!userAddress) throw new Error('Not authenticated.')
-    const threadId = data.threadId ?? `thread_${Date.now()}_${Math.random().toString(36).slice(2)}`
-    await addDoc(collection(db, 'messages'), {
-      from: userAddress,
-      to: data.to,
-      subject: data.subject,
-      body: data.body,
-      read: false,
-      archived: false,
-      threadId,
-      createdAt: serverTimestamp(),
-    })
-  }, [userAddress])
+  const sendMessage = useCallback(
+    async (data: ComposeData) => {
+      if (!userAddress) throw new Error('Not authenticated.')
+      const threadId =
+        data.threadId ?? `thread_${Date.now()}_${Math.random().toString(36).slice(2)}`
+      await addDoc(collection(db, 'messages'), {
+        from: userAddress,
+        to: data.to,
+        subject: data.subject,
+        body: data.body,
+        read: false,
+        archived: false,
+        threadId,
+        createdAt: serverTimestamp()
+      })
+    },
+    [userAddress]
+  )
 
   const markRead = useCallback(async (messageId: string) => {
     await updateDoc(doc(db, 'messages', messageId), { read: true })
@@ -126,25 +139,28 @@ export function useMessaging(userAddress: string | null) {
     setBlockedUsers((prev) => prev.filter((a) => a !== address))
   }, [])
 
-  const searchMessages = useCallback(async (term: string): Promise<Message[]> => {
-    if (!userAddress || !term.trim()) return []
-    const col = collection(db, 'messages')
-    const [inboxSnap, sentSnap] = await Promise.all([
-      getDocs(query(col, where('to', '==', userAddress))),
-      getDocs(query(col, where('from', '==', userAddress))),
-    ])
-    const all = [
-      ...inboxSnap.docs.map((d) => toMessage(d.id, d.data() as Record<string, unknown>)),
-      ...sentSnap.docs.map((d) => toMessage(d.id, d.data() as Record<string, unknown>)),
-    ]
-    const lower = term.toLowerCase()
-    return all.filter(
-      (m) =>
-        m.subject.toLowerCase().includes(lower) ||
-        m.body.toLowerCase().includes(lower) ||
-        m.from.toLowerCase().includes(lower)
-    )
-  }, [userAddress])
+  const searchMessages = useCallback(
+    async (term: string): Promise<Message[]> => {
+      if (!userAddress || !term.trim()) return []
+      const col = collection(db, 'messages')
+      const [inboxSnap, sentSnap] = await Promise.all([
+        getDocs(query(col, where('to', '==', userAddress))),
+        getDocs(query(col, where('from', '==', userAddress)))
+      ])
+      const all = [
+        ...inboxSnap.docs.map((d) => toMessage(d.id, d.data() as Record<string, unknown>)),
+        ...sentSnap.docs.map((d) => toMessage(d.id, d.data() as Record<string, unknown>))
+      ]
+      const lower = term.toLowerCase()
+      return all.filter(
+        (m) =>
+          m.subject.toLowerCase().includes(lower) ||
+          m.body.toLowerCase().includes(lower) ||
+          m.from.toLowerCase().includes(lower)
+      )
+    },
+    [userAddress]
+  )
 
   const unreadCount = inbox.filter((m) => !m.read && !blockedUsers.includes(m.from)).length
 
@@ -168,6 +184,6 @@ export function useMessaging(userAddress: string | null) {
     archiveMessage,
     blockUser,
     unblockUser,
-    searchMessages,
+    searchMessages
   }
 }

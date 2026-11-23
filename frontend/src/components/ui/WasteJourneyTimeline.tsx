@@ -10,7 +10,7 @@ import {
   Download,
   ShieldCheck,
   Truck,
-  PackageCheck,
+  PackageCheck
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { WasteTransfer, Waste } from '@/api/types'
@@ -44,8 +44,8 @@ function buildEvents(waste: Waste, transfers: WasteTransfer[]): JourneyEvent[] {
       timestamp: waste.recycled_timestamp,
       label: 'Submitted',
       detail: `${wasteTypeLabel(waste.waste_type)} · ${Number(waste.weight) >= 1000 ? `${(Number(waste.weight) / 1000).toFixed(2)} kg` : `${Number(waste.weight)} g`}`,
-      to: waste.current_owner,
-    },
+      to: waste.current_owner
+    }
   ]
 
   for (const t of transfers) {
@@ -55,7 +55,7 @@ function buildEvents(waste: Waste, transfers: WasteTransfer[]): JourneyEvent[] {
       timestamp: t.transferred_at,
       label: 'Transferred',
       from: t.from,
-      to: t.to,
+      to: t.to
     })
   }
 
@@ -65,7 +65,7 @@ function buildEvents(waste: Waste, transfers: WasteTransfer[]): JourneyEvent[] {
       type: 'confirmed',
       timestamp: waste.recycled_timestamp,
       label: 'Confirmed',
-      detail: `By ${formatAddress(waste.confirmer)}`,
+      detail: `By ${formatAddress(waste.confirmer)}`
     })
   }
 
@@ -74,7 +74,7 @@ function buildEvents(waste: Waste, transfers: WasteTransfer[]): JourneyEvent[] {
       id: 'deactivated',
       type: 'deactivated',
       timestamp: waste.recycled_timestamp,
-      label: 'Deactivated',
+      label: 'Deactivated'
     })
   }
 
@@ -86,7 +86,7 @@ const EVENT_ICON: Record<JourneyEvent['type'], React.ReactNode> = {
   transfer: <Truck className="h-3.5 w-3.5" />,
   verified: <ShieldCheck className="h-3.5 w-3.5" />,
   confirmed: <CheckCircle2 className="h-3.5 w-3.5" />,
-  deactivated: <XCircle className="h-3.5 w-3.5" />,
+  deactivated: <XCircle className="h-3.5 w-3.5" />
 }
 
 const EVENT_COLOR: Record<JourneyEvent['type'], string> = {
@@ -94,14 +94,14 @@ const EVENT_COLOR: Record<JourneyEvent['type'], string> = {
   transfer: 'border-blue-500 bg-blue-500 text-white',
   verified: 'border-green-500 bg-green-500 text-white',
   confirmed: 'border-emerald-500 bg-emerald-500 text-white',
-  deactivated: 'border-destructive bg-destructive text-destructive-foreground',
+  deactivated: 'border-destructive bg-destructive text-destructive-foreground'
 }
 
 function EventNode({
   event,
   isLast,
   layout,
-  zoom,
+  zoom
 }: {
   event: JourneyEvent
   isLast: boolean
@@ -148,9 +148,7 @@ function EventNode({
 
       {/* Label + detail popover */}
       <div
-        className={cn(
-          layout === 'horizontal' ? 'mt-2 max-w-[7rem] text-center' : 'flex-1 pb-4'
-        )}
+        className={cn(layout === 'horizontal' ? 'mt-2 max-w-[7rem] text-center' : 'flex-1 pb-4')}
       >
         <p className="text-xs font-semibold leading-tight">{event.label}</p>
         <p className="mt-0.5 text-[0.65rem] text-muted-foreground">{formatDate(event.timestamp)}</p>
@@ -179,7 +177,7 @@ export function WasteJourneyTimeline({
   waste,
   transfers,
   layout: initialLayout = 'horizontal',
-  className,
+  className
 }: WasteJourneyTimelineProps) {
   const [layout, setLayout] = useState<TimelineLayout>(initialLayout)
   const [zoom, setZoom] = useState(1)
@@ -222,7 +220,11 @@ export function WasteJourneyTimeline({
             onClick={() => setLayout((l) => (l === 'horizontal' ? 'vertical' : 'horizontal'))}
             aria-label="Toggle layout"
           >
-            {layout === 'horizontal' ? <ArrowDown className="h-3.5 w-3.5" /> : <ArrowRight className="h-3.5 w-3.5" />}
+            {layout === 'horizontal' ? (
+              <ArrowDown className="h-3.5 w-3.5" />
+            ) : (
+              <ArrowRight className="h-3.5 w-3.5" />
+            )}
           </Button>
           <Button
             variant="outline"

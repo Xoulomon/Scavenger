@@ -23,6 +23,7 @@ pub struct Participant {
 ### Storage Traits
 
 The `#[contracttype]` macro automatically implements:
+
 - Serialization/deserialization for Soroban storage
 - Type conversion for storage keys and values
 - Binary encoding/decoding
@@ -47,11 +48,12 @@ let participant: Participant = env.storage().instance().get(&key)?;
 Export participant data for backup or migration:
 
 ```rust
-pub fn export_participant(env: Env, address: Address) 
+pub fn export_participant(env: Env, address: Address)
     -> Option<(Address, ParticipantRole, u64)>
 ```
 
 **Usage:**
+
 ```rust
 let exported = client.export_participant(&user_address);
 if let Some((addr, role, timestamp)) = exported {
@@ -73,6 +75,7 @@ pub fn import_participant(
 ```
 
 **Usage:**
+
 ```rust
 let participant = client.import_participant(
     &new_address,
@@ -93,6 +96,7 @@ pub fn batch_update_roles(
 ```
 
 **Usage:**
+
 ```rust
 let mut updates = soroban_sdk::Vec::new(&env);
 updates.push_back((user1, ParticipantRole::Recycler));
@@ -110,6 +114,7 @@ pub fn verify_participant_integrity(env: Env, address: Address) -> bool
 ```
 
 **Usage:**
+
 ```rust
 let is_valid = client.verify_participant_integrity(&user_address);
 assert!(is_valid);
@@ -126,12 +131,14 @@ assert!(is_valid);
 ### Storage Keys
 
 Participant data uses tuple keys for efficient storage:
+
 - Format: `(Address,)`
 - Example: `(user_address,)`
 
 ### Storage Type
 
 Uses **instance storage** for participant data:
+
 - Persistent across contract invocations
 - Efficient key-value access
 - Type-safe serialization
@@ -199,6 +206,7 @@ All 76 tests pass successfully.
 ### Access Control
 
 All mutation operations require authentication:
+
 ```rust
 address.require_auth();
 ```
@@ -253,24 +261,29 @@ let backup_data = client.export_participant(&user);
 ## Acceptance Criteria Status
 
 ✅ **Participant data persists across calls**
+
 - Implemented with instance storage
 - Verified with comprehensive tests
 
 ✅ **Statistics update correctly**
+
 - Integrated with stats system
 - Maintains consistency
 
 ✅ **No data corruption**
+
 - Type-safe serialization
 - Validated storage operations
 - Integrity verification functions
 
 ✅ **Migration helpers added**
+
 - Export/import functions
 - Batch update operations
 - Data integrity verification
 
 ✅ **CI checks pass**
+
 - All 76 tests passing
 - Build succeeds without errors
 - WASM compilation successful
@@ -278,6 +291,7 @@ let backup_data = client.export_participant(&user);
 ## Conclusion
 
 The Participant serialization implementation provides:
+
 - Robust data persistence
 - Comprehensive migration tools
 - Type-safe storage operations

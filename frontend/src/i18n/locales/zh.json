@@ -1,35 +1,35 @@
 {
-  "common": {
-    "loading": "加载中...",
-    "error": "错误",
-    "success": "成功",
-    "cancel": "取消",
-    "confirm": "确认",
-    "save": "保存",
-    "delete": "删除",
-    "edit": "编辑",
-    "close": "关闭",
-    "search": "搜索",
-    "filter": "筛选",
-    "export": "导出",
-    "submit": "提交",
-    "back": "返回",
-    "noData": "暂无数据"
-  },
-  "nav": {
-    "dashboard": "仪表板",
-    "settings": "设置",
-    "profile": "个人资料"
-  },
-  "errors": {
-    "network": "网络错误",
-    "unauthorized": "未授权访问",
-    "notFound": "资源未找到",
-    "unknown": "发生未知错误",
-    "walletNotFound": "未找到钱包，请安装 Freighter。"
-  },
-  "settings": {
-    "language": "语言",
-    "theme": "主题"
-  }
+    "common": {
+        "loading": "加载中...",
+        "error": "错误",
+        "success": "成功",
+        "cancel": "取消",
+        "confirm": "确认",
+        "save": "保存",
+        "delete": "删除",
+        "edit": "编辑",
+        "close": "关闭",
+        "search": "搜索",
+        "filter": "筛选",
+        "export": "导出",
+        "submit": "提交",
+        "back": "返回",
+        "noData": "暂无数据"
+    },
+    "nav": {
+        "dashboard": "仪表板",
+        "settings": "设置",
+        "profile": "个人资料"
+    },
+    "errors": {
+        "network": "网络错误",
+        "unauthorized": "未授权访问",
+        "notFound": "资源未找到",
+        "unknown": "发生未知错误",
+        "walletNotFound": "未找到钱包，请安装 Freighter。"
+    },
+    "settings": {
+        "language": "语言",
+        "theme": "主题"
+    }
 }

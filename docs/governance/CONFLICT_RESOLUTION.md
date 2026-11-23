@@ -62,11 +62,11 @@ Violations of the [Contributor Covenant](https://www.contributor-covenant.org/) 
 
 ### Enforcement ladder
 
-| Severity | Response |
-|----------|----------|
-| Minor first offence | Private written warning |
+| Severity                                          | Response                   |
+| ------------------------------------------------- | -------------------------- |
+| Minor first offence                               | Private written warning    |
 | Repeated minor offence or single moderate offence | Temporary ban (14–30 days) |
-| Severe offence | Permanent ban |
+| Severe offence                                    | Permanent ban              |
 
 All enforcement decisions are made by maintainer consensus (minimum 2 maintainers) and are documented in a private log. The reporter will receive a response within 72 hours.
 

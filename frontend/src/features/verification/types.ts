@@ -5,12 +5,7 @@ export type SortDirection = 'asc' | 'desc'
 
 export type VerificationDecision = 'approved' | 'rejected'
 
-export type TimelineEventType =
-  | 'submitted'
-  | 'transfer'
-  | 'verified'
-  | 'confirmed'
-  | 'deactivated'
+export type TimelineEventType = 'submitted' | 'transfer' | 'verified' | 'confirmed' | 'deactivated'
 
 export interface VerificationFormData {
   grade: QualityGrade

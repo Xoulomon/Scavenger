@@ -21,5 +21,5 @@ export {
   dismissNotifications,
   type MockParticipant,
   type MockWaste,
-  type SeedApiOptions,
-} from '../test-utils';
+  type SeedApiOptions
+} from '../test-utils'

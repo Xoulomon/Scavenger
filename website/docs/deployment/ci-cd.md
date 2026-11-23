@@ -10,10 +10,10 @@ The documentation website is automatically built and deployed via GitHub Actions
 
 ## Deployment Targets
 
-| Environment | Trigger | URL |
-|-------------|---------|-----|
-| Preview | PR opened/updated | PR comment with preview URL |
-| Production | Push to `main` | https://docs.scavngr.io |
+| Environment | Trigger           | URL                         |
+| ----------- | ----------------- | --------------------------- |
+| Preview     | PR opened/updated | PR comment with preview URL |
+| Production  | Push to `main`    | https://docs.scavngr.io     |
 
 ## Pipeline Steps
 

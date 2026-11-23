@@ -10,7 +10,7 @@ describe('Select', () => {
   const testOptions = [
     { value: 'option1', label: 'Option 1' },
     { value: 'option2', label: 'Option 2' },
-    { value: 'option3', label: 'Option 3' },
+    { value: 'option3', label: 'Option 3' }
   ]
 
   describe('Rendering', () => {
@@ -89,12 +89,7 @@ describe('Select', () => {
 
     it('renders empty state with no options', () => {
       render(
-        <Select
-          options={[]}
-          placeholder="No options"
-          value={undefined}
-          onValueChange={vi.fn()}
-        />
+        <Select options={[]} placeholder="No options" value={undefined} onValueChange={vi.fn()} />
       )
       expect(screen.getByText('No options')).toBeInTheDocument()
     })
@@ -103,7 +98,7 @@ describe('Select', () => {
       const user = userEvent.setup()
       const groupedOptions = [
         { label: 'Group 1', options: [{ value: 'g1-o1', label: 'Group 1 Option 1' }] },
-        { label: 'Group 2', options: [{ value: 'g2-o1', label: 'Group 2 Option 1' }] },
+        { label: 'Group 2', options: [{ value: 'g2-o1', label: 'Group 2 Option 1' }] }
       ]
 
       render(
@@ -260,7 +255,7 @@ describe('Select', () => {
       )
 
       const trigger = screen.getByRole('combobox')
-      
+
       // Disabled select shouldn't be clickable
       expect(trigger).toBeDisabled()
     })
@@ -464,7 +459,7 @@ describe('Select', () => {
     it('reflects option changes', () => {
       const newOptions = [
         { value: 'new1', label: 'New Option 1' },
-        { value: 'new2', label: 'New Option 2' },
+        { value: 'new2', label: 'New Option 2' }
       ]
 
       const { rerender } = render(
@@ -519,7 +514,7 @@ describe('Select', () => {
     it('handles very long option labels', async () => {
       const user = userEvent.setup()
       const longLabelOptions = [
-        { value: '1', label: 'This is a very long option label that might wrap to multiple lines' },
+        { value: '1', label: 'This is a very long option label that might wrap to multiple lines' }
       ]
 
       render(
@@ -543,7 +538,7 @@ describe('Select', () => {
       const user = userEvent.setup()
       const specialOptions = [
         { value: '1', label: 'Option & Special <Characters>' },
-        { value: '2', label: 'Option "Quoted"' },
+        { value: '2', label: 'Option "Quoted"' }
       ]
 
       render(
@@ -588,7 +583,7 @@ describe('Select', () => {
       const user = userEvent.setup()
       const manyOptions = Array.from({ length: 100 }, (_, i) => ({
         value: `option${i}`,
-        label: `Option ${i}`,
+        label: `Option ${i}`
       }))
 
       render(

@@ -1,13 +1,13 @@
-import { Leaf, TrendingUp } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../ui/Card';
+import { Leaf, TrendingUp } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '../../ui/Card'
 
 export function CarbonImpactCard() {
   const carbonData = {
     totalOffset: 2450,
     monthlyGrowth: 12.5,
     treesEquivalent: 112,
-    co2Reduced: 3.2,
-  };
+    co2Reduced: 3.2
+  }
 
   return (
     <Card>
@@ -23,9 +23,7 @@ export function CarbonImpactCard() {
             <p className="text-4xl font-bold text-green-600 dark:text-green-400">
               {carbonData.totalOffset.toLocaleString()}
             </p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Total Carbon Credits Earned
-            </p>
+            <p className="text-sm text-muted-foreground mt-1">Total Carbon Credits Earned</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -50,5 +48,5 @@ export function CarbonImpactCard() {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

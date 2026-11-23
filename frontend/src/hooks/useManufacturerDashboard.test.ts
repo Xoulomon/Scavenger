@@ -8,19 +8,19 @@ const mockWallet = { address: 'G1234567890ABCDEF' }
 const mockConfig = {
   contractId: 'CTEST123',
   rpcUrl: 'https://soroban-testnet.stellar.org',
-  network: 'TESTNET' as const,
+  network: 'TESTNET' as const
 }
 
 vi.mock('@/context/WalletContext', () => ({
-  useWallet: () => mockWallet,
+  useWallet: () => mockWallet
 }))
 
 vi.mock('@/context/ContractContext', () => ({
-  useContract: () => ({ config: mockConfig }),
+  useContract: () => ({ config: mockConfig })
 }))
 
 vi.mock('@/lib/stellar', () => ({
-  getNetworkPassphrase: () => 'Test SDF Network ; September 2015',
+  getNetworkPassphrase: () => 'Test SDF Network ; September 2015'
 }))
 
 // ── Centralised ScavengerClient mock (#1546) ──────────────────────────────────
@@ -41,9 +41,9 @@ vi.mock('@/api/client', () => ({
       getMaterial: mockGetMaterial,
       getStats: mockGetStats,
       createIncentive: mockCreateIncentive,
-      confirmWasteDetails: mockConfirmWasteDetails,
+      confirmWasteDetails: mockConfirmWasteDetails
     })
-  ),
+  )
 }))
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -72,7 +72,7 @@ describe('useManufacturerDashboard', () => {
       id: 1n,
       waste_type: 'Paper',
       reward_points: 100n,
-      budget: 1000n,
+      budget: 1000n
     }
 
     mockGetActiveMfrIncentive.mockResolvedValue(mockIncentive)
@@ -105,7 +105,7 @@ describe('useManufacturerDashboard', () => {
   })
 
   it('should not fetch data when wallet address is missing', () => {
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- simulate invalid input / loose args in test
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- simulate invalid input / loose args in test
     mockWallet.address = undefined as any
     mockGetStats.mockResolvedValue({ total_earned: 0n })
 
@@ -126,11 +126,17 @@ describe('useManufacturerDashboard', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
     await act(async () => {
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- simulate invalid input / loose args in test
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- simulate invalid input / loose args in test
       await result.current.createIncentive(1 as any, 100n, 1000n)
     })
 
-    expect(mockCreateIncentive).toHaveBeenCalledWith(mockWallet.address, 1, 100n, 1000n, mockWallet.address)
+    expect(mockCreateIncentive).toHaveBeenCalledWith(
+      mockWallet.address,
+      1,
+      100n,
+      1000n,
+      mockWallet.address
+    )
   })
 
   it('should call confirmWaste with correct parameters', async () => {
@@ -148,7 +154,11 @@ describe('useManufacturerDashboard', () => {
       await result.current.confirmWaste(123)
     })
 
-    expect(mockConfirmWasteDetails).toHaveBeenCalledWith(123n, mockWallet.address, mockWallet.address)
+    expect(mockConfirmWasteDetails).toHaveBeenCalledWith(
+      123n,
+      mockWallet.address,
+      mockWallet.address
+    )
   })
 
   it('should track reward history', async () => {

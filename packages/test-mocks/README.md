@@ -25,33 +25,31 @@ npm install --save-dev @scavenger/test-mocks
 import {
   createGetEventsResponse,
   createGetLedgerResponse,
-  createSimulateTransactionResponse,
-} from '@scavenger/test-mocks';
+  createSimulateTransactionResponse
+} from '@scavenger/test-mocks'
 
 // Create a default response
-const eventsResponse = createGetEventsResponse();
+const eventsResponse = createGetEventsResponse()
 
 // Create a response with custom ledger
 const customResponse = createGetEventsResponse({
   ledger: 75000,
-  timestamp: new Date('2024-02-01T00:00:00Z'),
-});
+  timestamp: new Date('2024-02-01T00:00:00Z')
+})
 ```
 
 ### MSW Handler Setup
 
 ```typescript
-import { setupServer } from 'msw/node';
-import { createStellarRpcHandlers } from '@scavenger/test-mocks';
+import { setupServer } from 'msw/node'
+import { createStellarRpcHandlers } from '@scavenger/test-mocks'
 
 // In your test setup file
-export const server = setupServer(
-  ...createStellarRpcHandlers('http://localhost:8000')
-);
+export const server = setupServer(...createStellarRpcHandlers('http://localhost:8000'))
 
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
+beforeAll(() => server.listen())
+afterEach(() => server.resetHandlers())
+afterAll(() => server.close())
 ```
 
 ### Using Recorded Fixtures
@@ -62,23 +60,18 @@ import {
   createParticipantRegisteredEvent,
   createWasteTransferredEvent,
   createTokensRewardedEvent,
-  createEventsBatchResponse,
-} from '@scavenger/test-mocks';
+  createEventsBatchResponse
+} from '@scavenger/test-mocks'
 
 // Create individual event fixtures
-const wasteEvent = createWasteRegisteredEvent();
-const participantEvent = createParticipantRegisteredEvent();
+const wasteEvent = createWasteRegisteredEvent()
+const participantEvent = createParticipantRegisteredEvent()
 
 // Create a batch with multiple event types
 const batchResponse = createEventsBatchResponse(
-  [
-    'waste_registered',
-    'participant_registered',
-    'waste_transferred',
-    'tokens_rewarded',
-  ],
+  ['waste_registered', 'participant_registered', 'waste_transferred', 'tokens_rewarded'],
   { ledger: 50000 }
-);
+)
 ```
 
 ### Overriding Response Data
@@ -86,13 +79,13 @@ const batchResponse = createEventsBatchResponse(
 ```typescript
 const customEvent = createWasteRegisteredEvent({
   contractId: 'CUSTOM_CONTRACT_ID',
-  topic: ['custom_event', 'custom_id'],
-});
+  topic: ['custom_event', 'custom_id']
+})
 
 const customBatch = createSimulateTransactionResponse({
   cpuInsn: '5000',
-  memByte: '10000',
-});
+  memByte: '10000'
+})
 ```
 
 ## API Reference
@@ -104,6 +97,7 @@ const customBatch = createSimulateTransactionResponse({
 Creates a mock `getEvents` RPC response.
 
 **Options:**
+
 - `ledger?: number` — Ledger sequence (default: 50000)
 - `timestamp?: string | number` — ISO timestamp (default: 2024-01-15T12:00:00Z)
 - `contractId?: string` — Contract ID (default: well-known test contract)
@@ -118,6 +112,7 @@ Creates a mock `getLedger` RPC response.
 Creates a mock `simulateTransaction` RPC response.
 
 **Additional Options:**
+
 - `cpuInsn?: string` — CPU instructions (default: "1000")
 - `memByte?: string` — Memory bytes (default: "2000")
 
@@ -144,6 +139,7 @@ Pre-configured token reward event.
 Creates a batch response with specified event types.
 
 **Parameters:**
+
 - `eventTypes?: string[]` — Array of event type names
 - `options?: RpcResponseFactoryOptions` — Response options
 
@@ -154,6 +150,7 @@ Creates a batch response with specified event types.
 Creates a complete set of Stellar RPC mock handlers for MSW.
 
 **Parameters:**
+
 - `baseUrl?: string` — RPC server base URL (default: "http://localhost:8000")
 - `options?: RpcResponseFactoryOptions` — Response options
 
@@ -166,6 +163,7 @@ npm run record
 ```
 
 This script connects to Stellar testnet and records actual RPC responses for:
+
 - `getEvents` — Contract event fetching
 - `getLedger` — Ledger information retrieval
 - `simulateTransaction` — Transaction simulation
@@ -203,18 +201,18 @@ test('displays waste events', async () => {
 ### Indexer Test
 
 ```typescript
-import { createGetEventsResponse } from '@scavenger/test-mocks';
+import { createGetEventsResponse } from '@scavenger/test-mocks'
 
 test('processes waste events', async () => {
   const mockResponse = createGetEventsResponse({
-    eventCount: 5,
-  });
+    eventCount: 5
+  })
 
-  const { events } = mockResponse;
-  const result = await processEvents(events);
+  const { events } = mockResponse
+  const result = await processEvents(events)
 
-  expect(result.processed).toBe(5);
-});
+  expect(result.processed).toBe(5)
+})
 ```
 
 ## Contributing

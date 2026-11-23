@@ -7,42 +7,49 @@ Security testing validates contract resilience against common vulnerabilities, u
 ## Test Scenarios
 
 ### 1. Unauthorized Admin Operations
+
 - **Vulnerability**: Privilege escalation
 - **Test**: Non-admin attempts to transfer admin rights
 - **Expected**: Operation fails with authorization error
 - **Mitigation**: Role-based access control
 
 ### 2. Reentrancy Protection
+
 - **Vulnerability**: Reentrancy attacks
 - **Test**: Sequential calls to state-modifying functions
 - **Expected**: All calls succeed without state corruption
 - **Mitigation**: Guard flags and atomic operations
 
 ### 3. Input Validation & Injection
+
 - **Vulnerability**: Buffer overflow, injection attacks
 - **Test**: Extreme coordinates (i32::MAX, i32::MIN)
 - **Expected**: Graceful handling without panics
 - **Mitigation**: Input bounds validation
 
 ### 4. Integer Overflow Protection
+
 - **Vulnerability**: Arithmetic overflow
 - **Test**: Maximum u128 weight submission
 - **Expected**: No overflow, proper handling
 - **Mitigation**: Checked arithmetic operations
 
 ### 5. Access Control - Waste Transfer
+
 - **Vulnerability**: Unauthorized state modification
 - **Test**: Non-owner attempts waste transfer
 - **Expected**: Transfer fails with access denied
 - **Mitigation**: Owner verification before transfer
 
 ### 6. State Consistency After Failures
+
 - **Vulnerability**: Partial state updates on failure
 - **Test**: Failed operation followed by state check
 - **Expected**: State unchanged after failure
 - **Mitigation**: Atomic transactions
 
 ### 7. Double Initialization Prevention
+
 - **Vulnerability**: Admin override
 - **Test**: Attempt to initialize contract twice
 - **Expected**: Second initialization fails
@@ -74,15 +81,15 @@ Security tests run on every push:
 
 ## Vulnerability Categories
 
-| Category | Test | Status |
-|----------|------|--------|
-| Authorization | Unauthorized Admin Operations | ✅ |
-| Reentrancy | Sequential Calls | ✅ |
-| Input Validation | Injection Attempts | ✅ |
-| Arithmetic | Overflow Protection | ✅ |
-| Access Control | Waste Transfer | ✅ |
-| State Management | Consistency | ✅ |
-| Initialization | Double Init | ✅ |
+| Category         | Test                          | Status |
+| ---------------- | ----------------------------- | ------ |
+| Authorization    | Unauthorized Admin Operations | ✅     |
+| Reentrancy       | Sequential Calls              | ✅     |
+| Input Validation | Injection Attempts            | ✅     |
+| Arithmetic       | Overflow Protection           | ✅     |
+| Access Control   | Waste Transfer                | ✅     |
+| State Management | Consistency                   | ✅     |
+| Initialization   | Double Init                   | ✅     |
 
 ## Security Best Practices
 

@@ -4,9 +4,8 @@ mod tests {
         codes,
         conversion::{from_validation_errors, from_validation_field},
         types::{
-            AnalyticsError, AppError, AuthError, ContractError, EmailError, ErrorCategory,
-            ExportError, NotificationError, SerializationError, StorageError, ValidationError,
-            WebhookError,
+            AnalyticsError, AppError, AuthError, ContractError, EmailError, ErrorCategory, ExportError,
+            NotificationError, SerializationError, StorageError, ValidationError, WebhookError,
         },
     };
 

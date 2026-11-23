@@ -1,6 +1,6 @@
 /**
  * Core Web Vitals and Performance Monitoring
- * 
+ *
  * Tracks and reports:
  * - Largest Contentful Paint (LCP)
  * - First Input Delay (FID) / Interaction to Next Paint (INP)
@@ -34,7 +34,7 @@ const THRESHOLDS = {
   inp: { good: 200, poor: 500 },
   cls: { good: 0.1, poor: 0.25 },
   fcp: { good: 1800, poor: 3000 },
-  ttfb: { good: 600, poor: 1800 },
+  ttfb: { good: 600, poor: 1800 }
 }
 
 function getRating(
@@ -50,10 +50,7 @@ function getRating(
 /**
  * Initialize Web Vitals monitoring
  */
-export function initWebVitals(
-  onMetric?: (metric: WebVital) => void,
-  debug = false
-): () => void {
+export function initWebVitals(onMetric?: (metric: WebVital) => void, debug = false): () => void {
   const metrics: PerformanceMetrics = {}
 
   // Use native Web Vitals if available
@@ -68,7 +65,7 @@ export function initWebVitals(
           name: 'LCP',
           value: e.renderTime || e.loadTime,
           rating: getRating(e.renderTime || e.loadTime, 'lcp'),
-          id: e.id,
+          id: e.id
         }
         metrics.lcp = lcp
         onMetric?.(lcp)
@@ -91,7 +88,7 @@ export function initWebVitals(
         const cls: WebVital = {
           name: 'CLS',
           value: clsValue,
-          rating: getRating(clsValue, 'cls'),
+          rating: getRating(clsValue, 'cls')
         }
         metrics.cls = cls
         onMetric?.(cls)
@@ -110,7 +107,7 @@ export function initWebVitals(
           const fcp: WebVital = {
             name: 'FCP',
             value: fcpEntry.startTime,
-            rating: getRating(fcpEntry.startTime, 'fcp'),
+            rating: getRating(fcpEntry.startTime, 'fcp')
           }
           metrics.fcp = fcp
           onMetric?.(fcp)
@@ -135,7 +132,7 @@ export function initWebVitals(
           const inp: WebVital = {
             name: 'INP',
             value: maxINP,
-            rating: getRating(maxINP, 'inp'),
+            rating: getRating(maxINP, 'inp')
           }
           metrics.inp = inp
           onMetric?.(inp)
@@ -161,7 +158,7 @@ export function initWebVitals(
       const ttfbMetric: WebVital = {
         name: 'TTFB',
         value: ttfb,
-        rating: getRating(ttfb, 'ttfb'),
+        rating: getRating(ttfb, 'ttfb')
       }
       metrics.ttfb = ttfbMetric
       onMetric?.(ttfbMetric)
@@ -190,7 +187,7 @@ export function sendMetricsToAnalytics(metrics: PerformanceMetrics): void {
       event: 'web_vitals',
       metrics: metricsToSend,
       timestamp: new Date().toISOString(),
-      url: window.location.href,
+      url: window.location.href
     })
 
     navigator.sendBeacon('/api/metrics', data)
@@ -202,16 +199,17 @@ export function sendMetricsToAnalytics(metrics: PerformanceMetrics): void {
  */
 export function getMetrics(): PerformanceMetrics {
   return {
-    ...performance.timing,
+    ...performance.timing
   } as PerformanceMetrics
 }
 
 /**
  * Check if metrics meet performance budgets
  */
-export function validatePerformanceBudgets(
-  metrics: PerformanceMetrics
-): { passed: boolean; violations: string[] } {
+export function validatePerformanceBudgets(metrics: PerformanceMetrics): {
+  passed: boolean
+  violations: string[]
+} {
   const violations: string[] = []
 
   // LCP budget: 2.5s
@@ -244,7 +242,7 @@ export function validatePerformanceBudgets(
 
   return {
     passed: violations.length === 0,
-    violations,
+    violations
   }
 }
 

@@ -4,7 +4,7 @@ import {
   TransactionError,
   SigningError,
   NetworkError,
-  TimeoutError,
+  TimeoutError
 } from '../src/errors'
 
 describe('ContractError', () => {

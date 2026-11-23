@@ -78,7 +78,7 @@ describe('StatusBadge', () => {
     it('applies custom variant mapping', () => {
       const customMap = {
         active: 'destructive' as const,
-        passed: 'default' as const,
+        passed: 'default' as const
       }
       render(<StatusBadge status="active" variantMap={customMap} />)
       expect(screen.getByText('active')).toBeInTheDocument()
@@ -86,7 +86,7 @@ describe('StatusBadge', () => {
 
     it('falls back to outline for unmapped custom status', () => {
       const customMap = {
-        active: 'default' as const,
+        active: 'default' as const
       }
       render(<StatusBadge status="unknown" variantMap={customMap} />)
       expect(screen.getByText('unknown')).toBeInTheDocument()

@@ -30,10 +30,11 @@ once.
 `remove_active_listing`) now happen before the token transfer.
 
 **Implementation Details:**
+
 - **Location:** `stellar-contract/src/lib.rs`, lines 3937–4017
 - **Effect Order (CEI):**
   1. **Checks** (lines 3941–3964): Validate listing exists, is active, seller ≠ buyer, token address set, compute prices
-  2. **Effects** (lines 3968–3997): 
+  2. **Effects** (lines 3968–3997):
      - Credit buyer's carbon_credits_earned (lines 3968–3975)
      - Mark listing.is_active = false (line 3987)
      - Persist listing to storage (lines 3989–3990)
@@ -64,6 +65,7 @@ bookkeeping) now happens immediately after the reward amounts are computed
 and before any `token_client.transfer` call in the loop.
 
 **Implementation Details:**
+
 - **Location:** `stellar-contract/src/lib.rs`, lines 5489–5572
 - **Effect Order (CEI):**
   1. **Checks** (lines 5493–5525): Validate material exists and verified, incentive exists and active, compute base reward with multiplier, check budget sufficiency
@@ -85,6 +87,7 @@ and before any `token_client.transfer` call in the loop.
 ## Regression coverage
 
 See `stellar-contract/tests/cei_reentrancy_test.rs`, enhanced with real assertions for:
+
 1. State ordering for `purchase_carbon_listing` (6 test cases)
 2. State ordering for `distribute_reward` (6 test cases)
 3. Robustness tests confirming state persists even if transfers fail

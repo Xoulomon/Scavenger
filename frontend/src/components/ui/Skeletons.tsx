@@ -21,12 +21,24 @@ export function StatCardSkeleton() {
 export function WasteCardSkeleton() {
   return (
     <tr>
-      <td className="px-4 py-3"><Skeleton className="h-4 w-10" /></td>
-      <td className="px-4 py-3"><Skeleton className="h-4 w-20" /></td>
-      <td className="px-4 py-3"><Skeleton className="h-4 w-12" /></td>
-      <td className="px-4 py-3"><Skeleton className="h-5 w-16 rounded-full" /></td>
-      <td className="px-4 py-3"><Skeleton className="h-4 w-24" /></td>
-      <td className="px-4 py-3 text-right"><Skeleton className="ml-auto h-7 w-20" /></td>
+      <td className="px-4 py-3">
+        <Skeleton className="h-4 w-10" />
+      </td>
+      <td className="px-4 py-3">
+        <Skeleton className="h-4 w-20" />
+      </td>
+      <td className="px-4 py-3">
+        <Skeleton className="h-4 w-12" />
+      </td>
+      <td className="px-4 py-3">
+        <Skeleton className="h-5 w-16 rounded-full" />
+      </td>
+      <td className="px-4 py-3">
+        <Skeleton className="h-4 w-24" />
+      </td>
+      <td className="px-4 py-3 text-right">
+        <Skeleton className="ml-auto h-7 w-20" />
+      </td>
     </tr>
   )
 }
@@ -35,10 +47,18 @@ export function WasteCardSkeleton() {
 export function IncentiveCardSkeleton() {
   return (
     <tr>
-      <td className="py-2 pr-4"><Skeleton className="h-4 w-8" /></td>
-      <td className="py-2 pr-4"><Skeleton className="h-4 w-24" /></td>
-      <td className="py-2 pr-4"><Skeleton className="h-4 w-12" /></td>
-      <td className="py-2 pr-4"><Skeleton className="h-5 w-16 rounded-full" /></td>
+      <td className="py-2 pr-4">
+        <Skeleton className="h-4 w-8" />
+      </td>
+      <td className="py-2 pr-4">
+        <Skeleton className="h-4 w-24" />
+      </td>
+      <td className="py-2 pr-4">
+        <Skeleton className="h-4 w-12" />
+      </td>
+      <td className="py-2 pr-4">
+        <Skeleton className="h-5 w-16 rounded-full" />
+      </td>
     </tr>
   )
 }

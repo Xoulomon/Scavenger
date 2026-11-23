@@ -32,7 +32,7 @@ const WASTE_TYPE_LABEL_KEYS: Record<WasteType, string> = {
   [WasteType.Metal]: 'wasteTypes.metal',
   [WasteType.Glass]: 'wasteTypes.glass',
   [WasteType.Organic]: 'wasteTypes.organic',
-  [WasteType.Electronic]: 'wasteTypes.electronic',
+  [WasteType.Electronic]: 'wasteTypes.electronic'
 }
 
 // ── Distribute Rewards Dialog ─────────────────────────────────────────────────
@@ -76,14 +76,17 @@ function DistributeRewardsDialog({
         action={t('manufacturerDashboard.distributeRewards')}
         params={[
           { label: t('manufacturerDashboard.wasteId'), value: `#${waste.id}` },
-          { label: t('manufacturerDashboard.type'), value: t(WASTE_TYPE_LABEL_KEYS[waste.waste_type]) },
+          {
+            label: t('manufacturerDashboard.type'),
+            value: t(WASTE_TYPE_LABEL_KEYS[waste.waste_type])
+          },
           { label: t('manufacturerDashboard.incentive'), value: `#${selectedIncentiveId}` },
           {
             label: t('manufacturerDashboard.estTotal'),
             value: t('manufacturerDashboard.tokensEstimate', {
               amount: estimatedTotal.toLocaleString()
             })
-          },
+          }
         ]}
         isPending={distribute.isPending}
         onConfirm={handleDistribute}
@@ -161,7 +164,9 @@ function DistributeRewardsDialog({
           </Button>
           <Button
             onClick={() => setShowConfirm(true)}
-            disabled={distribute.isPending || !selectedIncentiveId || matchingIncentives.length === 0}
+            disabled={
+              distribute.isPending || !selectedIncentiveId || matchingIncentives.length === 0
+            }
           >
             {t('manufacturerDashboard.distribute')}
           </Button>
@@ -320,7 +325,9 @@ export function ManufacturerDashboardPage() {
           <Card>
             <CardHeader className="flex flex-row items-center gap-2 pb-3">
               <Zap className="h-5 w-5 text-primary" />
-              <CardTitle className="text-base">{t('manufacturerDashboard.activeIncentives')}</CardTitle>
+              <CardTitle className="text-base">
+                {t('manufacturerDashboard.activeIncentives')}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               {incentives.length === 0 ? (
@@ -489,17 +496,21 @@ export function ManufacturerDashboardPage() {
       <TransactionConfirmDialog
         open={!!confirmTarget}
         action={t('manufacturerDashboard.confirmWaste')}
-        params={confirmTarget ? [
-          { label: t('manufacturerDashboard.wasteId'), value: `#${confirmTarget.id}` },
-          {
-            label: t('manufacturerDashboard.type'),
-            value: t(WASTE_TYPE_LABEL_KEYS[confirmTarget.waste_type])
-          },
-          {
-            label: t('manufacturerDashboard.weight'),
-            value: t('manufacturerDashboard.weightKg', { weight: confirmTarget.weight })
-          },
-        ] : []}
+        params={
+          confirmTarget
+            ? [
+                { label: t('manufacturerDashboard.wasteId'), value: `#${confirmTarget.id}` },
+                {
+                  label: t('manufacturerDashboard.type'),
+                  value: t(WASTE_TYPE_LABEL_KEYS[confirmTarget.waste_type])
+                },
+                {
+                  label: t('manufacturerDashboard.weight'),
+                  value: t('manufacturerDashboard.weightKg', { weight: confirmTarget.weight })
+                }
+              ]
+            : []
+        }
         isPending={false}
         onConfirm={() => {
           if (confirmTarget) {
@@ -526,7 +537,7 @@ export function ManufacturerDashboardPage() {
           {
             label: t('manufacturerDashboard.totalBudget'),
             value: t('manufacturerDashboard.tokensValue', { amount: form.budget })
-          },
+          }
         ]}
         isPending={submitting}
         onConfirm={handleCreate}

@@ -1,6 +1,6 @@
 import { ArrowRight, ImageIcon } from 'lucide-react'
 
-import { formatAddress,wasteTypeLabel } from '@/lib/helpers'
+import { formatAddress, wasteTypeLabel } from '@/lib/helpers'
 
 import { formatWasteWeight } from '../format'
 import type { TransferFormData } from '../types'
@@ -9,7 +9,7 @@ import { SignaturePad } from './SignaturePad'
 export function ReviewStep({
   form,
   senderAddress,
-  onConfirmChange,
+  onConfirmChange
 }: {
   form: TransferFormData
   senderAddress: string
@@ -38,15 +38,11 @@ export function ReviewStep({
           </div>
           <div>
             <span className="text-muted-foreground">Weight</span>
-            <p className="font-medium">
-              {form.waste ? formatWasteWeight(form.waste.weight) : '-'}
-            </p>
+            <p className="font-medium">{form.waste ? formatWasteWeight(form.waste.weight) : '-'}</p>
           </div>
           <div>
             <span className="text-muted-foreground">Status</span>
-            <p className="font-medium">
-              {form.waste?.is_confirmed ? 'Confirmed' : 'Unconfirmed'}
-            </p>
+            <p className="font-medium">{form.waste?.is_confirmed ? 'Confirmed' : 'Unconfirmed'}</p>
           </div>
         </div>
 
@@ -111,8 +107,8 @@ export function ReviewStep({
           aria-label="Confirm transfer details are correct"
         />
         <label htmlFor="confirm-checkbox" className="text-sm">
-          I confirm that all transfer details are correct and I authorize this material transfer
-          to the specified recipient.
+          I confirm that all transfer details are correct and I authorize this material transfer to
+          the specified recipient.
         </label>
       </div>
     </div>

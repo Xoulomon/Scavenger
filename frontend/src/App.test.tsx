@@ -5,10 +5,10 @@ import { App } from './App'
 // Mock router to avoid actual navigation
 vi.mock('@/router', () => ({
   router: {
-    subscribe: vi.fn(() => (() => {})),
+    subscribe: vi.fn(() => () => {}),
     state: { location: '/' },
-    navigate: vi.fn(),
-  },
+    navigate: vi.fn()
+  }
 }))
 
 // Mock AuthContext to provide a valid context
@@ -18,9 +18,9 @@ vi.mock('@/context/AuthContext', () => ({
     isLoading: false,
     user: { id: 'test-user' },
     login: vi.fn(),
-    logout: vi.fn(),
+    logout: vi.fn()
   }),
-  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children
 }))
 
 describe('App', () => {

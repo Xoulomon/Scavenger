@@ -12,7 +12,7 @@ function useAdminClient() {
     new ScavengerClient({
       rpcUrl: config.rpcUrl,
       networkPassphrase: networkConfig.networkPassphrase,
-      contractId: config.contractId,
+      contractId: config.contractId
     })
 }
 
@@ -21,7 +21,7 @@ export function useAdminMetrics() {
   return useQuery<GlobalMetrics>({
     queryKey: cacheKeys.adminMetrics(),
     queryFn: async () => makeClient().getMetrics(),
-    staleTime: 30_000,
+    staleTime: 30_000
   })
 }
 
@@ -30,7 +30,7 @@ export function useAdminIncentives() {
   return useQuery<Incentive[]>({
     queryKey: cacheKeys.adminIncentives(),
     queryFn: async () => makeClient().getActiveIncentives(),
-    staleTime: 30_000,
+    staleTime: 30_000
   })
 }
 
@@ -39,7 +39,7 @@ export function useAdminWasteLookup(wasteId: bigint | null) {
   return useQuery({
     queryKey: cacheKeys.adminWaste(wasteId?.toString()),
     queryFn: async () => makeClient().getWaste(wasteId!),
-    enabled: wasteId !== null,
+    enabled: wasteId !== null
   })
 }
 
@@ -59,25 +59,16 @@ export function useAdminDashboardSelectors() {
   const metrics = metricsQuery.data
   const incentives = incentivesQuery.data
 
-  const totalIncentives = useMemo(
-    () => (incentives ? incentives.length : 0),
-    [incentives],
-  )
+  const totalIncentives = useMemo(() => (incentives ? incentives.length : 0), [incentives])
 
   const activeIncentiveIds = useMemo(
     () => (incentives ? incentives.map((incentive) => incentive.id) : []),
-    [incentives],
+    [incentives]
   )
 
-  const totalWasteProcessed = useMemo(
-    () => metrics?.totalWasteProcessed ?? 0,
-    [metrics],
-  )
+  const totalWasteProcessed = useMemo(() => metrics?.totalWasteProcessed ?? 0, [metrics])
 
-  const totalTokensEarned = useMemo(
-    () => metrics?.totalTokensEarned ?? 0,
-    [metrics],
-  )
+  const totalTokensEarned = useMemo(() => metrics?.totalTokensEarned ?? 0, [metrics])
 
   const isLoading = metricsQuery.isLoading || incentivesQuery.isLoading
   const isError = metricsQuery.isError || incentivesQuery.isError
@@ -91,7 +82,7 @@ export function useAdminDashboardSelectors() {
       totalWasteProcessed,
       totalTokensEarned,
       isLoading,
-      isError,
+      isError
     }),
     [
       metrics,
@@ -101,7 +92,7 @@ export function useAdminDashboardSelectors() {
       totalWasteProcessed,
       totalTokensEarned,
       isLoading,
-      isError,
-    ],
+      isError
+    ]
   )
 }

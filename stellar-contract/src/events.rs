@@ -49,18 +49,11 @@ pub fn emit_waste_registered(
 
 /// Emitted when a v1 waste item is transferred (u64 waste ID).
 pub fn emit_waste_transferred(env: &Env, waste_id: u64, from: &Address, to: &Address) {
-    env.events()
-        .publish((WASTE_TRANSFERRED, waste_id), (from, to));
+    env.events().publish((WASTE_TRANSFERRED, waste_id), (from, to));
 }
 
 /// Emitted when a v2 waste item is transferred (u128 waste ID, includes timestamp).
-pub fn emit_waste_transferred_v2(
-    env: &Env,
-    waste_id: u128,
-    from: &Address,
-    to: &Address,
-    timestamp: u64,
-) {
+pub fn emit_waste_transferred_v2(env: &Env, waste_id: u128, from: &Address, to: &Address, timestamp: u64) {
     env.events()
         .publish((WASTE_TRANSFERRED, waste_id), (from, to, timestamp));
 }
@@ -78,10 +71,8 @@ pub fn emit_waste_confirmation_reset(env: &Env, waste_id: u128, owner: &Address,
 
 /// Emitted when a waste item is permanently deactivated.
 pub fn emit_waste_deactivated(env: &Env, waste_id: u128, admin: &Address) {
-    env.events().publish(
-        (WASTE_DEACTIVATED, waste_id),
-        (admin, env.ledger().timestamp()),
-    );
+    env.events()
+        .publish((WASTE_DEACTIVATED, waste_id), (admin, env.ledger().timestamp()));
 }
 
 /// Emitted when a waste item expires and is cleaned up.
@@ -97,23 +88,13 @@ pub fn emit_waste_graded(env: &Env, waste_id: u128, grade: WasteGrade, grader: &
 }
 
 /// Emitted when a waste item is split into children.
-pub fn emit_waste_split(
-    env: &Env,
-    waste_id: u128,
-    owner: &Address,
-    child_ids: &soroban_sdk::Vec<u128>,
-) {
+pub fn emit_waste_split(env: &Env, waste_id: u128, owner: &Address, child_ids: &soroban_sdk::Vec<u128>) {
     env.events()
         .publish((symbol_short!("split"), waste_id), (owner, child_ids.len()));
 }
 
 /// Emitted when multiple waste items are merged.
-pub fn emit_wastes_merged(
-    env: &Env,
-    merged_id: u128,
-    owner: &Address,
-    source_ids: &soroban_sdk::Vec<u128>,
-) {
+pub fn emit_wastes_merged(env: &Env, merged_id: u128, owner: &Address, source_ids: &soroban_sdk::Vec<u128>) {
     env.events()
         .publish((symbol_short!("merged"), merged_id), (owner, source_ids.len()));
 }
@@ -126,8 +107,7 @@ pub fn emit_waste_reserved(env: &Env, waste_id: u128, reserver: &Address, until:
 
 /// Emitted when a waste reservation is cancelled.
 pub fn emit_reservation_cancelled(env: &Env, waste_id: u128, caller: &Address) {
-    env.events()
-        .publish((symbol_short!("res_canc"), waste_id), caller);
+    env.events().publish((symbol_short!("res_canc"), waste_id), caller);
 }
 
 /// Emitted when a waste item is marked contaminated.
@@ -137,13 +117,7 @@ pub fn emit_waste_contaminated(env: &Env, waste_id: u128, verifier: &Address, le
 }
 
 /// Emitted when a waste processing status changes.
-pub fn emit_processing_status_changed(
-    env: &Env,
-    waste_id: u128,
-    status: u32,
-    caller: &Address,
-    timestamp: u64,
-) {
+pub fn emit_processing_status_changed(env: &Env, waste_id: u128, status: u32, caller: &Address, timestamp: u64) {
     env.events()
         .publish((symbol_short!("proc_upd"), waste_id), (caller, status, timestamp));
 }
@@ -164,17 +138,9 @@ pub fn emit_bulk_transfer(
 }
 
 /// Emitted when an admin overrides a transfer.
-pub fn emit_admin_override_transfer(
-    env: &Env,
-    waste_id: u128,
-    admin: &Address,
-    from: &Address,
-    to: &Address,
-) {
-    env.events().publish(
-        (symbol_short!("adm_xfr"), waste_id),
-        (admin, from, to),
-    );
+pub fn emit_admin_override_transfer(env: &Env, waste_id: u128, admin: &Address, from: &Address, to: &Address) {
+    env.events()
+        .publish((symbol_short!("adm_xfr"), waste_id), (admin, from, to));
 }
 
 /// Emitted when waste composition is set.
@@ -201,12 +167,7 @@ pub fn emit_participant_registered(
 }
 
 /// Emitted when a participant updates their location.
-pub fn emit_participant_location_updated(
-    env: &Env,
-    address: &Address,
-    latitude: i128,
-    longitude: i128,
-) {
+pub fn emit_participant_location_updated(env: &Env, address: &Address, latitude: i128, longitude: i128) {
     env.events()
         .publish((symbol_short!("loc_upd"), address), (latitude, longitude));
 }
@@ -234,14 +195,12 @@ pub fn emit_participant_tier_changed(
 
 /// Emitted when tokens are rewarded to a participant.
 pub fn emit_tokens_rewarded(env: &Env, recipient: &Address, amount: u128, waste_id: u128) {
-    env.events()
-        .publish((TOKENS_REWARDED, recipient), (amount, waste_id));
+    env.events().publish((TOKENS_REWARDED, recipient), (amount, waste_id));
 }
 
 /// Emitted when a donation is made to charity.
 pub fn emit_donation_made(env: &Env, donor: &Address, amount: i128, charity_contract: &Address) {
-    env.events()
-        .publish((DONATION_MADE, donor), (amount, charity_contract));
+    env.events().publish((DONATION_MADE, donor), (amount, charity_contract));
 }
 
 // ── Admin events ─────────────────────────────────────────────────────────────
@@ -263,20 +222,17 @@ pub fn emit_contract_unpaused(env: &Env, admin: &Address) {
 
 /// Emitted when a multi-sig proposal is created.
 pub fn emit_proposal_created(env: &Env, proposal_id: u64, proposer: &Address) {
-    env.events()
-        .publish((symbol_short!("prop_new"), proposal_id), proposer);
+    env.events().publish((symbol_short!("prop_new"), proposal_id), proposer);
 }
 
 /// Emitted when a multi-sig proposal is approved.
 pub fn emit_proposal_approved(env: &Env, proposal_id: u64, approver: &Address) {
-    env.events()
-        .publish((symbol_short!("prop_apr"), proposal_id), approver);
+    env.events().publish((symbol_short!("prop_apr"), proposal_id), approver);
 }
 
 /// Emitted when a multi-sig proposal is executed.
 pub fn emit_proposal_executed(env: &Env, proposal_id: u64, executor: &Address) {
-    env.events()
-        .publish((symbol_short!("prop_exe"), proposal_id), executor);
+    env.events().publish((symbol_short!("prop_exe"), proposal_id), executor);
 }
 
 // ── Incentive events ──────────────────────────────────────────────────────────
@@ -303,8 +259,10 @@ pub fn emit_incentive_scheduled(
     starts_at: Option<u64>,
     ends_at: Option<u64>,
 ) {
-    env.events()
-        .publish((symbol_short!("inc_sched"), incentive_id), (rewarder, starts_at, ends_at));
+    env.events().publish(
+        (symbol_short!("inc_sched"), incentive_id),
+        (rewarder, starts_at, ends_at),
+    );
 }
 
 // ── Seasonal multiplier events ────────────────────────────────────────────────
@@ -330,32 +288,22 @@ pub fn emit_carbon_credits_earned(
 }
 
 /// Emitted when a participant redeems carbon credits.
-pub fn emit_carbon_credits_redeemed(
-    env: &Env,
-    participant: &Address,
-    amount: u128,
-    remaining: u128,
-) {
+pub fn emit_carbon_credits_redeemed(env: &Env, participant: &Address, amount: u128, remaining: u128) {
     env.events()
         .publish((symbol_short!("carb_rdm"), participant), (amount, remaining));
 }
 
 /// Emitted when a carbon credit listing is created.
-pub fn emit_carbon_listing_created(
-    env: &Env,
-    listing_id: u64,
-    seller: &Address,
-    amount: u128,
-    price_per_credit: i128,
-) {
-    env.events()
-        .publish((symbol_short!("carb_lst"), listing_id), (seller, amount, price_per_credit));
+pub fn emit_carbon_listing_created(env: &Env, listing_id: u64, seller: &Address, amount: u128, price_per_credit: i128) {
+    env.events().publish(
+        (symbol_short!("carb_lst"), listing_id),
+        (seller, amount, price_per_credit),
+    );
 }
 
 /// Emitted when a carbon credit listing is cancelled.
 pub fn emit_carbon_listing_cancelled(env: &Env, listing_id: u64, seller: &Address) {
-    env.events()
-        .publish((symbol_short!("carb_cnc"), listing_id), seller);
+    env.events().publish((symbol_short!("carb_cnc"), listing_id), seller);
 }
 
 /// Emitted when a carbon credit listing is purchased.
@@ -367,8 +315,10 @@ pub fn emit_carbon_listing_purchased(
     amount: u128,
     total_price: i128,
 ) {
-    env.events()
-        .publish((symbol_short!("carb_buy"), listing_id), (seller, buyer, amount, total_price));
+    env.events().publish(
+        (symbol_short!("carb_buy"), listing_id),
+        (seller, buyer, amount, total_price),
+    );
 }
 
 // ── Auction events ────────────────────────────────────────────────────────────
@@ -382,33 +332,27 @@ pub fn emit_auction_created(
     start_price: u128,
     end_time: u64,
 ) {
-    env.events()
-        .publish((AUCTION_CREATED, auction_id), (waste_id, creator, start_price, end_time));
+    env.events().publish(
+        (AUCTION_CREATED, auction_id),
+        (waste_id, creator, start_price, end_time),
+    );
 }
 
 /// Emitted when a bid is placed in an auction.
 pub fn emit_bid_placed(env: &Env, auction_id: u64, bidder: &Address, amount: u128) {
-    env.events()
-        .publish((BID_PLACED, auction_id), (bidder, amount));
+    env.events().publish((BID_PLACED, auction_id), (bidder, amount));
 }
 
 /// Emitted when an auction ends.
-pub fn emit_auction_ended(
-    env: &Env,
-    auction_id: u64,
-    winner: Option<&Address>,
-    final_price: u128,
-) {
-    env.events()
-        .publish((AUCTION_ENDED, auction_id), (winner, final_price));
+pub fn emit_auction_ended(env: &Env, auction_id: u64, winner: Option<&Address>, final_price: u128) {
+    env.events().publish((AUCTION_ENDED, auction_id), (winner, final_price));
 }
 
 // ── Bulk import events ────────────────────────────────────────────────────────
 
 /// Emitted when a bulk import operation completes.
 pub fn emit_bulk_import_completed(env: &Env, item_type: &str, count: u32) {
-    env.events()
-        .publish((BULK_IMPORT_COMPLETED,), (item_type, count));
+    env.events().publish((BULK_IMPORT_COMPLETED,), (item_type, count));
 }
 
 // ── Goal / milestone events ───────────────────────────────────────────────────
@@ -422,23 +366,13 @@ pub fn emit_goal_achieved(env: &Env, participant: &Address, target_weight: u128)
 // ── RBAC events (#704) ────────────────────────────────────────────────────────
 
 /// Emitted when a permission is granted.
-pub fn emit_permission_granted(
-    env: &Env,
-    subject: &Address,
-    permission: u32,
-    granted_by: &Address,
-) {
+pub fn emit_permission_granted(env: &Env, subject: &Address, permission: u32, granted_by: &Address) {
     env.events()
         .publish((symbol_short!("perm_gr"), subject), (permission, granted_by));
 }
 
 /// Emitted when a permission is revoked.
-pub fn emit_permission_revoked(
-    env: &Env,
-    subject: &Address,
-    permission: u32,
-    revoked_by: &Address,
-) {
+pub fn emit_permission_revoked(env: &Env, subject: &Address, permission: u32, revoked_by: &Address) {
     env.events()
         .publish((symbol_short!("perm_rv"), subject), (permission, revoked_by));
 }

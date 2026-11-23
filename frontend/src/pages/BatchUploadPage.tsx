@@ -1,6 +1,14 @@
 import { useState, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Upload, Download, CheckCircle2, XCircle, AlertCircle, FileText, Loader2 } from 'lucide-react'
+import {
+  Upload,
+  Download,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+  FileText,
+  Loader2
+} from 'lucide-react'
 import { useAppTitle } from '@/hooks/useAppTitle'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -26,7 +34,7 @@ const WASTE_TYPE_MAP: Record<string, WasteType> = {
   [WasteType.Metal]: WasteType.Metal,
   [WasteType.Glass]: WasteType.Glass,
   [WasteType.Organic]: WasteType.Organic,
-  [WasteType.Electronic]: WasteType.Electronic,
+  [WasteType.Electronic]: WasteType.Electronic
 }
 
 interface ParsedRow {
@@ -68,7 +76,15 @@ function parseCSV(text: string, t: TranslateFn): ParsedRow[] {
     const lon = parseFloat(longitude)
     if (isNaN(lon) || lon < -180 || lon > 180) errors.push(t('batchUpload.errors.invalidLongitude'))
 
-    return { rowIndex: idx + 2, waste_type, weight, latitude, longitude, errors, valid: errors.length === 0 }
+    return {
+      rowIndex: idx + 2,
+      waste_type,
+      weight,
+      latitude,
+      longitude,
+      errors,
+      valid: errors.length === 0
+    }
   })
 }
 
@@ -96,17 +112,20 @@ export function BatchUploadPage() {
   const validRows = rows.filter((r) => r.valid)
   const invalidRows = rows.filter((r) => !r.valid)
 
-  const handleFile = useCallback((file: File) => {
-    setFileName(file.name)
-    setStatus(SubmissionStatus.Idle)
-    setResults([])
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      const text = e.target?.result as string
-      setRows(parseCSV(text, t))
-    }
-    reader.readAsText(file)
-  }, [t])
+  const handleFile = useCallback(
+    (file: File) => {
+      setFileName(file.name)
+      setStatus(SubmissionStatus.Idle)
+      setResults([])
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const text = e.target?.result as string
+        setRows(parseCSV(text, t))
+      }
+      reader.readAsText(file)
+    },
+    [t]
+  )
 
   function onFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -129,7 +148,11 @@ export function BatchUploadPage() {
     for (let i = 0; i < validRows.length; i++) {
       // Simulated submission — replace with actual contract call
       await new Promise((r) => setTimeout(r, 200))
-      res.push({ rowIndex: validRows[i].rowIndex, success: true, message: t('batchUpload.results.submitted') })
+      res.push({
+        rowIndex: validRows[i].rowIndex,
+        success: true,
+        message: t('batchUpload.results.submitted')
+      })
       setProgress(Math.round(((i + 1) / validRows.length) * 100))
     }
 
@@ -156,20 +179,29 @@ export function BatchUploadPage() {
                 role="button"
                 tabIndex={0}
                 aria-label={t('batchUpload.dropZone.ariaLabel')}
-                onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+                onDragOver={(e) => {
+                  e.preventDefault()
+                  setDragOver(true)
+                }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={onDrop}
                 onClick={() => fileRef.current?.click()}
                 onKeyDown={(e) => e.key === 'Enter' && fileRef.current?.click()}
                 className={cn(
                   'flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed p-4 xs:p-6 sm:p-10 text-center cursor-pointer transition-colors',
-                  dragOver ? 'border-primary bg-accent' : 'border-muted-foreground/30 hover:border-primary hover:bg-accent/30'
+                  dragOver
+                    ? 'border-primary bg-accent'
+                    : 'border-muted-foreground/30 hover:border-primary hover:bg-accent/30'
                 )}
               >
                 <Upload className="h-8 w-8 text-muted-foreground" />
                 <div className="min-w-0 max-w-full">
-                  <p className="font-medium break-words">{fileName || t('batchUpload.dropZone.prompt')}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{t('batchUpload.dropZone.hint')}</p>
+                  <p className="font-medium break-words">
+                    {fileName || t('batchUpload.dropZone.prompt')}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t('batchUpload.dropZone.hint')}
+                  </p>
                 </div>
                 <input
                   ref={fileRef}
@@ -190,9 +222,13 @@ export function BatchUploadPage() {
                 <CardTitle className="text-base flex flex-wrap items-center justify-between gap-2">
                   <span>{t('batchUpload.preview.title', { count: rows.length })}</span>
                   <div className="flex gap-2 text-xs font-normal">
-                    <span className="text-success">{t('batchUpload.preview.valid', { count: validRows.length })}</span>
+                    <span className="text-success">
+                      {t('batchUpload.preview.valid', { count: validRows.length })}
+                    </span>
                     {invalidRows.length > 0 && (
-                      <span className="text-destructive">{t('batchUpload.preview.invalid', { count: invalidRows.length })}</span>
+                      <span className="text-destructive">
+                        {t('batchUpload.preview.invalid', { count: invalidRows.length })}
+                      </span>
                     )}
                   </div>
                 </CardTitle>
@@ -202,18 +238,35 @@ export function BatchUploadPage() {
                   <table className="w-full min-w-[32rem] text-sm">
                     <thead>
                       <tr className="border-b bg-muted/40">
-                        <th className="px-2 xs:px-3 sm:px-4 py-2 text-left font-medium text-muted-foreground">{t('batchUpload.table.row')}</th>
-                        <th className="px-2 xs:px-3 sm:px-4 py-2 text-left font-medium text-muted-foreground">{t('batchUpload.table.type')}</th>
-                        <th className="px-2 xs:px-3 sm:px-4 py-2 text-left font-medium text-muted-foreground">{t('batchUpload.table.weight')}</th>
-                        <th className="px-2 xs:px-3 sm:px-4 py-2 text-left font-medium text-muted-foreground">{t('batchUpload.table.lat')}</th>
-                        <th className="px-2 xs:px-3 sm:px-4 py-2 text-left font-medium text-muted-foreground">{t('batchUpload.table.lon')}</th>
-                        <th className="px-2 xs:px-3 sm:px-4 py-2 text-left font-medium text-muted-foreground">{t('batchUpload.table.status')}</th>
+                        <th className="px-2 xs:px-3 sm:px-4 py-2 text-left font-medium text-muted-foreground">
+                          {t('batchUpload.table.row')}
+                        </th>
+                        <th className="px-2 xs:px-3 sm:px-4 py-2 text-left font-medium text-muted-foreground">
+                          {t('batchUpload.table.type')}
+                        </th>
+                        <th className="px-2 xs:px-3 sm:px-4 py-2 text-left font-medium text-muted-foreground">
+                          {t('batchUpload.table.weight')}
+                        </th>
+                        <th className="px-2 xs:px-3 sm:px-4 py-2 text-left font-medium text-muted-foreground">
+                          {t('batchUpload.table.lat')}
+                        </th>
+                        <th className="px-2 xs:px-3 sm:px-4 py-2 text-left font-medium text-muted-foreground">
+                          {t('batchUpload.table.lon')}
+                        </th>
+                        <th className="px-2 xs:px-3 sm:px-4 py-2 text-left font-medium text-muted-foreground">
+                          {t('batchUpload.table.status')}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {rows.map((row) => (
-                        <tr key={row.rowIndex} className={cn('border-b last:border-0', !row.valid && 'bg-destructive/5')}>
-                          <td className="px-2 xs:px-3 sm:px-4 py-2 text-muted-foreground">{row.rowIndex}</td>
+                        <tr
+                          key={row.rowIndex}
+                          className={cn('border-b last:border-0', !row.valid && 'bg-destructive/5')}
+                        >
+                          <td className="px-2 xs:px-3 sm:px-4 py-2 text-muted-foreground">
+                            {row.rowIndex}
+                          </td>
                           <td className="px-2 xs:px-3 sm:px-4 py-2">{row.waste_type}</td>
                           <td className="px-2 xs:px-3 sm:px-4 py-2">{row.weight}</td>
                           <td className="px-2 xs:px-3 sm:px-4 py-2">{row.latitude}</td>
@@ -243,7 +296,9 @@ export function BatchUploadPage() {
               <CardContent className="pt-6 space-y-3">
                 <div className="flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="text-sm font-medium">{t('batchUpload.progress.submitting', { progress })}</span>
+                  <span className="text-sm font-medium">
+                    {t('batchUpload.progress.submitting', { progress })}
+                  </span>
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                   <div
@@ -271,9 +326,16 @@ export function BatchUploadPage() {
                 </div>
                 {failed > 0 && (
                   <ul className="text-xs text-destructive space-y-1">
-                    {results.filter((r) => !r.success).map((r) => (
-                      <li key={r.rowIndex}>{t('batchUpload.results.rowError', { row: r.rowIndex, message: r.message })}</li>
-                    ))}
+                    {results
+                      .filter((r) => !r.success)
+                      .map((r) => (
+                        <li key={r.rowIndex}>
+                          {t('batchUpload.results.rowError', {
+                            row: r.rowIndex,
+                            message: r.message
+                          })}
+                        </li>
+                      ))}
                   </ul>
                 )}
               </CardContent>
@@ -298,9 +360,15 @@ export function BatchUploadPage() {
                 onClick={() => void handleSubmit()}
               >
                 {status === SubmissionStatus.Uploading ? (
-                  <><Loader2 className="h-4 w-4 mr-2 shrink-0 animate-spin" />{t('batchUpload.actions.uploading')}</>
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 shrink-0 animate-spin" />
+                    {t('batchUpload.actions.uploading')}
+                  </>
                 ) : (
-                  <><Upload className="h-4 w-4 mr-2 shrink-0" />{t('batchUpload.actions.submit', { count: validRows.length })}</>
+                  <>
+                    <Upload className="h-4 w-4 mr-2 shrink-0" />
+                    {t('batchUpload.actions.submit', { count: validRows.length })}
+                  </>
                 )}
               </Button>
             </CardContent>
@@ -314,26 +382,38 @@ export function BatchUploadPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
-              <p className="text-muted-foreground text-xs">{t('batchUpload.format.requiredColumns')}</p>
+              <p className="text-muted-foreground text-xs">
+                {t('batchUpload.format.requiredColumns')}
+              </p>
               {['waste_type', 'weight', 'latitude', 'longitude'].map((col) => (
                 <div key={col} className="flex flex-wrap items-center justify-between gap-1">
                   <code className="text-xs bg-muted px-1.5 py-0.5 rounded break-all">{col}</code>
                   {col === 'waste_type' && (
-                    <span className="text-xs text-muted-foreground">{t('batchUpload.format.types.string')}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {t('batchUpload.format.types.string')}
+                    </span>
                   )}
                   {col === 'weight' && (
-                    <span className="text-xs text-muted-foreground">{t('batchUpload.format.types.kg')}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {t('batchUpload.format.types.kg')}
+                    </span>
                   )}
                   {(col === 'latitude' || col === 'longitude') && (
-                    <span className="text-xs text-muted-foreground">{t('batchUpload.format.types.decimal')}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {t('batchUpload.format.types.decimal')}
+                    </span>
                   )}
                 </div>
               ))}
               <div className="mt-3 pt-3 border-t">
-                <p className="text-xs text-muted-foreground mb-1.5">{t('batchUpload.format.validWasteTypes')}</p>
+                <p className="text-xs text-muted-foreground mb-1.5">
+                  {t('batchUpload.format.validWasteTypes')}
+                </p>
                 <div className="flex flex-wrap gap-1">
                   {Object.keys(WASTE_TYPE_MAP).map((t) => (
-                    <Badge key={t} variant="outline" className="text-[10px]">{t}</Badge>
+                    <Badge key={t} variant="outline" className="text-[10px]">
+                      {t}
+                    </Badge>
                   ))}
                 </div>
               </div>

@@ -11,15 +11,15 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     i18n: {
       language: 'en',
-      changeLanguage: vi.fn((_lang) => Promise.resolve()),
+      changeLanguage: vi.fn((_lang) => Promise.resolve())
     },
-    t: (key: string) => key,
-  }),
+    t: (key: string) => key
+  })
 }))
 
 // Mock i18n config
 vi.mock('@/i18n/config', () => ({
-  getDirection: (lang: string) => (lang === 'ar' ? 'rtl' : 'ltr'),
+  getDirection: (lang: string) => (lang === 'ar' ? 'rtl' : 'ltr')
 }))
 
 describe('LanguageSelector', () => {
@@ -93,9 +93,8 @@ describe('LanguageSelector', () => {
   describe('User Interactions', () => {
     it('changes language when option is selected', async () => {
       const user = userEvent.setup()
-      const { _useTranslation } = await vi.importActual<typeof import('react-i18next')>(
-        'react-i18next'
-      )
+      const { _useTranslation } =
+        await vi.importActual<typeof import('react-i18next')>('react-i18next')
 
       render(<LanguageSelector />)
 
@@ -117,9 +116,9 @@ describe('LanguageSelector', () => {
       const _mockUseTranslation = vi.fn().mockReturnValue({
         i18n: {
           language: 'en',
-          changeLanguage: changeLanguageMock,
+          changeLanguage: changeLanguageMock
         },
-        t: (key: string) => key,
+        t: (key: string) => key
       })
 
       render(<LanguageSelector />)
@@ -147,10 +146,10 @@ describe('LanguageSelector', () => {
         useTranslation: () => ({
           i18n: {
             language: 'ar',
-            changeLanguage: changeLanguageMock,
+            changeLanguage: changeLanguageMock
           },
-          t: (key: string) => key,
-        }),
+          t: (key: string) => key
+        })
       }))
 
       render(<LanguageSelector />)

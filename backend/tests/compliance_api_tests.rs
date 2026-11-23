@@ -81,7 +81,10 @@ async fn list_checklists_message_field_present() {
     let json = body_json(resp).await;
 
     assert!(json["message"].is_string(), "message field must be a string");
-    assert!(!json["message"].as_str().unwrap().is_empty(), "message must not be empty");
+    assert!(
+        !json["message"].as_str().unwrap().is_empty(),
+        "message must not be empty"
+    );
 }
 
 /// Authorization: any caller (no auth headers required) should get 200 back,
@@ -134,8 +137,7 @@ async fn list_checklists_with_recycler_role_header_returns_200() {
 
 #[actix_web::test]
 async fn create_checklist_with_name_and_description_returns_200() {
-    let app =
-        test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
+    let app = test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
 
     let body = serde_json::json!({
         "name": "GDPR Checklist",
@@ -153,8 +155,7 @@ async fn create_checklist_with_name_and_description_returns_200() {
 
 #[actix_web::test]
 async fn create_checklist_echoes_back_name() {
-    let app =
-        test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
+    let app = test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
 
     let body = serde_json::json!({
         "name": "GDPR Checklist",
@@ -173,8 +174,7 @@ async fn create_checklist_echoes_back_name() {
 
 #[actix_web::test]
 async fn create_checklist_echoes_back_description() {
-    let app =
-        test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
+    let app = test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
 
     let body = serde_json::json!({
         "name": "ISO 27001",
@@ -189,16 +189,14 @@ async fn create_checklist_echoes_back_description() {
     let json = body_json(resp).await;
 
     assert_eq!(
-        json["data"]["description"],
-        "Information security management requirements",
+        json["data"]["description"], "Information security management requirements",
         "description must be echoed back"
     );
 }
 
 #[actix_web::test]
 async fn create_checklist_success_flag_is_true() {
-    let app =
-        test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
+    let app = test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
 
     let body = serde_json::json!({"name": "SOC 2"});
     let req = test::TestRequest::post()
@@ -213,8 +211,7 @@ async fn create_checklist_success_flag_is_true() {
 
 #[actix_web::test]
 async fn create_checklist_without_description_returns_200() {
-    let app =
-        test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
+    let app = test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
 
     // description is Option<String> — sending without it must succeed
     let body = serde_json::json!({"name": "Minimal Checklist"});
@@ -229,8 +226,7 @@ async fn create_checklist_without_description_returns_200() {
 
 #[actix_web::test]
 async fn create_checklist_without_description_echoes_name() {
-    let app =
-        test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
+    let app = test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
 
     let body = serde_json::json!({"name": "Minimal Checklist"});
     let req = test::TestRequest::post()
@@ -246,8 +242,7 @@ async fn create_checklist_without_description_echoes_name() {
 /// Malformed body — missing required `name` field must yield 400.
 #[actix_web::test]
 async fn create_checklist_missing_name_returns_400() {
-    let app =
-        test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
+    let app = test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
 
     let body = serde_json::json!({"description": "No name provided"});
     let req = test::TestRequest::post()
@@ -262,8 +257,7 @@ async fn create_checklist_missing_name_returns_400() {
 /// Empty JSON body must yield 400 (cannot extract `ChecklistRequest`).
 #[actix_web::test]
 async fn create_checklist_empty_body_returns_400() {
-    let app =
-        test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
+    let app = test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
 
     let req = test::TestRequest::post()
         .uri("/checklists")
@@ -278,8 +272,7 @@ async fn create_checklist_empty_body_returns_400() {
 /// Non-JSON content type must yield 400.
 #[actix_web::test]
 async fn create_checklist_non_json_content_type_returns_400() {
-    let app =
-        test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
+    let app = test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
 
     let req = test::TestRequest::post()
         .uri("/checklists")
@@ -293,8 +286,7 @@ async fn create_checklist_non_json_content_type_returns_400() {
 
 #[actix_web::test]
 async fn create_checklist_message_field_present() {
-    let app =
-        test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
+    let app = test::init_service(App::new().route("/checklists", web::post().to(create_checklist))).await;
 
     let body = serde_json::json!({"name": "Test"});
     let req = test::TestRequest::post()
@@ -311,14 +303,9 @@ async fn create_checklist_message_field_present() {
 
 #[actix_web::test]
 async fn run_compliance_check_returns_200() {
-    let app = test::init_service(
-        App::new().route("/compliance/check", web::post().to(run_compliance_check)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/check", web::post().to(run_compliance_check))).await;
 
-    let req = test::TestRequest::post()
-        .uri("/compliance/check")
-        .to_request();
+    let req = test::TestRequest::post().uri("/compliance/check").to_request();
     let resp = test::call_service(&app, req).await;
 
     assert_eq!(resp.status(), actix_web::http::StatusCode::OK);
@@ -326,14 +313,9 @@ async fn run_compliance_check_returns_200() {
 
 #[actix_web::test]
 async fn run_compliance_check_success_flag_is_true() {
-    let app = test::init_service(
-        App::new().route("/compliance/check", web::post().to(run_compliance_check)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/check", web::post().to(run_compliance_check))).await;
 
-    let req = test::TestRequest::post()
-        .uri("/compliance/check")
-        .to_request();
+    let req = test::TestRequest::post().uri("/compliance/check").to_request();
     let resp = test::call_service(&app, req).await;
     let json = body_json(resp).await;
 
@@ -342,14 +324,9 @@ async fn run_compliance_check_success_flag_is_true() {
 
 #[actix_web::test]
 async fn run_compliance_check_score_is_100() {
-    let app = test::init_service(
-        App::new().route("/compliance/check", web::post().to(run_compliance_check)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/check", web::post().to(run_compliance_check))).await;
 
-    let req = test::TestRequest::post()
-        .uri("/compliance/check")
-        .to_request();
+    let req = test::TestRequest::post().uri("/compliance/check").to_request();
     let resp = test::call_service(&app, req).await;
     let json = body_json(resp).await;
 
@@ -364,14 +341,9 @@ async fn run_compliance_check_score_is_100() {
 
 #[actix_web::test]
 async fn run_compliance_check_data_has_required_fields() {
-    let app = test::init_service(
-        App::new().route("/compliance/check", web::post().to(run_compliance_check)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/check", web::post().to(run_compliance_check))).await;
 
-    let req = test::TestRequest::post()
-        .uri("/compliance/check")
-        .to_request();
+    let req = test::TestRequest::post().uri("/compliance/check").to_request();
     let resp = test::call_service(&app, req).await;
     let json = body_json(resp).await;
 
@@ -384,14 +356,9 @@ async fn run_compliance_check_data_has_required_fields() {
 
 #[actix_web::test]
 async fn run_compliance_check_total_checks_is_zero() {
-    let app = test::init_service(
-        App::new().route("/compliance/check", web::post().to(run_compliance_check)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/check", web::post().to(run_compliance_check))).await;
 
-    let req = test::TestRequest::post()
-        .uri("/compliance/check")
-        .to_request();
+    let req = test::TestRequest::post().uri("/compliance/check").to_request();
     let resp = test::call_service(&app, req).await;
     let json = body_json(resp).await;
 
@@ -403,10 +370,7 @@ async fn run_compliance_check_total_checks_is_zero() {
 /// Authorization boundaries — different role headers must not change the result.
 #[actix_web::test]
 async fn run_compliance_check_with_admin_header_returns_200() {
-    let app = test::init_service(
-        App::new().route("/compliance/check", web::post().to(run_compliance_check)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/check", web::post().to(run_compliance_check))).await;
 
     let req = test::TestRequest::post()
         .uri("/compliance/check")
@@ -420,10 +384,7 @@ async fn run_compliance_check_with_admin_header_returns_200() {
 
 #[actix_web::test]
 async fn run_compliance_check_with_manufacturer_header_returns_200() {
-    let app = test::init_service(
-        App::new().route("/compliance/check", web::post().to(run_compliance_check)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/check", web::post().to(run_compliance_check))).await;
 
     let req = test::TestRequest::post()
         .uri("/compliance/check")
@@ -439,14 +400,9 @@ async fn run_compliance_check_with_manufacturer_header_returns_200() {
 
 #[actix_web::test]
 async fn list_compliance_alerts_returns_200() {
-    let app = test::init_service(
-        App::new().route("/compliance/alerts", web::get().to(list_compliance_alerts)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alerts", web::get().to(list_compliance_alerts))).await;
 
-    let req = test::TestRequest::get()
-        .uri("/compliance/alerts")
-        .to_request();
+    let req = test::TestRequest::get().uri("/compliance/alerts").to_request();
     let resp = test::call_service(&app, req).await;
 
     assert_eq!(resp.status(), actix_web::http::StatusCode::OK);
@@ -454,14 +410,9 @@ async fn list_compliance_alerts_returns_200() {
 
 #[actix_web::test]
 async fn list_compliance_alerts_success_flag_is_true() {
-    let app = test::init_service(
-        App::new().route("/compliance/alerts", web::get().to(list_compliance_alerts)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alerts", web::get().to(list_compliance_alerts))).await;
 
-    let req = test::TestRequest::get()
-        .uri("/compliance/alerts")
-        .to_request();
+    let req = test::TestRequest::get().uri("/compliance/alerts").to_request();
     let resp = test::call_service(&app, req).await;
     let json = body_json(resp).await;
 
@@ -470,14 +421,9 @@ async fn list_compliance_alerts_success_flag_is_true() {
 
 #[actix_web::test]
 async fn list_compliance_alerts_data_is_empty_array() {
-    let app = test::init_service(
-        App::new().route("/compliance/alerts", web::get().to(list_compliance_alerts)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alerts", web::get().to(list_compliance_alerts))).await;
 
-    let req = test::TestRequest::get()
-        .uri("/compliance/alerts")
-        .to_request();
+    let req = test::TestRequest::get().uri("/compliance/alerts").to_request();
     let resp = test::call_service(&app, req).await;
     let json = body_json(resp).await;
 
@@ -491,14 +437,9 @@ async fn list_compliance_alerts_data_is_empty_array() {
 
 #[actix_web::test]
 async fn list_compliance_alerts_message_field_present() {
-    let app = test::init_service(
-        App::new().route("/compliance/alerts", web::get().to(list_compliance_alerts)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alerts", web::get().to(list_compliance_alerts))).await;
 
-    let req = test::TestRequest::get()
-        .uri("/compliance/alerts")
-        .to_request();
+    let req = test::TestRequest::get().uri("/compliance/alerts").to_request();
     let resp = test::call_service(&app, req).await;
     let json = body_json(resp).await;
 
@@ -521,10 +462,7 @@ fn full_alert_rule_body() -> serde_json::Value {
 
 #[actix_web::test]
 async fn create_alert_rule_returns_200() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule))).await;
 
     let req = test::TestRequest::post()
         .uri("/compliance/alert-rules")
@@ -537,10 +475,7 @@ async fn create_alert_rule_returns_200() {
 
 #[actix_web::test]
 async fn create_alert_rule_success_flag_is_true() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule))).await;
 
     let req = test::TestRequest::post()
         .uri("/compliance/alert-rules")
@@ -554,10 +489,7 @@ async fn create_alert_rule_success_flag_is_true() {
 
 #[actix_web::test]
 async fn create_alert_rule_echoes_back_name() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule))).await;
 
     let req = test::TestRequest::post()
         .uri("/compliance/alert-rules")
@@ -571,10 +503,7 @@ async fn create_alert_rule_echoes_back_name() {
 
 #[actix_web::test]
 async fn create_alert_rule_echoes_back_description() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule))).await;
 
     let req = test::TestRequest::post()
         .uri("/compliance/alert-rules")
@@ -591,10 +520,7 @@ async fn create_alert_rule_echoes_back_description() {
 
 #[actix_web::test]
 async fn create_alert_rule_echoes_back_severity() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule))).await;
 
     let req = test::TestRequest::post()
         .uri("/compliance/alert-rules")
@@ -608,10 +534,7 @@ async fn create_alert_rule_echoes_back_severity() {
 
 #[actix_web::test]
 async fn create_alert_rule_echoes_back_metric() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule))).await;
 
     let req = test::TestRequest::post()
         .uri("/compliance/alert-rules")
@@ -625,10 +548,7 @@ async fn create_alert_rule_echoes_back_metric() {
 
 #[actix_web::test]
 async fn create_alert_rule_echoes_back_operator() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule))).await;
 
     let req = test::TestRequest::post()
         .uri("/compliance/alert-rules")
@@ -642,10 +562,7 @@ async fn create_alert_rule_echoes_back_operator() {
 
 #[actix_web::test]
 async fn create_alert_rule_echoes_back_threshold() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule))).await;
 
     let req = test::TestRequest::post()
         .uri("/compliance/alert-rules")
@@ -654,9 +571,7 @@ async fn create_alert_rule_echoes_back_threshold() {
     let resp = test::call_service(&app, req).await;
     let json = body_json(resp).await;
 
-    let threshold = json["data"]["threshold"]
-        .as_f64()
-        .expect("threshold must be a number");
+    let threshold = json["data"]["threshold"].as_f64().expect("threshold must be a number");
     assert!(
         (threshold - 0.05).abs() < 1e-9,
         "threshold must be echoed back as 0.05, got {threshold}"
@@ -665,10 +580,7 @@ async fn create_alert_rule_echoes_back_threshold() {
 
 #[actix_web::test]
 async fn create_alert_rule_echoes_back_window_seconds() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule))).await;
 
     let req = test::TestRequest::post()
         .uri("/compliance/alert-rules")
@@ -683,10 +595,7 @@ async fn create_alert_rule_echoes_back_window_seconds() {
 /// All fields must be echoed back in a single round-trip.
 #[actix_web::test]
 async fn create_alert_rule_echoes_back_all_fields() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule))).await;
 
     let req = test::TestRequest::post()
         .uri("/compliance/alert-rules")
@@ -708,10 +617,7 @@ async fn create_alert_rule_echoes_back_all_fields() {
 /// Malformed body — missing `name` must yield 400.
 #[actix_web::test]
 async fn create_alert_rule_missing_name_returns_400() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule))).await;
 
     let body = serde_json::json!({
         "description": "Missing name field",
@@ -734,10 +640,7 @@ async fn create_alert_rule_missing_name_returns_400() {
 /// Malformed body — missing `threshold` must yield 400.
 #[actix_web::test]
 async fn create_alert_rule_missing_threshold_returns_400() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule))).await;
 
     let body = serde_json::json!({
         "name": "Missing threshold",
@@ -760,10 +663,7 @@ async fn create_alert_rule_missing_threshold_returns_400() {
 /// Malformed body — missing `window_seconds` must yield 400.
 #[actix_web::test]
 async fn create_alert_rule_missing_window_seconds_returns_400() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule))).await;
 
     let body = serde_json::json!({
         "name": "Missing window",
@@ -786,10 +686,7 @@ async fn create_alert_rule_missing_window_seconds_returns_400() {
 /// Empty JSON body must yield 400.
 #[actix_web::test]
 async fn create_alert_rule_empty_body_returns_400() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule))).await;
 
     let req = test::TestRequest::post()
         .uri("/compliance/alert-rules")
@@ -804,10 +701,7 @@ async fn create_alert_rule_empty_body_returns_400() {
 /// Integer threshold should be coerced to f64 correctly.
 #[actix_web::test]
 async fn create_alert_rule_integer_threshold_is_accepted() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule))).await;
 
     let body = serde_json::json!({
         "name": "Integer Threshold Rule",
@@ -834,10 +728,7 @@ async fn create_alert_rule_integer_threshold_is_accepted() {
 /// Negative threshold is valid — just echoed back.
 #[actix_web::test]
 async fn create_alert_rule_negative_threshold_is_accepted() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::post().to(create_alert_rule))).await;
 
     let body = serde_json::json!({
         "name": "Negative Threshold Rule",
@@ -865,14 +756,9 @@ async fn create_alert_rule_negative_threshold_is_accepted() {
 
 #[actix_web::test]
 async fn list_alert_rules_returns_200() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::get().to(list_alert_rules)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::get().to(list_alert_rules))).await;
 
-    let req = test::TestRequest::get()
-        .uri("/compliance/alert-rules")
-        .to_request();
+    let req = test::TestRequest::get().uri("/compliance/alert-rules").to_request();
     let resp = test::call_service(&app, req).await;
 
     assert_eq!(resp.status(), actix_web::http::StatusCode::OK);
@@ -880,14 +766,9 @@ async fn list_alert_rules_returns_200() {
 
 #[actix_web::test]
 async fn list_alert_rules_success_flag_is_true() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::get().to(list_alert_rules)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::get().to(list_alert_rules))).await;
 
-    let req = test::TestRequest::get()
-        .uri("/compliance/alert-rules")
-        .to_request();
+    let req = test::TestRequest::get().uri("/compliance/alert-rules").to_request();
     let resp = test::call_service(&app, req).await;
     let json = body_json(resp).await;
 
@@ -896,14 +777,9 @@ async fn list_alert_rules_success_flag_is_true() {
 
 #[actix_web::test]
 async fn list_alert_rules_data_is_empty_array() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::get().to(list_alert_rules)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::get().to(list_alert_rules))).await;
 
-    let req = test::TestRequest::get()
-        .uri("/compliance/alert-rules")
-        .to_request();
+    let req = test::TestRequest::get().uri("/compliance/alert-rules").to_request();
     let resp = test::call_service(&app, req).await;
     let json = body_json(resp).await;
 
@@ -917,14 +793,9 @@ async fn list_alert_rules_data_is_empty_array() {
 
 #[actix_web::test]
 async fn list_alert_rules_message_field_present() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::get().to(list_alert_rules)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::get().to(list_alert_rules))).await;
 
-    let req = test::TestRequest::get()
-        .uri("/compliance/alert-rules")
-        .to_request();
+    let req = test::TestRequest::get().uri("/compliance/alert-rules").to_request();
     let resp = test::call_service(&app, req).await;
     let json = body_json(resp).await;
 
@@ -935,10 +806,7 @@ async fn list_alert_rules_message_field_present() {
 /// stays 200 (role enforcement is at the middleware layer).
 #[actix_web::test]
 async fn list_alert_rules_with_collector_role_header_returns_200() {
-    let app = test::init_service(
-        App::new().route("/compliance/alert-rules", web::get().to(list_alert_rules)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/alert-rules", web::get().to(list_alert_rules))).await;
 
     let req = test::TestRequest::get()
         .uri("/compliance/alert-rules")
@@ -954,10 +822,7 @@ async fn list_alert_rules_with_collector_role_header_returns_200() {
 
 #[actix_web::test]
 async fn get_audit_trail_with_valid_query_returns_200() {
-    let app = test::init_service(
-        App::new().route("/compliance/audit-trail", web::get().to(get_audit_trail)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/audit-trail", web::get().to(get_audit_trail))).await;
 
     let req = test::TestRequest::get()
         .uri("/compliance/audit-trail?requirement_id=REQ-001&status=passed")
@@ -969,10 +834,7 @@ async fn get_audit_trail_with_valid_query_returns_200() {
 
 #[actix_web::test]
 async fn get_audit_trail_success_flag_is_true() {
-    let app = test::init_service(
-        App::new().route("/compliance/audit-trail", web::get().to(get_audit_trail)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/audit-trail", web::get().to(get_audit_trail))).await;
 
     let req = test::TestRequest::get()
         .uri("/compliance/audit-trail?requirement_id=REQ-001&status=passed")
@@ -985,10 +847,7 @@ async fn get_audit_trail_success_flag_is_true() {
 
 #[actix_web::test]
 async fn get_audit_trail_data_is_array() {
-    let app = test::init_service(
-        App::new().route("/compliance/audit-trail", web::get().to(get_audit_trail)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/audit-trail", web::get().to(get_audit_trail))).await;
 
     let req = test::TestRequest::get()
         .uri("/compliance/audit-trail?requirement_id=REQ-001&status=passed")
@@ -1006,10 +865,7 @@ async fn get_audit_trail_data_is_array() {
 
 #[actix_web::test]
 async fn get_audit_trail_with_optional_message_param_returns_200() {
-    let app = test::init_service(
-        App::new().route("/compliance/audit-trail", web::get().to(get_audit_trail)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/audit-trail", web::get().to(get_audit_trail))).await;
 
     let req = test::TestRequest::get()
         .uri("/compliance/audit-trail?requirement_id=REQ-002&status=failed&message=Verification+failed")
@@ -1022,10 +878,7 @@ async fn get_audit_trail_with_optional_message_param_returns_200() {
 /// Omitting the optional `message` param must still produce 200.
 #[actix_web::test]
 async fn get_audit_trail_without_optional_message_returns_200() {
-    let app = test::init_service(
-        App::new().route("/compliance/audit-trail", web::get().to(get_audit_trail)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/audit-trail", web::get().to(get_audit_trail))).await;
 
     let req = test::TestRequest::get()
         .uri("/compliance/audit-trail?requirement_id=REQ-003&status=pending")
@@ -1038,10 +891,7 @@ async fn get_audit_trail_without_optional_message_returns_200() {
 /// Missing required `requirement_id` query param must yield 400.
 #[actix_web::test]
 async fn get_audit_trail_missing_requirement_id_returns_400() {
-    let app = test::init_service(
-        App::new().route("/compliance/audit-trail", web::get().to(get_audit_trail)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/audit-trail", web::get().to(get_audit_trail))).await;
 
     let req = test::TestRequest::get()
         .uri("/compliance/audit-trail?status=passed")
@@ -1054,10 +904,7 @@ async fn get_audit_trail_missing_requirement_id_returns_400() {
 /// Missing required `status` query param must yield 400.
 #[actix_web::test]
 async fn get_audit_trail_missing_status_returns_400() {
-    let app = test::init_service(
-        App::new().route("/compliance/audit-trail", web::get().to(get_audit_trail)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/audit-trail", web::get().to(get_audit_trail))).await;
 
     let req = test::TestRequest::get()
         .uri("/compliance/audit-trail?requirement_id=REQ-001")
@@ -1070,14 +917,9 @@ async fn get_audit_trail_missing_status_returns_400() {
 /// No query params at all must yield 400.
 #[actix_web::test]
 async fn get_audit_trail_no_query_params_returns_400() {
-    let app = test::init_service(
-        App::new().route("/compliance/audit-trail", web::get().to(get_audit_trail)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/audit-trail", web::get().to(get_audit_trail))).await;
 
-    let req = test::TestRequest::get()
-        .uri("/compliance/audit-trail")
-        .to_request();
+    let req = test::TestRequest::get().uri("/compliance/audit-trail").to_request();
     let resp = test::call_service(&app, req).await;
 
     assert_eq!(resp.status(), actix_web::http::StatusCode::BAD_REQUEST);
@@ -1085,10 +927,7 @@ async fn get_audit_trail_no_query_params_returns_400() {
 
 #[actix_web::test]
 async fn get_audit_trail_message_field_present() {
-    let app = test::init_service(
-        App::new().route("/compliance/audit-trail", web::get().to(get_audit_trail)),
-    )
-    .await;
+    let app = test::init_service(App::new().route("/compliance/audit-trail", web::get().to(get_audit_trail))).await;
 
     let req = test::TestRequest::get()
         .uri("/compliance/audit-trail?requirement_id=REQ-001&status=passed")
@@ -1103,14 +942,10 @@ async fn get_audit_trail_message_field_present() {
 
 #[actix_web::test]
 async fn generate_compliance_report_returns_200() {
-    let app = test::init_service(
-        App::new().route("/compliance/report", web::post().to(generate_compliance_report)),
-    )
-    .await;
+    let app =
+        test::init_service(App::new().route("/compliance/report", web::post().to(generate_compliance_report))).await;
 
-    let req = test::TestRequest::post()
-        .uri("/compliance/report")
-        .to_request();
+    let req = test::TestRequest::post().uri("/compliance/report").to_request();
     let resp = test::call_service(&app, req).await;
 
     assert_eq!(resp.status(), actix_web::http::StatusCode::OK);
@@ -1118,14 +953,10 @@ async fn generate_compliance_report_returns_200() {
 
 #[actix_web::test]
 async fn generate_compliance_report_success_flag_is_true() {
-    let app = test::init_service(
-        App::new().route("/compliance/report", web::post().to(generate_compliance_report)),
-    )
-    .await;
+    let app =
+        test::init_service(App::new().route("/compliance/report", web::post().to(generate_compliance_report))).await;
 
-    let req = test::TestRequest::post()
-        .uri("/compliance/report")
-        .to_request();
+    let req = test::TestRequest::post().uri("/compliance/report").to_request();
     let resp = test::call_service(&app, req).await;
     let json = body_json(resp).await;
 
@@ -1134,14 +965,10 @@ async fn generate_compliance_report_success_flag_is_true() {
 
 #[actix_web::test]
 async fn generate_compliance_report_has_timestamp() {
-    let app = test::init_service(
-        App::new().route("/compliance/report", web::post().to(generate_compliance_report)),
-    )
-    .await;
+    let app =
+        test::init_service(App::new().route("/compliance/report", web::post().to(generate_compliance_report))).await;
 
-    let req = test::TestRequest::post()
-        .uri("/compliance/report")
-        .to_request();
+    let req = test::TestRequest::post().uri("/compliance/report").to_request();
     let resp = test::call_service(&app, req).await;
     let json = body_json(resp).await;
 
@@ -1149,10 +976,7 @@ async fn generate_compliance_report_has_timestamp() {
         .as_str()
         .expect("generated_at must be a string timestamp");
 
-    assert!(
-        !generated_at.is_empty(),
-        "generated_at timestamp must not be empty"
-    );
+    assert!(!generated_at.is_empty(), "generated_at timestamp must not be empty");
 
     // Verify it parses as a valid RFC 3339 / ISO 8601 datetime.
     let parsed = chrono::DateTime::parse_from_rfc3339(generated_at);
@@ -1164,14 +988,10 @@ async fn generate_compliance_report_has_timestamp() {
 
 #[actix_web::test]
 async fn generate_compliance_report_score_is_100() {
-    let app = test::init_service(
-        App::new().route("/compliance/report", web::post().to(generate_compliance_report)),
-    )
-    .await;
+    let app =
+        test::init_service(App::new().route("/compliance/report", web::post().to(generate_compliance_report))).await;
 
-    let req = test::TestRequest::post()
-        .uri("/compliance/report")
-        .to_request();
+    let req = test::TestRequest::post().uri("/compliance/report").to_request();
     let resp = test::call_service(&app, req).await;
     let json = body_json(resp).await;
 
@@ -1186,20 +1006,19 @@ async fn generate_compliance_report_score_is_100() {
 
 #[actix_web::test]
 async fn generate_compliance_report_has_required_data_fields() {
-    let app = test::init_service(
-        App::new().route("/compliance/report", web::post().to(generate_compliance_report)),
-    )
-    .await;
+    let app =
+        test::init_service(App::new().route("/compliance/report", web::post().to(generate_compliance_report))).await;
 
-    let req = test::TestRequest::post()
-        .uri("/compliance/report")
-        .to_request();
+    let req = test::TestRequest::post().uri("/compliance/report").to_request();
     let resp = test::call_service(&app, req).await;
     let json = body_json(resp).await;
 
     let data = &json["data"];
     assert!(data["generated_at"].is_string(), "generated_at must be present");
-    assert!(data["total_requirements"].is_number(), "total_requirements must be present");
+    assert!(
+        data["total_requirements"].is_number(),
+        "total_requirements must be present"
+    );
     assert!(data["passed"].is_number(), "passed must be present");
     assert!(data["failed"].is_number(), "failed must be present");
     assert!(data["compliance_score"].is_number(), "compliance_score must be present");
@@ -1207,14 +1026,10 @@ async fn generate_compliance_report_has_required_data_fields() {
 
 #[actix_web::test]
 async fn generate_compliance_report_counts_are_zero() {
-    let app = test::init_service(
-        App::new().route("/compliance/report", web::post().to(generate_compliance_report)),
-    )
-    .await;
+    let app =
+        test::init_service(App::new().route("/compliance/report", web::post().to(generate_compliance_report))).await;
 
-    let req = test::TestRequest::post()
-        .uri("/compliance/report")
-        .to_request();
+    let req = test::TestRequest::post().uri("/compliance/report").to_request();
     let resp = test::call_service(&app, req).await;
     let json = body_json(resp).await;
 
@@ -1225,14 +1040,10 @@ async fn generate_compliance_report_counts_are_zero() {
 
 #[actix_web::test]
 async fn generate_compliance_report_message_field_present() {
-    let app = test::init_service(
-        App::new().route("/compliance/report", web::post().to(generate_compliance_report)),
-    )
-    .await;
+    let app =
+        test::init_service(App::new().route("/compliance/report", web::post().to(generate_compliance_report))).await;
 
-    let req = test::TestRequest::post()
-        .uri("/compliance/report")
-        .to_request();
+    let req = test::TestRequest::post().uri("/compliance/report").to_request();
     let resp = test::call_service(&app, req).await;
     let json = body_json(resp).await;
 
@@ -1243,15 +1054,11 @@ async fn generate_compliance_report_message_field_present() {
 /// wall-clock instant or at minimum a well-formed RFC 3339 string on both).
 #[actix_web::test]
 async fn generate_compliance_report_timestamp_is_rfc3339() {
-    let app = test::init_service(
-        App::new().route("/compliance/report", web::post().to(generate_compliance_report)),
-    )
-    .await;
+    let app =
+        test::init_service(App::new().route("/compliance/report", web::post().to(generate_compliance_report))).await;
 
     for _ in 0..2 {
-        let req = test::TestRequest::post()
-            .uri("/compliance/report")
-            .to_request();
+        let req = test::TestRequest::post().uri("/compliance/report").to_request();
         let resp = test::call_service(&app, req).await;
         let json = body_json(resp).await;
 
@@ -1266,10 +1073,8 @@ async fn generate_compliance_report_timestamp_is_rfc3339() {
 /// Authorization: admin role must get a valid report.
 #[actix_web::test]
 async fn generate_compliance_report_with_admin_header_returns_200() {
-    let app = test::init_service(
-        App::new().route("/compliance/report", web::post().to(generate_compliance_report)),
-    )
-    .await;
+    let app =
+        test::init_service(App::new().route("/compliance/report", web::post().to(generate_compliance_report))).await;
 
     let req = test::TestRequest::post()
         .uri("/compliance/report")
@@ -1290,8 +1095,7 @@ async fn generate_compliance_report_with_admin_header_returns_200() {
 async fn all_get_endpoints_return_envelope_shape() {
     // list_checklists
     {
-        let app =
-            test::init_service(App::new().route("/checklists", web::get().to(list_checklists))).await;
+        let app = test::init_service(App::new().route("/checklists", web::get().to(list_checklists))).await;
         let req = test::TestRequest::get().uri("/checklists").to_request();
         let json = body_json(test::call_service(&app, req).await).await;
         assert!(json["success"].is_boolean(), "list_checklists: success must be boolean");
@@ -1300,10 +1104,7 @@ async fn all_get_endpoints_return_envelope_shape() {
 
     // list_compliance_alerts
     {
-        let app = test::init_service(
-            App::new().route("/alerts", web::get().to(list_compliance_alerts)),
-        )
-        .await;
+        let app = test::init_service(App::new().route("/alerts", web::get().to(list_compliance_alerts))).await;
         let req = test::TestRequest::get().uri("/alerts").to_request();
         let json = body_json(test::call_service(&app, req).await).await;
         assert!(
@@ -1318,13 +1119,13 @@ async fn all_get_endpoints_return_envelope_shape() {
 
     // list_alert_rules
     {
-        let app = test::init_service(
-            App::new().route("/alert-rules", web::get().to(list_alert_rules)),
-        )
-        .await;
+        let app = test::init_service(App::new().route("/alert-rules", web::get().to(list_alert_rules))).await;
         let req = test::TestRequest::get().uri("/alert-rules").to_request();
         let json = body_json(test::call_service(&app, req).await).await;
-        assert!(json["success"].is_boolean(), "list_alert_rules: success must be boolean");
+        assert!(
+            json["success"].is_boolean(),
+            "list_alert_rules: success must be boolean"
+        );
         assert!(json["message"].is_string(), "list_alert_rules: message must be string");
     }
 }
@@ -1333,10 +1134,7 @@ async fn all_get_endpoints_return_envelope_shape() {
 async fn all_post_endpoints_return_envelope_shape() {
     // run_compliance_check
     {
-        let app = test::init_service(
-            App::new().route("/check", web::post().to(run_compliance_check)),
-        )
-        .await;
+        let app = test::init_service(App::new().route("/check", web::post().to(run_compliance_check))).await;
         let req = test::TestRequest::post().uri("/check").to_request();
         let json = body_json(test::call_service(&app, req).await).await;
         assert!(
@@ -1351,10 +1149,7 @@ async fn all_post_endpoints_return_envelope_shape() {
 
     // generate_compliance_report
     {
-        let app = test::init_service(
-            App::new().route("/report", web::post().to(generate_compliance_report)),
-        )
-        .await;
+        let app = test::init_service(App::new().route("/report", web::post().to(generate_compliance_report))).await;
         let req = test::TestRequest::post().uri("/report").to_request();
         let json = body_json(test::call_service(&app, req).await).await;
         assert!(

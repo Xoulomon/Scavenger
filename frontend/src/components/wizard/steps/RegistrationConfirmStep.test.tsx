@@ -31,7 +31,7 @@ const RegistrationConfirmStep = ({
   isLoading,
   onConfirm,
   onPrevious,
-  onTermsChange,
+  onTermsChange
 }: RegistrationConfirmStepProps) => {
   return (
     <div data-testid="confirm-form">
@@ -73,7 +73,11 @@ const RegistrationConfirmStep = ({
         <button onClick={onPrevious} data-testid="previous-button" disabled={isLoading}>
           Previous
         </button>
-        <button onClick={onConfirm} data-testid="confirm-button" disabled={!data.agreedToTerms || isLoading}>
+        <button
+          onClick={onConfirm}
+          data-testid="confirm-button"
+          disabled={!data.agreedToTerms || isLoading}
+        >
           {isLoading ? 'Confirming...' : 'Confirm Registration'}
         </button>
       </div>
@@ -91,7 +95,7 @@ describe('RegistrationConfirmStep', () => {
     longitude: '20.5',
     hasDocuments: true,
     hasSelfie: true,
-    agreedToTerms: false,
+    agreedToTerms: false
   }
 
   const mockProps = {
@@ -99,7 +103,7 @@ describe('RegistrationConfirmStep', () => {
     isLoading: false,
     onConfirm: vi.fn(),
     onPrevious: vi.fn(),
-    onTermsChange: vi.fn(),
+    onTermsChange: vi.fn()
   }
 
   it('should display role information', () => {

@@ -13,7 +13,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
+  DialogFooter
 } from '@/components/ui/Dialog'
 import { TransactionConfirmDialog } from '@/components/ui/TransactionConfirmDialog'
 import { Heart, Download, ExternalLink, History } from 'lucide-react'
@@ -25,7 +25,7 @@ import { CharityTab } from '@/lib/constants'
 function CharityCard({
   charity,
   onDonate,
-  onProfile,
+  onProfile
 }: {
   charity: Charity
   onDonate: (c: Charity) => void
@@ -67,7 +67,7 @@ function CharityCard({
 function CharityProfileDialog({
   charity,
   onClose,
-  onDonate,
+  onDonate
 }: {
   charity: Charity | null
   onClose: () => void
@@ -125,7 +125,7 @@ function DonateDialog({
   balance,
   isPending,
   onClose,
-  onConfirm,
+  onConfirm
 }: {
   charity: Charity | null
   balance: bigint
@@ -200,7 +200,7 @@ function DonateDialog({
         title={t('charity.donateTo', { name: charity.name })}
         description={t('charity.donateConfirmDescription', {
           amount: formatTokenAmount(parsed),
-          name: charity.name,
+          name: charity.name
         })}
         isLoading={isPending}
         onConfirm={() => onConfirm(parsed)}
@@ -214,7 +214,7 @@ function DonateDialog({
 
 function HistoryRow({
   donation,
-  onDownload,
+  onDownload
 }: {
   donation: CharityDonation
   onDownload: (d: CharityDonation) => void

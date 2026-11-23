@@ -112,10 +112,8 @@ where
                 // Echo the request ID on **every** response, including 4xx/5xx
                 // error responses produced by upstream middleware layers.
                 if let Ok(header_value) = HeaderValue::from_str(&request_id) {
-                    res.headers_mut().insert(
-                        HeaderName::from_static(REQUEST_ID_HEADER),
-                        header_value,
-                    );
+                    res.headers_mut()
+                        .insert(HeaderName::from_static(REQUEST_ID_HEADER), header_value);
                 }
 
                 Ok(res)
@@ -203,9 +201,7 @@ mod tests {
         let app = test::init_service(
             App::new()
                 .wrap(RequestIdMiddleware)
-                .default_service(web::route().to(|| async {
-                    HttpResponse::NotFound().finish()
-                })),
+                .default_service(web::route().to(|| async { HttpResponse::NotFound().finish() })),
         )
         .await;
 
@@ -222,21 +218,17 @@ mod tests {
     /// `RequestId` must be injected into request extensions before any handler runs.
     #[actix_web::test]
     async fn test_request_id_in_extensions() {
-        let app = test::init_service(
-            App::new()
-                .wrap(RequestIdMiddleware)
-                .route(
-                    "/check",
-                    web::get().to(|req: actix_web::HttpRequest| async move {
-                        let id = req
-                            .extensions()
-                            .get::<RequestId>()
-                            .map(|r| r.0.clone())
-                            .unwrap_or_default();
-                        HttpResponse::Ok().body(id)
-                    }),
-                ),
-        )
+        let app = test::init_service(App::new().wrap(RequestIdMiddleware).route(
+            "/check",
+            web::get().to(|req: actix_web::HttpRequest| async move {
+                let id = req
+                    .extensions()
+                    .get::<RequestId>()
+                    .map(|r| r.0.clone())
+                    .unwrap_or_default();
+                HttpResponse::Ok().body(id)
+            }),
+        ))
         .await;
 
         let req = test::TestRequest::get().uri("/check").to_request();

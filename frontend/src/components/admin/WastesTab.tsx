@@ -78,7 +78,9 @@ export function WastesTab() {
       )}
 
       {searched !== null && !isLoading && !waste && (
-        <p className="text-sm text-muted-foreground">No waste found with ID #{searched.toString()}.</p>
+        <p className="text-sm text-muted-foreground">
+          No waste found with ID #{searched.toString()}.
+        </p>
       )}
     </div>
   )

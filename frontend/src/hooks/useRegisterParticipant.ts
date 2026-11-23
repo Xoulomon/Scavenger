@@ -6,10 +6,7 @@ import { networkConfig } from '@/lib/stellar'
 import { useToast } from '@/hooks/useToast'
 import { roleLabel } from '@/lib/helpers'
 import { cacheKeys } from '@/lib/cacheKeys'
-import {
-  useTransactionStatus,
-  type TransactionLifecycle,
-} from '@/hooks/useTransactionStatus'
+import { useTransactionStatus, type TransactionLifecycle } from '@/hooks/useTransactionStatus'
 
 export interface RegisterParticipantParams {
   address: string
@@ -23,9 +20,7 @@ export interface RegisterParticipantParams {
 
 export interface UseRegisterParticipantResult {
   /** The underlying mutation (backwards-compatible surface). */
-  mutation: ReturnType<
-    typeof useMutation<Participant, Error, RegisterParticipantParams>
-  >
+  mutation: ReturnType<typeof useMutation<Participant, Error, RegisterParticipantParams>>
   /** Shared pending/success/failed lifecycle state. */
   lifecycle: TransactionLifecycle
   /** Convenience flags derived from the lifecycle. */
@@ -47,7 +42,7 @@ export function useRegisterParticipant(): UseRegisterParticipantResult {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       return client.registerParticipant(address, role, name, lat, lon, address)
     },
@@ -64,7 +59,7 @@ export function useRegisterParticipant(): UseRegisterParticipantResult {
     onError: (error) => {
       lifecycle.setFailed(error)
       toast.error(error)
-    },
+    }
   })
 
   return {
@@ -73,6 +68,6 @@ export function useRegisterParticipant(): UseRegisterParticipantResult {
     isPending: lifecycle.status === 'pending',
     isSuccess: lifecycle.status === 'success',
     isError: lifecycle.status === 'failed',
-    reset: lifecycle.reset,
+    reset: lifecycle.reset
   }
 }

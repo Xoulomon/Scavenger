@@ -4,16 +4,18 @@ import { RecipientSelectionStepProps } from '../types'
 const mockRecipients = [
   { address: 'GABC...XYZ1', name: 'Recycling Center A', type: 'Recycler' },
   { address: 'GDEF...XYZ2', name: 'Waste Processor B', type: 'Processor' },
-  { address: 'GHIJ...XYZ3', name: 'Collection Point C', type: 'Collector' },
-];
+  { address: 'GHIJ...XYZ3', name: 'Collection Point C', type: 'Collector' }
+]
 
-export function RecipientSelectionStep({ register, errors, formData: _formData }: RecipientSelectionStepProps) {
+export function RecipientSelectionStep({
+  register,
+  errors,
+  formData: _formData
+}: RecipientSelectionStepProps) {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Select Recipient</h2>
-      <p className="text-sm text-muted-foreground">
-        Choose who will receive the waste transfer
-      </p>
+      <p className="text-sm text-muted-foreground">Choose who will receive the waste transfer</p>
 
       <div className="space-y-2">
         {mockRecipients.map((recipient) => (
@@ -43,11 +45,8 @@ export function RecipientSelectionStep({ register, errors, formData: _formData }
 
       <div className="pt-4 border-t">
         <label className="block text-sm font-medium mb-2">Or enter custom address:</label>
-        <Input
-          {...register('recipientAddress')}
-          placeholder="Enter Stellar address"
-        />
+        <Input {...register('recipientAddress')} placeholder="Enter Stellar address" />
       </div>
     </div>
-  );
+  )
 }

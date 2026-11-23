@@ -6,12 +6,12 @@ import {
   SelectItem,
   SelectLabel,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from './Select'
 
 const meta: Meta = {
   title: 'Design System/Select',
-  tags: ['autodocs'],
+  tags: ['autodocs']
 }
 export default meta
 type Story = StoryObj
@@ -31,7 +31,7 @@ export const Default: Story = {
         <SelectItem value="organic">Organic</SelectItem>
       </SelectContent>
     </Select>
-  ),
+  )
 }
 
 export const WithGroups: Story = {
@@ -49,7 +49,7 @@ export const WithGroups: Story = {
         </SelectGroup>
       </SelectContent>
     </Select>
-  ),
+  )
 }
 
 export const Disabled: Story = {
@@ -62,5 +62,5 @@ export const Disabled: Story = {
         <SelectItem value="x">Option</SelectItem>
       </SelectContent>
     </Select>
-  ),
+  )
 }

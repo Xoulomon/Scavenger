@@ -27,14 +27,14 @@ const LOCALE_DB: Record<string, LocaleConfig> = {
   ar: { currency: 'SAR', currencyLocale: 'ar-SA', weightUnit: 'kg', distanceUnit: 'km' },
   de: { currency: 'EUR', currencyLocale: 'de-DE', weightUnit: 'kg', distanceUnit: 'km' },
   pt: { currency: 'EUR', currencyLocale: 'pt-PT', weightUnit: 'kg', distanceUnit: 'km' },
-  'pt-BR': { currency: 'BRL', currencyLocale: 'pt-BR', weightUnit: 'kg', distanceUnit: 'km' },
+  'pt-BR': { currency: 'BRL', currencyLocale: 'pt-BR', weightUnit: 'kg', distanceUnit: 'km' }
 }
 
 const DEFAULT_CONFIG: LocaleConfig = {
   currency: 'USD',
   currencyLocale: 'en-US',
   weightUnit: 'kg',
-  distanceUnit: 'km',
+  distanceUnit: 'km'
 }
 
 const OVERRIDE_KEY = 'scavngr_locale_override'

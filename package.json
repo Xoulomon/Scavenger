@@ -1,11 +1,13 @@
 {
-	"name": "scavenger",
-	"private": true,
-	"packageManager": "pnpm@12.11.2",
-	"scripts": {
-		"test:integration": "pnpm --filter scavenger-integration-tests test"
-	},
-	"devDependencies": {
-		"ts-prune": "^0.10.3"
-	}
+    "name": "scavenger",
+    "private": true,
+    "packageManager": "pnpm@12.11.2",
+    "scripts": {
+        "test:integration": "pnpm --filter scavenger-integration-tests test",
+        "format": "./frontend/node_modules/.bin/prettier --write .",
+        "format:check": "./frontend/node_modules/.bin/prettier --check ."
+    },
+    "devDependencies": {
+        "ts-prune": "^0.10.3"
+    }
 }

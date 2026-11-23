@@ -4,7 +4,7 @@ import { useImageUpload, MAX_IMAGES, MAX_SIZE_MB } from './useImageUpload'
 
 // Stub compression and IPFS so tests are fast and offline
 vi.mock('browser-image-compression', () => ({
-  default: vi.fn(async (file: File) => file),
+  default: vi.fn(async (file: File) => file)
 }))
 
 vi.mock('@/lib/ipfs', () => ({
@@ -12,7 +12,7 @@ vi.mock('@/lib/ipfs', () => ({
     onProgress?.(100)
     return 'bafytestcid123'
   }),
-  ipfsGatewayUrl: (cid: string) => `https://gateway.pinata.cloud/ipfs/${cid}`,
+  ipfsGatewayUrl: (cid: string) => `https://gateway.pinata.cloud/ipfs/${cid}`
 }))
 
 // URL.createObjectURL not available in jsdom
@@ -83,7 +83,9 @@ describe('useImageUpload', () => {
 
   it('sets error state when upload fails', async () => {
     const { uploadToIPFS } = await import('@/lib/ipfs')
-    vi.mocked(uploadToIPFS).mockRejectedValueOnce(new Error('A network error occurred during upload.'))
+    vi.mocked(uploadToIPFS).mockRejectedValueOnce(
+      new Error('A network error occurred during upload.')
+    )
 
     const { result } = renderHook(() => useImageUpload())
     await act(async () => {

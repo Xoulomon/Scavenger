@@ -39,7 +39,7 @@ describe('store slice ownership (#1466)', () => {
     it('AUTH_LOGOUT clears auth state and leaves wallet state untouched', () => {
       const loggedIn = authReducer(authInitialState, {
         type: 'AUTH_LOGIN',
-        payload: { address: 'GABC' },
+        payload: { address: 'GABC' }
       })
       const wallet = { ...walletInitialState, address: 'GABC', isConnected: true }
 
@@ -53,11 +53,11 @@ describe('store slice ownership (#1466)', () => {
     it('WALLET_DISCONNECTED clears wallet address without changing auth user', () => {
       const connected = walletReducer(walletInitialState, {
         type: 'WALLET_CONNECTED',
-        payload: 'GABC',
+        payload: 'GABC'
       })
       const auth = authReducer(authInitialState, {
         type: 'AUTH_LOGIN',
-        payload: { address: 'GABC' },
+        payload: { address: 'GABC' }
       })
 
       const nextWallet = walletReducer(connected, { type: 'WALLET_DISCONNECTED' })

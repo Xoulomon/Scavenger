@@ -17,12 +17,14 @@ pub struct Incentive {
 ## Public Functions
 
 ### Creation
+
 ```rust
 // Create new incentive (manufacturers only)
 create_incentive(env, waste_type, reward, max_waste_amount, rewarder) -> Incentive
 ```
 
 ### Queries
+
 ```rust
 // Get incentive by ID
 get_incentive_by_id(env, incentive_id) -> Option<Incentive>
@@ -38,12 +40,14 @@ get_active_incentives(env) -> Vec<Incentive>
 ```
 
 ### Updates
+
 ```rust
 // Update active status (rewarder only)
 update_incentive_status(env, incentive_id, is_active) -> Incentive
 ```
 
 ### Calculations
+
 ```rust
 // Calculate reward for waste amount
 calculate_incentive_reward(env, incentive_id, waste_amount) -> u128
@@ -52,6 +56,7 @@ calculate_incentive_reward(env, incentive_id, waste_amount) -> u128
 ## Usage Examples
 
 ### Create Incentive
+
 ```rust
 // Register as manufacturer
 client.register_participant(&manufacturer, &ParticipantRole::Manufacturer);
@@ -66,6 +71,7 @@ let incentive = client.create_incentive(
 ```
 
 ### Calculate Reward
+
 ```rust
 // For 5kg of plastic
 let reward = client.calculate_incentive_reward(&incentive.id, &5000);
@@ -77,6 +83,7 @@ let reward = client.calculate_incentive_reward(&incentive.id, &15000);
 ```
 
 ### Manage Status
+
 ```rust
 // Deactivate
 client.update_incentive_status(&incentive.id, &false);
@@ -86,6 +93,7 @@ client.update_incentive_status(&incentive.id, &true);
 ```
 
 ### Query Incentives
+
 ```rust
 // Get all plastic incentives
 let incentives = client.get_incentives_by_waste_type(&WasteType::Plastic);
@@ -108,26 +116,29 @@ reward = (eligible_amount * reward_per_kg) / 1000
 
 ### Examples
 
-| Incentive | Waste Amount | Eligible | Calculation | Reward |
-|-----------|--------------|----------|-------------|--------|
-| 100/kg, max 10kg | 5kg (5000g) | 5000g | 5000 * 100 / 1000 | 500 |
-| 100/kg, max 10kg | 15kg (15000g) | 10000g | 10000 * 100 / 1000 | 1000 |
-| 200/kg, max 5kg (inactive) | 3kg (3000g) | N/A | N/A | 0 |
-| 100/kg, max 10kg | 1g | 1g | 1 * 100 / 1000 | 0 |
+| Incentive                  | Waste Amount  | Eligible | Calculation        | Reward |
+| -------------------------- | ------------- | -------- | ------------------ | ------ |
+| 100/kg, max 10kg           | 5kg (5000g)   | 5000g    | 5000 * 100 / 1000  | 500    |
+| 100/kg, max 10kg           | 15kg (15000g) | 10000g   | 10000 * 100 / 1000 | 1000   |
+| 200/kg, max 5kg (inactive) | 3kg (3000g)   | N/A      | N/A                | 0      |
+| 100/kg, max 10kg           | 1g            | 1g       | 1 * 100 / 1000     | 0      |
 
 ## Validation Rules
 
 ### Creation
+
 - ✅ Rewarder must be registered manufacturer
 - ✅ Reward must be > 0
 - ✅ Max waste amount must be > 0
 - ✅ Requires rewarder authentication
 
 ### Status Update
+
 - ✅ Requires rewarder authentication
 - ✅ Incentive must exist
 
 ### Reward Calculation
+
 - ✅ Returns 0 if inactive
 - ✅ Caps at max_waste_amount
 - ✅ Uses checked arithmetic
@@ -146,6 +157,7 @@ reward = (eligible_amount * reward_per_kg) / 1000
 ## Common Patterns
 
 ### Find Best Incentive
+
 ```rust
 let incentives = client.get_incentives_by_waste_type(&waste_type);
 let mut best_reward = 0u128;
@@ -161,6 +173,7 @@ for incentive in incentives.iter() {
 ```
 
 ### Check Multiple Waste Types
+
 ```rust
 let waste_types = [
     WasteType::Paper,
@@ -175,6 +188,7 @@ for waste_type in waste_types.iter() {
 ```
 
 ### Incentive-Based Submission
+
 ```rust
 // 1. Check available incentives
 let incentives = client.get_active_incentives();
@@ -204,12 +218,14 @@ let material = client.submit_material(&waste_type, &amount, &user, &desc);
 ## Testing
 
 ### Run All Tests
+
 ```bash
 cd stellar-contract
 cargo test --lib
 ```
 
 ### Run Incentive Tests
+
 ```bash
 cargo test test_create_incentive
 cargo test test_calculate_incentive_reward

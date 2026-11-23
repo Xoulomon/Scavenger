@@ -5,7 +5,9 @@ import { useMapData } from '@/hooks/useMapData'
 import type { MapFilters } from '@/hooks/useMapData'
 import { WasteMapFilters } from '@/components/map/WasteMapFilters'
 
-const WasteMap = lazy(() => import('@/components/map/WasteMap').then((m) => ({ default: m.WasteMap })))
+const WasteMap = lazy(() =>
+  import('@/components/map/WasteMap').then((m) => ({ default: m.WasteMap }))
+)
 
 // Reserves the map's height while the Leaflet chunk loads so the page does not shift when it appears.
 function MapPlaceholder() {
@@ -34,7 +36,8 @@ export function WasteMapPage() {
           Waste Map
         </h1>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          {wastes.length} waste item{wastes.length !== 1 ? 's' : ''} - {participants.length} participant{participants.length !== 1 ? 's' : ''}
+          {wastes.length} waste item{wastes.length !== 1 ? 's' : ''} - {participants.length}{' '}
+          participant{participants.length !== 1 ? 's' : ''}
         </p>
       </div>
 

@@ -53,7 +53,7 @@ export function getDB() {
           const cacheStore = db.createObjectStore('cache')
           cacheStore.createIndex('expiresAt', 'expiresAt')
         }
-      },
+      }
     })
   }
   return dbPromise
@@ -62,11 +62,15 @@ export function getDB() {
 // Query persistence functions
 export async function setQueryData(key: string, data: unknown, queryKey: string[]) {
   const db = await getDB()
-  await db.put('queries', {
-    data,
-    timestamp: Date.now(),
-    queryKey,
-  }, key)
+  await db.put(
+    'queries',
+    {
+      data,
+      timestamp: Date.now(),
+      queryKey
+    },
+    key
+  )
 }
 
 export async function getQueryData(key: string) {
@@ -94,7 +98,7 @@ export async function clearExpiredQueries() {
     }
   }
 
-  await Promise.all(keysToDelete.map(key => store.delete(key)))
+  await Promise.all(keysToDelete.map((key) => store.delete(key)))
   await tx.done
 }
 
@@ -109,7 +113,7 @@ export async function addMutationToQueue(mutation: {
     ...mutation,
     timestamp: Date.now(),
     status: 'pending',
-    retryCount: 0,
+    retryCount: 0
   })
 }
 
@@ -125,14 +129,18 @@ export async function getPendingMutations() {
   return mutations.sort((a, b) => a.timestamp - b.timestamp)
 }
 
-export async function updateMutationStatus(id: string, status: 'pending' | 'synced' | 'failed', retryCount?: number) {
+export async function updateMutationStatus(
+  id: string,
+  status: 'pending' | 'synced' | 'failed',
+  retryCount?: number
+) {
   const db = await getDB()
   const mutation = await db.get('mutations', id)
   if (mutation) {
     await db.put('mutations', {
       ...mutation,
       status,
-      retryCount: retryCount ?? mutation.retryCount,
+      retryCount: retryCount ?? mutation.retryCount
     })
   }
 }
@@ -157,18 +165,22 @@ export async function clearOldMutations() {
     }
   }
 
-  await Promise.all(keysToDelete.map(key => store.delete(key)))
+  await Promise.all(keysToDelete.map((key) => store.delete(key)))
   await tx.done
 }
 
 // General cache functions
 export async function setCacheData(key: string, data: unknown, ttl?: number) {
   const db = await getDB()
-  await db.put('cache', {
-    data,
-    timestamp: Date.now(),
-    expiresAt: ttl ? Date.now() + ttl : undefined,
-  }, key)
+  await db.put(
+    'cache',
+    {
+      data,
+      timestamp: Date.now(),
+      expiresAt: ttl ? Date.now() + ttl : undefined
+    },
+    key
+  )
 }
 
 export async function getCacheData(key: string) {
@@ -200,6 +212,6 @@ export async function clearExpiredCache() {
     }
   }
 
-  await Promise.all(keysToDelete.map(key => store.delete(key)))
+  await Promise.all(keysToDelete.map((key) => store.delete(key)))
   await tx.done
 }

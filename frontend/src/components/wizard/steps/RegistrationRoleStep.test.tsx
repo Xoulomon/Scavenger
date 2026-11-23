@@ -13,9 +13,17 @@ interface RegistrationRoleStepProps {
 // Mock component - will be extracted from ParticipantRegistrationPage
 const RegistrationRoleStep = ({ selectedRole, onRoleSelect }: RegistrationRoleStepProps) => {
   const roles = [
-    { role: Role.Recycler, title: 'Recycler', description: 'Collect and submit recyclable materials' },
-    { role: Role.Collector, title: 'Collector', description: 'Transport and aggregate waste materials' },
-    { role: Role.Manufacturer, title: 'Manufacturer', description: 'Transform recycled materials' },
+    {
+      role: Role.Recycler,
+      title: 'Recycler',
+      description: 'Collect and submit recyclable materials'
+    },
+    {
+      role: Role.Collector,
+      title: 'Collector',
+      description: 'Transport and aggregate waste materials'
+    },
+    { role: Role.Manufacturer, title: 'Manufacturer', description: 'Transform recycled materials' }
   ]
 
   return (
@@ -75,7 +83,9 @@ describe('RegistrationRoleStep', () => {
 
   it('should allow changing selected role', () => {
     const onRoleSelect = vi.fn()
-    const { rerender } = render(<RegistrationRoleStep selectedRole={Role.Recycler} onRoleSelect={onRoleSelect} />)
+    const { rerender } = render(
+      <RegistrationRoleStep selectedRole={Role.Recycler} onRoleSelect={onRoleSelect} />
+    )
 
     const collectorButton = screen.getByTestId('role-1')
     fireEvent.click(collectorButton)

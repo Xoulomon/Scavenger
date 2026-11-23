@@ -45,11 +45,17 @@ export class LocalStorageNotificationTransport implements NotificationTransport 
   }
 
   async markAllRead(address: string) {
-    save(address, load(address).map((n) => ({ ...n, read: true })))
+    save(
+      address,
+      load(address).map((n) => ({ ...n, read: true }))
+    )
   }
 
   async remove(address: string, id: string) {
-    save(address, load(address).filter((n) => n.id !== id))
+    save(
+      address,
+      load(address).filter((n) => n.id !== id)
+    )
   }
 
   subscribe(address: string, limit: number, onItems: (items: Notification[]) => void) {

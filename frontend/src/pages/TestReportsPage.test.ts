@@ -44,7 +44,7 @@ const testResultArb: fc.Arbitrary<TestResult> = fc.record({
   status: statusArb,
   duration: fc.integer({ min: 0, max: 10000 }),
   error: fc.option(fc.string({ minLength: 10, maxLength: 100 })),
-  timestamp: fc.date().map(d => d.toISOString()),
+  timestamp: fc.date().map((d) => d.toISOString())
 })
 
 const testRunArb: fc.Arbitrary<TestRun> = fc.record({
@@ -55,8 +55,8 @@ const testRunArb: fc.Arbitrary<TestRun> = fc.record({
   failed: fc.integer({ min: 0, max: 500 }),
   skipped: fc.integer({ min: 0, max: 500 }),
   duration: fc.integer({ min: 100, max: 300000 }),
-  timestamp: fc.date().map(d => d.toISOString()),
-  results: fc.array(testResultArb, { minLength: 0, maxLength: 20 }),
+  timestamp: fc.date().map((d) => d.toISOString()),
+  results: fc.array(testResultArb, { minLength: 0, maxLength: 20 })
 })
 
 // ─── Utility Functions for Testing ───────────────────────────────────────────
@@ -68,12 +68,12 @@ function calculatePassRate(passed: number, total: number): string {
 
 function filterTestsByStatus(results: TestResult[], status: TestStatus): TestResult[] {
   if (status === 'all') return results
-  return results.filter(r => r.status === status)
+  return results.filter((r) => r.status === status)
 }
 
 function filterTestsBySuite(results: TestResult[], suite: string): TestResult[] {
   if (suite === 'all') return results
-  return results.filter(r => r.suite === suite)
+  return results.filter((r) => r.suite === suite)
 }
 
 function filterTests(
@@ -82,7 +82,7 @@ function filterTests(
   statusFilter: TestStatus | 'all',
   suiteFilter: string
 ): TestResult[] {
-  return results.filter(r => {
+  return results.filter((r) => {
     if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false
     if (statusFilter !== 'all' && r.status !== statusFilter) return false
     if (suiteFilter !== 'all' && r.suite !== suiteFilter) return false
@@ -103,7 +103,7 @@ function aggregateTestRunStats(runs: TestRun[]): {
       passed: acc.passed + r.passed,
       failed: acc.failed + r.failed,
       skipped: acc.skipped + r.skipped,
-      duration: acc.duration + r.duration,
+      duration: acc.duration + r.duration
     }),
     { total: 0, passed: 0, failed: 0, skipped: 0, duration: 0 }
   )
@@ -177,7 +177,7 @@ describe('TestReportsPage — test filtering by status', () => {
         statusArb,
         (results, status) => {
           const filtered = filterTestsByStatus(results, status)
-          return filtered.every(r => r.status === status)
+          return filtered.every((r) => r.status === status)
         }
       ),
       { numRuns: 50 }
@@ -190,9 +190,9 @@ describe('TestReportsPage — test filtering by status', () => {
         fc.array(testResultArb, { minLength: 1, maxLength: 30 }),
         statusArb,
         (results, status) => {
-          const original = results.map(r => r.id)
+          const original = results.map((r) => r.id)
           filterTestsByStatus(results, status)
-          return results.map(r => r.id).join(',') === original.join(',')
+          return results.map((r) => r.id).join(',') === original.join(',')
         }
       ),
       { numRuns: 50 }
@@ -230,7 +230,7 @@ describe('TestReportsPage — test filtering by suite', () => {
       fc.property(fc.array(testResultArb, { minLength: 1, maxLength: 50 }), (results) => {
         const suite = results[0].suite
         const filtered = filterTestsBySuite(results, suite)
-        return filtered.every(r => r.suite === suite)
+        return filtered.every((r) => r.suite === suite)
       }),
       { numRuns: 50 }
     )
@@ -242,9 +242,9 @@ describe('TestReportsPage — test filtering by suite', () => {
         fc.array(testResultArb, { minLength: 1, maxLength: 30 }),
         fc.string({ minLength: 3, maxLength: 30 }),
         (results, suite) => {
-          const original = results.map(r => r.id)
+          const original = results.map((r) => r.id)
           filterTestsBySuite(results, suite)
-          return results.map(r => r.id).join(',') === original.join(',')
+          return results.map((r) => r.id).join(',') === original.join(',')
         }
       ),
       { numRuns: 50 }
@@ -283,7 +283,7 @@ describe('TestReportsPage — combined filtering', () => {
         (results, search, status) => {
           const suite = 'all'
           const filtered = filterTests(results, search, status, suite)
-          const filteredIds = new Set(filtered.map(r => r.id))
+          const filteredIds = new Set(filtered.map((r) => r.id))
 
           return results
             .filter((r) => {
@@ -315,9 +315,9 @@ describe('TestReportsPage — combined filtering', () => {
         fc.string({ minLength: 0, maxLength: 20 }),
         statusArb,
         (results, search, status) => {
-          const original = results.map(r => r.id)
+          const original = results.map((r) => r.id)
           filterTests(results, search, status, 'all')
-          return results.map(r => r.id).join(',') === original.join(',')
+          return results.map((r) => r.id).join(',') === original.join(',')
         }
       ),
       { numRuns: 50 }
@@ -393,9 +393,9 @@ describe('TestReportsPage — test run aggregation', () => {
   it('aggregation does not mutate input array', () => {
     fc.assert(
       fc.property(fc.array(testRunArb, { minLength: 1, maxLength: 20 }), (runs) => {
-        const original = runs.map(r => r.id)
+        const original = runs.map((r) => r.id)
         aggregateTestRunStats(runs)
-        return runs.map(r => r.id).join(',') === original.join(',')
+        return runs.map((r) => r.id).join(',') === original.join(',')
       }),
       { numRuns: 50 }
     )
@@ -419,7 +419,7 @@ describe('TestReportsPage — status badge configuration', () => {
       'text-green-500 bg-green-500/10 border-green-500/20',
       'text-red-500 bg-red-500/10 border-red-500/20',
       'text-yellow-500 bg-yellow-500/10 border-yellow-500/20',
-      'text-muted-foreground bg-muted border-border',
+      'text-muted-foreground bg-muted border-border'
     ]
     const validLabels = ['Passed', 'Failed', 'Skipped', 'Pending']
 

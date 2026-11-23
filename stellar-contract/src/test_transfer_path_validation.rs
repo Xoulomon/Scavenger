@@ -328,10 +328,7 @@ fn prop4_invalid_route_transfer_leaves_state_unchanged() {
         client.transfer_waste_v2(&waste_id, &recycler, &collector, &0, &0);
         let result = client.try_transfer_waste_v2(&waste_id, &collector, &recycler, &0, &0);
         assert!(result.is_err());
-        assert_eq!(
-            client.get_waste_v2(&waste_id).unwrap().current_owner,
-            collector
-        );
+        assert_eq!(client.get_waste_v2(&waste_id).unwrap().current_owner, collector);
     }
 
     // (Collector → Collector)
@@ -356,10 +353,7 @@ fn prop4_invalid_route_transfer_leaves_state_unchanged() {
         client.transfer_waste_v2(&waste_id, &recycler, &manufacturer, &0, &0);
         let result = client.try_transfer_waste_v2(&waste_id, &manufacturer, &recycler, &0, &0);
         assert!(result.is_err());
-        assert_eq!(
-            client.get_waste_v2(&waste_id).unwrap().current_owner,
-            manufacturer
-        );
+        assert_eq!(client.get_waste_v2(&waste_id).unwrap().current_owner, manufacturer);
     }
 
     // (Manufacturer → Collector)
@@ -372,10 +366,7 @@ fn prop4_invalid_route_transfer_leaves_state_unchanged() {
         client.transfer_waste_v2(&waste_id, &recycler, &manufacturer, &0, &0);
         let result = client.try_transfer_waste_v2(&waste_id, &manufacturer, &collector, &0, &0);
         assert!(result.is_err());
-        assert_eq!(
-            client.get_waste_v2(&waste_id).unwrap().current_owner,
-            manufacturer
-        );
+        assert_eq!(client.get_waste_v2(&waste_id).unwrap().current_owner, manufacturer);
     }
 
     // (Manufacturer → Manufacturer)
@@ -624,15 +615,9 @@ fn test_unauthorized_sender_v2_cannot_transfer() {
     let waste_id = create_waste(&client, &recycler);
     let result = client.try_transfer_waste_v2(&waste_id, &impostor, &collector, &0, &0);
 
-    assert!(
-        result.is_err(),
-        "Non-owner impostor must not be able to transfer waste"
-    );
+    assert!(result.is_err(), "Non-owner impostor must not be able to transfer waste");
     // State must be unchanged — ownership stays with recycler
-    assert_eq!(
-        client.get_waste_v2(&waste_id).unwrap().current_owner,
-        recycler
-    );
+    assert_eq!(client.get_waste_v2(&waste_id).unwrap().current_owner, recycler);
 }
 
 /// Non-owner cannot transfer after ownership has moved (collector stage).
@@ -656,10 +641,7 @@ fn test_previous_owner_cannot_retransfer_after_handoff() {
         "Previous owner must not be able to re-transfer waste they no longer own"
     );
     // Ownership stays with collector
-    assert_eq!(
-        client.get_waste_v2(&waste_id).unwrap().current_owner,
-        collector
-    );
+    assert_eq!(client.get_waste_v2(&waste_id).unwrap().current_owner, collector);
 }
 
 /// Self-transfer via transfer_waste_v2 must be rejected.
@@ -674,10 +656,7 @@ fn test_self_transfer_v2_is_rejected() {
     let result = client.try_transfer_waste_v2(&waste_id, &recycler, &recycler, &0, &0);
     assert!(result.is_err(), "Self-transfer must be rejected");
     // Ownership must remain with recycler
-    assert_eq!(
-        client.get_waste_v2(&waste_id).unwrap().current_owner,
-        recycler
-    );
+    assert_eq!(client.get_waste_v2(&waste_id).unwrap().current_owner, recycler);
 }
 
 /// Self-transfer via transfer_waste (v1) must also be rejected.
@@ -707,10 +686,7 @@ fn test_unregistered_impostor_cannot_transfer() {
         result.is_err(),
         "Unregistered address must not be able to transfer waste"
     );
-    assert_eq!(
-        client.get_waste_v2(&waste_id).unwrap().current_owner,
-        recycler
-    );
+    assert_eq!(client.get_waste_v2(&waste_id).unwrap().current_owner, recycler);
 }
 
 /// Transfer of a nonexistent waste ID must fail before any auth check

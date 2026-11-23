@@ -7,7 +7,11 @@ import type { Notification, NotificationType } from './types'
  */
 export interface NotificationTransport {
   /** Newest unread item of `type` created at or after `since`, if any. */
-  findRecentUnread(address: string, type: NotificationType, since: number): Promise<Notification | undefined>
+  findRecentUnread(
+    address: string,
+    type: NotificationType,
+    since: number
+  ): Promise<Notification | undefined>
   insert(address: string, item: Notification): Promise<void>
   incrementCount(address: string, id: string): Promise<void>
   markRead(address: string, id: string): Promise<void>
@@ -22,7 +26,7 @@ export interface NotificationTransport {
     address: string,
     limit: number,
     onItems: (items: Notification[]) => void,
-    onError?: (error: unknown) => void,
+    onError?: (error: unknown) => void
   ): () => void
 }
 

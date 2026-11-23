@@ -8,39 +8,39 @@
 
 ## Project Activity
 
-| Metric | This Quarter | Previous Quarter | Target |
-|--------|-------------|-----------------|--------|
-| New issues opened | | | — |
-| Issues closed | | | — |
-| PRs opened | | | — |
-| PRs merged | | | — |
-| PRs closed (unmerged) | | | — |
-| Unique contributors | | | ≥ 5 |
-| New maintainers added | | | — |
-| Maintainers removed | | | — |
+| Metric                | This Quarter | Previous Quarter | Target |
+| --------------------- | ------------ | ---------------- | ------ |
+| New issues opened     |              |                  | —      |
+| Issues closed         |              |                  | —      |
+| PRs opened            |              |                  | —      |
+| PRs merged            |              |                  | —      |
+| PRs closed (unmerged) |              |                  | —      |
+| Unique contributors   |              |                  | ≥ 5    |
+| New maintainers added |              |                  | —      |
+| Maintainers removed   |              |                  | —      |
 
 ## Response Times
 
-| Metric | This Quarter | Target |
-|--------|-------------|--------|
-| Median time to first issue response | | ≤ 72 hours |
-| Median time to PR merge (after approval) | | ≤ 7 days |
-| Median time to PR review start | | ≤ 5 days |
+| Metric                                   | This Quarter | Target     |
+| ---------------------------------------- | ------------ | ---------- |
+| Median time to first issue response      |              | ≤ 72 hours |
+| Median time to PR merge (after approval) |              | ≤ 7 days   |
+| Median time to PR review start           |              | ≤ 5 days   |
 
 ## Code Quality
 
-| Metric | This Quarter | Target |
-|--------|-------------|--------|
-| Smart contract test coverage | | ≥ 80% |
-| Frontend test coverage | | ≥ 70% |
-| Critical/high security advisories resolved | | 100% within 30 days |
-| Open issues > 90 days old | | < 20 |
+| Metric                                     | This Quarter | Target              |
+| ------------------------------------------ | ------------ | ------------------- |
+| Smart contract test coverage               |              | ≥ 80%               |
+| Frontend test coverage                     |              | ≥ 70%               |
+| Critical/high security advisories resolved |              | 100% within 30 days |
+| Open issues > 90 days old                  |              | < 20                |
 
 ## Governance Activity
 
-| Item | Type | Outcome |
-|------|------|---------|
-| (List governance issues/votes from this quarter) | | |
+| Item                                             | Type | Outcome |
+| ------------------------------------------------ | ---- | ------- |
+| (List governance issues/votes from this quarter) |      |         |
 
 ## Moderation
 

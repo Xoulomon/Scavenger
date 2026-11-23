@@ -8,12 +8,12 @@ vi.mock('@/hooks/useRewards', () => ({
   useRewards: vi.fn(() => ({
     stats: null,
     wastes: [],
-    isLoading: false,
-  })),
+    isLoading: false
+  }))
 }))
 
 vi.mock('@/context/WalletContext', () => ({
-  useWallet: vi.fn(() => ({ address: 'GTEST' })),
+  useWallet: vi.fn(() => ({ address: 'GTEST' }))
 }))
 
 describe('RewardTrackingPage', () => {

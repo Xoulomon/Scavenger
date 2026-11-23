@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { ExampleRequest, EXAMPLE_REQUESTS, HttpMethod } from './types';
+import React, { useState } from 'react'
+import { ExampleRequest, EXAMPLE_REQUESTS, HttpMethod } from './types'
 
 interface Props {
-  onLoad: (example: ExampleRequest) => void;
+  onLoad: (example: ExampleRequest) => void
 }
 
 const METHOD_BADGE: Record<HttpMethod, string> = {
@@ -10,14 +10,14 @@ const METHOD_BADGE: Record<HttpMethod, string> = {
   POST: 'bg-blue-100 text-blue-700',
   PUT: 'bg-amber-100 text-amber-700',
   PATCH: 'bg-purple-100 text-purple-700',
-  DELETE: 'bg-red-100 text-red-700',
-};
+  DELETE: 'bg-red-100 text-red-700'
+}
 
 export const ExampleRequests: React.FC<Props> = ({ onLoad }) => {
-  const categories = [...new Set(EXAMPLE_REQUESTS.map((e) => e.category))];
-  const [activeCategory, setActiveCategory] = useState<string>(categories[0]);
+  const categories = [...new Set(EXAMPLE_REQUESTS.map((e) => e.category))]
+  const [activeCategory, setActiveCategory] = useState<string>(categories[0])
 
-  const visible = EXAMPLE_REQUESTS.filter((e) => e.category === activeCategory);
+  const visible = EXAMPLE_REQUESTS.filter((e) => e.category === activeCategory)
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
@@ -42,16 +42,23 @@ export const ExampleRequests: React.FC<Props> = ({ onLoad }) => {
 
       <ul className="divide-y divide-gray-100">
         {visible.map((example) => (
-          <li key={example.id} className="px-4 py-3 hover:bg-gray-50 flex items-start justify-between gap-4">
+          <li
+            key={example.id}
+            className="px-4 py-3 hover:bg-gray-50 flex items-start justify-between gap-4"
+          >
             <div className="min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
-                <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${METHOD_BADGE[example.request.method]}`}>
+                <span
+                  className={`text-xs font-semibold px-1.5 py-0.5 rounded ${METHOD_BADGE[example.request.method]}`}
+                >
                   {example.request.method}
                 </span>
                 <span className="text-sm font-medium text-gray-800">{example.name}</span>
               </div>
               <p className="text-xs text-gray-500">{example.description}</p>
-              <p className="text-xs font-mono text-gray-400 mt-0.5 truncate">{example.request.url}</p>
+              <p className="text-xs font-mono text-gray-400 mt-0.5 truncate">
+                {example.request.url}
+              </p>
             </div>
             <button
               onClick={() => onLoad(example)}
@@ -63,5 +70,5 @@ export const ExampleRequests: React.FC<Props> = ({ onLoad }) => {
         ))}
       </ul>
     </div>
-  );
-};
+  )
+}

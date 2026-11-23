@@ -53,18 +53,21 @@ Welcome to Scavngr, the decentralized recycling platform powered by Stellar bloc
 Scavngr has three participant roles in the recycling supply chain:
 
 ### Recycler
+
 - Collects waste from sources
 - Submits waste to the platform
 - Receives rewards for verified materials
 - Can transfer waste to collectors
 
 ### Collector
+
 - Receives waste from recyclers
 - Verifies and processes materials
 - Transfers to manufacturers
 - Earns percentage of rewards
 
 ### Manufacturer
+
 - Receives processed materials
 - Creates incentives for specific waste types
 - Distributes rewards through supply chain
@@ -228,7 +231,8 @@ Incentives encourage waste collection for specific materials.
 4. Click "Create"
 5. Approve transaction
 
-**Example**: 
+**Example**:
+
 - Waste Type: Plastic
 - Reward: 100 points/kg
 - Budget: 10,000 points (100 kg capacity)
@@ -273,6 +277,7 @@ Incentives encourage waste collection for specific materials.
 5. Approve transaction
 
 **Distribution Example**:
+
 - Waste: 10 kg plastic
 - Incentive: 100 points/kg = 1,000 points
 - Collector %: 30% = 300 points
@@ -388,13 +393,15 @@ A: Yes, but each must be registered separately.
 ### Connection Issues
 
 **Problem**: "Wallet not connected"
-- **Solution**: 
+
+- **Solution**:
   1. Refresh page
   2. Check wallet extension is installed
   3. Ensure wallet is unlocked
   4. Try different browser
 
 **Problem**: "Transaction failed"
+
 - **Solution**:
   1. Check XLM balance (need ~1 XLM per transaction)
   2. Verify network selection (testnet vs mainnet)
@@ -404,6 +411,7 @@ A: Yes, but each must be registered separately.
 ### Submission Issues
 
 **Problem**: "Invalid coordinates"
+
 - **Solution**:
   1. Latitude must be -90 to 90
   2. Longitude must be -180 to 180
@@ -411,6 +419,7 @@ A: Yes, but each must be registered separately.
   4. Multiply by 1,000,000 if entering manually
 
 **Problem**: "Weight exceeds maximum"
+
 - **Solution**:
   1. Split into multiple submissions
   2. Use batch submission for efficiency
@@ -419,6 +428,7 @@ A: Yes, but each must be registered separately.
 ### Verification Issues
 
 **Problem**: "Cannot verify waste"
+
 - **Solution**:
   1. Ensure you're registered as Collector
   2. Verify waste is in your inventory
@@ -426,6 +436,7 @@ A: Yes, but each must be registered separately.
   4. Ensure you're not the original submitter
 
 **Problem**: "Incentive budget exhausted"
+
 - **Solution**:
   1. Manufacturer must increase budget
   2. Create new incentive with higher budget
@@ -434,6 +445,7 @@ A: Yes, but each must be registered separately.
 ### Reward Issues
 
 **Problem**: "No rewards showing"
+
 - **Solution**:
   1. Waste must be verified first
   2. Must reach manufacturer for distribution
@@ -441,6 +453,7 @@ A: Yes, but each must be registered separately.
   4. Verify incentive was active at time of submission
 
 **Problem**: "Reward amount seems wrong"
+
 - **Solution**:
   1. Check incentive points per unit
   2. Verify waste weight
@@ -450,6 +463,7 @@ A: Yes, but each must be registered separately.
 ### Account Issues
 
 **Problem**: "Cannot register"
+
 - **Solution**:
   1. Ensure account not already registered
   2. Check XLM balance
@@ -457,6 +471,7 @@ A: Yes, but each must be registered separately.
   4. Try different browser
 
 **Problem**: "Profile won't update"
+
 - **Solution**:
   1. Refresh page
   2. Check wallet connection

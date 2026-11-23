@@ -12,7 +12,7 @@ import {
   Clock,
   XCircle,
   Pencil,
-  Upload,
+  Upload
 } from 'lucide-react'
 import { useParticipant } from '@/hooks/useParticipant'
 import { useProfileStats } from '@/hooks/useProfileStats'
@@ -24,7 +24,7 @@ import {
   getStoredProfileName,
   setStoredProfileName,
   getStoredProfileImage,
-  setStoredProfileImage,
+  setStoredProfileImage
 } from '@/lib/profile'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { BarChartCard, PieChartCard } from '@/components/charts/ChartCards'
@@ -41,7 +41,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
+  DialogFooter
 } from '@/components/ui/Dialog'
 import { WasteType, Waste, ParticipantStats } from '@/api/types'
 import { wasteTypeLabel, formatDate } from '@/lib/helpers'
@@ -58,7 +58,7 @@ const WASTE_TYPE_LABELS: Record<number, string> = {
   [WasteType.Metal]: 'Metal',
   [WasteType.Glass]: 'Glass',
   [WasteType.Organic]: 'Organic',
-  [WasteType.Electronic]: 'Electronic',
+  [WasteType.Electronic]: 'Electronic'
 }
 
 // ─── Skeleton helpers ────────────────────────────────────────────────────────
@@ -93,12 +93,20 @@ interface ProfileHeaderProps {
   onEditClick?: () => void
 }
 
-function ProfileHeader({ name, address, role, registeredAt, profileImageUrl, canEdit, onEditClick }: ProfileHeaderProps) {
+function ProfileHeader({
+  name,
+  address,
+  role,
+  registeredAt,
+  profileImageUrl,
+  canEdit,
+  onEditClick
+}: ProfileHeaderProps) {
   const avatarUrl = profileImageUrl || generateAvatarUrl(address)
   const formattedDate = new Date(registeredAt * 1000).toLocaleDateString(undefined, {
     year: 'numeric',
     month: 'long',
-    day: 'numeric',
+    day: 'numeric'
   })
 
   return (
@@ -116,12 +124,7 @@ function ProfileHeader({ name, address, role, registeredAt, profileImageUrl, can
           <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center sm:justify-between">
             <h1 className="text-xl font-bold sm:text-2xl">{name}</h1>
             {canEdit && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onEditClick}
-                aria-label="Edit profile"
-              >
+              <Button variant="outline" size="sm" onClick={onEditClick} aria-label="Edit profile">
                 <Pencil className="mr-2 h-3.5 w-3.5" />
                 Edit Profile
               </Button>
@@ -161,7 +164,7 @@ function StatsSection({
   wastes,
   isLoading,
   isError,
-  onRetry,
+  onRetry
 }: StatsSectionProps) {
   // Waste type breakdown for PieChart
   const pieData = useMemo(() => {
@@ -171,7 +174,7 @@ function StatsSection({
     }
     return Object.entries(counts).map(([type, count]) => ({
       name: WASTE_TYPE_LABELS[Number(type)] ?? `Type ${type}`,
-      value: count,
+      value: count
     }))
   }, [wastes])
 
@@ -268,7 +271,7 @@ const WASTE_TYPE_ICONS: Record<number, string> = {
   [WasteType.Metal]: '🔩',
   [WasteType.Glass]: '🫙',
   [WasteType.Organic]: '🌱',
-  [WasteType.Electronic]: '💻',
+  [WasteType.Electronic]: '💻'
 }
 
 const TIMELINE_PAGE_SIZE = 10
@@ -438,10 +441,30 @@ function AchievementsSection({ stats }: AchievementsSectionProps) {
       stats
         ? computeMilestones(stats)
         : [
-            { id: 'first_submission', label: 'First Submission', description: 'Submit your first waste item', reached: false },
-            { id: 'ten_transfers', label: '10 Transfers', description: 'Complete 10 waste transfers', reached: false },
-            { id: 'hundred_tokens', label: '100 Tokens', description: 'Earn 100 tokens', reached: false },
-            { id: 'fifty_materials', label: '50 Submissions', description: 'Submit 50 waste items', reached: false },
+            {
+              id: 'first_submission',
+              label: 'First Submission',
+              description: 'Submit your first waste item',
+              reached: false
+            },
+            {
+              id: 'ten_transfers',
+              label: '10 Transfers',
+              description: 'Complete 10 waste transfers',
+              reached: false
+            },
+            {
+              id: 'hundred_tokens',
+              label: '100 Tokens',
+              description: 'Earn 100 tokens',
+              reached: false
+            },
+            {
+              id: 'fifty_materials',
+              label: '50 Submissions',
+              description: 'Submit 50 waste items',
+              reached: false
+            }
           ],
     [stats]
   )
@@ -504,9 +527,7 @@ function EditProfileModal({ open, onClose, currentName, address, onSave }: EditP
   const [name, setName] = useState(currentName)
   const [nameError, setNameError] = useState<string | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(
-    getStoredProfileImage(address)
-  )
+  const [imagePreview, setImagePreview] = useState<string | null>(getStoredProfileImage(address))
   const [imageError, setImageError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -574,7 +595,12 @@ function EditProfileModal({ open, onClose, currentName, address, onSave }: EditP
   }
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose() }}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) onClose()
+      }}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Profile</DialogTitle>
@@ -668,7 +694,11 @@ export function ProfilePage() {
   const queryClient = useQueryClient()
   const toast = useToast()
 
-  const { participant, isLoading: isLoadingParticipant, isError: isParticipantError } = useParticipant()
+  const {
+    participant,
+    isLoading: isLoadingParticipant,
+    isError: isParticipantError
+  } = useParticipant()
   const { stats, wastes, isLoadingStats, isLoadingWastes, isStatsError } = useProfileStats()
 
   const [editModalOpen, setEditModalOpen] = useState(false)
@@ -685,10 +715,7 @@ export function ProfilePage() {
     return getStoredProfileImage(participant.address)
   }, [participant])
 
-  const reputationScore = useMemo(
-    () => (stats ? computeReputationScore(stats) : 0),
-    [stats]
-  )
+  const reputationScore = useMemo(() => (stats ? computeReputationScore(stats) : 0), [stats])
 
   const retryParticipant = () => {
     queryClient.invalidateQueries({ queryKey: cacheKeys.participant(address) })

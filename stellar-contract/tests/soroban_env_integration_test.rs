@@ -16,9 +16,7 @@ use soroban_sdk::{
     testutils::{Address as _, Events as _},
     Address, Env, String, Vec,
 };
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContractClient, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContractClient, WasteType};
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  Complete Lifecycle Integration Tests

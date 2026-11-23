@@ -35,12 +35,12 @@ export function useCollectorDashboard(): CollectorDashboardData {
       const client = new ScavengerClient({
         contractId: config.contractId,
         rpcUrl: config.rpcUrl,
-        networkPassphrase: NETWORK_CONFIGS[config.network].networkPassphrase,
+        networkPassphrase: NETWORK_CONFIGS[config.network].networkPassphrase
       })
 
       const [participantStats, metrics] = await Promise.all([
         client.getStats(address),
-        client.getMetrics(),
+        client.getMetrics()
       ])
 
       setStats(participantStats)
@@ -64,12 +64,26 @@ export function useCollectorDashboard(): CollectorDashboardData {
     }
   }, [address, config])
 
-  useEffect(() => { fetch() }, [fetch])
+  useEffect(() => {
+    fetch()
+  }, [fetch])
 
   const statsByWasteType = collectedWastes.reduce<Record<WasteType, number>>(
-    (acc, m) => { acc[m.waste_type] = (acc[m.waste_type] ?? 0) + 1; return acc },
+    (acc, m) => {
+      acc[m.waste_type] = (acc[m.waste_type] ?? 0) + 1
+      return acc
+    },
     {} as Record<WasteType, number>
   )
 
-  return { tokenBalance, pendingTransfers, collectedWastes, stats, statsByWasteType, isLoading, error, refetch: fetch }
+  return {
+    tokenBalance,
+    pendingTransfers,
+    collectedWastes,
+    stats,
+    statsByWasteType,
+    isLoading,
+    error,
+    refetch: fetch
+  }
 }

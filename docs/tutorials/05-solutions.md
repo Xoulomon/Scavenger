@@ -289,10 +289,10 @@ The `try_` prefix is generated automatically by `#[contractclient]` — it retur
 
 ## Key Takeaways
 
-| Pattern | Lesson |
-|---------|--------|
-| Explicit weight bounds | Always validate numeric inputs at the contract boundary |
-| Atomic batches | Soroban transactions are all-or-nothing; use this as a feature |
-| Ledger-relative expiry | Avoid wall-clock time in contracts; ledger sequences are deterministic |
-| Basis-point arithmetic | Always check `bps <= 10000`; integer division truncates toward zero |
-| `#[contracterror]` | Typed errors give callers machine-readable codes; prefer over `panic!` in production contracts |
+| Pattern                | Lesson                                                                                         |
+| ---------------------- | ---------------------------------------------------------------------------------------------- |
+| Explicit weight bounds | Always validate numeric inputs at the contract boundary                                        |
+| Atomic batches         | Soroban transactions are all-or-nothing; use this as a feature                                 |
+| Ledger-relative expiry | Avoid wall-clock time in contracts; ledger sequences are deterministic                         |
+| Basis-point arithmetic | Always check `bps <= 10000`; integer division truncates toward zero                            |
+| `#[contracterror]`     | Typed errors give callers machine-readable codes; prefer over `panic!` in production contracts |

@@ -57,6 +57,6 @@ export function useResource<T>(
   return {
     ...state,
     isLoading: state.status === 'idle' || state.status === 'loading',
-    reload,
+    reload
   }
 }

@@ -61,7 +61,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
+  DialogDescription
 } from '@/components/ui/Dialog'
 
 /**
@@ -98,7 +98,7 @@ export function Modal({
   description,
   children,
   className,
-  triggerRef,
+  triggerRef
 }: ModalProps) {
   // When the dialog closes, return focus to the trigger element if supplied.
   // Radix already does this when DialogTrigger is used; this handles the

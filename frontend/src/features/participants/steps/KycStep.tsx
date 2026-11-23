@@ -19,7 +19,7 @@ export function KycStep({
   selfieDropzone,
   onRemoveIdentity,
   onRemoveSelfie,
-  errors,
+  errors
 }: {
   identityDoc: FileInfo | null
   identityFile: File | null
@@ -69,9 +69,7 @@ export function KycStep({
                     ? 'Drop your document here'
                     : 'Drag & drop or click to upload'}
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  PDF, JPEG, PNG -- max 10 MB
-                </p>
+                <p className="text-xs text-muted-foreground">PDF, JPEG, PNG -- max 10 MB</p>
               </div>
             ) : (
               <FilePreview
@@ -99,12 +97,10 @@ export function KycStep({
           <div className="space-y-2">
             <label className="flex items-center gap-2 text-sm font-medium">
               <Camera className="h-4 w-4 text-primary" aria-hidden="true" />
-              Selfie Photo{' '}
-              <span className="text-xs text-muted-foreground">(optional)</span>
+              Selfie Photo <span className="text-xs text-muted-foreground">(optional)</span>
             </label>
             <p className="text-xs text-muted-foreground">
-              A clear photo of your face for additional verification. JPEG or PNG up to 10
-              MB.
+              A clear photo of your face for additional verification. JPEG or PNG up to 10 MB.
             </p>
 
             {!selfieFile && !selfieDoc ? (
@@ -151,7 +147,7 @@ function FilePreview({
   name,
   size,
   removeLabel,
-  onRemove,
+  onRemove
 }: {
   icon: ReactNode
   name: string | undefined

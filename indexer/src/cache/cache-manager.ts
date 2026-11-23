@@ -1,65 +1,65 @@
-import { RedisCache } from './redis-client';
+import { RedisCache } from './redis-client'
 
 export class CacheManager {
-  private cache: RedisCache;
+  private cache: RedisCache
 
   constructor(cache: RedisCache) {
-    this.cache = cache;
+    this.cache = cache
   }
 
   async getParticipant(address: string) {
-    return this.cache.get(`participant:${address}`);
+    return this.cache.get(`participant:${address}`)
   }
 
   async setParticipant(address: string, data: Record<string, unknown>) {
-    return this.cache.set(`participant:${address}`, data, 'participant');
+    return this.cache.set(`participant:${address}`, data, 'participant')
   }
 
   async invalidateParticipant(address: string) {
-    return this.cache.del(`participant:${address}`);
+    return this.cache.del(`participant:${address}`)
   }
 
   async getWaste(wasteId: string) {
-    return this.cache.get(`waste:${wasteId}`);
+    return this.cache.get(`waste:${wasteId}`)
   }
 
   async setWaste(wasteId: string, data: Record<string, unknown>) {
-    return this.cache.set(`waste:${wasteId}`, data, 'waste');
+    return this.cache.set(`waste:${wasteId}`, data, 'waste')
   }
 
   async invalidateWaste(wasteId: string) {
-    return this.cache.del(`waste:${wasteId}`);
+    return this.cache.del(`waste:${wasteId}`)
   }
 
   async getIncentive(incentiveId: string) {
-    return this.cache.get(`incentive:${incentiveId}`);
+    return this.cache.get(`incentive:${incentiveId}`)
   }
 
   async setIncentive(incentiveId: string, data: Record<string, unknown>) {
-    return this.cache.set(`incentive:${incentiveId}`, data, 'incentive');
+    return this.cache.set(`incentive:${incentiveId}`, data, 'incentive')
   }
 
   async invalidateIncentive(incentiveId: string) {
-    return this.cache.del(`incentive:${incentiveId}`);
+    return this.cache.del(`incentive:${incentiveId}`)
   }
 
   async getMetrics() {
-    return this.cache.get('metrics:global');
+    return this.cache.get('metrics:global')
   }
 
   async setMetrics(data: Record<string, unknown>) {
-    return this.cache.set('metrics:global', data, 'metrics');
+    return this.cache.set('metrics:global', data, 'metrics')
   }
 
   async invalidateMetrics() {
-    return this.cache.del('metrics:global');
+    return this.cache.del('metrics:global')
   }
 
   async invalidateAll() {
-    return this.cache.invalidatePattern('*');
+    return this.cache.invalidatePattern('*')
   }
 
   getStats() {
-    return this.cache.getStats();
+    return this.cache.getStats()
   }
 }

@@ -73,11 +73,7 @@ impl GlobalMetrics {
 // ────────────────────────────────────────────────────────────────────────
 
 /// Accumulates a waste-type submission into `stats`.
-pub fn record_waste_type_submission(
-    stats: &mut RecyclingStats,
-    waste_type: WasteType,
-    weight_grams: u64,
-) {
+pub fn record_waste_type_submission(stats: &mut RecyclingStats, waste_type: WasteType, weight_grams: u64) {
     stats.total_submissions += 1;
     stats.total_weight = stats.total_weight.saturating_add(weight_grams);
     match waste_type {
@@ -94,9 +90,7 @@ pub fn record_waste_type_submission(
 /// Records token and carbon-credit earnings for a participant.
 pub fn record_earnings(stats: &mut RecyclingStats, tokens: u64, carbon_credits: u128) {
     stats.total_points = stats.total_points.saturating_add(tokens);
-    stats.carbon_credits_earned = stats
-        .carbon_credits_earned
-        .saturating_add(carbon_credits);
+    stats.carbon_credits_earned = stats.carbon_credits_earned.saturating_add(carbon_credits);
 }
 
 /// Recalculates the recycling rate and updates `stats.recycling_rate`.
@@ -127,7 +121,10 @@ const ANALYTICS_BATCH_SIZE: u64 = 10;
 
 /// Returns the storage key for per-participant recycling stats.
 pub fn recycling_stats_key(address: &Address) -> (soroban_sdk::String, Address) {
-    (soroban_sdk::String::from_str(&Env::default(), "recycling_stats"), address.clone())
+    (
+        soroban_sdk::String::from_str(&Env::default(), "recycling_stats"),
+        address.clone(),
+    )
 }
 
 // ────────────────────────────────────────────────────────────────────────
@@ -138,9 +135,7 @@ pub fn recycling_stats_key(address: &Address) -> (soroban_sdk::String, Address) 
 ///
 /// **Note**: Use [`try_periodic_update`] instead to leverage batching.
 pub fn save_global_metrics(env: &Env, metrics: &GlobalMetrics) -> Result<(), soroban_sdk::String> {
-    env.storage()
-        .instance()
-        .set(&GLOBAL_METRICS_SNAPSHOT, metrics);
+    env.storage().instance().set(&GLOBAL_METRICS_SNAPSHOT, metrics);
     Ok(())
 }
 
@@ -195,9 +190,7 @@ pub fn try_periodic_update(env: &Env, metrics: &GlobalMetrics) -> Result<(), sor
 
     // Increment counter
     let new_batch = current_batch + 1;
-    env.storage()
-        .instance()
-        .set(&ANALYTICS_BATCH_COUNT, &new_batch);
+    env.storage().instance().set(&ANALYTICS_BATCH_COUNT, &new_batch);
 
     // Check if we've reached the batch threshold
     if new_batch >= ANALYTICS_BATCH_SIZE {
@@ -206,9 +199,7 @@ pub fn try_periodic_update(env: &Env, metrics: &GlobalMetrics) -> Result<(), sor
 
         // Record the update timestamp for audit
         let timestamp = env.ledger().timestamp();
-        env.storage()
-            .instance()
-            .set(&ANALYTICS_LAST_UPDATE, &timestamp);
+        env.storage().instance().set(&ANALYTICS_LAST_UPDATE, &timestamp);
 
         // Reset the batch counter
         env.storage().instance().set(&ANALYTICS_BATCH_COUNT, &0u64);
@@ -230,16 +221,9 @@ pub fn try_periodic_update(env: &Env, metrics: &GlobalMetrics) -> Result<(), sor
 /// # Returns
 /// - `Ok(())` if initialization succeeds
 /// - `Err(msg)` if a snapshot already exists (prevents overwriting)
-pub fn initialize_analytics_on_upgrade(
-    env: &Env,
-    initial_metrics: &GlobalMetrics,
-) -> Result<(), soroban_sdk::String> {
+pub fn initialize_analytics_on_upgrade(env: &Env, initial_metrics: &GlobalMetrics) -> Result<(), soroban_sdk::String> {
     // Check if snapshot already exists (migration already run)
-    if env
-        .storage()
-        .instance()
-        .has(&GLOBAL_METRICS_SNAPSHOT)
-    {
+    if env.storage().instance().has(&GLOBAL_METRICS_SNAPSHOT) {
         return Err(soroban_sdk::String::from_str(
             env,
             "Analytics snapshot already initialized",
@@ -251,9 +235,7 @@ pub fn initialize_analytics_on_upgrade(
 
     // Record initialization timestamp
     let timestamp = env.ledger().timestamp();
-    env.storage()
-        .instance()
-        .set(&ANALYTICS_LAST_UPDATE, &timestamp);
+    env.storage().instance().set(&ANALYTICS_LAST_UPDATE, &timestamp);
 
     // Initialize batch counter at 0
     env.storage().instance().set(&ANALYTICS_BATCH_COUNT, &0u64);
@@ -498,10 +480,7 @@ mod tests {
 
         // Verify all fields match
         assert_eq!(retrieved.total_tokens_earned, metrics.total_tokens_earned);
-        assert_eq!(
-            retrieved.total_carbon_credits,
-            metrics.total_carbon_credits
-        );
+        assert_eq!(retrieved.total_carbon_credits, metrics.total_carbon_credits);
         assert_eq!(retrieved.total_wastes_count, metrics.total_wastes_count);
         assert_eq!(retrieved.active_waste_count, metrics.active_waste_count);
         assert_eq!(retrieved.expired_waste_count, metrics.expired_waste_count);
@@ -533,10 +512,7 @@ mod tests {
             // Snapshot should only exist after ANALYTICS_BATCH_SIZE calls
             if i >= ANALYTICS_BATCH_SIZE {
                 let stored = get_global_metrics(&env);
-                assert!(
-                    stored.is_some(),
-                    "Snapshot should exist after batch threshold"
-                );
+                assert!(stored.is_some(), "Snapshot should exist after batch threshold");
             }
         }
     }

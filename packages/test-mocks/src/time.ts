@@ -78,16 +78,13 @@ export function installFakeClock(initial: string | number | Date = Date.now()): 
     uninstall: () => {
       globalRef.Date = realDate
       activeClock = null
-    },
+    }
   }
   return activeClock
 }
 
 /** Run `fn` with a fake clock installed; always uninstalls afterwards. */
-export function withFakeClock<T>(
-  initial: string | number | Date,
-  fn: (clock: FakeClock) => T
-): T {
+export function withFakeClock<T>(initial: string | number | Date, fn: (clock: FakeClock) => T): T {
   const clock = installFakeClock(initial)
   try {
     return fn(clock)

@@ -1,11 +1,13 @@
 # CI/CD Pipeline Improvements
 
 ## Overview
+
 Enhanced CI/CD pipeline with security scanning, code coverage, performance benchmarks, and deployment automation.
 
 ## Features
 
 ### Security Scanning
+
 - **Trivy**: Filesystem vulnerability scanning
 - **Snyk**: Dependency vulnerability detection
 - **RustSec**: Rust security audit
@@ -13,18 +15,21 @@ Enhanced CI/CD pipeline with security scanning, code coverage, performance bench
 - Results uploaded to GitHub Security tab
 
 ### Code Coverage
+
 - **Rust**: Using `cargo-tarpaulin` for coverage reporting
 - **Frontend**: Jest coverage reports
 - Coverage reports uploaded to Codecov
 - Minimum coverage thresholds enforced
 
 ### Performance Benchmarks
+
 - Rust benchmarks run on every push
 - Results tracked over time
 - Performance regressions detected
 - Benchmarks stored in artifacts
 
 ### Deployment Pipeline
+
 - Automated staging deployments on main branch
 - Manual production deployments with approval
 - Smoke tests after deployment
@@ -34,6 +39,7 @@ Enhanced CI/CD pipeline with security scanning, code coverage, performance bench
 ## Workflow Jobs
 
 ### CI Jobs (Pull Requests)
+
 1. **Rust Quality Checks**
    - Format checking
    - Linting with Clippy
@@ -60,6 +66,7 @@ Enhanced CI/CD pipeline with security scanning, code coverage, performance bench
    - Rust dependencies
 
 ### CD Jobs (Main Branch)
+
 1. **Build Artifacts**
    - Docker image creation
    - Multi-platform builds
@@ -79,6 +86,7 @@ Enhanced CI/CD pipeline with security scanning, code coverage, performance bench
 ## Configuration
 
 ### Branch Protection Rules
+
 ```
 Settings > Branches > main
 - Require status checks to pass:
@@ -91,6 +99,7 @@ Settings > Branches > main
 ```
 
 ### Secrets Required
+
 - `CODECOV_TOKEN` - Codecov integration
 - `SLACK_WEBHOOK_URL` - Slack notifications
 - `DOCKER_REGISTRY_TOKEN` - Docker registry access
@@ -98,12 +107,14 @@ Settings > Branches > main
 ## Performance Optimization
 
 ### Caching Strategy
+
 - Cargo dependencies cached by lock file
 - npm dependencies cached by package-lock.json
 - Docker layer caching enabled
 - Build artifacts cached
 
 ### Parallel Execution
+
 - Rust and Frontend checks run in parallel
 - Security scanning runs independently
 - Reduces total pipeline time
@@ -111,6 +122,7 @@ Settings > Branches > main
 ## Monitoring
 
 ### Pipeline Metrics
+
 - Build time trends
 - Test pass/fail rates
 - Coverage trends
@@ -118,6 +130,7 @@ Settings > Branches > main
 - Lead time for changes
 
 ### Alerts
+
 - Failed builds notify team
 - Security vulnerabilities trigger alerts
 - Coverage drops below threshold

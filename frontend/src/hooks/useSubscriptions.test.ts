@@ -4,7 +4,7 @@ import { renderHook, act } from '@testing-library/react'
 // ── Hoisted mocks ─────────────────────────────────────────────────────────────
 
 const mocks = vi.hoisted(() => ({
-  add: vi.fn().mockResolvedValue(undefined),
+  add: vi.fn().mockResolvedValue(undefined)
 }))
 
 vi.mock('@/lib/firebase', () => ({ db: {} }))
@@ -18,7 +18,7 @@ vi.mock('firebase/firestore', () => ({
   query: vi.fn((...a: unknown[]) => a),
   where: vi.fn((...a: unknown[]) => a),
   orderBy: vi.fn((...a: unknown[]) => a),
-  increment: vi.fn((n: number) => n),
+  increment: vi.fn((n: number) => n)
 }))
 
 vi.mock('@/lib/notifications', () => {
@@ -40,7 +40,7 @@ function makeInput(overrides = {}) {
     frequency: 'weekly' as const,
     wasteTypes: ['Paper'],
     startDate: Date.now(),
-    ...overrides,
+    ...overrides
   }
 }
 
@@ -69,7 +69,9 @@ describe('useSubscriptions', () => {
 
   it('new subscription has status active', () => {
     const { result } = renderHook(() => useSubscriptions(ADDR))
-    act(() => { result.current.create(makeInput()) })
+    act(() => {
+      result.current.create(makeInput())
+    })
     expect(result.current.subscriptions[0].status).toBe('active')
   })
 
@@ -80,7 +82,9 @@ describe('useSubscriptions', () => {
       const sub = result.current.create(makeInput())!
       id = sub.id
     })
-    act(() => { result.current.pause(id) })
+    act(() => {
+      result.current.pause(id)
+    })
     expect(result.current.paused).toHaveLength(1)
     expect(result.current.active).toHaveLength(0)
   })
@@ -92,8 +96,12 @@ describe('useSubscriptions', () => {
       const sub = result.current.create(makeInput())!
       id = sub.id
     })
-    act(() => { result.current.pause(id) })
-    act(() => { result.current.resume(id) })
+    act(() => {
+      result.current.pause(id)
+    })
+    act(() => {
+      result.current.resume(id)
+    })
     expect(result.current.active).toHaveLength(1)
     expect(result.current.paused).toHaveLength(0)
   })
@@ -105,7 +113,9 @@ describe('useSubscriptions', () => {
       const sub = result.current.create(makeInput())!
       id = sub.id
     })
-    act(() => { result.current.cancel(id) })
+    act(() => {
+      result.current.cancel(id)
+    })
     expect(result.current.cancelled).toHaveLength(1)
     expect(result.current.active).toHaveLength(0)
   })
@@ -119,7 +129,9 @@ describe('useSubscriptions', () => {
       id = sub.id
       originalNext = sub.nextPickup
     })
-    act(() => { result.current.recordPickup(id) })
+    act(() => {
+      result.current.recordPickup(id)
+    })
     const updated = result.current.subscriptions.find((s) => s.id === id)!
     expect(updated.nextPickup).toBeGreaterThan(originalNext)
   })
@@ -131,7 +143,9 @@ describe('useSubscriptions', () => {
       const sub = result.current.create(makeInput())!
       id = sub.id
     })
-    act(() => { result.current.pause(id) })
+    act(() => {
+      result.current.pause(id)
+    })
     const actions = result.current.history.map((h) => h.action)
     expect(actions).toContain('created')
     expect(actions).toContain('paused')
@@ -140,7 +154,9 @@ describe('useSubscriptions', () => {
   it('returns false and does nothing for unknown id', () => {
     const { result } = renderHook(() => useSubscriptions(ADDR))
     let ok: boolean
-    act(() => { ok = result.current.pause('nonexistent') })
+    act(() => {
+      ok = result.current.pause('nonexistent')
+    })
     expect(ok!).toBe(false)
     expect(result.current.subscriptions).toHaveLength(0)
   })
@@ -166,7 +182,9 @@ describe('useSubscriptions', () => {
   it('create returns null when no address', () => {
     const { result } = renderHook(() => useSubscriptions(null))
     let sub: ReturnType<typeof result.current.create>
-    act(() => { sub = result.current.create(makeInput()) })
+    act(() => {
+      sub = result.current.create(makeInput())
+    })
     expect(sub).toBeNull()
   })
 })

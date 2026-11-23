@@ -1,8 +1,8 @@
-import { Pool, PoolClient, PoolConfig } from 'pg';
-import { config } from '../config';
-import { logger } from '../utils/logger';
+import { Pool, PoolClient, PoolConfig } from 'pg'
+import { config } from '../config'
+import { logger } from '../utils/logger'
 
-let pool: Pool | null = null;
+let pool: Pool | null = null
 
 /**
  * Build pool configuration from the central config module (#1159).
@@ -18,61 +18,61 @@ function buildPoolConfig(): PoolConfig {
     min: config.database.minConnections,
     idleTimeoutMillis: config.database.idleTimeout,
     connectionTimeoutMillis: config.database.connectionTimeoutMs,
-    statement_timeout: config.database.statementTimeoutMs,
-  };
+    statement_timeout: config.database.statementTimeoutMs
+  }
 }
 
 export function getPool(): Pool {
   if (!pool) {
-    const poolConfig = buildPoolConfig();
-    pool = new Pool(poolConfig);
+    const poolConfig = buildPoolConfig()
+    pool = new Pool(poolConfig)
 
     pool.on('error', (err) => {
-      logger.error('Unexpected DB pool error', { error: String(err) });
-    });
+      logger.error('Unexpected DB pool error', { error: String(err) })
+    })
 
     pool.on('connect', () => {
-      logger.debug('New DB client connected');
-    });
+      logger.debug('New DB client connected')
+    })
 
     logger.info('DB connection pool created', {
       max: poolConfig.max,
       min: poolConfig.min,
       idleTimeoutMs: poolConfig.idleTimeoutMillis,
       connectionTimeoutMs: poolConfig.connectionTimeoutMillis,
-      statementTimeoutMs: poolConfig.statement_timeout,
-    });
+      statementTimeoutMs: poolConfig.statement_timeout
+    })
   }
-  return pool;
+  return pool
 }
 
 export async function withClient<T>(fn: (client: PoolClient) => Promise<T>): Promise<T> {
-  const client = await getPool().connect();
+  const client = await getPool().connect()
   try {
-    return await fn(client);
+    return await fn(client)
   } finally {
-    client.release();
+    client.release()
   }
 }
 
 export async function withTransaction<T>(fn: (client: PoolClient) => Promise<T>): Promise<T> {
   return withClient(async (client) => {
-    await client.query('BEGIN');
+    await client.query('BEGIN')
     try {
-      const result = await fn(client);
-      await client.query('COMMIT');
-      return result;
+      const result = await fn(client)
+      await client.query('COMMIT')
+      return result
     } catch (err) {
-      await client.query('ROLLBACK');
-      throw err;
+      await client.query('ROLLBACK')
+      throw err
     }
-  });
+  })
 }
 
 export async function closePool(): Promise<void> {
   if (pool) {
-    logger.info('Closing DB connection pool');
-    await pool.end();
-    pool = null;
+    logger.info('Closing DB connection pool')
+    await pool.end()
+    pool = null
   }
 }

@@ -7,7 +7,7 @@ import {
   isValidCoord,
   parseCoordinateSearch,
   participantMatchesLocationSearch,
-  wasteMatchesLocationSearch,
+  wasteMatchesLocationSearch
 } from '@/hooks/useMapData'
 
 const wastePoint: WasteMapPoint = {
@@ -24,8 +24,8 @@ const wastePoint: WasteMapPoint = {
     recycled_timestamp: 1700000000,
     is_active: true,
     is_confirmed: false,
-    confirmer: '',
-  },
+    confirmer: ''
+  }
 }
 
 const participantPoint: ParticipantMapPoint = {
@@ -38,8 +38,8 @@ const participantPoint: ParticipantMapPoint = {
     name: 'Downtown Recycler',
     latitude: 407306000,
     longitude: -739352000,
-    registered_at: 1700000000,
-  },
+    registered_at: 1700000000
+  }
 }
 
 describe('map data helpers', () => {
@@ -63,8 +63,12 @@ describe('map data helpers', () => {
   })
 
   it('matches waste by nearby coordinate search', () => {
-    expect(wasteMatchesLocationSearch(wastePoint, { locationQuery: '40.713,-74.006', radiusKm: 1 })).toBe(true)
-    expect(wasteMatchesLocationSearch(wastePoint, { locationQuery: '34.0522,-118.2437', radiusKm: 10 })).toBe(false)
+    expect(
+      wasteMatchesLocationSearch(wastePoint, { locationQuery: '40.713,-74.006', radiusKm: 1 })
+    ).toBe(true)
+    expect(
+      wasteMatchesLocationSearch(wastePoint, { locationQuery: '34.0522,-118.2437', radiusKm: 10 })
+    ).toBe(false)
   })
 
   it('matches waste by owner or id text', () => {
@@ -73,9 +77,17 @@ describe('map data helpers', () => {
   })
 
   it('matches participants by nearby coordinates and text', () => {
-    expect(participantMatchesLocationSearch(participantPoint, { locationQuery: '40.73,-73.93', radiusKm: 2 })).toBe(true)
-    expect(participantMatchesLocationSearch(participantPoint, { locationQuery: 'downtown' })).toBe(true)
-    expect(participantMatchesLocationSearch(participantPoint, { locationQuery: 'collector' })).toBe(false)
+    expect(
+      participantMatchesLocationSearch(participantPoint, {
+        locationQuery: '40.73,-73.93',
+        radiusKm: 2
+      })
+    ).toBe(true)
+    expect(participantMatchesLocationSearch(participantPoint, { locationQuery: 'downtown' })).toBe(
+      true
+    )
+    expect(participantMatchesLocationSearch(participantPoint, { locationQuery: 'collector' })).toBe(
+      false
+    )
   })
 })
-

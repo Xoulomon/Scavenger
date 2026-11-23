@@ -1,35 +1,35 @@
 {
-  "common": {
-    "loading": "Chargement...",
-    "error": "Erreur",
-    "success": "Succès",
-    "cancel": "Annuler",
-    "confirm": "Confirmer",
-    "save": "Enregistrer",
-    "delete": "Supprimer",
-    "edit": "Modifier",
-    "close": "Fermer",
-    "search": "Rechercher",
-    "filter": "Filtrer",
-    "export": "Exporter",
-    "submit": "Soumettre",
-    "back": "Retour",
-    "noData": "Aucune donnée disponible"
-  },
-  "nav": {
-    "dashboard": "Tableau de bord",
-    "settings": "Paramètres",
-    "profile": "Profil"
-  },
-  "errors": {
-    "network": "Erreur réseau",
-    "unauthorized": "Accès non autorisé",
-    "notFound": "Ressource introuvable",
-    "unknown": "Une erreur inconnue s'est produite",
-    "walletNotFound": "Portefeuille introuvable. Veuillez installer Freighter."
-  },
-  "settings": {
-    "language": "Langue",
-    "theme": "Thème"
-  }
+    "common": {
+        "loading": "Chargement...",
+        "error": "Erreur",
+        "success": "Succès",
+        "cancel": "Annuler",
+        "confirm": "Confirmer",
+        "save": "Enregistrer",
+        "delete": "Supprimer",
+        "edit": "Modifier",
+        "close": "Fermer",
+        "search": "Rechercher",
+        "filter": "Filtrer",
+        "export": "Exporter",
+        "submit": "Soumettre",
+        "back": "Retour",
+        "noData": "Aucune donnée disponible"
+    },
+    "nav": {
+        "dashboard": "Tableau de bord",
+        "settings": "Paramètres",
+        "profile": "Profil"
+    },
+    "errors": {
+        "network": "Erreur réseau",
+        "unauthorized": "Accès non autorisé",
+        "notFound": "Ressource introuvable",
+        "unknown": "Une erreur inconnue s'est produite",
+        "walletNotFound": "Portefeuille introuvable. Veuillez installer Freighter."
+    },
+    "settings": {
+        "language": "Langue",
+        "theme": "Thème"
+    }
 }

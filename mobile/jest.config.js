@@ -4,7 +4,7 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   // Transform ESM packages: react-native core modules AND msw (and its deps)
   transformIgnorePatterns: [
-    'node_modules/(?!(jest-)?react-native|@react-native|@react-native-community|@react-navigation|msw|@mswjs)',
+    'node_modules/(?!(jest-)?react-native|@react-native|@react-native-community|@react-navigation|msw|@mswjs)'
   ],
   testPathIgnorePatterns: ['/node_modules/', '/fixtures/'],
   // Route integration tests to their own testEnvironment so they don't try
@@ -18,9 +18,9 @@ module.exports = {
       moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
       setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
       transformIgnorePatterns: [
-        'node_modules/(?!(jest-)?react-native|@react-native|@react-native-community|@react-navigation|msw|@mswjs)',
+        'node_modules/(?!(jest-)?react-native|@react-native|@react-native-community|@react-navigation|msw|@mswjs)'
       ],
-      testPathIgnorePatterns: ['/node_modules/', '/fixtures/', '\\.integration\\.test\\.'],
+      testPathIgnorePatterns: ['/node_modules/', '/fixtures/', '\\.integration\\.test\\.']
     },
     {
       // Integration tests for the API layer (Node.js / MSW)
@@ -28,13 +28,11 @@ module.exports = {
       testEnvironment: 'node',
       moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
       transform: {
-        '^.+\\.(ts|tsx)$': 'babel-jest',
+        '^.+\\.(ts|tsx)$': 'babel-jest'
       },
-      transformIgnorePatterns: [
-        'node_modules/(?!(msw|@mswjs))',
-      ],
+      transformIgnorePatterns: ['node_modules/(?!(msw|@mswjs))'],
       testMatch: ['**/*.integration.test.ts'],
-      testPathIgnorePatterns: ['/node_modules/', '/fixtures/'],
-    },
-  ],
-};
+      testPathIgnorePatterns: ['/node_modules/', '/fixtures/']
+    }
+  ]
+}

@@ -44,6 +44,7 @@ All PRs must:
 - [ ] Have a clear description of what was changed and why.
 
 PRs that modify the smart contract additionally require:
+
 - [ ] A snapshot test update (if applicable).
 - [ ] No reduction in test coverage.
 
@@ -68,15 +69,15 @@ PRs that modify the smart contract additionally require:
 
 ## Types of Contributions We Welcome
 
-| Type | How to Contribute |
-|------|-------------------|
-| Bug fixes | Open an issue, then a PR |
-| Features | Discuss in an issue first, then a PR |
-| Documentation | Direct PR is fine for small fixes; issue first for large additions |
-| Translations | See [I18N Guide](/docs/I18N_GUIDE) |
-| Test coverage | PRs that add tests are always welcome |
-| Performance improvements | Include benchmarks |
-| Security reports | See `SECURITY.md` — do not open public issues |
+| Type                     | How to Contribute                                                  |
+| ------------------------ | ------------------------------------------------------------------ |
+| Bug fixes                | Open an issue, then a PR                                           |
+| Features                 | Discuss in an issue first, then a PR                               |
+| Documentation            | Direct PR is fine for small fixes; issue first for large additions |
+| Translations             | See [I18N Guide](/docs/I18N_GUIDE)                                 |
+| Test coverage            | PRs that add tests are always welcome                              |
+| Performance improvements | Include benchmarks                                                 |
+| Security reports         | See `SECURITY.md` — do not open public issues                      |
 
 ---
 

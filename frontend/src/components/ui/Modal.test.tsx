@@ -66,12 +66,7 @@ describe('Modal', () => {
 
     it('renders description when provided', () => {
       render(
-        <Modal
-          open={true}
-          onClose={vi.fn()}
-          title="Confirm"
-          description="Are you sure?"
-        >
+        <Modal open={true} onClose={vi.fn()} title="Confirm" description="Are you sure?">
           Content
         </Modal>
       )
@@ -101,12 +96,7 @@ describe('Modal', () => {
 
     it('applies custom className', () => {
       const { container } = render(
-        <Modal
-          open={true}
-          onClose={vi.fn()}
-          title="Test"
-          className="custom-modal-class"
-        >
+        <Modal open={true} onClose={vi.fn()} title="Test" className="custom-modal-class">
           Content
         </Modal>
       )
@@ -334,7 +324,8 @@ describe('Modal', () => {
     })
 
     it('handles very long title', () => {
-      const longTitle = 'This is a very long modal title that might wrap to multiple lines in the UI'
+      const longTitle =
+        'This is a very long modal title that might wrap to multiple lines in the UI'
       render(
         <Modal open={true} onClose={vi.fn()} title={longTitle}>
           Content

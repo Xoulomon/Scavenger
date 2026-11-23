@@ -27,7 +27,7 @@ export function useManufacturerDashboard() {
       new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: getNetworkPassphrase(config.network),
-        contractId: config.contractId,
+        contractId: config.contractId
       }),
     [config]
   )
@@ -66,8 +66,8 @@ export function useManufacturerDashboard() {
             wasteId: 0,
             incentiveId: 0,
             amount: stats.total_earned,
-            distributedAt: Date.now(),
-          },
+            distributedAt: Date.now()
+          }
         ])
       }
     } catch (err) {
@@ -99,5 +99,14 @@ export function useManufacturerDashboard() {
     [address, getClient, load]
   )
 
-  return { pendingWastes, incentives, rewardHistory, isLoading, error, createIncentive, confirmWaste, reload: load }
+  return {
+    pendingWastes,
+    incentives,
+    rewardHistory,
+    isLoading,
+    error,
+    createIncentive,
+    confirmWaste,
+    reload: load
+  }
 }

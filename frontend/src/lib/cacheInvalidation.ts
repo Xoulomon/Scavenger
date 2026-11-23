@@ -21,40 +21,40 @@ export const invalidationPlan = {
   transferWaste: (wasteId: string) => [
     cacheKeys.participantWastes(),
     cacheKeys.transferHistory(wasteId),
-    cacheKeys.waste(wasteId),
+    cacheKeys.waste(wasteId)
   ],
   confirmWaste: (wasteId: string) => [
     cacheKeys.participantWastes(),
     cacheKeys.waste(wasteId),
-    cacheKeys.transferHistory(wasteId),
+    cacheKeys.transferHistory(wasteId)
   ],
   recycleWaste: (recycler: string) => [
     cacheKeys.participantWastes(recycler),
     cacheKeys.participantWastes(),
-    cacheKeys.supplyChainStats(),
+    cacheKeys.supplyChainStats()
   ],
 
   // Rewards & incentives
   distributeRewards: () => [
     cacheKeys.rewards(),
     cacheKeys.participantStats(),
-    cacheKeys.supplyChainStats(),
+    cacheKeys.supplyChainStats()
   ],
   donateToCharity: () => [cacheKeys.rewards(), cacheKeys.participantStats()],
   claimIncentive: () => [
     cacheKeys.incentivesRoot(),
     cacheKeys.rewards(),
-    cacheKeys.participantStats(),
+    cacheKeys.participantStats()
   ],
 
   // Participants
   registerParticipant: (address: string) => [
     cacheKeys.participant(address),
-    cacheKeys.participantStats(),
+    cacheKeys.participantStats()
   ],
   updateParticipantRole: (address: string) => [
     cacheKeys.participant(address),
-    cacheKeys.participantStats(),
+    cacheKeys.participantStats()
   ],
 
   // Admin / global state
@@ -62,8 +62,8 @@ export const invalidationPlan = {
     cacheKeys.supplyChainStats(),
     cacheKeys.participantStats(),
     cacheKeys.rewards(),
-    cacheKeys.incentivesRoot(),
-  ],
+    cacheKeys.incentivesRoot()
+  ]
 } as const
 
 export type InvalidationPlanName = keyof typeof invalidationPlan

@@ -9,6 +9,7 @@ Work through these exercises to reinforce the concepts from Tutorials 01–03. E
 **Context:** The `register_waste` function currently accepts any `weight` value, including `0`.
 
 **Task:** Add validation that:
+
 1. Rejects `weight == 0`
 2. Rejects `weight > 1_000_000_000` (1 billion grams max)
 3. Returns a meaningful error message for each case
@@ -37,6 +38,7 @@ fn ex1_over_max_weight_is_rejected() { /* ... */ }
 **Context:** The REST API sends multiple waste records in a single request. Calling `register_waste` once per record is expensive in fees.
 
 **Task:** Implement a `register_wastes_batch` function that:
+
 1. Accepts a `Vec<(Symbol, u64)>` of `(id, weight)` pairs
 2. Requires the caller to be an approved participant
 3. Registers all records atomically (all succeed or all fail)
@@ -66,6 +68,7 @@ fn ex2_unapproved_batch_is_rejected() { /* ... */ }
 **Context:** Waste records should expire if not confirmed within 30 ledgers of creation.
 
 **Task:**
+
 1. Add a `created_ledger: u32` field to `WasteRecord`, set to `env.ledger().sequence()` on creation
 2. Modify `confirm_waste` to panic if the current ledger is more than 30 ahead of `created_ledger`
 3. Add a `is_expired` view function that returns `bool`
@@ -91,6 +94,7 @@ fn ex3_confirmation_after_30_ledgers_fails() { /* ... */ }
 **Context:** The Scavenger protocol donates a percentage of rewards to a configured charity address.
 
 **Task:**
+
 1. Add a `set_charity` admin function that stores a `(Address, u32)` tuple for `(charity_address, bps)` (basis points, 1 bps = 0.01 %)
 2. Modify `claim_reward` to split the reward: `owner_amount = reward * (10000 - bps) / 10000`, `charity_amount = reward - owner_amount`
 3. Transfer both amounts in the same transaction
@@ -118,6 +122,7 @@ fn ex4_bps_over_10000_is_rejected() { /* ... */ }
 **Context:** The current implementation uses `panic!(&str)` for errors. This makes it hard for callers to distinguish error types.
 
 **Task:**
+
 1. Define a `ContractError` enum using `#[contracterror]` with variants:
    - `NotInitialized = 1`
    - `AlreadyInitialized = 2`

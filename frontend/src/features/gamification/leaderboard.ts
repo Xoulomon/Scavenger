@@ -8,9 +8,10 @@ export function buildLeaderboard(
   return entries
     .map(({ address, stats }) => ({
       address,
-      displayName: address === currentAddress ? 'You' : `${address.slice(0, 4)}…${address.slice(-4)}`,
+      displayName:
+        address === currentAddress ? 'You' : `${address.slice(0, 4)}…${address.slice(-4)}`,
       xp: computeXP(stats),
-      level: computeLevel(stats).level,
+      level: computeLevel(stats).level
     }))
     .sort((a, b) => b.xp - a.xp)
     .map((e, i) => ({ ...e, rank: i + 1 }))

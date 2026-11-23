@@ -1,50 +1,50 @@
-import { PoolClient } from 'pg';
-import { logger } from '../utils/logger';
+import { PoolClient } from 'pg'
+import { logger } from '../utils/logger'
 
 /**
  * Query performance monitoring and optimization utilities
  */
 
 interface QueryMetrics {
-  query: string;
-  duration: number;
-  rows: number;
-  timestamp: Date;
+  query: string
+  duration: number
+  rows: number
+  timestamp: Date
 }
 
-const queryMetrics: QueryMetrics[] = [];
-const SLOW_QUERY_THRESHOLD = 100; // ms
+const queryMetrics: QueryMetrics[] = []
+const SLOW_QUERY_THRESHOLD = 100 // ms
 
 export function recordQueryMetric(query: string, duration: number, rows: number): void {
   queryMetrics.push({
     query: query.substring(0, 100),
     duration,
     rows,
-    timestamp: new Date(),
-  });
+    timestamp: new Date()
+  })
 
   if (duration > SLOW_QUERY_THRESHOLD) {
     logger.warn('Slow query detected', {
       duration_ms: duration,
       query: query.substring(0, 80),
-      rows,
-    });
+      rows
+    })
   }
 }
 
 export function getSlowQueries(threshold = SLOW_QUERY_THRESHOLD): QueryMetrics[] {
-  return queryMetrics.filter((m) => m.duration > threshold);
+  return queryMetrics.filter((m) => m.duration > threshold)
 }
 
 export function getQueryStats() {
-  const total = queryMetrics.length;
-  const slow = queryMetrics.filter((m) => m.duration > SLOW_QUERY_THRESHOLD).length;
-  const avgDuration = total > 0 ? queryMetrics.reduce((s, m) => s + m.duration, 0) / total : 0;
-  return { total, slow, avgDuration: Math.round(avgDuration), slowThreshold: SLOW_QUERY_THRESHOLD };
+  const total = queryMetrics.length
+  const slow = queryMetrics.filter((m) => m.duration > SLOW_QUERY_THRESHOLD).length
+  const avgDuration = total > 0 ? queryMetrics.reduce((s, m) => s + m.duration, 0) / total : 0
+  return { total, slow, avgDuration: Math.round(avgDuration), slowThreshold: SLOW_QUERY_THRESHOLD }
 }
 
 export function clearMetrics(): void {
-  queryMetrics.length = 0;
+  queryMetrics.length = 0
 }
 
 /**
@@ -55,16 +55,21 @@ export async function withQueryCache<T>(
   cacheKey: string,
   ttlType: string,
   loader: () => Promise<T>,
-  cache?: { get: (k: string) => Promise<T | null>; set: (k: string, v: T, t: string) => Promise<void> }
+  cache?: {
+    get: (k: string) => Promise<T | null>
+    set: (k: string, v: T, t: string) => Promise<void>
+  }
 ): Promise<T> {
   if (cache) {
-    const cached = await cache.get(cacheKey);
-    if (cached !== null) {return cached;}
-    const result = await loader();
-    await cache.set(cacheKey, result, ttlType);
-    return result;
+    const cached = await cache.get(cacheKey)
+    if (cached !== null) {
+      return cached
+    }
+    const result = await loader()
+    await cache.set(cacheKey, result, ttlType)
+    return result
   }
-  return loader();
+  return loader()
 }
 
 /**
@@ -108,12 +113,12 @@ export async function ensureIndexes(client: PoolClient): Promise<void> {
 
     // Partial indexes
     `CREATE INDEX IF NOT EXISTS idx_wastes_active_only ON wastes (registered_at DESC) WHERE is_active = true`,
-    `CREATE INDEX IF NOT EXISTS idx_wastes_confirmed_active ON wastes (recycler_address, registered_at DESC) WHERE is_confirmed = true AND is_active = true`,
-  ];
+    `CREATE INDEX IF NOT EXISTS idx_wastes_confirmed_active ON wastes (recycler_address, registered_at DESC) WHERE is_confirmed = true AND is_active = true`
+  ]
 
   for (const index of indexes) {
     try {
-      await client.query(index);
+      await client.query(index)
     } catch (_err) {
       // Index may already exist, continue
     }
@@ -127,14 +132,14 @@ export async function executeBatchQueries(
   client: PoolClient,
   queries: Array<{ sql: string; params: unknown[] }>
 ): Promise<unknown[][]> {
-  const results: unknown[][] = [];
+  const results: unknown[][] = []
 
   for (const { sql, params } of queries) {
-    const start = Date.now();
-    const result = await client.query(sql, params);
-    recordQueryMetric(sql, Date.now() - start, result.rows.length);
-    results.push(result.rows);
+    const start = Date.now()
+    const result = await client.query(sql, params)
+    recordQueryMetric(sql, Date.now() - start, result.rows.length)
+    results.push(result.rows)
   }
 
-  return results;
+  return results
 }

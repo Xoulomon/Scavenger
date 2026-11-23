@@ -20,7 +20,7 @@ export const IncentiveCard = memo(function IncentiveCard({
   isManufacturer,
   onEdit,
   onDeactivate,
-  className,
+  className
 }: IncentiveCardProps) {
   const budgetPercent =
     incentive.total_budget > 0
@@ -48,7 +48,9 @@ export const IncentiveCard = memo(function IncentiveCard({
           <span className="text-muted-foreground">Budget remaining</span>
           <span className="font-medium">
             {formatTokenAmount(incentive.remaining_budget)}{' '}
-            <span className="text-xs text-muted-foreground">/ {formatTokenAmount(incentive.total_budget)}</span>
+            <span className="text-xs text-muted-foreground">
+              / {formatTokenAmount(incentive.total_budget)}
+            </span>
           </span>
         </div>
 
@@ -61,8 +63,8 @@ export const IncentiveCard = memo(function IncentiveCard({
                 budgetPercent > 50
                   ? 'bg-primary'
                   : budgetPercent > 20
-                  ? 'bg-yellow-500'
-                  : 'bg-destructive'
+                    ? 'bg-yellow-500'
+                    : 'bg-destructive'
               )}
               style={{ width: `${budgetPercent}%` }}
               role="progressbar"

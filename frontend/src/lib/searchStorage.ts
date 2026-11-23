@@ -72,16 +72,12 @@ export function deleteFilterPreset(id: string): void {
  * Serialises a query string and SearchFilters into URLSearchParams.
  * Only non-default values are written to keep URLs short.
  */
-export function filtersToSearchParams(
-  query: string,
-  filters: SearchFilters
-): URLSearchParams {
+export function filtersToSearchParams(query: string, filters: SearchFilters): URLSearchParams {
   const params = new URLSearchParams()
 
   if (query) params.set('q', query)
   if (filters.status !== 'all') params.set('status', filters.status)
-  if (filters.wasteTypes.length > 0)
-    params.set('wasteTypes', filters.wasteTypes.join(','))
+  if (filters.wasteTypes.length > 0) params.set('wasteTypes', filters.wasteTypes.join(','))
   if (filters.dateFrom) params.set('dateFrom', filters.dateFrom)
   if (filters.dateTo) params.set('dateTo', filters.dateTo)
   if (filters.location.trim()) params.set('location', filters.location)
@@ -101,17 +97,18 @@ export function searchParamsToFilters(params: URLSearchParams): {
 
   const rawStatus = params.get('status')
   const validStatuses = ['all', 'active', 'confirmed', 'inactive'] as const
-  const status: SearchFilters['status'] =
-    validStatuses.includes(rawStatus as SearchFilters['status'])
-      ? (rawStatus as SearchFilters['status'])
-      : 'all'
+  const status: SearchFilters['status'] = validStatuses.includes(
+    rawStatus as SearchFilters['status']
+  )
+    ? (rawStatus as SearchFilters['status'])
+    : 'all'
 
   const rawWasteTypes = params.get('wasteTypes')
   const wasteTypes: WasteType[] = rawWasteTypes
-    ? rawWasteTypes
+    ? (rawWasteTypes
         .split(',')
         .map(Number)
-        .filter((n) => !isNaN(n) && n >= 0 && n <= 4) as WasteType[]
+        .filter((n) => !isNaN(n) && n >= 0 && n <= 4) as WasteType[])
     : []
 
   const dateFrom = params.get('dateFrom') || null
@@ -120,6 +117,6 @@ export function searchParamsToFilters(params: URLSearchParams): {
 
   return {
     query,
-    filters: { wasteTypes, status, dateFrom, dateTo, location },
+    filters: { wasteTypes, status, dateFrom, dateTo, location }
   }
 }

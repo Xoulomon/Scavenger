@@ -5,15 +5,15 @@ import { RecyclerDashboard } from './RecyclerDashboard'
 vi.mock('@/hooks/useAppTitle', () => ({ useAppTitle: vi.fn() }))
 
 vi.mock('@/context/AuthContext', () => ({
-  useAuth: vi.fn(() => ({ user: { address: 'GTEST', name: 'Tester', role: 'Recycler' } })),
+  useAuth: vi.fn(() => ({ user: { address: 'GTEST', name: 'Tester', role: 'Recycler' } }))
 }))
 
 vi.mock('@/hooks/useResource', () => ({
   useResource: vi.fn(() => ({
     data: null,
     isLoading: false,
-    reload: vi.fn(),
-  })),
+    reload: vi.fn()
+  }))
 }))
 
 // ── Centralised ScavengerClient mock (#1546) ──────────────────────────────────
@@ -23,20 +23,20 @@ vi.mock('@/hooks/useResource', () => ({
 import { createMockClient } from '@/test-utils/mockScavengerClient'
 
 vi.mock('@/api/client', () => ({
-  ScavengerClient: vi.fn().mockImplementation(() => createMockClient()),
+  ScavengerClient: vi.fn().mockImplementation(() => createMockClient())
 }))
 
 vi.mock('@/config', () => ({ config: { contractId: 'TEST' } }))
 vi.mock('@/lib/stellar', () => ({
-  networkConfig: { rpcUrl: '', networkPassphrase: '' },
+  networkConfig: { rpcUrl: '', networkPassphrase: '' }
 }))
 
 vi.mock('@/components/modals/RegisterWasteModal', () => ({
-  RegisterWasteModal: () => null,
+  RegisterWasteModal: () => null
 }))
 
 vi.mock('@/components/modals/TransferWasteModal', () => ({
-  TransferWasteModal: () => null,
+  TransferWasteModal: () => null
 }))
 
 describe('RecyclerDashboard', () => {

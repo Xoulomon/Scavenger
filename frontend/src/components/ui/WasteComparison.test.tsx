@@ -13,7 +13,7 @@ const mockWastes: Waste[] = [
     recycled_timestamp: 1000000n,
     owner: 'addr1',
     current_holder: 'addr1',
-    confirmer: null,
+    confirmer: null
   },
   {
     waste_id: 2n,
@@ -24,8 +24,8 @@ const mockWastes: Waste[] = [
     recycled_timestamp: 2000000n,
     owner: 'addr2',
     current_holder: 'addr2',
-    confirmer: null,
-  },
+    confirmer: null
+  }
 ]
 
 describe('WasteComparison', () => {

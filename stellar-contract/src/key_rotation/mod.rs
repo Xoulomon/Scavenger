@@ -98,36 +98,17 @@ mod integration_tests {
         let (admin, admins) = setup(&env);
 
         // Install for purpose A
-        let v1_a = lifecycle::install_key(
-            &env,
-            &admin,
-            &admins,
-            KeyPurpose::ApiKeyHash,
-            make_hash(&env, 0xAA),
-        )
-        .unwrap();
+        let v1_a =
+            lifecycle::install_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 0xAA)).unwrap();
         assert_eq!(v1_a, 1);
 
         // Install for purpose B
-        let v1_b = lifecycle::install_key(
-            &env,
-            &admin,
-            &admins,
-            KeyPurpose::WebhookSigning,
-            make_hash(&env, 0xBB),
-        )
-        .unwrap();
+        let v1_b =
+            lifecycle::install_key(&env, &admin, &admins, KeyPurpose::WebhookSigning, make_hash(&env, 0xBB)).unwrap();
         assert_eq!(v1_b, 1);
 
         // Rotate only purpose A
-        let v2_a = lifecycle::rotate_key(
-            &env,
-            &admin,
-            &admins,
-            KeyPurpose::ApiKeyHash,
-            make_hash(&env, 0xCC),
-        )
-        .unwrap();
+        let v2_a = lifecycle::rotate_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 0xCC)).unwrap();
         assert_eq!(v2_a, 2);
 
         // Verify purpose A is now v2
@@ -146,34 +127,13 @@ mod integration_tests {
         let (admin, admins) = setup(&env);
 
         // Install v1
-        lifecycle::install_key(
-            &env,
-            &admin,
-            &admins,
-            KeyPurpose::PiiEncryption,
-            make_hash(&env, 1),
-        )
-        .unwrap();
+        lifecycle::install_key(&env, &admin, &admins, KeyPurpose::PiiEncryption, make_hash(&env, 1)).unwrap();
 
         // Rotate to v2
-        lifecycle::rotate_key(
-            &env,
-            &admin,
-            &admins,
-            KeyPurpose::PiiEncryption,
-            make_hash(&env, 2),
-        )
-        .unwrap();
+        lifecycle::rotate_key(&env, &admin, &admins, KeyPurpose::PiiEncryption, make_hash(&env, 2)).unwrap();
 
         // Rotate to v3
-        lifecycle::rotate_key(
-            &env,
-            &admin,
-            &admins,
-            KeyPurpose::PiiEncryption,
-            make_hash(&env, 3),
-        )
-        .unwrap();
+        lifecycle::rotate_key(&env, &admin, &admins, KeyPurpose::PiiEncryption, make_hash(&env, 3)).unwrap();
 
         // Current should be v3
         assert_eq!(schedule::active_version(&env, KeyPurpose::PiiEncryption), Some(3));
@@ -219,14 +179,7 @@ mod integration_tests {
         );
 
         // Admin installs
-        lifecycle::install_key(
-            &env,
-            &admin,
-            &admins,
-            KeyPurpose::ZkpVerification,
-            make_hash(&env, 1),
-        )
-        .unwrap();
+        lifecycle::install_key(&env, &admin, &admins, KeyPurpose::ZkpVerification, make_hash(&env, 1)).unwrap();
 
         // Attacker cannot rotate
         assert_eq!(
@@ -242,33 +195,14 @@ mod integration_tests {
 
         // Attacker cannot revoke
         assert_eq!(
-            lifecycle::revoke_key_version(
-                &env,
-                &attacker,
-                &admins,
-                KeyPurpose::ZkpVerification,
-                1
-            ),
+            lifecycle::revoke_key_version(&env, &attacker, &admins, KeyPurpose::ZkpVerification, 1),
             Err(KeyRotationError::Unauthorized)
         );
 
         // Attacker cannot purge
-        lifecycle::rotate_key(
-            &env,
-            &admin,
-            &admins,
-            KeyPurpose::ZkpVerification,
-            make_hash(&env, 2),
-        )
-        .unwrap();
+        lifecycle::rotate_key(&env, &admin, &admins, KeyPurpose::ZkpVerification, make_hash(&env, 2)).unwrap();
         assert_eq!(
-            lifecycle::purge_key_version(
-                &env,
-                &attacker,
-                &admins,
-                KeyPurpose::ZkpVerification,
-                1
-            ),
+            lifecycle::purge_key_version(&env, &attacker, &admins, KeyPurpose::ZkpVerification, 1),
             Err(KeyRotationError::Unauthorized)
         );
     }
@@ -279,14 +213,7 @@ mod integration_tests {
         let env = Env::default();
         let (admin, admins) = setup(&env);
 
-        lifecycle::install_key(
-            &env,
-            &admin,
-            &admins,
-            KeyPurpose::ApiKeyHash,
-            make_hash(&env, 0x42),
-        )
-        .unwrap();
+        lifecycle::install_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 0x42)).unwrap();
 
         // Any caller can read
         let anyone = Address::generate(&env);
@@ -317,14 +244,7 @@ mod integration_tests {
         }
 
         // Rotate only the first one to v2
-        lifecycle::rotate_key(
-            &env,
-            &admin,
-            &admins,
-            KeyPurpose::ApiKeyHash,
-            make_hash(&env, 0x22),
-        )
-        .unwrap();
+        lifecycle::rotate_key(&env, &admin, &admins, KeyPurpose::ApiKeyHash, make_hash(&env, 0x22)).unwrap();
 
         // Verify versions
         assert_eq!(schedule::active_version(&env, KeyPurpose::ApiKeyHash), Some(2));
@@ -332,14 +252,7 @@ mod integration_tests {
         assert_eq!(schedule::active_version(&env, KeyPurpose::PiiEncryption), Some(1));
 
         // Rotate the second one to v2
-        lifecycle::rotate_key(
-            &env,
-            &admin,
-            &admins,
-            KeyPurpose::WebhookSigning,
-            make_hash(&env, 0x33),
-        )
-        .unwrap();
+        lifecycle::rotate_key(&env, &admin, &admins, KeyPurpose::WebhookSigning, make_hash(&env, 0x33)).unwrap();
 
         // Verify again
         assert_eq!(schedule::active_version(&env, KeyPurpose::ApiKeyHash), Some(2));

@@ -12,14 +12,12 @@ impl ComplianceValidator {
     pub fn validate_check(&self, request: &CheckRequest) -> Result<(), ComplianceError> {
         // Additional validation logic moved from compliance_api.rs
         if request.amount <= 0 {
-            return Err(ComplianceError::InvalidAmount(
-                "Amount must be positive".to_string()
-            ));
+            return Err(ComplianceError::InvalidAmount("Amount must be positive".to_string()));
         }
 
         if request.user_id.len() < 3 {
             return Err(ComplianceError::ValidationError(
-                "User ID must be at least 3 characters".to_string()
+                "User ID must be at least 3 characters".to_string(),
             ));
         }
 

@@ -54,7 +54,7 @@ export {
   // Certification level tiers for participants (Beginner → Expert).
   CertificationLevel,
   // Supported Stellar network presets. Pass to `resolveNetwork()`.
-  Network,
+  Network
 } from './types'
 
 export type {
@@ -77,7 +77,7 @@ export type {
   // Stellar network RPC configuration.
   NetworkConfig,
   // Single item in a batch material submission.
-  MaterialBatchItem,
+  MaterialBatchItem
 } from './types'
 
 // ── Errors ───────────────────────────────────────────────────────────────────
@@ -92,7 +92,7 @@ export {
   // Thrown when network configuration is invalid or the RPC is unreachable.
   NetworkError,
   // Thrown when transaction confirmation polling exceeds `pollTimeoutMs`.
-  TimeoutError,
+  TimeoutError
 } from './errors'
 
 /** Union of all SDK-specific error types for exhaustive catch handling. */
@@ -110,7 +110,7 @@ export {
   // List all recognized network preset names.
   getAvailableNetworks,
   // Return a human-readable display label for a network (e.g. "Testnet").
-  getNetworkLabel,
+  getNetworkLabel
 } from './network'
 
 // ── Signing strategies ────────────────────────────────────────────────────────
@@ -126,7 +126,7 @@ export {
   // Signing strategy adapter for the Freighter browser extension.
   FreighterSigningStrategy,
   // Signing strategy adapter for a raw secret key string.
-  SecretKeySigningStrategy,
+  SecretKeySigningStrategy
 } from './signing'
 
 /**

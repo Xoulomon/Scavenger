@@ -3,7 +3,7 @@ import * as LucideIcons from 'lucide-react'
 
 interface IconDefinition {
   name: string
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- icon components accept arbitrary props
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- icon components accept arbitrary props
   component: React.ComponentType<any>
   category: string
 }
@@ -29,7 +29,7 @@ const iconRegistry: Record<string, IconDefinition> = {
   chevronDown: { name: 'chevronDown', component: LucideIcons.ChevronDown, category: 'navigation' },
   chevronUp: { name: 'chevronUp', component: LucideIcons.ChevronUp, category: 'navigation' },
   calendar: { name: 'calendar', component: LucideIcons.Calendar, category: 'time' },
-  clock: { name: 'clock', component: LucideIcons.Clock, category: 'time' },
+  clock: { name: 'clock', component: LucideIcons.Clock, category: 'time' }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any -- icon components accept arbitrary props
@@ -108,29 +108,33 @@ describe('Icon Registry', () => {
   describe('Icon Categorization', () => {
     it('should categorize navigation icons', () => {
       const navigationIcons = Object.values(iconRegistry).filter(
-        icon => icon.category === 'navigation'
+        (icon) => icon.category === 'navigation'
       )
       expect(navigationIcons.length).toBeGreaterThan(0)
     })
 
     it('should categorize action icons', () => {
-      const actionIcons = Object.values(iconRegistry).filter(
-        icon => icon.category === 'action'
-      )
+      const actionIcons = Object.values(iconRegistry).filter((icon) => icon.category === 'action')
       expect(actionIcons.length).toBeGreaterThan(0)
     })
 
     it('should categorize status icons', () => {
-      const statusIcons = Object.values(iconRegistry).filter(
-        icon => icon.category === 'status'
-      )
+      const statusIcons = Object.values(iconRegistry).filter((icon) => icon.category === 'status')
       expect(statusIcons.length).toBeGreaterThan(0)
     })
 
     it('should have no uncategorized icons', () => {
-      const validCategories = ['navigation', 'user', 'action', 'interaction', 'status', 'notification', 'time']
+      const validCategories = [
+        'navigation',
+        'user',
+        'action',
+        'interaction',
+        'status',
+        'notification',
+        'time'
+      ]
       const uncategorizedIcons = Object.values(iconRegistry).filter(
-        icon => !validCategories.includes(icon.category)
+        (icon) => !validCategories.includes(icon.category)
       )
       expect(uncategorizedIcons.length).toBe(0)
     })
@@ -138,7 +142,7 @@ describe('Icon Registry', () => {
 
   describe('Icon Library Consolidation', () => {
     it('should use only lucide-react icons', () => {
-      Object.values(iconRegistry).forEach(iconDef => {
+      Object.values(iconRegistry).forEach((iconDef) => {
         expect(typeof iconDef.component).toBe('function')
       })
     })
@@ -150,13 +154,13 @@ describe('Icon Registry', () => {
     })
 
     it('should have consistent naming convention', () => {
-      Object.keys(iconRegistry).forEach(name => {
+      Object.keys(iconRegistry).forEach((name) => {
         expect(/^[a-z][a-zA-Z]*$/.test(name)).toBe(true)
       })
     })
 
     it('should have all icons as valid components', () => {
-      Object.values(iconRegistry).forEach(iconDef => {
+      Object.values(iconRegistry).forEach((iconDef) => {
         expect(iconDef.component).toBeTruthy()
         expect(typeof iconDef.component).toBe('function')
       })
@@ -170,7 +174,7 @@ describe('Icon Registry', () => {
         .map(([name]) => name)
 
       expect(navigationIcons.length).toBeGreaterThan(0)
-      navigationIcons.forEach(name => {
+      navigationIcons.forEach((name) => {
         expect(getIcon(name)).toBeTruthy()
       })
     })

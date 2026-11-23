@@ -68,7 +68,7 @@ export class SubscriptionStorage {
       ...data,
       id: `sub_${now}`,
       createdAt: now,
-      nextPickup: nextPickupDate(data.startDate, data.frequency),
+      nextPickup: nextPickupDate(data.startDate, data.frequency)
     }
     const all = this.getAll()
     save(LS_KEY(this.address), [...all, sub])
@@ -99,7 +99,7 @@ export class SubscriptionStorage {
     const updated = this.update(id, {
       status: 'active',
       pausedAt: undefined,
-      nextPickup: nextPickupDate(now, sub.frequency),
+      nextPickup: nextPickupDate(now, sub.frequency)
     })
     if (updated) this.addHistory({ subscriptionId: id, action: 'resumed', timestamp: now })
     return updated
@@ -117,8 +117,7 @@ export class SubscriptionStorage {
     if (!sub) return null
     const now = Date.now()
     const updated = this.update(id, { nextPickup: nextPickupDate(now, sub.frequency) })
-    if (updated)
-      this.addHistory({ subscriptionId: id, action: 'pickup_completed', timestamp: now })
+    if (updated) this.addHistory({ subscriptionId: id, action: 'pickup_completed', timestamp: now })
     return updated
   }
 
@@ -130,7 +129,7 @@ export class SubscriptionStorage {
     const all = this.getHistory()
     save(HIST_KEY(this.address), [
       { ...entry, id: `hist_${Date.now()}_${Math.random().toString(36).slice(2)}` },
-      ...all,
+      ...all
     ])
   }
 }

@@ -33,16 +33,17 @@ All tests must pass before PRs that modify `CONTRIBUTING.md` can be merged. This
 
 ## Test Structure
 
-| Test Suite | Validates |
-|-----------|-----------|
-| Property 1 | Code style tooling references are present |
+| Test Suite | Validates                                                       |
+| ---------- | --------------------------------------------------------------- |
+| Property 1 | Code style tooling references are present                       |
 | Property 2 | Naming conventions and function length guideline are documented |
-| Property 3 | PR process sections and workflow elements |
-| Property 4 | Testing requirements and best practices |
+| Property 3 | PR process sections and workflow elements                       |
+| Property 4 | Testing requirements and best practices                         |
 
 ## When to Update
 
 If you modify the `CONTRIBUTING.md` file, ensure all tests pass:
+
 ```bash
 cd tests/contributing-guidelines/
 pnpm test

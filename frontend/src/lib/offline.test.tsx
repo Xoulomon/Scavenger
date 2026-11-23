@@ -10,7 +10,7 @@ import {
   addMutationToQueue,
   getPendingMutations,
   updateMutationStatus,
-  removeMutationFromQueue,
+  removeMutationFromQueue
 } from '@/lib/indexedDB'
 import { resolveConflict, detectConflict } from '@/lib/conflictResolution'
 
@@ -24,7 +24,7 @@ vi.stubGlobal('IDBKeyRange', IDBKeyRange)
 // Mock navigator.onLine
 Object.defineProperty(navigator, 'onLine', {
   writable: true,
-  value: true,
+  value: true
 })
 
 describe('Offline Functionality', () => {
@@ -34,9 +34,9 @@ describe('Offline Functionality', () => {
     queryClient = new QueryClient({
       defaultOptions: {
         queries: {
-          retry: false,
-        },
-      },
+          retry: false
+        }
+      }
     })
   })
 
@@ -100,7 +100,7 @@ describe('Offline Functionality', () => {
       const mutationData = {
         id: 'test-mutation',
         mutationKey: ['test', 'mutation'],
-        variables: { param: 'value' },
+        variables: { param: 'value' }
       }
 
       await addMutationToQueue(mutationData)
@@ -115,7 +115,7 @@ describe('Offline Functionality', () => {
       const mutationData = {
         id: 'test-mutation',
         mutationKey: ['test', 'mutation'],
-        variables: { param: 'value' },
+        variables: { param: 'value' }
       }
 
       await addMutationToQueue(mutationData)
@@ -129,7 +129,7 @@ describe('Offline Functionality', () => {
       const mutationData = {
         id: 'test-mutation',
         mutationKey: ['test', 'mutation'],
-        variables: { param: 'value' },
+        variables: { param: 'value' }
       }
 
       await addMutationToQueue(mutationData)
@@ -159,7 +159,7 @@ describe('Offline Functionality', () => {
       const conflict = {
         local: { id: 1, name: 'local' },
         remote: { id: 1, name: 'remote' },
-        timestamp: Date.now(),
+        timestamp: Date.now()
       }
 
       const result = resolveConflict(conflict, 'remote-wins')
@@ -170,7 +170,7 @@ describe('Offline Functionality', () => {
       const conflict = {
         local: { id: 1, name: 'local' },
         remote: { id: 1, name: 'remote' },
-        timestamp: Date.now(),
+        timestamp: Date.now()
       }
 
       const result = resolveConflict(conflict, 'local-wins')
@@ -191,7 +191,7 @@ describe('Offline Functionality', () => {
         () =>
           useOfflineMutation({
             mutationFn: mockMutationFn,
-            mutationKey: ['test'],
+            mutationKey: ['test']
           }),
         { wrapper }
       )
@@ -211,7 +211,7 @@ describe('Offline Functionality', () => {
         () =>
           useOfflineMutation({
             mutationFn: mockMutationFn,
-            mutationKey: ['test'],
+            mutationKey: ['test']
           }),
         { wrapper }
       )
@@ -233,7 +233,7 @@ describe('Offline Functionality', () => {
         () =>
           useOfflineMutation({
             mutationFn: mockMutationFn,
-            mutationKey: ['test'],
+            mutationKey: ['test']
           }),
         { wrapper }
       )

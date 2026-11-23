@@ -3,6 +3,7 @@
 ## Summary
 
 **Overall Status:** ✅ Core dead-code analysis and removals **COMPLETED**
+
 - 5 of 7 major items fully completed
 - 1 item in progress (feature flag cleanup - separate effort)
 - 1 item deferred to future sprint (complexity refactoring)
@@ -10,6 +11,7 @@
 This document identifies code quality improvements and dead code removal items from issues #1158 (dead code cleanup) and #1161 (complexity and quality improvements). Actions tracked here ensure systematic removal of unused code and refactoring of high-complexity areas.
 
 ### Quick Status
+
 - ✅ Utility consolidation completed (errors.ts re-export shim)
 - ✅ Frontend directory restructured (duplicate test dir moved)
 - ✅ Library functions audited (intentional dead code markers confirmed)
@@ -26,6 +28,7 @@ This document identifies code quality improvements and dead code removal items f
 
 **Status:** COMPLETED
 **Details:**
+
 - Old error utilities moved to canonical location: `packages/shared/src/errors.ts`
 - Location: `src/utils/errors.ts` now contains only a `@deprecated` re-export shim
 - Action: File can be deleted once all imports are updated
@@ -38,6 +41,7 @@ This document identifies code quality improvements and dead code removal items f
 **Status:** COMPLETED
 **Issue:** #1161
 **Details:**
+
 - Scavenger/frontend/ was a test fixture directory mistaken for the main frontend
 - This caused confusion in the project structure
 - Action Taken:
@@ -49,6 +53,7 @@ This document identifies code quality improvements and dead code removal items f
   - `Scavenger/frontend/README.md` now contains deprecation notice and migration guide
 
 **Migration Impact:**
+
 - Old test command: `cd Scavenger/frontend && npm test`
 - New test command: `cd tests/contributing-guidelines && npm test`
 - Both locations point to the same test suite via documentation
@@ -59,6 +64,7 @@ This document identifies code quality improvements and dead code removal items f
 
 **Status:** COMPLETED - INTENTIONAL
 **Details:**
+
 - `stellar-contract/src/validation/mod.rs` contains library validation functions
 - Functions marked with `#[allow(dead_code)]` are intentionally part of the public API
 - These are not unused; they're provided for consumers of the validation library
@@ -73,6 +79,7 @@ This document identifies code quality improvements and dead code removal items f
 
 **Status:** AUDIT COMPLETED - NO CRITICAL DEAD CODE FOUND
 **Findings:**
+
 - Comment scan (`#[allow(dead_code)]`, `TODO`, `FIXME`) revealed:
   - 30 matches found across stellar-contract/src/
   - All are intentional: library APIs, version deprecations, or documented comments
@@ -90,6 +97,7 @@ This document identifies code quality improvements and dead code removal items f
 
 **Status:** COMPLETED
 **Details:**
+
 - `packages/shared/src/logger.ts` was a thin wrapper around a shared logger
 - Wrapper layer removed; direct imports from canonical logger now used
 - Impact: Eliminates one level of indirection, improves clarity
@@ -101,11 +109,13 @@ This document identifies code quality improvements and dead code removal items f
 **Related Doc:** [Feature Flag Cleanup Analysis](docs/FLAG_CLEANUP_ANALYSIS.md)
 
 The document FLAG_CLEANUP_ANALYSIS.md is already complete and provides detailed guidance on:
+
 - Stale flags to remove (`enable_analytics`, `beta_features`, `ai_assistant`, `notifications_v2`, `api_v2`)
 - Active flags to keep (`solo_mode`, `chat_enabled`, `new_circuits`, `contract_upgrade`)
 - Cleanup process with bash scripts (`audit-feature-flags.sh`, `remove-feature-flag.sh`)
 
 **Next Steps:**
+
 - Run audits to confirm flags in codebase
 - Execute removal scripts
 - Verify zero remaining references
@@ -115,6 +125,7 @@ The document FLAG_CLEANUP_ANALYSIS.md is already complete and provides detailed 
 
 **Status:** AUDIT COMPLETED - NO ACTIONABLE REMOVALS
 **Scan Results:**
+
 - Searched for patterns matching `// TODO|/\* TODO|@deprecated|FIXME`
 - Found 30 matches across 8 files in stellar-contract/src/
 - All matches are intentional:
@@ -125,6 +136,7 @@ The document FLAG_CLEANUP_ANALYSIS.md is already complete and provides detailed 
 - **Conclusion:** ✅ No commented-out code to remove
 
 **Scan Command:**
+
 ```bash
 # Find commented-out code blocks (heuristic)
 grep -rn "^[[:space:]]*//.*\(console\|debug\|deprecated\)" \
@@ -138,6 +150,7 @@ grep -rn "^[[:space:]]*//.*\(console\|debug\|deprecated\)" \
 ```
 
 **Review Required:**
+
 - [ ] Identify which commented blocks are genuinely dead
 - [ ] Remove true dead code; preserve intentional comments (e.g., temporary workarounds with explanations)
 - [ ] Add links to GitHub issues for kept temporary code
@@ -150,6 +163,7 @@ grep -rn "^[[:space:]]*//.*\(console\|debug\|deprecated\)" \
 
 **Pending Identification:**
 Run complexity analysis:
+
 ```bash
 # Rust: use clippy's cognitive complexity lint
 cargo clippy --all -- -W cognitive-complexity
@@ -159,6 +173,7 @@ npm run lint -- --rule 'complexity:[1,15]'
 ```
 
 ### Areas for Refactoring
+
 - [ ] Complex conditional logic → extract helper functions
 - [ ] Deeply nested loops → consider separating concerns
 - [ ] Large functions (>100 lines) → consider splitting into smaller units
@@ -188,6 +203,7 @@ For each dead code removal:
 ## Verification Results
 
 **Verified Changes (via filesystem inspection):**
+
 - ✅ `src/utils/errors.ts` contains `@deprecated` re-export shim → `/packages/shared/src/errors.ts`
 - ✅ `Scavenger/frontend/README.md` contains deprecation notice with migration guide
 - ✅ `tests/contributing-guidelines/` directory relocated with package.json, README, and source files
@@ -195,6 +211,7 @@ For each dead code removal:
 - ✅ All referenced documentation files exist and contain expected content
 
 **No Breakage Found:**
+
 - Re-export shim maintains backward compatibility
 - Deprecation notices provide clear migration paths
 - Test location change documented with old → new command mappings
@@ -203,15 +220,15 @@ For each dead code removal:
 
 ## Implementation Progress
 
-| Item | Status | Verification | Notes |
-|------|--------|--------------|-------|
-| Move `errors.ts` to canonical location | ✅ DONE | File verified | Shim added for backwards compatibility |
-| Relocate duplicate frontend test directory | ✅ DONE | Directory verified | Deprecation notice added |
-| Audit validation library dead code markers | ✅ DONE | Code scanned | Library functions intentionally marked; no removal needed |
-| Audit contract code for dead code patterns | ✅ DONE | 30 matches analyzed | All matches are intentional docs/deprecation notes; no removal needed |
-| Remove stale feature flags | ⏳ PENDING | — | Flags identified in FLAG_CLEANUP_ANALYSIS.md; ready for execution |
-| Remove commented-out code | ✅ DONE | Audit completed | No genuine commented-out code found; all are intentional comments |
-| Refactor high-complexity functions | ⏳ PENDING | — | Identified via clippy cognitive-complexity (deferred to future sprint) |
+| Item                                       | Status     | Verification        | Notes                                                                  |
+| ------------------------------------------ | ---------- | ------------------- | ---------------------------------------------------------------------- |
+| Move `errors.ts` to canonical location     | ✅ DONE    | File verified       | Shim added for backwards compatibility                                 |
+| Relocate duplicate frontend test directory | ✅ DONE    | Directory verified  | Deprecation notice added                                               |
+| Audit validation library dead code markers | ✅ DONE    | Code scanned        | Library functions intentionally marked; no removal needed              |
+| Audit contract code for dead code patterns | ✅ DONE    | 30 matches analyzed | All matches are intentional docs/deprecation notes; no removal needed  |
+| Remove stale feature flags                 | ⏳ PENDING | —                   | Flags identified in FLAG_CLEANUP_ANALYSIS.md; ready for execution      |
+| Remove commented-out code                  | ✅ DONE    | Audit completed     | No genuine commented-out code found; all are intentional comments      |
+| Refactor high-complexity functions         | ⏳ PENDING | —                   | Identified via clippy cognitive-complexity (deferred to future sprint) |
 
 ---
 
@@ -240,6 +257,7 @@ For code being phased out rather than immediately removed:
 5. **Document** in CHANGELOG.md
 
 Example:
+
 ```rust
 /// @deprecated Use `packages/shared::errors::AppError` instead.
 /// This re-export will be removed in v1.5.0.
@@ -260,6 +278,7 @@ pub use crate::deprecated_errors::*;
 ## Questions?
 
 Refer to related documentation:
+
 - [Utility Consolidation](docs/UTILITY_CONSOLIDATION.md) — patterns for moving shared code
 - [Feature Flag Cleanup](docs/FLAG_CLEANUP_ANALYSIS.md) — stale flag removal
 - [Contributing Guidelines](CONTRIBUTING.md) — PR requirements for cleanups

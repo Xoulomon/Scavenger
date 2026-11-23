@@ -22,7 +22,6 @@ export function DisputesTab({ initialDisputes = [] }: DisputesTabProps = {}) {
   const [disputes, setDisputes] = useState<Dispute[]>(initialDisputes)
   const [filter, setFilter] = useState<'all' | 'open' | 'resolved'>('all')
 
-
   const displayed = filter === 'all' ? disputes : disputes.filter((d) => d.status === filter)
 
   function resolve(id: number) {
@@ -67,10 +66,7 @@ export function DisputesTab({ initialDisputes = [] }: DisputesTabProps = {}) {
                   </p>
                   <p className="text-sm mt-1">{d.description}</p>
                 </div>
-                <Badge
-                  variant={d.status === 'open' ? 'default' : 'outline'}
-                  className="shrink-0"
-                >
+                <Badge variant={d.status === 'open' ? 'default' : 'outline'} className="shrink-0">
                   {d.status}
                 </Badge>
               </div>

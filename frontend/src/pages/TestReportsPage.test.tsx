@@ -4,12 +4,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TestReportsPage } from './TestReportsPage'
 
 vi.mock('@/hooks/useAppTitle', () => ({
-  useAppTitle: vi.fn(),
+  useAppTitle: vi.fn()
 }))
 
 function renderPage() {
   const queryClient = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
+    defaultOptions: { queries: { retry: false } }
   })
   return render(
     <QueryClientProvider client={queryClient}>

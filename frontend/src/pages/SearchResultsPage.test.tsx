@@ -13,14 +13,14 @@ vi.mock('@/components/modals/WasteDetailsModal', () => ({
   WasteDetailsModal: ({ open, waste }: { open: boolean; waste: Waste | null }) =>
     open && waste ? (
       <div data-testid="waste-modal">Modal: Waste #{waste.waste_id.toString()}</div>
-    ) : null,
+    ) : null
 }))
 
 // Mock useSearch to return controlled results
 const mockUseSearch = vi.fn()
 vi.mock('@/hooks/useSearch', () => ({
   useSearch: (...args: unknown[]) => mockUseSearch(...args),
-  useDebounce: (v: unknown) => v,
+  useDebounce: (v: unknown) => v
 }))
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -36,7 +36,7 @@ function makeWaste(id: number): Waste {
     recycled_timestamp: 0,
     is_active: true,
     is_confirmed: false,
-    confirmer: '',
+    confirmer: ''
   }
 }
 
@@ -47,7 +47,7 @@ function makeWasteResult(id: number) {
     id: String(id),
     label: `Waste #${id}`,
     sublabel: `GOWNER${id}`,
-    data: waste,
+    data: waste
   }
 }
 
@@ -63,8 +63,8 @@ function makeParticipantResult(id: number) {
       name: `Participant ${id}`,
       latitude: 0,
       longitude: 0,
-      registered_at: 0,
-    },
+      registered_at: 0
+    }
   }
 }
 

@@ -1,10 +1,25 @@
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { DEFAULT_CHART_MARGIN, DEFAULT_GRID_PROPS, DEFAULT_RESPONSIVE_PROPS, defaultTooltipProps, defaultLegendProps } from './chartConfig';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts'
+import {
+  DEFAULT_CHART_MARGIN,
+  DEFAULT_GRID_PROPS,
+  DEFAULT_RESPONSIVE_PROPS,
+  defaultTooltipProps,
+  defaultLegendProps
+} from './chartConfig'
 
 interface AreaChartProps {
-  data: Record<string, unknown>[];
-  xKey: string;
-  areas: { key: string; color: string; name?: string }[];
+  data: Record<string, unknown>[]
+  xKey: string
+  areas: { key: string; color: string; name?: string }[]
 }
 
 export function AreaChartComponent({ data, xKey, areas }: AreaChartProps) {
@@ -29,6 +44,5 @@ export function AreaChartComponent({ data, xKey, areas }: AreaChartProps) {
         ))}
       </AreaChart>
     </ResponsiveContainer>
-  );
+  )
 }
-

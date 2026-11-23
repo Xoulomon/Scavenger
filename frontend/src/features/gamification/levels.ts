@@ -13,7 +13,7 @@ const LEVEL_TITLES = [
   'Eco Legend',
   'Master Recycler',
   'Grand Eco Master',
-  'Immortal',
+  'Immortal'
 ]
 
 export function computeXP(stats: UserStats): number {
@@ -28,12 +28,16 @@ export function computeLevel(stats: UserStats): Level {
   const xp = computeXP(stats)
   let level = 1
   for (let i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
-    if (xp >= LEVEL_THRESHOLDS[i]) { level = i + 1; break }
+    if (xp >= LEVEL_THRESHOLDS[i]) {
+      level = i + 1
+      break
+    }
   }
   const xpForCurrent = LEVEL_THRESHOLDS[level - 1] ?? 0
   const xpForNext = LEVEL_THRESHOLDS[level] ?? LEVEL_THRESHOLDS[LEVEL_THRESHOLDS.length - 1]
   const range = xpForNext - xpForCurrent
-  const progressPct = range > 0 ? Math.min(100, Math.round(((xp - xpForCurrent) / range) * 100)) : 100
+  const progressPct =
+    range > 0 ? Math.min(100, Math.round(((xp - xpForCurrent) / range) * 100)) : 100
 
   return { level, title: LEVEL_TITLES[level - 1] ?? 'Immortal', xp, xpForNext, progressPct }
 }

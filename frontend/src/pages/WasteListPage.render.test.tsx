@@ -14,11 +14,11 @@ const hookState = {
   batchConfirmWastes: vi.fn(),
   batchVerifyWastes: vi.fn(),
   batchTransferWastes: vi.fn(),
-  batchDeactivateWastes: vi.fn(),
+  batchDeactivateWastes: vi.fn()
 }
 
 vi.mock('@/hooks/useWasteList', () => ({
-  useWasteList: () => hookState,
+  useWasteList: () => hookState
 }))
 
 function makeWaste(id: number, waste_type: WasteType, is_confirmed = false): Material {
@@ -29,7 +29,7 @@ function makeWaste(id: number, waste_type: WasteType, is_confirmed = false): Mat
     recycled_timestamp: 1_700_000_000,
     is_active: true,
     is_confirmed,
-    owner: 'GOWNER',
+    owner: 'GOWNER'
   } as unknown as Material
 }
 
@@ -38,7 +38,7 @@ describe('WasteListPage — rendered list', () => {
     hookState.wastes = [
       makeWaste(1, WasteType.Plastic),
       makeWaste(2, WasteType.Metal, true),
-      makeWaste(3, WasteType.Paper),
+      makeWaste(3, WasteType.Paper)
     ]
     hookState.isLoading = false
     hookState.error = null

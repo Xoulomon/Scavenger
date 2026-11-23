@@ -9,8 +9,7 @@ describe('Error Boundary Page Coverage', () => {
     if (!existsSync(pagesDir)) {
       return []
     }
-    return readdirSync(pagesDir)
-      .filter(f => f.endsWith('Page.tsx') && !f.endsWith('.test.tsx'))
+    return readdirSync(pagesDir).filter((f) => f.endsWith('Page.tsx') && !f.endsWith('.test.tsx'))
   }
 
   function isPageWrappedWithErrorBoundary(content: string): boolean {
@@ -53,14 +52,14 @@ describe('Error Boundary Page Coverage', () => {
 
     it('should follow Page naming convention', () => {
       const pages = getPageFiles()
-      pages.forEach(page => {
+      pages.forEach((page) => {
         expect(page).toMatch(/^[A-Z][a-zA-Z0-9]*Page\.tsx$/)
       })
     })
 
     it('should export pages as default or named exports', () => {
       const pages = getPageFiles()
-      pages.forEach(page => {
+      pages.forEach((page) => {
         const filePath = path.join(pagesDir, page)
         const content = readFileSync(filePath, 'utf-8')
         expect(isPageExported(content)).toBe(true)
@@ -73,7 +72,7 @@ describe('Error Boundary Page Coverage', () => {
       const pages = getPageFiles()
       const pageStatuses: Record<string, boolean> = {}
 
-      pages.forEach(page => {
+      pages.forEach((page) => {
         const filePath = path.join(pagesDir, page)
         const content = readFileSync(filePath, 'utf-8')
         pageStatuses[page] = isPageWrappedWithErrorBoundary(content)

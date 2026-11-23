@@ -3,11 +3,11 @@ import { render } from '@testing-library/react'
 import { HomePage } from './HomePage'
 
 vi.mock('react-router-dom', () => ({
-  useNavigate: vi.fn(() => vi.fn()),
+  useNavigate: vi.fn(() => vi.fn())
 }))
 
 vi.mock('@/context/AuthContext', () => ({
-  useAuth: vi.fn(() => ({ user: null })),
+  useAuth: vi.fn(() => ({ user: null }))
 }))
 
 vi.mock('@/hooks/useAppTitle', () => ({ useAppTitle: vi.fn() }))

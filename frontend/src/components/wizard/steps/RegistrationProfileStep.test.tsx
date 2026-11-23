@@ -3,7 +3,7 @@
 
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import 'react-hook-form';
+import 'react-hook-form'
 
 interface ProfileFormData {
   displayName: string
@@ -13,23 +13,33 @@ interface ProfileFormData {
 }
 
 interface RegistrationProfileStepProps {
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- react-hook-form register/errors shape mocked loosely in test
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- react-hook-form register/errors shape mocked loosely in test
   register: any
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- react-hook-form register/errors shape mocked loosely in test
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- react-hook-form register/errors shape mocked loosely in test
   errors: any
   formData: ProfileFormData
   onUpdate: (data: Partial<ProfileFormData>) => void
 }
 
 // Mock component - will be extracted from ParticipantRegistrationPage
-const RegistrationProfileStep = ({ register, errors, _formData, _onUpdate }: RegistrationProfileStepProps) => {
+const RegistrationProfileStep = ({
+  register,
+  errors,
+  _formData,
+  _onUpdate
+}: RegistrationProfileStepProps) => {
   return (
     <form data-testid="profile-form">
       <label>
         Display Name
-        <input {...register('displayName', { required: 'Name is required' })} data-testid="displayName" />
+        <input
+          {...register('displayName', { required: 'Name is required' })}
+          data-testid="displayName"
+        />
       </label>
-      {errors.displayName && <span data-testid="displayName-error">{errors.displayName.message}</span>}
+      {errors.displayName && (
+        <span data-testid="displayName-error">{errors.displayName.message}</span>
+      )}
 
       <label>
         Email
@@ -74,7 +84,7 @@ describe('RegistrationProfileStep', () => {
     const mockRegister = vi.fn((name) => ({ name }))
     const mockErrors = {
       displayName: { message: 'Name is required' },
-      email: { message: 'Valid email is required' },
+      email: { message: 'Valid email is required' }
     }
 
     render(
@@ -101,7 +111,12 @@ describe('RegistrationProfileStep', () => {
       <RegistrationProfileStep
         register={mockRegister}
         errors={mockErrors}
-        formData={{ displayName: 'John Doe', email: 'john@example.com', phone: '1234567890', bio: 'Test bio' }}
+        formData={{
+          displayName: 'John Doe',
+          email: 'john@example.com',
+          phone: '1234567890',
+          bio: 'Test bio'
+        }}
         onUpdate={vi.fn()}
       />
     )
@@ -130,7 +145,10 @@ describe('RegistrationProfileStep', () => {
       />
     )
 
-    expect(mockRegister).toHaveBeenCalledWith('displayName', expect.objectContaining({ required: 'Name is required' }))
+    expect(mockRegister).toHaveBeenCalledWith(
+      'displayName',
+      expect.objectContaining({ required: 'Name is required' })
+    )
   })
 
   it('should have required field validation for email', () => {
@@ -151,7 +169,10 @@ describe('RegistrationProfileStep', () => {
       />
     )
 
-    expect(mockRegister).toHaveBeenCalledWith('email', expect.objectContaining({ required: 'Email is required' }))
+    expect(mockRegister).toHaveBeenCalledWith(
+      'email',
+      expect.objectContaining({ required: 'Email is required' })
+    )
   })
 
   it('should allow optional phone and bio fields', () => {

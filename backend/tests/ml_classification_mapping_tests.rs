@@ -74,7 +74,9 @@ fn ready_service() -> ClassificationService {
     service
 }
 
-async fn classify_fixture(service: &ClassificationService) -> scavenger_backend::services::ml_classification::ClassificationResult {
+async fn classify_fixture(
+    service: &ClassificationService,
+) -> scavenger_backend::services::ml_classification::ClassificationResult {
     service
         .classify(ClassificationRequest {
             image: "fixture-image".to_string(),

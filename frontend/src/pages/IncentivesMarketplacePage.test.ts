@@ -16,7 +16,7 @@ import {
   type SortField,
   type SortDir,
   type IncentiveFilters,
-  type ViewMode,
+  type ViewMode
 } from '@/lib/incentivesUtils'
 
 // ─── Arbitraries ─────────────────────────────────────────────────────────────
@@ -37,7 +37,7 @@ const incentiveArb: fc.Arbitrary<Incentive> = fc.record({
   total_budget: fc.integer({ min: 0, max: 10_000_000 }),
   remaining_budget: fc.integer({ min: 0, max: 10_000_000 }),
   active: fc.boolean(),
-  created_at: fc.integer({ min: 0, max: 2_000_000_000 }),
+  created_at: fc.integer({ min: 0, max: 2_000_000_000 })
 })
 
 const sortFieldArb: fc.Arbitrary<SortField> = fc.constantFrom(
@@ -50,7 +50,7 @@ const sortDirArb: fc.Arbitrary<SortDir> = fc.constantFrom('asc' as const, 'desc'
 
 const incentiveFiltersArb: fc.Arbitrary<IncentiveFilters> = fc.record({
   wasteTypes: fc.array(wasteTypeArb, { minLength: 0, maxLength: 5 }),
-  rewarder: fc.string({ minLength: 0, maxLength: 20 }),
+  rewarder: fc.string({ minLength: 0, maxLength: 20 })
 })
 
 const viewModeArb: fc.Arbitrary<ViewMode> = fc.constantFrom('grid' as const, 'list' as const)

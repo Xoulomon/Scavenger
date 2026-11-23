@@ -8,7 +8,7 @@
  */
 import React, { type ReactNode } from 'react'
 import { useAuthStore, type AuthUser } from '@/store'
-import '@/lib/constants';
+import '@/lib/constants'
 
 export type { AuthUser }
 
@@ -25,9 +25,7 @@ export interface AuthContextType {
  * AuthProvider is a no-op wrapper — state lives in StoreProvider (store/auth.ts).
  * Kept so existing JSX (<AuthProvider>) does not need to change.
  */
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => (
-  <>{children}</>
-)
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => <>{children}</>
 
 /**
  * useAuth — thin adapter over the auth store slice.
@@ -42,6 +40,6 @@ export function useAuth(): AuthContextType {
     isAuthenticated: state.isAuthenticated,
     isLoading: state.isLoading,
     login: (user: AuthUser) => dispatch({ type: 'AUTH_LOGIN', payload: user }),
-    logout: () => dispatch({ type: 'AUTH_LOGOUT' }),
+    logout: () => dispatch({ type: 'AUTH_LOGOUT' })
   }
 }

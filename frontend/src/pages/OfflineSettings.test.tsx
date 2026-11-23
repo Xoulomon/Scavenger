@@ -3,31 +3,31 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { OfflineSettings } from './OfflineSettings'
 
 vi.mock('@/hooks/useOnlineStatus', () => ({
-  useOnlineStatus: vi.fn(() => true),
+  useOnlineStatus: vi.fn(() => true)
 }))
 
 vi.mock('@/hooks/useAsync', () => ({
   useAsync: vi.fn((_fn) => ({
     run: vi.fn(),
-    isLoading: false,
-  })),
+    isLoading: false
+  }))
 }))
 
 vi.mock('@/hooks/useResource', () => ({
   useResource: vi.fn(() => ({
     data: { bytes: 0, formatted: '0 B' },
-    reload: vi.fn(),
-  })),
+    reload: vi.fn()
+  }))
 }))
 
 vi.mock('@/lib/offline/storage', () => ({
   getDatabaseSize: vi.fn().mockResolvedValue({ bytes: 0, formatted: '0 B' }),
   clearAllData: vi.fn().mockResolvedValue(undefined),
-  getPendingMutations: vi.fn().mockResolvedValue([]),
+  getPendingMutations: vi.fn().mockResolvedValue([])
 }))
 
 vi.mock('@/lib/offline/syncManager', () => ({
-  syncManager: { syncPendingMutations: vi.fn().mockResolvedValue({ success: 0, failed: 0 }) },
+  syncManager: { syncPendingMutations: vi.fn().mockResolvedValue({ success: 0, failed: 0 }) }
 }))
 
 describe('OfflineSettings', () => {

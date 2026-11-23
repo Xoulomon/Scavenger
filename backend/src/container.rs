@@ -54,11 +54,10 @@ use crate::{
     },
     logger::Logger,
     repositories::{
-        ArchivalRepository, AuditRepository, EmailRepository, FileSystemArchivalRepository,
-        InMemoryAuditRepository, InMemoryEmailRepository, InMemoryNotificationRepository,
-        InMemoryReportingRepository, InMemoryStorageRepository, InMemoryVerificationRepository,
-        InMemoryWebhookRepository, NotificationRepository, ReportingRepository, StorageRepository,
-        VerificationRepository, WebhookRepository,
+        ArchivalRepository, AuditRepository, EmailRepository, FileSystemArchivalRepository, InMemoryAuditRepository,
+        InMemoryEmailRepository, InMemoryNotificationRepository, InMemoryReportingRepository,
+        InMemoryStorageRepository, InMemoryVerificationRepository, InMemoryWebhookRepository, NotificationRepository,
+        ReportingRepository, StorageRepository, VerificationRepository, WebhookRepository,
     },
     rpc::{StellarRpcClient, StellarRpcConfig},
     search::{SearchClient, SearchClientConfig},
@@ -692,9 +691,8 @@ mod container_tests {
         rpc::{StellarRpcClient, StellarRpcConfig},
         search::{SearchClient, SearchClientConfig},
         services::{
-            AuditService, ArchivalService, FileSystemArchivalStorage,
-            EmailService, NotificationService, ReportService, StorageService, VerificationService,
-            WebhookManager,
+            ArchivalService, AuditService, EmailService, FileSystemArchivalStorage, NotificationService, ReportService,
+            StorageService, VerificationService, WebhookManager,
         },
     };
 
@@ -725,21 +723,18 @@ mod container_tests {
             timeout_seconds: 5,
             validate_certificates: false,
         };
-        let search = Arc::new(
-            SearchClient::new(search_config).expect("search client construction should not fail"),
-        );
+        let search = Arc::new(SearchClient::new(search_config).expect("search client construction should not fail"));
 
         // Archival service backed by /tmp.
-        let archival_storage = Arc::new(FileSystemArchivalStorage::new(
-            std::path::PathBuf::from("/tmp/test-archives"),
-        ));
+        let archival_storage = Arc::new(FileSystemArchivalStorage::new(std::path::PathBuf::from(
+            "/tmp/test-archives",
+        )));
         let archival = Arc::new(ArchivalService::new(archival_storage));
 
         // Stellar RPC with stub config (no real connection made at construction).
         let stellar_config = StellarRpcConfig::from_env();
-        let stellar = Arc::new(
-            StellarRpcClient::new(stellar_config).expect("stellar client construction should not fail"),
-        );
+        let stellar =
+            Arc::new(StellarRpcClient::new(stellar_config).expect("stellar client construction should not fail"));
 
         // Exercise the explicit constructor — this is the assertion: it compiles
         // and runs without panicking.
@@ -786,19 +781,16 @@ mod container_tests {
             timeout_seconds: 5,
             validate_certificates: false,
         };
-        let search = Arc::new(
-            SearchClient::new(search_config).expect("search client construction should not fail"),
-        );
+        let search = Arc::new(SearchClient::new(search_config).expect("search client construction should not fail"));
 
-        let archival_storage = Arc::new(FileSystemArchivalStorage::new(
-            std::path::PathBuf::from("/tmp/test-archives"),
-        ));
+        let archival_storage = Arc::new(FileSystemArchivalStorage::new(std::path::PathBuf::from(
+            "/tmp/test-archives",
+        )));
         let archival = Arc::new(ArchivalService::new(archival_storage));
 
         let stellar_config = StellarRpcConfig::from_env();
-        let stellar = Arc::new(
-            StellarRpcClient::new(stellar_config).expect("stellar client construction should not fail"),
-        );
+        let stellar =
+            Arc::new(StellarRpcClient::new(stellar_config).expect("stellar client construction should not fail"));
 
         let logger = Arc::new(crate::logger::Logger::new("test"));
 
@@ -838,12 +830,9 @@ mod container_tests {
             timeout_seconds: 5,
             validate_certificates: false,
         };
-        let search = Arc::new(
-            SearchClient::new(search_config).expect("search client construction should not fail"),
-        );
+        let search = Arc::new(SearchClient::new(search_config).expect("search client construction should not fail"));
         let stellar = Arc::new(
-            StellarRpcClient::new(StellarRpcConfig::from_env())
-                .expect("stellar client construction should not fail"),
+            StellarRpcClient::new(StellarRpcConfig::from_env()).expect("stellar client construction should not fail"),
         );
 
         let container = super::AppContainer::with_layers(

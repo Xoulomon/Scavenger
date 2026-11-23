@@ -66,7 +66,7 @@ A four-tier achievement badge assigned to participants based on their lifetime w
 count. Affects reward multipliers:
 
 | Level        | Waste Count | Multiplier |
-|--------------|-------------|------------|
+| ------------ | ----------- | ---------- |
 | Beginner     | 0–10        | 1.0×       |
 | Intermediate | 11–50       | 1.1×       |
 | Advanced     | 51–200      | 1.25×      |
@@ -89,6 +89,7 @@ expired ones, and emits a `WasteExpired` event per item. Should be called period
 **Collector** 👤  
 A participant role that collects waste from Recyclers and transports it to Manufacturers.
 Collectors may:
+
 - Transfer waste they own
 - Confirm waste submitted by Recyclers
 - Grade waste quality (A–D)
@@ -187,8 +188,8 @@ and `total_carbon_credits`. Updated on every waste submission and reward claim.
 A quality classification (A, B, C, D) assigned to a waste item by a Collector or Manufacturer.
 The grade influences the reward multiplier applied to the base incentive:
 
-| Grade | Multiplier | Meaning          |
-|-------|------------|------------------|
+| Grade | Multiplier | Meaning           |
+| ----- | ---------- | ----------------- |
 | A     | 1.5×       | Excellent quality |
 | B     | 1.2×       | Good quality      |
 | C     | 1.0×       | Average quality   |
@@ -205,15 +206,15 @@ Retrievable via `get_grade_history(waste_id)`. Each record contains: `waste_id`,
 **Grading Rules** ♻  
 Per-waste-type minimum quality thresholds that define the lowest acceptable grade for recycling:
 
-| Waste Type  | Min Grade | Reason |
-|-------------|-----------|--------|
-| Electronic  | B         | Safety, WEEE compliance |
-| Metal       | C         | Contamination tolerance |
-| Glass       | C         | Contaminant-free required |
-| PetPlastic  | C         | Food-contact reuse standard |
-| Paper       | D         | Broad recyclability |
-| Plastic     | D         | General plastic stream |
-| Organic     | D         | Composting accepts poor condition |
+| Waste Type | Min Grade | Reason                            |
+| ---------- | --------- | --------------------------------- |
+| Electronic | B         | Safety, WEEE compliance           |
+| Metal      | C         | Contamination tolerance           |
+| Glass      | C         | Contaminant-free required         |
+| PetPlastic | C         | Food-contact reuse standard       |
+| Paper      | D         | Broad recyclability               |
+| Plastic    | D         | General plastic stream            |
+| Organic    | D         | Composting accepts poor condition |
 
 See: `WasteType::min_acceptable_grade()` in `types.rs`.
 
@@ -237,23 +238,24 @@ Stored in the `image_hash` field of the `Waste` struct.
 A reward programme created by a Manufacturer to encourage specific types of waste collection.
 Key fields:
 
-| Field            | Description |
-|------------------|-------------|
-| `id`             | Unique identifier |
-| `rewarder`       | Manufacturer's address |
-| `waste_type`     | Target waste type |
-| `reward_points`  | Tokens per kilogram (flat rate) |
-| `total_budget`   | Tokens allocated on creation |
-| `remaining_budget` | Tokens still available |
-| `active`         | Whether the incentive is live |
-| `starts_at`      | Optional activation timestamp |
-| `ends_at`        | Optional expiry timestamp |
-| `tiers`          | Optional `Vec<IncentiveTier>` |
+| Field              | Description                     |
+| ------------------ | ------------------------------- |
+| `id`               | Unique identifier               |
+| `rewarder`         | Manufacturer's address          |
+| `waste_type`       | Target waste type               |
+| `reward_points`    | Tokens per kilogram (flat rate) |
+| `total_budget`     | Tokens allocated on creation    |
+| `remaining_budget` | Tokens still available          |
+| `active`           | Whether the incentive is live   |
+| `starts_at`        | Optional activation timestamp   |
+| `ends_at`          | Optional expiry timestamp       |
+| `tiers`            | Optional `Vec<IncentiveTier>`   |
 
 See: [Incentive Quick Reference](./INCENTIVE_QUICK_REFERENCE.md)
 
 **Incentive Tier** 💰  
 A weight-banded reward rate within an incentive. Each tier specifies:
+
 - `min_weight_kg` — lower bound (inclusive)
 - `max_weight_kg` — upper bound (exclusive); 0 = unbounded
 - `reward_points` — tokens per kg in this band
@@ -285,6 +287,7 @@ timestamp (`ledger().timestamp()`), which the contract uses for TTL expiry and e
 
 **Manufacturer** 👤  
 A participant role that sources recycled materials and creates incentives. Manufacturers may:
+
 - Create, update, and deactivate incentives
 - Receive transferred waste from Collectors or Recyclers
 - Grade incoming waste quality
@@ -339,11 +342,11 @@ Any registered entity (individual or organisation) on the platform. Fields inclu
 **Participant Role** 👤  
 One of three on-chain roles that determines what operations a participant may perform:
 
-| Role         | Key Responsibilities |
-|--------------|----------------------|
-| Recycler     | Submit waste, transfer to Collector or Manufacturer |
+| Role         | Key Responsibilities                                         |
+| ------------ | ------------------------------------------------------------ |
+| Recycler     | Submit waste, transfer to Collector or Manufacturer          |
 | Collector    | Collect from Recyclers, grade waste, deliver to Manufacturer |
-| Manufacturer | Create incentives, receive waste, grade incoming materials |
+| Manufacturer | Create incentives, receive waste, grade incoming materials   |
 
 **Pending Transfer** ⛓  
 A two-step transfer approval record (`PendingTransfer`) that must be accepted or rejected by
@@ -369,6 +372,7 @@ Each transition is recorded in `processing_history` as a `ProcessingRecord`.
 
 **Recycler** 👤  
 The entry-level participant role responsible for submitting recyclable materials. Recyclers may:
+
 - Register and submit waste items
 - Transfer waste to Collectors or Manufacturers
 - Earn reward tokens via incentives
@@ -477,20 +481,20 @@ is compiled with `cargo build --target wasm32-unknown-unknown --release` and opt
 **Waste** ♻ ⛓  
 The primary on-chain entity representing a recyclable material item. Key fields:
 
-| Field               | Type    | Description |
-|---------------------|---------|-------------|
-| `waste_id`          | u128    | Unique identifier |
+| Field               | Type    | Description                  |
+| ------------------- | ------- | ---------------------------- |
+| `waste_id`          | u128    | Unique identifier            |
 | `waste_type`        | enum    | Category (Paper, Plastic, …) |
-| `weight`            | u128    | Mass in grams |
-| `current_owner`     | Address | Current holder |
-| `latitude`          | i128    | Location (× 10⁶) |
-| `longitude`         | i128    | Location (× 10⁶) |
-| `is_active`         | bool    | Active in system |
-| `is_confirmed`      | bool    | Confirmed by verifier |
-| `grade`             | enum    | Quality grade (A–D) |
-| `expires_at`        | u64     | Expiry timestamp (0 = none) |
-| `processing_status` | enum    | Lifecycle stage |
-| `tracking_code`     | String  | QR code identifier |
+| `weight`            | u128    | Mass in grams                |
+| `current_owner`     | Address | Current holder               |
+| `latitude`          | i128    | Location (× 10⁶)             |
+| `longitude`         | i128    | Location (× 10⁶)             |
+| `is_active`         | bool    | Active in system             |
+| `is_confirmed`      | bool    | Confirmed by verifier        |
+| `grade`             | enum    | Quality grade (A–D)          |
+| `expires_at`        | u64     | Expiry timestamp (0 = none)  |
+| `processing_status` | enum    | Lifecycle stage              |
+| `tracking_code`     | String  | QR code identifier           |
 
 **Waste Grade** ♻ 💰  
 See [Grade](#grade).
@@ -498,15 +502,15 @@ See [Grade](#grade).
 **Waste Types and Categories** ♻  
 The seven categories of recyclable material tracked by the platform:
 
-| Discriminant | Name        | Description | Carbon Rate (gCO₂e/g) | Min Grade |
-|:------------:|-------------|-------------|:---------------------:|:---------:|
-| 0            | Paper       | Newspapers, cardboard, office paper | 1.8 | D |
-| 1            | PetPlastic  | PET bottles and food containers | 2.5 | C |
-| 2            | Plastic     | General mixed plastics | 2.5 | D |
-| 3            | Metal       | Aluminium, steel, copper | 3.2 | C |
-| 4            | Glass       | Bottles, jars, containers | 0.8 | C |
-| 5            | Organic     | Food scraps, yard waste | 0.5 | D |
-| 6            | Electronic  | Computers, phones, batteries | 4.0 | B |
+| Discriminant | Name       | Description                         | Carbon Rate (gCO₂e/g) | Min Grade |
+| :----------: | ---------- | ----------------------------------- | :-------------------: | :-------: |
+|      0       | Paper      | Newspapers, cardboard, office paper |          1.8          |     D     |
+|      1       | PetPlastic | PET bottles and food containers     |          2.5          |     C     |
+|      2       | Plastic    | General mixed plastics              |          2.5          |     D     |
+|      3       | Metal      | Aluminium, steel, copper            |          3.2          |     C     |
+|      4       | Glass      | Bottles, jars, containers           |          0.8          |     C     |
+|      5       | Organic    | Food scraps, yard waste             |          0.5          |     D     |
+|      6       | Electronic | Computers, phones, batteries        |          4.0          |     B     |
 
 **WasteGrade** ⛓ ♻  
 The `WasteGrade` enum with variants `A`, `B`, `C`, `D`. See [Grade](#grade).
@@ -530,25 +534,25 @@ operations. Abbreviated from the ISO currency code XLM.
 
 ## Acronyms and Abbreviations
 
-| Acronym | Full Form | Definition |
-|---------|-----------|-----------|
-| AML     | Anti-Money Laundering | Compliance check (future) |
-| API     | Application Programming Interface | Contract interaction surface |
-| bp      | Basis Points | 1/100th of a percent (e.g. 150 bp = 1.5×) |
-| CID     | Content Identifier | IPFS hash identifying a file |
-| CLI     | Command Line Interface | Terminal tool for contract deployment |
-| CO₂e   | CO₂ equivalent | Standard unit of carbon footprint |
-| DAO     | Decentralised Autonomous Organisation | Governance (future) |
-| E2E     | End-to-End | Testing methodology covering full workflows |
-| IPFS    | InterPlanetary File System | Decentralised file storage for hashes |
-| KYC     | Know Your Customer | Identity verification (future) |
-| NFT     | Non-Fungible Token | Unique digital asset (future) |
-| PET     | Polyethylene Terephthalate | Plastic type used in PetPlastic category |
-| RPC     | Remote Procedure Call | Protocol for invoking contract functions |
-| TTL     | Time To Live | Maximum age of a waste item before expiry |
-| WASM    | WebAssembly | Binary format for smart contracts |
-| WEEE    | Waste Electrical & Electronic Equipment | EU directive for e-waste |
-| XLM     | Stellar Lumens | Stellar's native cryptocurrency |
+| Acronym | Full Form                               | Definition                                  |
+| ------- | --------------------------------------- | ------------------------------------------- |
+| AML     | Anti-Money Laundering                   | Compliance check (future)                   |
+| API     | Application Programming Interface       | Contract interaction surface                |
+| bp      | Basis Points                            | 1/100th of a percent (e.g. 150 bp = 1.5×)   |
+| CID     | Content Identifier                      | IPFS hash identifying a file                |
+| CLI     | Command Line Interface                  | Terminal tool for contract deployment       |
+| CO₂e    | CO₂ equivalent                          | Standard unit of carbon footprint           |
+| DAO     | Decentralised Autonomous Organisation   | Governance (future)                         |
+| E2E     | End-to-End                              | Testing methodology covering full workflows |
+| IPFS    | InterPlanetary File System              | Decentralised file storage for hashes       |
+| KYC     | Know Your Customer                      | Identity verification (future)              |
+| NFT     | Non-Fungible Token                      | Unique digital asset (future)               |
+| PET     | Polyethylene Terephthalate              | Plastic type used in PetPlastic category    |
+| RPC     | Remote Procedure Call                   | Protocol for invoking contract functions    |
+| TTL     | Time To Live                            | Maximum age of a waste item before expiry   |
+| WASM    | WebAssembly                             | Binary format for smart contracts           |
+| WEEE    | Waste Electrical & Electronic Equipment | EU directive for e-waste                    |
+| XLM     | Stellar Lumens                          | Stellar's native cryptocurrency             |
 
 ---
 
@@ -557,32 +561,39 @@ operations. Abbreviated from the ISO currency code XLM.
 ### By Topic
 
 **Participant Management**
+
 - [Participant Quick Reference](./PARTICIPANT_QUICK_REFERENCE.md)
 - [Participant Implementation](./archive/PARTICIPANT_IMPLEMENTATION.md)
 - [Participant Serialization](./PARTICIPANT_SERIALIZATION.md)
 
 **Waste Management**
+
 - [Waste Storage Quick Reference](./WASTE_STORAGE_QUICK_REFERENCE.md)
 - [Waste Storage Implementation](./archive/WASTE_STORAGE_IMPLEMENTATION.md)
 - [Transfer Record Implementation](./archive/TRANSFER_RECORD_IMPLEMENTATION.md)
 
 **Incentive Management**
+
 - [Incentive Quick Reference](./INCENTIVE_QUICK_REFERENCE.md)
 - [Incentive Implementation](./archive/INCENTIVE_IMPLEMENTATION.md)
 
 **Grading System**
+
 - `stellar-contract/src/types.rs` — `WasteGrade`, `GradeRecord`, `WasteType::min_acceptable_grade`
 - `stellar-contract/src/test_grading.rs` — Grading unit tests
 
 **Expiration System**
+
 - `stellar-contract/src/lib.rs` — `set_waste_ttl`, `get_waste_ttl`, `get_expired_wastes`, `cleanup_expired_wastes`
 - `stellar-contract/src/test_expiration.rs` — Expiration unit tests
 
 **Testing & Quality**
+
 - [E2E Testing Suite](./E2E_TESTING.md)
 - [Test Coverage Report](./TEST_COVERAGE_REPORT.md)
 
 **Deployment & Operations**
+
 - [Migration Guide](./MIGRATION_GUIDE.md)
 - [Kubernetes Deployment](./KUBERNETES_DEPLOYMENT.md)
 - [CI/CD Pipeline](./CI_CD_PIPELINE.md)

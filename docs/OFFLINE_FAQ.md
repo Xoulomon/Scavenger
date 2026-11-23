@@ -55,6 +55,7 @@ If sync fails, the changes remain queued and will be retried automatically when 
 ### What features work offline?
 
 **Available Offline:**
+
 - Viewing previously cached waste records
 - Viewing previously cached participant data
 - Viewing dashboard statistics (cached)
@@ -63,6 +64,7 @@ If sync fails, the changes remain queued and will be retried automatically when 
 - Viewing the map with cached locations
 
 **Not Available Offline:**
+
 - Real-time updates
 - Search (requires server)
 - Analytics (requires server)
@@ -83,6 +85,7 @@ Yes, QR code scanning works offline. The scanned data will be processed locally 
 ### What technology powers offline mode?
 
 Offline mode uses several technologies:
+
 - **Service Workers**: Cache static assets and API responses
 - **IndexedDB**: Store data locally on your device
 - **Background Sync**: Automatically sync when connection is restored
@@ -120,6 +123,7 @@ This can happen if you have a lot of cached data. Try clearing old cached data f
 ### I see "Service Worker registration failed"
 
 This usually means:
+
 - Your browser doesn't support service workers
 - You're on an insecure connection (HTTP instead of HTTPS)
 - Service workers are disabled in your browser settings
@@ -175,6 +179,7 @@ No, offline data is not backed up. Once synced to the server, the data is safely
 ### Can I disable offline mode?
 
 Yes, you can disable offline functionality by:
+
 1. Going to Offline Settings
 2. Clearing all offline data
 3. Unregistering the service worker through browser settings
@@ -192,6 +197,7 @@ However, we recommend keeping it enabled for better performance and reliability.
 ### How do I report a bug?
 
 If you encounter issues with offline mode:
+
 1. Note what you were doing when the issue occurred
 2. Check the browser console for error messages
 3. Note your browser and version

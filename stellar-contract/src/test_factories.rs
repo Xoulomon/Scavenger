@@ -1,7 +1,7 @@
 #![cfg(test)]
 
-use crate::{Participant, ParticipantRole, WasteTransfer, Incentive, WasteType, Material};
-use soroban_sdk::{Address, Env, Symbol, symbol_short};
+use crate::{Incentive, Material, Participant, ParticipantRole, WasteTransfer, WasteType};
+use soroban_sdk::{symbol_short, Address, Env, Symbol};
 
 /// Default values for test data
 pub mod defaults {
@@ -364,7 +364,7 @@ mod factory_tests {
     fn test_participant_factory_overrides() {
         let env = Env::default();
         let custom_address = Address::random(&env);
-        
+
         let participant = ParticipantBuilder::new(&env)
             .address(custom_address.clone())
             .role(ParticipantRole::Manufacturer)
@@ -440,7 +440,7 @@ mod factory_tests {
         let env = Env::default();
         let from = Address::random(&env);
         let to = Address::random(&env);
-        
+
         let transfer = WasteTransferBuilder::new(&env)
             .from(from.clone())
             .to(to.clone())

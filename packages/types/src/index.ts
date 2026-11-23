@@ -1,7 +1,7 @@
 /**
  * @fileoverview Shared TypeScript types for the Scavngr ecosystem
- * 
- * This package consolidates all common types used across frontend, indexer, 
+ *
+ * This package consolidates all common types used across frontend, indexer,
  * and SDK packages to ensure consistency and reduce duplication.
  */
 
@@ -13,7 +13,7 @@
 export enum ParticipantRole {
   Recycler = 0,
   Collector = 1,
-  Manufacturer = 2,
+  Manufacturer = 2
 }
 
 /** Types of waste materials tracked by the system */
@@ -24,7 +24,7 @@ export enum WasteType {
   Metal = 3,
   Glass = 4,
   Organic = 5,
-  Electronic = 6,
+  Electronic = 6
 }
 
 /** Status of waste items in the system */
@@ -32,7 +32,7 @@ export enum WasteStatus {
   Submitted = 'submitted',
   Verified = 'verified',
   Transferred = 'transferred',
-  Deactivated = 'deactivated',
+  Deactivated = 'deactivated'
 }
 
 /** Certification levels for participants */
@@ -40,7 +40,7 @@ export enum CertificationLevel {
   Beginner = 0,
   Intermediate = 1,
   Advanced = 2,
-  Expert = 3,
+  Expert = 3
 }
 
 /** Supported Stellar networks */
@@ -48,7 +48,7 @@ export enum StellarNetwork {
   Standalone = 'STANDALONE',
   Testnet = 'TESTNET',
   Futurenet = 'FUTURENET',
-  Mainnet = 'MAINNET',
+  Mainnet = 'MAINNET'
 }
 
 // ===========================
@@ -57,25 +57,25 @@ export enum StellarNetwork {
 
 export const WASTE_TYPE_MAP: Record<number, keyof typeof WasteType> = {
   0: 'Paper',
-  1: 'PetPlastic', 
+  1: 'PetPlastic',
   2: 'Plastic',
   3: 'Metal',
   4: 'Glass',
   5: 'Organic',
-  6: 'Electronic',
+  6: 'Electronic'
 } as const
 
 export const ROLE_MAP: Record<number, keyof typeof ParticipantRole> = {
   0: 'Recycler',
-  1: 'Collector', 
-  2: 'Manufacturer',
+  1: 'Collector',
+  2: 'Manufacturer'
 } as const
 
 export const CERTIFICATION_MAP: Record<number, keyof typeof CertificationLevel> = {
   0: 'Beginner',
   1: 'Intermediate',
-  2: 'Advanced', 
-  3: 'Expert',
+  2: 'Advanced',
+  3: 'Expert'
 } as const
 
 // ===========================

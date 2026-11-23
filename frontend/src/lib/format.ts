@@ -14,7 +14,7 @@ export function formatDate(dateInput: Date | number | string, locale?: string): 
   return new Intl.DateTimeFormat(config.currencyLocale, {
     year: 'numeric',
     month: 'short',
-    day: 'numeric',
+    day: 'numeric'
   }).format(date)
 }
 
@@ -26,7 +26,7 @@ export function formatCurrency(amount: number, locale?: string, currency?: strin
       style: 'currency',
       currency: currency ?? config.currency,
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      maximumFractionDigits: 2
     }).format(amount)
   } catch {
     return `${currency ?? config.currency} ${amount.toFixed(2)}`
@@ -38,7 +38,7 @@ export function formatNumber(value: number, locale?: string, fractionDigits = 2)
   const config = getLocaleConfig(resolved)
   return new Intl.NumberFormat(config.currencyLocale, {
     minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits
   }).format(value)
 }
 
@@ -60,7 +60,7 @@ const WASTE_TYPE_LABELS: Record<string, string> = {
   organic: 'Organic',
   electronic: 'Electronic',
   textile: 'Textile',
-  other: 'Other',
+  other: 'Other'
 }
 
 export function formatWasteTypeLabel(type: string): string {
@@ -75,7 +75,7 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled: 'Cancelled',
   failed: 'Failed',
   in_progress: 'In Progress',
-  in_transit: 'In Transit',
+  in_transit: 'In Transit'
 }
 
 export function formatStatusLabel(status: string): string {

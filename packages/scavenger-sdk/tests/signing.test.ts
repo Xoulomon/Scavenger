@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { SigningError } from '../src/errors'
 
 vi.mock('@stellar/freighter-api', () => ({
-  signTransaction: vi.fn(),
+  signTransaction: vi.fn()
 }))
 
 const MOCK_SIGNED_XDR = 'AAAAAGsslkd...signed...'

@@ -5,44 +5,38 @@
 import {
   createGetEventsResponse,
   createGetLedgerResponse,
-  createSimulateTransactionResponse,
-} from './factories';
-import { RpcResponseFactoryOptions } from './types';
+  createSimulateTransactionResponse
+} from './factories'
+import { RpcResponseFactoryOptions } from './types'
 
 /**
  * Mock handler for Stellar RPC getEvents endpoint
  */
-export function mockGetEventsHandler(
-  options?: RpcResponseFactoryOptions
-) {
+export function mockGetEventsHandler(options?: RpcResponseFactoryOptions) {
   return (req: any, res: any, ctx: any) => {
-    const response = createGetEventsResponse(options);
-    return res(ctx.json(response));
-  };
+    const response = createGetEventsResponse(options)
+    return res(ctx.json(response))
+  }
 }
 
 /**
  * Mock handler for Stellar RPC getLedger endpoint
  */
-export function mockGetLedgerHandler(
-  options?: RpcResponseFactoryOptions
-) {
+export function mockGetLedgerHandler(options?: RpcResponseFactoryOptions) {
   return (req: any, res: any, ctx: any) => {
-    const response = createGetLedgerResponse(options);
-    return res(ctx.json(response));
-  };
+    const response = createGetLedgerResponse(options)
+    return res(ctx.json(response))
+  }
 }
 
 /**
  * Mock handler for Stellar RPC simulateTransaction endpoint
  */
-export function mockSimulateTransactionHandler(
-  options?: RpcResponseFactoryOptions
-) {
+export function mockSimulateTransactionHandler(options?: RpcResponseFactoryOptions) {
   return (req: any, res: any, ctx: any) => {
-    const response = createSimulateTransactionResponse(options);
-    return res(ctx.json(response));
-  };
+    const response = createSimulateTransactionResponse(options)
+    return res(ctx.json(response))
+  }
 }
 
 /**
@@ -57,26 +51,23 @@ export function createStellarRpcHandlers(
       method: 'post',
       url: `${baseUrl}/rpc`,
       handler: (req: any, res: any, ctx: any) => {
-        const { method } = req.body || {};
+        const { method } = req.body || {}
 
         if (method === 'getEvents') {
-          return res(ctx.json(createGetEventsResponse(options)));
+          return res(ctx.json(createGetEventsResponse(options)))
         }
 
         if (method === 'getLedger') {
-          return res(ctx.json(createGetLedgerResponse(options)));
+          return res(ctx.json(createGetLedgerResponse(options)))
         }
 
         if (method === 'simulateTransaction') {
-          return res(ctx.json(createSimulateTransactionResponse(options)));
+          return res(ctx.json(createSimulateTransactionResponse(options)))
         }
 
         // Default response for unknown methods
-        return res(
-          ctx.status(400),
-          ctx.json({ error: `Unknown method: ${method}` })
-        );
-      },
-    },
-  ];
+        return res(ctx.status(400), ctx.json({ error: `Unknown method: ${method}` }))
+      }
+    }
+  ]
 }

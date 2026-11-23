@@ -13,12 +13,12 @@ vi.mock('@/hooks/useCharityDonations', () => ({
     donate: vi.fn(),
     downloadReceipt: vi.fn(),
     isPending: false,
-    error: null,
-  })),
+    error: null
+  }))
 }))
 
 vi.mock('@/context/WalletContext', () => ({
-  useWallet: vi.fn(() => ({ address: 'GTEST' })),
+  useWallet: vi.fn(() => ({ address: 'GTEST' }))
 }))
 
 describe('CharityDonationsPage', () => {

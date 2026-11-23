@@ -41,6 +41,7 @@ it('handles empty wastes', async () => {
 ```
 
 The global setup in `setup.tsx` handles:
+
 - `beforeAll` → `server.listen()`
 - `afterEach` → `server.resetHandlers()` (clears per-test overrides)
 - `afterAll` → `server.close()`
@@ -64,22 +65,16 @@ import { server } from '@/test-utils/msw/server'
 
 // 404 error
 server.use(
-  http.get('/api/wastes/:id', () =>
-    HttpResponse.json({ error: 'Not found' }, { status: 404 })
-  )
+  http.get('/api/wastes/:id', () => HttpResponse.json({ error: 'Not found' }, { status: 404 }))
 )
 
 // 500 server error
 server.use(
-  http.get('/api/wastes', () =>
-    HttpResponse.json({ error: 'Internal error' }, { status: 500 })
-  )
+  http.get('/api/wastes', () => HttpResponse.json({ error: 'Internal error' }, { status: 500 }))
 )
 
 // Network failure
-server.use(
-  http.get('/api/wastes', () => HttpResponse.error())
-)
+server.use(http.get('/api/wastes', () => HttpResponse.error()))
 ```
 
 ## Avoiding State Leaks
@@ -93,19 +88,19 @@ server.use(
 
 Handlers mirror the actual backend responses:
 
-| Endpoint | Method | Response Shape |
-|----------|--------|---------------|
-| `/api/wastes` | GET | `{ wastes: Waste[], total, limit, offset }` |
-| `/api/wastes/:id` | GET | `Waste` |
-| `/api/wastes` | POST | `Waste` (201) |
-| `/api/participants` | GET | `{ participants: Participant[], total, limit, offset }` |
-| `/api/participants/:address` | GET | `Participant` |
-| `/api/participants` | POST | `Participant` (201) |
-| `/api/incentives` | GET | `{ incentives: Incentive[], total }` |
-| `/api/incentives` | POST | `Incentive` (201) |
-| `/api/stats/:address` | GET | `ParticipantStats` |
-| `/api/metrics` | GET | `GlobalMetrics` |
-| `/api/health` | GET | `{ status, uptime }` |
+| Endpoint                     | Method | Response Shape                                          |
+| ---------------------------- | ------ | ------------------------------------------------------- |
+| `/api/wastes`                | GET    | `{ wastes: Waste[], total, limit, offset }`             |
+| `/api/wastes/:id`            | GET    | `Waste`                                                 |
+| `/api/wastes`                | POST   | `Waste` (201)                                           |
+| `/api/participants`          | GET    | `{ participants: Participant[], total, limit, offset }` |
+| `/api/participants/:address` | GET    | `Participant`                                           |
+| `/api/participants`          | POST   | `Participant` (201)                                     |
+| `/api/incentives`            | GET    | `{ incentives: Incentive[], total }`                    |
+| `/api/incentives`            | POST   | `Incentive` (201)                                       |
+| `/api/stats/:address`        | GET    | `ParticipantStats`                                      |
+| `/api/metrics`               | GET    | `GlobalMetrics`                                         |
+| `/api/health`                | GET    | `{ status, uptime }`                                    |
 
 ## When NOT to Use MSW
 

@@ -9,12 +9,12 @@ vi.mock('@/hooks/useFeatureFlags', () => ({
     overrides: [],
     override: vi.fn(),
     clearOverride: vi.fn(),
-    clearAll: vi.fn(),
-  })),
+    clearAll: vi.fn()
+  }))
 }))
 
 vi.mock('@/lib/featureFlags', () => ({
-  getFlagAnalytics: vi.fn(() => []),
+  getFlagAnalytics: vi.fn(() => [])
 }))
 
 describe('FeatureFlagsPage', () => {

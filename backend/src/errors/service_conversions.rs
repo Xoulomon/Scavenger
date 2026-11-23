@@ -43,13 +43,9 @@
 ///     Ok(HttpResponse::Ok().json(report))
 /// }
 /// ```
-
 use crate::errors::AppError;
 use crate::services::{
-    email::EmailError,
-    notifications::NotificationError,
-    reporting::ReportError,
-    storage::StorageError,
+    email::EmailError, notifications::NotificationError, reporting::ReportError, storage::StorageError,
 };
 
 // ── Service error → AppError conversions ─────────────────────────────────
@@ -261,12 +257,8 @@ mod tests {
         let resp = err.error_response();
         assert_eq!(resp.status(), 400);
 
-        let body_bytes = resp
-            .into_body()
-            .try_into_bytes()
-            .expect("body is finite");
-        let json: serde_json::Value =
-            serde_json::from_slice(&body_bytes).expect("valid JSON");
+        let body_bytes = resp.into_body().try_into_bytes().expect("body is finite");
+        let json: serde_json::Value = serde_json::from_slice(&body_bytes).expect("valid JSON");
 
         // Top-level shape: { "error": { ... } }
         assert!(json.get("error").is_some(), "response must have 'error' key");
@@ -299,19 +291,11 @@ mod tests {
         for err in errors {
             let code = err.code().to_string();
             let resp = err.error_response();
-            let body_bytes = resp
-                .into_body()
-                .try_into_bytes()
-                .expect("body is finite");
-            let json: serde_json::Value =
-                serde_json::from_slice(&body_bytes).expect("valid JSON");
+            let body_bytes = resp.into_body().try_into_bytes().expect("body is finite");
+            let json: serde_json::Value = serde_json::from_slice(&body_bytes).expect("valid JSON");
 
             // Every variant must use the same { error: { code, message, request_id } } envelope.
-            assert!(
-                json.get("error").is_some(),
-                "variant {} missing 'error' key",
-                code
-            );
+            assert!(json.get("error").is_some(), "variant {} missing 'error' key", code);
             let obj = &json["error"];
             assert!(obj.get("code").is_some(), "variant {} missing code", code);
             assert!(obj.get("message").is_some(), "variant {} missing message", code);
@@ -329,12 +313,7 @@ mod tests {
         let json: serde_json::Value = serde_json::from_slice(&body_bytes).unwrap();
 
         // Only the "error" key should be at top level — no "data", "status", etc.
-        let keys: Vec<&str> = json
-            .as_object()
-            .unwrap()
-            .keys()
-            .map(String::as_str)
-            .collect();
+        let keys: Vec<&str> = json.as_object().unwrap().keys().map(String::as_str).collect();
         assert_eq!(keys, vec!["error"], "unexpected top-level keys: {:?}", keys);
     }
 }

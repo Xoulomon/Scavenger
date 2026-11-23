@@ -4,7 +4,7 @@ import { stellarAddressSchema } from '@/lib/validation/stellarAddress'
 
 /** Destination step: the recipient must be a valid Stellar public key. */
 export const transferDestinationSchema = z.object({
-  recipientAddress: stellarAddressSchema,
+  recipientAddress: stellarAddressSchema
 })
 
 export type TransferDestination = z.infer<typeof transferDestinationSchema>
@@ -14,21 +14,13 @@ export const transferHandlingInstructionsSchema = z.enum([
   'standard',
   'fragile',
   'perishable',
-  'hazardous',
+  'hazardous'
 ])
 
-export type TransferHandlingInstructions = z.infer<
-  typeof transferHandlingInstructionsSchema
->
+export type TransferHandlingInstructions = z.infer<typeof transferHandlingInstructionsSchema>
 
 /** Condition of the item being transferred. */
-export const transferConditionSchema = z.enum([
-  'new',
-  'like-new',
-  'good',
-  'fair',
-  'poor',
-])
+export const transferConditionSchema = z.enum(['new', 'like-new', 'good', 'fair', 'poor'])
 
 export type TransferCondition = z.infer<typeof transferConditionSchema>
 
@@ -45,7 +37,7 @@ export const transferFormSchema = z.object({
     .optional()
     .or(z.literal('')),
   condition: transferConditionSchema,
-  handlingInstructions: transferHandlingInstructionsSchema,
+  handlingInstructions: transferHandlingInstructionsSchema
 })
 
 export type TransferForm = z.infer<typeof transferFormSchema>
@@ -55,5 +47,5 @@ export const transferFormDefaults: TransferForm = {
   recipientAddress: '',
   notes: '',
   condition: 'good',
-  handlingInstructions: 'standard',
+  handlingInstructions: 'standard'
 }

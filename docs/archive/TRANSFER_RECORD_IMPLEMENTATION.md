@@ -1,6 +1,7 @@
 # TransferRecord Storage Support Implementation
 
 ## Overview
+
 This document describes the implementation of Soroban storage support for the `TransferRecord` struct, enabling safe and efficient storage of transfer records in the Scavenger smart contract.
 
 ## Implementation Details
@@ -8,6 +9,7 @@ This document describes the implementation of Soroban storage support for the `T
 ### Core Structures
 
 #### TransferRecord Struct
+
 ```rust
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -25,6 +27,7 @@ pub struct TransferRecord {
 ```
 
 **Fields:**
+
 - `id`: Unique identifier for the transfer
 - `from`: Address of the sender
 - `to`: Address of the recipient
@@ -36,6 +39,7 @@ pub struct TransferRecord {
 - `note`: Optional description or metadata
 
 #### TransferItemType Enum
+
 ```rust
 #[contracttype]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -50,6 +54,7 @@ pub enum TransferItemType {
 Represents the type of item being transferred in the recycling ecosystem.
 
 #### TransferStatus Enum
+
 ```rust
 #[contracttype]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -67,14 +72,18 @@ Tracks the lifecycle of a transfer from initiation to completion.
 ### Storage Compatibility
 
 #### Soroban Integration
+
 The `#[contracttype]` annotation enables:
+
 - Automatic implementation of `TryFromVal` and `TryIntoVal` traits
 - Deterministic serialization for blockchain storage
 - Safe conversion between Rust types and Soroban environment values
 - Efficient storage and retrieval operations
 
 #### Vector Storage Support
+
 TransferRecord fully supports `Vec<TransferRecord>` operations:
+
 - Efficient append operations for transfer history
 - Deterministic iteration maintaining insertion order
 - Batch storage and retrieval
@@ -85,6 +94,7 @@ TransferRecord fully supports `Vec<TransferRecord>` operations:
 #### TransferRecord Methods
 
 **new()** - Creates a new transfer record with Pending status
+
 ```rust
 pub fn new(
     id: u64,
@@ -99,25 +109,32 @@ pub fn new(
 ```
 
 **update_status()** - Updates transfer status if not final
+
 ```rust
 pub fn update_status(&mut self, new_status: TransferStatus) -> bool
 ```
+
 Returns `true` if updated, `false` if status is already final.
 
 **validate()** - Validates transfer record constraints
+
 ```rust
 pub fn validate(&self) -> Result<(), &'static str>
 ```
+
 Checks:
+
 - Amount must be greater than zero
 - Sender and recipient must be different
 
 **is_complete()** - Checks if transfer is completed
+
 ```rust
 pub fn is_complete(&self) -> bool
 ```
 
 **is_modifiable()** - Checks if transfer can be modified
+
 ```rust
 pub fn is_modifiable(&self) -> bool
 ```
@@ -141,6 +158,7 @@ pub fn is_modifiable(&self) -> bool
 ## Storage Patterns
 
 ### Single Record Storage
+
 ```rust
 let record = TransferRecord::new(...);
 env.storage().instance().set(&("transfer", record_id), &record);
@@ -148,6 +166,7 @@ let retrieved: TransferRecord = env.storage().instance().get(&("transfer", recor
 ```
 
 ### Vector Storage (Transfer History)
+
 ```rust
 let mut history = Vec::new(&env);
 history.push_back(record1);
@@ -156,6 +175,7 @@ env.storage().instance().set(&("history", address), &history);
 ```
 
 ### Efficient Append Operations
+
 ```rust
 let mut history: Vec<TransferRecord> = env.storage().instance()
     .get(&("history", address))
@@ -204,12 +224,14 @@ env.storage().instance().set(&("history", address), &history);
 ## Performance Considerations
 
 ### Gas Optimization
+
 - Single storage write for batch operations
 - Efficient vector append without full rewrite
 - Minimal cloning through reference usage
 - Deterministic serialization reduces overhead
 
 ### Storage Efficiency
+
 - Compact enum representations (u32)
 - No implicit defaults or padding
 - Efficient string storage
@@ -218,12 +240,14 @@ env.storage().instance().set(&("history", address), &history);
 ## Security Features
 
 ### Data Integrity
+
 - Deterministic serialization ensures consistency
 - Validation prevents invalid states
 - Final status protection prevents tampering
 - Type-safe enum conversions
 
 ### Error Handling
+
 - Graceful validation failures
 - Safe status transitions
 - Protected final states
@@ -232,6 +256,7 @@ env.storage().instance().set(&("history", address), &history);
 ## Integration Guidelines
 
 ### Creating Transfer Records
+
 ```rust
 let record = TransferRecord::new(
     next_id,
@@ -246,6 +271,7 @@ let record = TransferRecord::new(
 ```
 
 ### Managing Transfer History
+
 ```rust
 // Get or create history
 let mut history: Vec<TransferRecord> = env.storage().instance()
@@ -260,6 +286,7 @@ env.storage().instance().set(&("transfers", address), &history);
 ```
 
 ### Status Lifecycle Management
+
 ```rust
 // Start transfer
 record.update_status(TransferStatus::InProgress);
@@ -275,6 +302,7 @@ if record.update_status(TransferStatus::Completed) {
 ## Backward Compatibility
 
 This implementation:
+
 - Adds new types without modifying existing structures
 - Maintains all existing functionality
 - Introduces no breaking changes
@@ -283,6 +311,7 @@ This implementation:
 ## Future Enhancements
 
 Potential improvements:
+
 - Transfer event emission
 - Batch transfer operations
 - Transfer cancellation logic

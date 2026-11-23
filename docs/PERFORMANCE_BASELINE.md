@@ -8,50 +8,52 @@ Performance baselines define acceptable limits for key contract operations, API 
 
 ### Contract Instruction Counts (Soroban)
 
-| Operation | Baseline | Threshold | Unit |
-|-----------|----------|-----------|------|
-| Participant registration | 500,000 | 750,000 | instructions |
-| Waste registration | 800,000 | 1,200,000 | instructions |
-| Waste transfer | 1,000,000 | 1,500,000 | instructions |
-| Incentive creation | 600,000 | 900,000 | instructions |
-| Reward distribution | 1,200,000 | 1,800,000 | instructions |
+| Operation                | Baseline  | Threshold | Unit         |
+| ------------------------ | --------- | --------- | ------------ |
+| Participant registration | 500,000   | 750,000   | instructions |
+| Waste registration       | 800,000   | 1,200,000 | instructions |
+| Waste transfer           | 1,000,000 | 1,500,000 | instructions |
+| Incentive creation       | 600,000   | 900,000   | instructions |
+| Reward distribution      | 1,200,000 | 1,800,000 | instructions |
 
 ### API Response Times
 
-| Metric | Baseline | Threshold | Unit |
-|--------|----------|-----------|------|
-| p95 latency | 300 | 500 | ms |
-| p99 latency | 700 | 1,000 | ms |
-| Error rate | 1 | 5 | % |
+| Metric      | Baseline | Threshold | Unit |
+| ----------- | -------- | --------- | ---- |
+| p95 latency | 300      | 500       | ms   |
+| p99 latency | 700      | 1,000     | ms   |
+| Error rate  | 1        | 5         | %    |
 
 ### Database Query Times
 
-| Metric | Baseline | Threshold | Unit |
-|--------|----------|-----------|------|
-| Query p95 | 400 | 600 | ms |
-| Query p99 | 800 | 1,200 | ms |
+| Metric    | Baseline | Threshold | Unit |
+| --------- | -------- | --------- | ---- |
+| Query p95 | 400      | 600       | ms   |
+| Query p99 | 800      | 1,200     | ms   |
 
 **Baseline** = expected normal performance. **Threshold** = maximum acceptable value before the check fails.
 
 ## Continuous Monitoring
 
 The [performance.yml](../.github/workflows/performance.yml) workflow runs on:
+
 - Every push to `main` or `develop`
 - Pull requests targeting `main`
 - Weekly on Sundays at 03:00 UTC
 - Manual dispatch via GitHub Actions UI
 
 Jobs:
+
 1. **contract-benchmarks** — runs `cargo test --test performance_test` in `stellar-contract/`, uploads results as artifact
 2. **api-performance** — runs a 30s k6 smoke test against `k6-api-response-times.js`, compares results against `baselines.json` thresholds (skipped gracefully if k6 unavailable)
 3. **performance-report** — downloads artifacts and writes a pass/fail table to the GitHub Actions step summary
 
 ## Alerting Policy
 
-| Severity | Condition | Action |
-|----------|-----------|--------|
-| Warning | Metric exceeds baseline | Note in PR review |
-| Failure | Metric exceeds threshold | CI check fails, block merge |
+| Severity | Condition                | Action                      |
+| -------- | ------------------------ | --------------------------- |
+| Warning  | Metric exceeds baseline  | Note in PR review           |
+| Failure  | Metric exceeds threshold | CI check fails, block merge |
 
 The `api-performance` job uses `continue-on-error: true` so a missing test environment does not block unrelated work, but threshold violations in a live environment will still fail the step.
 

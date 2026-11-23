@@ -2,8 +2,8 @@
 //! Tests for waste queries, participant queries, filtering, sorting, and pagination
 
 use scavenger_backend::api::contracts::{
-    WasteResponse, ParticipantResponse, ContractStatsResponse, ContractInfoResponse,
-    WasteQueryParams, ParticipantQueryParams,
+    ContractInfoResponse, ContractStatsResponse, ParticipantQueryParams, ParticipantResponse, WasteQueryParams,
+    WasteResponse,
 };
 
 // ── Helper functions for test data ───────────────────────────────────────────
@@ -97,8 +97,7 @@ fn test_waste_response_status_variations() {
 fn test_waste_response_serialization() {
     let waste = valid_waste_response("w1", "plastic", "p1");
     let json = serde_json::to_string(&waste).expect("serialization should work");
-    let deserialized: WasteResponse = serde_json::from_str(&json)
-        .expect("deserialization should work");
+    let deserialized: WasteResponse = serde_json::from_str(&json).expect("deserialization should work");
 
     assert_eq!(waste.id, deserialized.id);
     assert_eq!(waste.waste_type, deserialized.waste_type);
@@ -151,8 +150,7 @@ fn test_participant_response_reputation_ranges() {
 fn test_participant_response_serialization() {
     let participant = valid_participant_response("p1", "John Doe");
     let json = serde_json::to_string(&participant).expect("serialization should work");
-    let deserialized: ParticipantResponse = serde_json::from_str(&json)
-        .expect("deserialization should work");
+    let deserialized: ParticipantResponse = serde_json::from_str(&json).expect("deserialization should work");
 
     assert_eq!(participant.id, deserialized.id);
     assert_eq!(participant.name, deserialized.name);
@@ -198,8 +196,7 @@ fn test_contract_stats_recycled_exceeds_total_invalid() {
 fn test_contract_stats_serialization() {
     let stats = valid_contract_stats();
     let json = serde_json::to_string(&stats).expect("serialization should work");
-    let deserialized: ContractStatsResponse = serde_json::from_str(&json)
-        .expect("deserialization should work");
+    let deserialized: ContractStatsResponse = serde_json::from_str(&json).expect("deserialization should work");
 
     assert_eq!(stats.total_wastes, deserialized.total_wastes);
     assert_eq!(stats.total_participants, deserialized.total_participants);
@@ -244,8 +241,7 @@ fn test_contract_info_version_parsing() {
 fn test_contract_info_serialization() {
     let info = valid_contract_info();
     let json = serde_json::to_string(&info).expect("serialization should work");
-    let deserialized: ContractInfoResponse = serde_json::from_str(&json)
-        .expect("deserialization should work");
+    let deserialized: ContractInfoResponse = serde_json::from_str(&json).expect("deserialization should work");
 
     assert_eq!(info.contract_id, deserialized.contract_id);
     assert_eq!(info.network, deserialized.network);

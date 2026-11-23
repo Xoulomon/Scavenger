@@ -28,11 +28,16 @@ describe('useAsync', () => {
 
   it('transitions to loading state immediately after run()', async () => {
     let resolve!: (v: string) => void
-    const fn = () => new Promise<string>((res) => { resolve = res })
+    const fn = () =>
+      new Promise<string>((res) => {
+        resolve = res
+      })
 
     const { result } = renderHook(() => useAsync(fn))
 
-    act(() => { void result.current.run() })
+    act(() => {
+      void result.current.run()
+    })
 
     expect(result.current.status).toBe('loading')
     expect(result.current.isLoading).toBe(true)
@@ -44,11 +49,11 @@ describe('useAsync', () => {
   // ── Success state ─────────────────────────────────────────────────────────
 
   it('transitions to success with returned data', async () => {
-    const { result } = renderHook(() =>
-      useAsync(async () => ({ id: 1, name: 'Alice' }))
-    )
+    const { result } = renderHook(() => useAsync(async () => ({ id: 1, name: 'Alice' })))
 
-    await act(async () => { await result.current.run() })
+    await act(async () => {
+      await result.current.run()
+    })
 
     expect(result.current.status).toBe('success')
     expect(result.current.data).toEqual({ id: 1, name: 'Alice' })
@@ -59,7 +64,9 @@ describe('useAsync', () => {
   it('run() returns the resolved value', async () => {
     const { result } = renderHook(() => useAsync(async () => 42))
     let returnVal: number | undefined
-    await act(async () => { returnVal = await result.current.run() })
+    await act(async () => {
+      returnVal = await result.current.run()
+    })
     expect(returnVal).toBe(42)
   })
 
@@ -67,10 +74,14 @@ describe('useAsync', () => {
 
   it('transitions to error state on rejected promise', async () => {
     const { result } = renderHook(() =>
-      useAsync(async () => { throw new Error('fetch failed') })
+      useAsync(async () => {
+        throw new Error('fetch failed')
+      })
     )
 
-    await act(async () => { await result.current.run() })
+    await act(async () => {
+      await result.current.run()
+    })
 
     expect(result.current.status).toBe('error')
     expect(result.current.error).toBeInstanceOf(Error)
@@ -81,10 +92,14 @@ describe('useAsync', () => {
 
   it('wraps non-Error rejections in an Error object', async () => {
     const { result } = renderHook(() =>
-      useAsync(async () => { throw 'string error' })
+      useAsync(async () => {
+        throw 'string error'
+      })
     )
 
-    await act(async () => { await result.current.run() })
+    await act(async () => {
+      await result.current.run()
+    })
 
     expect(result.current.error).toBeInstanceOf(Error)
     expect(result.current.error?.message).toBe('string error')
@@ -92,10 +107,14 @@ describe('useAsync', () => {
 
   it('run() resolves to undefined when the promise rejects', async () => {
     const { result } = renderHook(() =>
-      useAsync(async () => { throw new Error('oops') })
+      useAsync(async () => {
+        throw new Error('oops')
+      })
     )
     let returnVal: unknown = 'sentinel'
-    await act(async () => { returnVal = await result.current.run() })
+    await act(async () => {
+      returnVal = await result.current.run()
+    })
     expect(returnVal).toBeUndefined()
   })
 
@@ -103,7 +122,9 @@ describe('useAsync', () => {
 
   it('reset() restores idle state after success', async () => {
     const { result } = renderHook(() => useAsync(async () => 'data'))
-    await act(async () => { await result.current.run() })
+    await act(async () => {
+      await result.current.run()
+    })
     expect(result.current.status).toBe('success')
 
     act(() => result.current.reset())
@@ -115,9 +136,13 @@ describe('useAsync', () => {
 
   it('reset() restores idle state after error', async () => {
     const { result } = renderHook(() =>
-      useAsync(async () => { throw new Error('err') })
+      useAsync(async () => {
+        throw new Error('err')
+      })
     )
-    await act(async () => { await result.current.run() })
+    await act(async () => {
+      await result.current.run()
+    })
     expect(result.current.status).toBe('error')
 
     act(() => result.current.reset())
@@ -134,13 +159,27 @@ describe('useAsync', () => {
 
     const fn = vi
       .fn()
-      .mockImplementationOnce(() => new Promise<string>((res) => { resolveFirst = res }))
-      .mockImplementationOnce(() => new Promise<string>((res) => { resolveSecond = res }))
+      .mockImplementationOnce(
+        () =>
+          new Promise<string>((res) => {
+            resolveFirst = res
+          })
+      )
+      .mockImplementationOnce(
+        () =>
+          new Promise<string>((res) => {
+            resolveSecond = res
+          })
+      )
 
     const { result } = renderHook(() => useAsync(fn))
 
-    act(() => { void result.current.run() }) // call 1
-    act(() => { void result.current.run() }) // call 2 — supersedes call 1
+    act(() => {
+      void result.current.run()
+    }) // call 1
+    act(() => {
+      void result.current.run()
+    }) // call 2 — supersedes call 1
 
     // Resolve call 2 first
     act(() => resolveSecond('second'))
@@ -166,7 +205,9 @@ describe('useAsync', () => {
 
     rerender({ fn: fnV2 })
 
-    await act(async () => { await result.current.run() })
+    await act(async () => {
+      await result.current.run()
+    })
 
     expect(fnV2).toHaveBeenCalled()
     expect(result.current.data).toBe('v2')
@@ -175,14 +216,13 @@ describe('useAsync', () => {
   // ── Error clears between runs ─────────────────────────────────────────────
 
   it('clears previous error when a new run() starts', async () => {
-    const fn = vi
-      .fn()
-      .mockRejectedValueOnce(new Error('first error'))
-      .mockResolvedValueOnce('ok')
+    const fn = vi.fn().mockRejectedValueOnce(new Error('first error')).mockResolvedValueOnce('ok')
 
     const { result } = renderHook(() => useAsync(fn))
 
-    await act(async () => { await result.current.run() })
+    await act(async () => {
+      await result.current.run()
+    })
     expect(result.current.status).toBe('error')
 
     let _loadingObserved = false

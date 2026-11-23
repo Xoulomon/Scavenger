@@ -7,7 +7,7 @@ import { networkConfig } from '@/lib/stellar'
 import { invalidateKeys, invalidationPlan } from '@/lib/cacheInvalidation'
 import {
   useTransactionStatus,
-  type TransactionStatusController,
+  type TransactionStatusController
 } from '@/hooks/useTransactionStatus'
 
 export interface DonateToCharityVariables {
@@ -51,7 +51,7 @@ export function useDonateToCharity(): UseDonateToCharityResult &
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       await client.donateToCharity(address, amount, address)
       return amount
@@ -67,7 +67,7 @@ export function useDonateToCharity(): UseDonateToCharityResult &
     onError: (error) => {
       transaction.markFailed(error)
       toast.error(error)
-    },
+    }
   })
 
   return {
@@ -82,6 +82,6 @@ export function useDonateToCharity(): UseDonateToCharityResult &
     reset: () => {
       transaction.reset()
       mutation.reset()
-    },
+    }
   }
 }

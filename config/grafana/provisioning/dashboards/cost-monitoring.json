@@ -1,160 +1,170 @@
 {
-  "title": "Scavenger Cost Monitoring",
-  "version": 1,
-  "description": "Cost monitoring dashboard for Scavenger platform",
-  "tags": ["scavenger", "cost", "aws"],
-  "timezone": "utc",
-  "panels": [
-    {
-      "title": "Monthly Spend Overview",
-      "type": "stat",
-      "gridPos": { "h": 8, "w": 4, "x": 0, "y": 0 },
-      "targets": [{
-        "expr": "aws_cost_by_service_total{service=\"All\"}",
-        "legendFormat": "Total Spend"
-      }],
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"]
-        },
-        "textMode": "auto"
-      }
-    },
-    {
-      "title": "Monthly Budget Status",
-      "type": "gauge",
-      "gridPos": { "h": 8, "w": 4, "x": 4, "y": 0 },
-      "targets": [{
-        "expr": "aws_cost_by_service_total{service=\"All\"} / 200 * 100",
-        "legendFormat": "Budget Used (%)"
-      }],
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"]
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
-      },
-      "thresholds": [
-        { "color": "green", "value": null },
-        { "color": "yellow", "value": 50 },
-        { "color": "orange", "value": 80 },
-        { "color": "red", "value": 100 }
-      ]
-    },
-    {
-      "title": "Current vs Forecasted",
-      "type": "stat",
-      "gridPos": { "h": 8, "w": 4, "x": 8, "y": 0 },
-      "targets": [
+    "title": "Scavenger Cost Monitoring",
+    "version": 1,
+    "description": "Cost monitoring dashboard for Scavenger platform",
+    "tags": ["scavenger", "cost", "aws"],
+    "timezone": "utc",
+    "panels": [
         {
-          "expr": "aws_cost_by_service_total{service=\"All\"}",
-          "legendFormat": "Current"
+            "title": "Monthly Spend Overview",
+            "type": "stat",
+            "gridPos": { "h": 8, "w": 4, "x": 0, "y": 0 },
+            "targets": [
+                {
+                    "expr": "aws_cost_by_service_total{service=\"All\"}",
+                    "legendFormat": "Total Spend"
+                }
+            ],
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": ["lastNotNull"]
+                },
+                "textMode": "auto"
+            }
         },
         {
-          "expr": "aws_cost_forecasted_total{service=\"All\"}",
-          "legendFormat": "Forecasted"
-        }
-      ],
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"]
-        }
-      }
-    },
-    {
-      "title": "Cost by Service",
-      "type": "piechart",
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
-      "targets": [{
-        "expr": "aws_cost_by_service_total",
-        "legendFormat": "{{ service }}"
-      }],
-      "options": {
-        "displayLabels": ["name", "percent", "value"],
-        "legend": {
-          "displayMode": "table",
-          "placement": "right"
+            "title": "Monthly Budget Status",
+            "type": "gauge",
+            "gridPos": { "h": 8, "w": 4, "x": 4, "y": 0 },
+            "targets": [
+                {
+                    "expr": "aws_cost_by_service_total{service=\"All\"} / 200 * 100",
+                    "legendFormat": "Budget Used (%)"
+                }
+            ],
+            "options": {
+                "reduceOptions": {
+                    "calcs": ["lastNotNull"]
+                },
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true
+            },
+            "thresholds": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 50 },
+                { "color": "orange", "value": 80 },
+                { "color": "red", "value": 100 }
+            ]
         },
-        "pieType": "pie",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"]
-        }
-      }
-    },
-    {
-      "title": "ECS Spend Over Time",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
-      "targets": [{
-        "expr": "aws_cost_by_service{service=\"Amazon Elastic Container Service\"}",
-        "legendFormat": "ECS"
-      }],
-      "options": {
-        "legend": {
-          "calcs": ["min", "max", "avg", "sum"],
-          "displayMode": "table",
-          "placement": "bottom"
+        {
+            "title": "Current vs Forecasted",
+            "type": "stat",
+            "gridPos": { "h": 8, "w": 4, "x": 8, "y": 0 },
+            "targets": [
+                {
+                    "expr": "aws_cost_by_service_total{service=\"All\"}",
+                    "legendFormat": "Current"
+                },
+                {
+                    "expr": "aws_cost_forecasted_total{service=\"All\"}",
+                    "legendFormat": "Forecasted"
+                }
+            ],
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": ["lastNotNull"]
+                }
+            }
         },
-        "tooltip": {
-          "mode": "multi"
-        }
-      }
-    },
-    {
-      "title": "Cost by Environment",
-      "type": "bargauge",
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 16 },
-      "targets": [{
-        "expr": "aws_cost_by_tag{tag=\"Environment\"}",
-        "legendFormat": "{{ value }}"
-      }],
-      "options": {
-        "displayMode": "gradient",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": ["lastNotNull"]
+        {
+            "title": "Cost by Service",
+            "type": "piechart",
+            "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+            "targets": [
+                {
+                    "expr": "aws_cost_by_service_total",
+                    "legendFormat": "{{ service }}"
+                }
+            ],
+            "options": {
+                "displayLabels": ["name", "percent", "value"],
+                "legend": {
+                    "displayMode": "table",
+                    "placement": "right"
+                },
+                "pieType": "pie",
+                "reduceOptions": {
+                    "calcs": ["lastNotNull"]
+                }
+            }
         },
-        "showUnfilled": true
-      }
-    },
-    {
-      "title": "Cost Anomaly Events",
-      "type": "table",
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 16 },
-      "targets": [{
-        "expr": "aws_cost_anomaly_events",
-        "legendFormat": "{{ description }}"
-      }],
-      "options": {
-        "sortBy": [
-          { "displayName": "Time" }
-        ]
-      }
-    },
-    {
-      "title": "Optimization Recommendations",
-      "type": "table",
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
-      "targets": [{
-        "expr": "aws_cost_optimization_recommendations",
-        "legendFormat": "{{ description }}"
-      }],
-      "options": {
-        "sortBy": [
-          { "displayName": "Savings" }
-        ]
-      }
-    }
-  ],
-  "schemaVersion": 30,
-  "refresh": "5m"
+        {
+            "title": "ECS Spend Over Time",
+            "type": "timeseries",
+            "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
+            "targets": [
+                {
+                    "expr": "aws_cost_by_service{service=\"Amazon Elastic Container Service\"}",
+                    "legendFormat": "ECS"
+                }
+            ],
+            "options": {
+                "legend": {
+                    "calcs": ["min", "max", "avg", "sum"],
+                    "displayMode": "table",
+                    "placement": "bottom"
+                },
+                "tooltip": {
+                    "mode": "multi"
+                }
+            }
+        },
+        {
+            "title": "Cost by Environment",
+            "type": "bargauge",
+            "gridPos": { "h": 8, "w": 8, "x": 0, "y": 16 },
+            "targets": [
+                {
+                    "expr": "aws_cost_by_tag{tag=\"Environment\"}",
+                    "legendFormat": "{{ value }}"
+                }
+            ],
+            "options": {
+                "displayMode": "gradient",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": ["lastNotNull"]
+                },
+                "showUnfilled": true
+            }
+        },
+        {
+            "title": "Cost Anomaly Events",
+            "type": "table",
+            "gridPos": { "h": 8, "w": 8, "x": 8, "y": 16 },
+            "targets": [
+                {
+                    "expr": "aws_cost_anomaly_events",
+                    "legendFormat": "{{ description }}"
+                }
+            ],
+            "options": {
+                "sortBy": [{ "displayName": "Time" }]
+            }
+        },
+        {
+            "title": "Optimization Recommendations",
+            "type": "table",
+            "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
+            "targets": [
+                {
+                    "expr": "aws_cost_optimization_recommendations",
+                    "legendFormat": "{{ description }}"
+                }
+            ],
+            "options": {
+                "sortBy": [{ "displayName": "Savings" }]
+            }
+        }
+    ],
+    "schemaVersion": 30,
+    "refresh": "5m"
 }

@@ -3,6 +3,7 @@
 ## Data Structures
 
 ### Waste Struct
+
 ```rust
 pub struct Waste {
     pub id: u64,
@@ -16,6 +17,7 @@ pub struct Waste {
 ```
 
 ### WasteStatus Enum
+
 ```rust
 pub enum WasteStatus {
     Pending = 0,
@@ -28,6 +30,7 @@ pub enum WasteStatus {
 ## Quick Start
 
 ### Create Waste
+
 ```rust
 let waste = Waste::new(
     1,                              // id
@@ -40,16 +43,19 @@ let waste = Waste::new(
 ```
 
 ### Store Waste
+
 ```rust
 env.storage().instance().set(&("waste", waste.id), &waste);
 ```
 
 ### Retrieve Waste
+
 ```rust
 let waste: Waste = env.storage().instance().get(&("waste", id)).unwrap();
 ```
 
 ### Update Status
+
 ```rust
 let mut waste: Waste = env.storage().instance().get(&("waste", id)).unwrap();
 if waste.update_status(WasteStatus::Processed) {
@@ -60,6 +66,7 @@ if waste.update_status(WasteStatus::Processed) {
 ## Methods
 
 ### Waste Methods
+
 ```rust
 // Create new waste
 Waste::new(id, waste_type, weight, submitter, submitted_at, location) -> Waste
@@ -78,6 +85,7 @@ waste.validate() -> Result<(), &'static str>
 ```
 
 ### WasteStatus Methods
+
 ```rust
 // Validate u32 value
 WasteStatus::is_valid(value) -> bool
@@ -101,6 +109,7 @@ status.is_final() -> bool
 ## Status Transitions
 
 ### Valid Transitions
+
 ```
 Pending → Processing → Processed
 Pending → Rejected
@@ -109,6 +118,7 @@ Processing → Rejected
 ```
 
 ### Invalid Transitions
+
 ```
 Processed → * (final)
 Rejected → * (final)
@@ -117,11 +127,13 @@ Rejected → * (final)
 ## Validation Rules
 
 ### Weight
+
 - Must be > 0
 - Must be >= 100g (minimum)
 - Maximum: u64::MAX
 
 ### Status
+
 - Pending: Initial status
 - Processing: Can be modified
 - Processed: Final, cannot be modified
@@ -130,6 +142,7 @@ Rejected → * (final)
 ## Storage Patterns
 
 ### Single Item
+
 ```rust
 // Store
 env.storage().instance().set(&("waste", id), &waste);
@@ -142,6 +155,7 @@ let exists: bool = env.storage().instance().has(&("waste", id));
 ```
 
 ### Batch Operations
+
 ```rust
 // Store multiple
 for i in 1..=10 {
@@ -159,6 +173,7 @@ for i in 1..=10 {
 ```
 
 ### Different Key Types
+
 ```rust
 // By ID
 env.storage().instance().set(&("waste", id), &waste);
@@ -173,6 +188,7 @@ env.storage().instance().set(&("waste_by_status", status, id), &waste);
 ## Common Patterns
 
 ### Create and Validate
+
 ```rust
 let waste = Waste::new(id, waste_type, weight, submitter, timestamp, location);
 
@@ -187,6 +203,7 @@ match waste.validate() {
 ```
 
 ### Process Workflow
+
 ```rust
 // 1. Retrieve waste
 let mut waste: Waste = env.storage().instance().get(&("waste", id)).unwrap();
@@ -208,6 +225,7 @@ env.storage().instance().set(&("waste", id), &waste);
 ```
 
 ### Safe Status Update
+
 ```rust
 let mut waste: Waste = env.storage().instance().get(&("waste", id)).unwrap();
 
@@ -221,6 +239,7 @@ if waste.update_status(new_status) {
 ```
 
 ### Query by Status
+
 ```rust
 // Get all pending waste
 let mut pending_wastes = Vec::new();
@@ -236,12 +255,14 @@ for i in 1..=total_count {
 ## Error Handling
 
 ### Validation Errors
+
 ```rust
 "Weight must be greater than zero"
 "Weight must be at least 100g"
 ```
 
 ### Status Update Errors
+
 ```rust
 // Returns false if status is final
 if !waste.update_status(new_status) {
@@ -250,6 +271,7 @@ if !waste.update_status(new_status) {
 ```
 
 ### Storage Errors
+
 ```rust
 // Handle missing waste
 match env.storage().instance().get::<_, Waste>(&("waste", id)) {
@@ -265,6 +287,7 @@ match env.storage().instance().get::<_, Waste>(&("waste", id)) {
 ## Testing
 
 ### Run Tests
+
 ```bash
 cd stellar-contract
 cargo test --lib waste_tests
@@ -272,6 +295,7 @@ cargo test --lib waste_status_tests
 ```
 
 ### Test Coverage
+
 - ✅ Creation and storage
 - ✅ Round-trip serialization
 - ✅ Status updates
@@ -282,6 +306,7 @@ cargo test --lib waste_status_tests
 ## Storage Footprint
 
 ### Size Estimate
+
 ```
 id:           8 bytes
 waste_type:   4 bytes
@@ -295,6 +320,7 @@ Total:       ~64 bytes + location length
 ```
 
 ### Optimization Tips
+
 1. Use short location strings
 2. Batch storage operations
 3. Use efficient key structures
@@ -302,22 +328,22 @@ Total:       ~64 bytes + location length
 
 ## Status Reference
 
-| Status | Value | Modifiable | Final | Description |
-|--------|-------|------------|-------|-------------|
-| Pending | 0 | ✅ | ❌ | Submitted, awaiting processing |
-| Processing | 1 | ✅ | ❌ | Currently being processed |
-| Processed | 2 | ❌ | ✅ | Successfully processed |
-| Rejected | 3 | ❌ | ✅ | Rejected (invalid/contaminated) |
+| Status     | Value | Modifiable | Final | Description                     |
+| ---------- | ----- | ---------- | ----- | ------------------------------- |
+| Pending    | 0     | ✅         | ❌    | Submitted, awaiting processing  |
+| Processing | 1     | ✅         | ❌    | Currently being processed       |
+| Processed  | 2     | ❌         | ✅    | Successfully processed          |
+| Rejected   | 3     | ❌         | ✅    | Rejected (invalid/contaminated) |
 
 ## WasteType Reference
 
-| Type | Value | Description |
-|------|-------|-------------|
-| Paper | 0 | Paper waste |
-| PetPlastic | 1 | PET plastic |
-| Plastic | 2 | General plastic |
-| Metal | 3 | Metal waste |
-| Glass | 4 | Glass waste |
+| Type       | Value | Description     |
+| ---------- | ----- | --------------- |
+| Paper      | 0     | Paper waste     |
+| PetPlastic | 1     | PET plastic     |
+| Plastic    | 2     | General plastic |
+| Metal      | 3     | Metal waste     |
+| Glass      | 4     | Glass waste     |
 
 ## Best Practices
 

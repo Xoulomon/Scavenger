@@ -24,7 +24,7 @@ export function useWallet(): WalletContextType {
     if (!state.isInstalled) {
       dispatch({
         type: 'WALLET_ERROR',
-        payload: 'Freighter extension is not installed. Please install it from freighter.app.',
+        payload: 'Freighter extension is not installed. Please install it from freighter.app.'
       })
       return
     }
@@ -69,6 +69,6 @@ export function useWallet(): WalletContextType {
     error: state.error,
     connect,
     disconnect,
-    signTransaction,
+    signTransaction
   }
 }

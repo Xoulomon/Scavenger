@@ -1,4 +1,4 @@
-import { BarChart3,CheckCircle2, Clock, XCircle } from 'lucide-react'
+import { BarChart3, CheckCircle2, Clock, XCircle } from 'lucide-react'
 import { useMemo } from 'react'
 
 import type { Material } from '@/api/types'
@@ -8,7 +8,7 @@ import { getSessionHistory } from '../sessionHistory'
 
 export function DashboardStats({
   materials,
-  isLoading,
+  isLoading
 }: {
   materials: Material[]
   isLoading: boolean
@@ -17,9 +17,7 @@ export function DashboardStats({
     const now = Math.floor(Date.now() / 1000)
     const todayStart = now - (now % 86400)
     const pending = materials.filter((m) => !m.verified)
-    const verifiedToday = materials.filter(
-      (m) => m.verified && m.submitted_at >= todayStart
-    )
+    const verifiedToday = materials.filter((m) => m.verified && m.submitted_at >= todayStart)
     const history = getSessionHistory()
     const rejected = history.filter((r) => r.decision === 'rejected')
     const rejectionRate =

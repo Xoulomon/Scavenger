@@ -4,7 +4,7 @@ import {
   StatCardSkeleton,
   WasteCardSkeleton,
   IncentiveCardSkeleton,
-  PageSkeleton,
+  PageSkeleton
 } from './Skeletons'
 
 describe('StatCardSkeleton', () => {

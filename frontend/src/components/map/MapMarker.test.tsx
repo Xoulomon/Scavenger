@@ -22,8 +22,8 @@ const mockWastePoints: WasteMapPoint[] = [
       recycled_timestamp: 1700000000,
       is_active: true,
       is_confirmed: false,
-      confirmer: '',
-    },
+      confirmer: ''
+    }
   },
   {
     id: '2',
@@ -39,8 +39,8 @@ const mockWastePoints: WasteMapPoint[] = [
       recycled_timestamp: 1700100000,
       is_active: true,
       is_confirmed: true,
-      confirmer: 'GXYZ9999XYZX1234',
-    },
+      confirmer: 'GXYZ9999XYZX1234'
+    }
   },
   {
     id: '3',
@@ -56,9 +56,9 @@ const mockWastePoints: WasteMapPoint[] = [
       recycled_timestamp: 1700200000,
       is_active: false,
       is_confirmed: false,
-      confirmer: '',
-    },
-  },
+      confirmer: ''
+    }
+  }
 ]
 
 const mockParticipantPoints: ParticipantMapPoint[] = [
@@ -72,8 +72,8 @@ const mockParticipantPoints: ParticipantMapPoint[] = [
       name: 'Alice Recycler',
       latitude: 407128000,
       longitude: -740060000,
-      registered_at: 1700000000,
-    },
+      registered_at: 1700000000
+    }
   },
   {
     id: 'GDEF5678DEFG1234',
@@ -85,8 +85,8 @@ const mockParticipantPoints: ParticipantMapPoint[] = [
       name: 'Bob Collector',
       latitude: 515074000,
       longitude: -1278000,
-      registered_at: 1700100000,
-    },
+      registered_at: 1700100000
+    }
   },
   {
     id: 'GHIJ0123GHIJ5678',
@@ -98,58 +98,44 @@ const mockParticipantPoints: ParticipantMapPoint[] = [
       name: 'Charlie Manufacturer',
       latitude: 488566000,
       longitude: 23522000,
-      registered_at: 1700200000,
-    },
-  },
+      registered_at: 1700200000
+    }
+  }
 ]
 
 describe('MapMarker Snapshot Tests', () => {
   it('should render waste markers with correct styling for active pending waste', () => {
-    const { container } = render(
-      <WasteMap wastes={[mockWastePoints[0]]} participants={[]} />
-    )
+    const { container } = render(<WasteMap wastes={[mockWastePoints[0]]} participants={[]} />)
     expect(container).toMatchSnapshot()
   })
 
   it('should render waste markers with correct styling for active confirmed waste', () => {
-    const { container } = render(
-      <WasteMap wastes={[mockWastePoints[1]]} participants={[]} />
-    )
+    const { container } = render(<WasteMap wastes={[mockWastePoints[1]]} participants={[]} />)
     expect(container).toMatchSnapshot()
   })
 
   it('should render waste markers with correct styling for inactive waste', () => {
-    const { container } = render(
-      <WasteMap wastes={[mockWastePoints[2]]} participants={[]} />
-    )
+    const { container } = render(<WasteMap wastes={[mockWastePoints[2]]} participants={[]} />)
     expect(container).toMatchSnapshot()
   })
 
   it('should render participant markers for recycler role', () => {
-    const { container } = render(
-      <WasteMap wastes={[]} participants={[mockParticipantPoints[0]]} />
-    )
+    const { container } = render(<WasteMap wastes={[]} participants={[mockParticipantPoints[0]]} />)
     expect(container).toMatchSnapshot()
   })
 
   it('should render participant markers for collector role', () => {
-    const { container } = render(
-      <WasteMap wastes={[]} participants={[mockParticipantPoints[1]]} />
-    )
+    const { container } = render(<WasteMap wastes={[]} participants={[mockParticipantPoints[1]]} />)
     expect(container).toMatchSnapshot()
   })
 
   it('should render participant markers for manufacturer role', () => {
-    const { container } = render(
-      <WasteMap wastes={[]} participants={[mockParticipantPoints[2]]} />
-    )
+    const { container } = render(<WasteMap wastes={[]} participants={[mockParticipantPoints[2]]} />)
     expect(container).toMatchSnapshot()
   })
 
   it('should render marker cluster with multiple waste items', () => {
-    const { container } = render(
-      <WasteMap wastes={mockWastePoints} participants={[]} />
-    )
+    const { container } = render(<WasteMap wastes={mockWastePoints} participants={[]} />)
     expect(container).toMatchSnapshot()
   })
 
@@ -176,8 +162,8 @@ describe('MapMarker Snapshot Tests', () => {
           recycled_timestamp: 1700000000,
           is_active: true,
           is_confirmed: false,
-          confirmer: '',
-        },
+          confirmer: ''
+        }
       },
       {
         id: '2',
@@ -193,8 +179,8 @@ describe('MapMarker Snapshot Tests', () => {
           recycled_timestamp: 1700000000,
           is_active: true,
           is_confirmed: false,
-          confirmer: '',
-        },
+          confirmer: ''
+        }
       },
       {
         id: '3',
@@ -210,8 +196,8 @@ describe('MapMarker Snapshot Tests', () => {
           recycled_timestamp: 1700000000,
           is_active: true,
           is_confirmed: false,
-          confirmer: '',
-        },
+          confirmer: ''
+        }
       },
       {
         id: '4',
@@ -227,8 +213,8 @@ describe('MapMarker Snapshot Tests', () => {
           recycled_timestamp: 1700000000,
           is_active: true,
           is_confirmed: false,
-          confirmer: '',
-        },
+          confirmer: ''
+        }
       },
       {
         id: '5',
@@ -244,8 +230,8 @@ describe('MapMarker Snapshot Tests', () => {
           recycled_timestamp: 1700000000,
           is_active: true,
           is_confirmed: false,
-          confirmer: '',
-        },
+          confirmer: ''
+        }
       },
       {
         id: '6',
@@ -261,8 +247,8 @@ describe('MapMarker Snapshot Tests', () => {
           recycled_timestamp: 1700000000,
           is_active: true,
           is_confirmed: false,
-          confirmer: '',
-        },
+          confirmer: ''
+        }
       },
       {
         id: '7',
@@ -278,21 +264,17 @@ describe('MapMarker Snapshot Tests', () => {
           recycled_timestamp: 1700000000,
           is_active: true,
           is_confirmed: false,
-          confirmer: '',
-        },
-      },
+          confirmer: ''
+        }
+      }
     ]
 
-    const { container } = render(
-      <WasteMap wastes={wasteTypePoints} participants={[]} />
-    )
+    const { container } = render(<WasteMap wastes={wasteTypePoints} participants={[]} />)
     expect(container).toMatchSnapshot()
   })
 
   it('should render empty map correctly', () => {
-    const { container } = render(
-      <WasteMap wastes={[]} participants={[]} />
-    )
+    const { container } = render(<WasteMap wastes={[]} participants={[]} />)
     expect(container).toMatchSnapshot()
   })
 })

@@ -11,19 +11,19 @@ vi.mock('@/context/ContractContext', () => ({
     config: {
       contractId: 'CTEST123',
       rpcUrl: 'https://soroban-testnet.stellar.org',
-      network: 'TESTNET',
-    },
-  }),
+      network: 'TESTNET'
+    }
+  })
 }))
 
 vi.mock('@/lib/stellar', () => ({
-  getNetworkPassphrase: () => 'Test SDF Network ; September 2015',
+  getNetworkPassphrase: () => 'Test SDF Network ; September 2015'
 }))
 
 vi.mock('@/lib/cacheKeys', () => ({
   cacheKeys: {
-    activeIncentives: () => ['activeIncentives'],
-  },
+    activeIncentives: () => ['activeIncentives']
+  }
 }))
 
 // ── Centralised ScavengerClient mock (#1546) ──────────────────────────────────
@@ -32,9 +32,9 @@ import { createMockClient } from '@/test-utils/mockScavengerClient'
 const mockGetActiveIncentives = vi.fn()
 
 vi.mock('@/api/client', () => ({
-  ScavengerClient: vi.fn().mockImplementation(() =>
-    createMockClient({ getActiveIncentives: mockGetActiveIncentives })
-  ),
+  ScavengerClient: vi
+    .fn()
+    .mockImplementation(() => createMockClient({ getActiveIncentives: mockGetActiveIncentives }))
 }))
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -59,22 +59,19 @@ describe('useActiveIncentives', () => {
         waste_type: 'Paper',
         reward_points: 100n,
         budget: 1000n,
-        active: true,
+        active: true
       },
       {
         id: 2n,
         waste_type: 'Plastic',
         reward_points: 150n,
         budget: 1500n,
-        active: true,
-      },
+        active: true
+      }
     ]
     mockGetActiveIncentives.mockResolvedValue(mockIncentives)
 
-    const { result } = renderHook(
-      () => useActiveIncentives(),
-      { wrapper: makeWrapper() }
-    )
+    const { result } = renderHook(() => useActiveIncentives(), { wrapper: makeWrapper() })
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true)
@@ -87,10 +84,7 @@ describe('useActiveIncentives', () => {
   it('should handle empty incentives list', async () => {
     mockGetActiveIncentives.mockResolvedValue([])
 
-    const { result } = renderHook(
-      () => useActiveIncentives(),
-      { wrapper: makeWrapper() }
-    )
+    const { result } = renderHook(() => useActiveIncentives(), { wrapper: makeWrapper() })
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true)
@@ -103,10 +97,7 @@ describe('useActiveIncentives', () => {
     const error = new Error('Failed to fetch incentives')
     mockGetActiveIncentives.mockRejectedValue(error)
 
-    const { result } = renderHook(
-      () => useActiveIncentives(),
-      { wrapper: makeWrapper() }
-    )
+    const { result } = renderHook(() => useActiveIncentives(), { wrapper: makeWrapper() })
 
     await waitFor(() => {
       expect(result.current.isError).toBe(true)

@@ -22,21 +22,21 @@ const BASE_URL = process.env.BASE_URL ?? 'http://localhost:5173'
 
 /** Pages to audit.  Add more as the app grows. */
 const PAGES = [
-  { name: 'Landing',        path: '/' },
-  { name: 'Login',          path: '/login' },
-  { name: 'Dashboard',      path: '/dashboard' },
-  { name: 'Waste List',     path: '/wastes' },
-  { name: 'Waste Submit',   path: '/wastes/new' },
-  { name: 'Incentives',     path: '/incentives' },
-  { name: 'Profile',        path: '/profile' },
-  { name: 'Settings',       path: '/settings' },
-  { name: 'Marketplace',    path: '/marketplace' },
-  { name: 'Analytics',      path: '/analytics' },
-  { name: 'Recycling Guide',path: '/recycling-guide' },
+  { name: 'Landing', path: '/' },
+  { name: 'Login', path: '/login' },
+  { name: 'Dashboard', path: '/dashboard' },
+  { name: 'Waste List', path: '/wastes' },
+  { name: 'Waste Submit', path: '/wastes/new' },
+  { name: 'Incentives', path: '/incentives' },
+  { name: 'Profile', path: '/profile' },
+  { name: 'Settings', path: '/settings' },
+  { name: 'Marketplace', path: '/marketplace' },
+  { name: 'Analytics', path: '/analytics' },
+  { name: 'Recycling Guide', path: '/recycling-guide' },
   // Modal / dialog surfaces — focus management (issue #1678)
   { name: 'Waste Submit Modal', path: '/wastes?modal=submit' },
-  { name: 'Confirm Dialog',     path: '/wastes?modal=confirm' },
-  { name: 'Settings Dialog',    path: '/settings?modal=preferences' },
+  { name: 'Confirm Dialog', path: '/wastes?modal=confirm' },
+  { name: 'Settings Dialog', path: '/settings?modal=preferences' }
 ]
 
 const IMPACT_LEVELS = /** @type {const} */ (['critical', 'serious'])
@@ -74,7 +74,7 @@ const FOCUS_ARIA_RULES = /** @type {const} */ ([
   'aria-prohibited-attr',
   'aria-text',
   'dialog-name',
-  'tabindex',
+  'tabindex'
 ])
 
 async function auditPage(page, url) {
@@ -118,7 +118,6 @@ export function formatViolations(violations) {
     })
     .join('\n\n')
 }
-=======
 
 async function run() {
   console.log(`\n🔍  Accessibility audit — ${BASE_URL}\n`)
@@ -144,18 +143,17 @@ async function run() {
     }
 
     const critical = violations.filter((v) => v.impact === 'critical')
-    const serious  = violations.filter((v) => v.impact === 'serious')
+    const serious = violations.filter((v) => v.impact === 'serious')
     const focusAria = violations.filter(
-      (v) => FOCUS_ARIA_RULES.includes(v.id) && !IMPACT_LEVELS.includes(v.impact),
+      (v) => FOCUS_ARIA_RULES.includes(v.id) && !IMPACT_LEVELS.includes(v.impact)
     )
     totalCritical += critical.length
-    totalSerious  += serious.length
+    totalSerious += serious.length
 
-    const badge =
-      critical.length > 0 ? '❌' : serious.length > 0 ? '⚠️ ' : '✅'
+    const badge = critical.length > 0 ? '❌' : serious.length > 0 ? '⚠️ ' : '✅'
     console.log(
       `${badge}  ${violations.length} violation(s)  ` +
-        `(${critical.length} critical, ${serious.length} serious, ${focusAria.length} focus/aria)`,
+        `(${critical.length} critical, ${serious.length} serious, ${focusAria.length} focus/aria)`
     )
 
     const relevant = violations.filter(isBlockingViolation)

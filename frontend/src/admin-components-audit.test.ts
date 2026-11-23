@@ -33,7 +33,10 @@ describe('Admin Components Audit', () => {
             if (searchDir(path.join(dir, entry.name))) {
               return true
             }
-          } else if (entry.isFile() && (entry.name.endsWith('.tsx') || entry.name.endsWith('.ts'))) {
+          } else if (
+            entry.isFile() &&
+            (entry.name.endsWith('.tsx') || entry.name.endsWith('.ts'))
+          ) {
             const filePath = path.join(dir, entry.name)
             // Skip the component's own file
             if (filePath.includes(`components/admin/${componentName}`)) {
@@ -121,7 +124,7 @@ describe('Admin Components Audit', () => {
 
   describe('admin components have tests', () => {
     it('should have test files for admin components', () => {
-      const testFiles = readdirSync(adminComponentsDir).filter(f => f.endsWith('.test.tsx'))
+      const testFiles = readdirSync(adminComponentsDir).filter((f) => f.endsWith('.test.tsx'))
       expect(testFiles.length).toBeGreaterThan(0)
     })
 
@@ -135,7 +138,7 @@ describe('Admin Components Audit', () => {
     it('should name components with Tab suffix for tab components', () => {
       if (existsSync(adminComponentsDir)) {
         const files = readdirSync(adminComponentsDir)
-        const tabComponents = files.filter(f => f.endsWith('Tab.tsx'))
+        const tabComponents = files.filter((f) => f.endsWith('Tab.tsx'))
         expect(tabComponents.length).toBeGreaterThan(0)
       }
     })
@@ -145,7 +148,7 @@ describe('Admin Components Audit', () => {
         const files = readdirSync(adminComponentsDir)
         const componentFiles = files.filter(isComponentFile)
 
-        componentFiles.forEach(file => {
+        componentFiles.forEach((file) => {
           expect(file).toMatch(/^[A-Z][a-zA-Z0-9]*\.tsx$/)
         })
       }
@@ -169,7 +172,7 @@ describe('Admin Components Audit', () => {
         const files = readdirSync(adminComponentsDir)
         const componentFiles = files.filter(isComponentFile)
         const unusedComponents = componentFiles.filter(
-          f => !searchForComponentUsage(getComponentName(f))
+          (f) => !searchForComponentUsage(getComponentName(f))
         )
 
         // All components should be used - verify none are orphaned

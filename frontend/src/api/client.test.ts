@@ -24,13 +24,13 @@ import type { Participant, Material, Incentive, GlobalMetrics, ParticipantStats 
 vi.mock('@stellar/stellar-sdk', () => ({
   Contract: vi.fn().mockImplementation((id) => ({ id })),
   Address: vi.fn().mockImplementation((addr) => ({
-    toScVal: () => ({ address: addr }),
+    toScVal: () => ({ address: addr })
   })),
   TransactionBuilder: vi.fn().mockImplementation(() => ({
     addOperation: vi.fn().mockReturnThis(),
     setTimeout: vi.fn().mockReturnThis(),
     build: vi.fn().mockReturnValue({ toXDR: () => 'xdr-string' }),
-    fromXDR: vi.fn().mockReturnThis(),
+    fromXDR: vi.fn().mockReturnThis()
   })),
   BASE_FEE: '100',
   rpc: {
@@ -38,23 +38,23 @@ vi.mock('@stellar/stellar-sdk', () => ({
       getAccount: vi.fn().mockResolvedValue({}),
       simulateTransaction: vi.fn().mockResolvedValue({}),
       sendTransaction: vi.fn().mockResolvedValue({}),
-      getTransaction: vi.fn().mockResolvedValue({}),
+      getTransaction: vi.fn().mockResolvedValue({})
     })),
     Api: {
       isSimulationError: vi.fn().mockReturnValue(false),
       GetTransactionStatus: { SUCCESS: 'SUCCESS', FAILED: 'FAILED' },
-      SimulateTransactionSuccessResponse: {},
+      SimulateTransactionSuccessResponse: {}
     },
     assembleTransaction: vi.fn().mockReturnValue({
-      build: vi.fn().mockReturnValue({ toXDR: () => 'assembled-xdr' }),
-    }),
+      build: vi.fn().mockReturnValue({ toXDR: () => 'assembled-xdr' })
+    })
   },
   scValToNative: vi.fn().mockImplementation((val) => val),
-  nativeToScVal: vi.fn().mockImplementation((val) => ({ value: val })),
+  nativeToScVal: vi.fn().mockImplementation((val) => ({ value: val }))
 }))
 
 vi.mock('@/features/wallet/service', () => ({
-  signTransactionXDR: vi.fn().mockResolvedValue('signed-xdr'),
+  signTransactionXDR: vi.fn().mockResolvedValue('signed-xdr')
 }))
 
 // ─── Test fixtures ──────────────────────────────────────────────────────────
@@ -62,7 +62,7 @@ vi.mock('@/features/wallet/service', () => ({
 const mockClientOptions: ClientOptions = {
   rpcUrl: 'https://rpc-testnet.stellar.org:443',
   networkPassphrase: 'Test SDF Network ; September 2015',
-  contractId: 'CBDTF4XOJBQ5EKMKQO3DYYOZWSX7LFQFQSLVGF3Z2DXFWW3OOQXCVLE',
+  contractId: 'CBDTF4XOJBQ5EKMKQO3DYYOZWSX7LFQFQSLVGF3Z2DXFWW3OOQXCVLE'
 }
 
 const makeParticipant = (overrides: Partial<Participant> = {}): Participant => ({
@@ -73,7 +73,7 @@ const makeParticipant = (overrides: Partial<Participant> = {}): Participant => (
   longitude: -74006000,
   registered_at: 1700000000,
   is_active: true,
-  ...overrides,
+  ...overrides
 })
 
 const _makeMaterial = (overrides: Partial<Material> = {}): Material => ({
@@ -82,7 +82,7 @@ const _makeMaterial = (overrides: Partial<Material> = {}): Material => ({
   waste_type: WasteType.Plastic,
   weight: BigInt(1000),
   verified: false,
-  ...overrides,
+  ...overrides
 })
 
 const _makeIncentive = (overrides: Partial<Incentive> = {}): Incentive => ({
@@ -93,14 +93,14 @@ const _makeIncentive = (overrides: Partial<Incentive> = {}): Incentive => ({
   budget: BigInt(10000),
   active: true,
   created_at: 1700000000,
-  ...overrides,
+  ...overrides
 })
 
 const makeStats = (overrides: Partial<ParticipantStats> = {}): ParticipantStats => ({
   total_earned: BigInt(5000),
   materials_submitted: 10,
   transfers_count: 3,
-  ...overrides,
+  ...overrides
 })
 
 const makeMetrics = (overrides: Partial<GlobalMetrics> = {}): GlobalMetrics => ({
@@ -109,7 +109,7 @@ const makeMetrics = (overrides: Partial<GlobalMetrics> = {}): GlobalMetrics => (
   total_weight_kg: 50000,
   verification_rate: 0.95,
   active_incentives: 25,
-  ...overrides,
+  ...overrides
 })
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -275,7 +275,7 @@ describe('ScavengerClient — Material/Waste operations', () => {
     const _submitter = 'GSUBMITTER001'
     const materials = [
       { wasteType: WasteType.Plastic, weight: BigInt(1000) },
-      { wasteType: WasteType.Metal, weight: BigInt(2000) },
+      { wasteType: WasteType.Metal, weight: BigInt(2000) }
     ]
     const _signer = 'GSIGNER001'
 
@@ -465,7 +465,7 @@ describe('ScavengerClient — Metrics and stats', () => {
     const stats = {
       total_wastes: BigInt(5000),
       total_weight: BigInt(50000),
-      total_tokens: BigInt(1000000),
+      total_tokens: BigInt(1000000)
     }
 
     expect(stats.total_wastes).toBeGreaterThan(0n)
@@ -546,7 +546,7 @@ describe('ScavengerClient — Parameter validation', () => {
       WasteType.Glass,
       WasteType.Paper,
       WasteType.Organic,
-      WasteType.Electronic,
+      WasteType.Electronic
     ]
 
     expect(wasteTypes.length).toBeGreaterThan(0)
@@ -573,7 +573,7 @@ describe('ScavengerClient — Initialization variants', () => {
     const testnetOptions: ClientOptions = {
       rpcUrl: 'https://soroban-testnet.stellar.org',
       networkPassphrase: 'Test SDF Network ; September 2015',
-      contractId: 'CBDTF4XOJBQ5EKMKQO3DYYOZWSX7LFQFQSLVGF3Z2DXFWW3OOQXCVLE',
+      contractId: 'CBDTF4XOJBQ5EKMKQO3DYYOZWSX7LFQFQSLVGF3Z2DXFWW3OOQXCVLE'
     }
     expect(() => new ScavengerClient(testnetOptions)).not.toThrow()
   })
@@ -582,7 +582,7 @@ describe('ScavengerClient — Initialization variants', () => {
     const mainnetOptions: ClientOptions = {
       rpcUrl: 'https://soroban-mainnet.stellar.org',
       networkPassphrase: 'Public Global Stellar Network ; September 2015',
-      contractId: 'CBDTF4XOJBQ5EKMKQO3DYYOZWSX7LFQFQSLVGF3Z2DXFWW3OOQXCVLE',
+      contractId: 'CBDTF4XOJBQ5EKMKQO3DYYOZWSX7LFQFQSLVGF3Z2DXFWW3OOQXCVLE'
     }
     expect(() => new ScavengerClient(mainnetOptions)).not.toThrow()
   })

@@ -28,19 +28,9 @@ impl AuditLogService {
     /// Using events instead of persistent storage avoids the expensive
     /// read-modify-write cycle of a growing Vec (gas optimization #768).
     /// Events are queryable off-chain via the Stellar RPC `getEvents` API.
-    pub fn log_action(
-        env: &Env,
-        action: String,
-        actor: Address,
-        target: String,
-        details: String,
-    ) {
+    pub fn log_action(env: &Env, action: String, actor: Address, target: String, details: String) {
         let log_id_key = symbol_short!("audit_id");
-        let current_id: u64 = env
-            .storage()
-            .instance()
-            .get(&log_id_key)
-            .unwrap_or(0u64);
+        let current_id: u64 = env.storage().instance().get(&log_id_key).unwrap_or(0u64);
         let new_id = current_id + 1;
         env.storage().instance().set(&log_id_key, &new_id);
 

@@ -7,7 +7,7 @@
 
 use soroban_sdk::{Address, Env};
 
-use super::{MAX_LAT, MAX_LON, MAX_NAME_LEN, ValidationError};
+use super::{ValidationError, MAX_LAT, MAX_LON, MAX_NAME_LEN};
 
 /// Validates a participant registration: address must not be the contract
 /// itself, and coordinates must be valid WGS-84 microdegrees.
@@ -29,7 +29,9 @@ pub fn validate_registration(
 /// maximum allowed length.
 pub fn validate_name(name: &soroban_sdk::String) -> Result<(), ValidationError> {
     if name.len() == 0 {
-        return Err(ValidationError::EmptyString { field: "participant name" });
+        return Err(ValidationError::EmptyString {
+            field: "participant name",
+        });
     }
     if name.len() > MAX_NAME_LEN {
         return Err(ValidationError::StringTooLong {
@@ -125,7 +127,9 @@ mod tests {
         let name = soroban_sdk::String::from_str(&env, "");
         assert_eq!(
             validate_name(&name),
-            Err(ValidationError::EmptyString { field: "participant name" })
+            Err(ValidationError::EmptyString {
+                field: "participant name"
+            })
         );
     }
 
@@ -136,7 +140,10 @@ mod tests {
         let name = soroban_sdk::String::from_str(&env, &long);
         assert!(matches!(
             validate_name(&name),
-            Err(ValidationError::StringTooLong { field: "participant name", .. })
+            Err(ValidationError::StringTooLong {
+                field: "participant name",
+                ..
+            })
         ));
     }
 

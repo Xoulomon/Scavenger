@@ -109,6 +109,7 @@ k6 run --out json=results.json --out csv=metrics.csv performance/k6-load.js
 ## Test Profiles
 
 ### 1. Smoke Test
+
 - **File**: `performance/k6-smoke.js`
 - **Duration**: ~50 seconds
 - **Concurrent Users**: 1
@@ -118,6 +119,7 @@ k6 run --out json=results.json --out csv=metrics.csv performance/k6-load.js
 - **Operations**: Register participant, submit waste, basic queries
 
 ### 2. Load Test
+
 - **File**: `performance/k6-load.js`
 - **Duration**: ~6 minutes
 - **Concurrent Users**: 100 (ramp: 10→100→50)
@@ -127,6 +129,7 @@ k6 run --out json=results.json --out csv=metrics.csv performance/k6-load.js
 - **Operations**: 30% participant ops, 30% waste ops, 40% queries
 
 ### 3. Stress Test
+
 - **File**: `performance/k6-stress.js`
 - **Duration**: ~15 minutes
 - **Concurrent Users**: 1000-10000 (gradual increase)
@@ -136,6 +139,7 @@ k6 run --out json=results.json --out csv=metrics.csv performance/k6-load.js
 - **⚠️ WARNING**: Resource intensive; use staging environment only
 
 ### 4. Spike Test
+
 - **File**: `performance/k6-spike.js`
 - **Duration**: ~6 minutes
 - **Concurrent Users**: 100 → 1000 (spike) → 100
@@ -145,6 +149,7 @@ k6 run --out json=results.json --out csv=metrics.csv performance/k6-load.js
 - **Operations**: Lighter before spike, aggressive during spike
 
 ### 5. Soak Test
+
 - **File**: `performance/k6-soak.js`
 - **Duration**: ~40 minutes (extended test)
 - **Concurrent Users**: 500 (sustained)
@@ -168,20 +173,20 @@ Provides standardized utilities for all tests:
 
 ```javascript
 // Example usage in test scripts
-import { scenarios, getConfig } from './k6-common.js';
+import { scenarios, getConfig } from './k6-common.js'
 
-const config = getConfig();
+const config = getConfig()
 
 // Register participant
-scenarios.registerParticipant(config, address, role, name);
+scenarios.registerParticipant(config, address, role, name)
 
 // Submit waste
-scenarios.submitWaste(config, submitter, wasteType, weight);
+scenarios.submitWaste(config, submitter, wasteType, weight)
 
 // Query operations
-scenarios.queryParticipant(config, address);
-scenarios.queryWaste(config, wasteId);
-scenarios.getGlobalMetrics(config);
+scenarios.queryParticipant(config, address)
+scenarios.queryWaste(config, wasteId)
+scenarios.getGlobalMetrics(config)
 ```
 
 ## Performance Baselines
@@ -189,7 +194,7 @@ scenarios.getGlobalMetrics(config);
 Expected performance under normal conditions:
 
 | Profile | P95 (ms) | P99 (ms) | Error Rate | Status |
-|---------|----------|----------|------------|--------|
+| ------- | -------- | -------- | ---------- | ------ |
 | Smoke   | < 500    | < 1000   | < 1%       | ✓ Pass |
 | Load    | < 1000   | < 2000   | < 5%       | ✓ Pass |
 | Stress  | < 2000   | < 5000   | < 10%      | ✓ Pass |
@@ -216,6 +221,7 @@ performance/
 ## Deprecated Scripts
 
 The following scripts are deprecated and should no longer be used:
+
 - `k6-load-test-comprehensive.js`
 - `k6-load-test.js`
 - `k6-concurrent-users.js`
@@ -225,16 +231,19 @@ The following scripts are deprecated and should no longer be used:
 - `load-test-scenarios.js`
 
 Use the consolidated scripts (k6-smoke.js, k6-load.js, etc.) instead
+
 - **Purpose**: Multiple load waves to test recovery
 - **Thresholds**: p95 < 1000ms, error rate < 10%
 
 ### 7. Peak Hour Simulation
+
 - **Duration**: 45 minutes
 - **Peak Users**: 2000 concurrent
 - **Purpose**: Simulate realistic peak hour traffic
 - **Thresholds**: p95 < 1000ms, error rate < 10%
 
 ### 8. Bottleneck Detection
+
 - **Duration**: 15 minutes
 - **Peak Users**: 10000 concurrent
 - **Purpose**: Identify system bottlenecks
@@ -243,21 +252,25 @@ Use the consolidated scripts (k6-smoke.js, k6-load.js, etc.) instead
 ## Metrics Collected
 
 ### Response Time Metrics
+
 - `http_req_duration`: Total request duration
 - `http_req_duration{staticAsset:yes}`: Static asset duration
 - `http_req_duration{staticAsset:no}`: Dynamic content duration
 
 ### Error Metrics
+
 - `http_req_failed`: Failed requests
 - `errors`: Custom error rate
 - `http_req_duration{expected_response:true}`: Expected responses
 
 ### Throughput Metrics
+
 - `http_reqs`: Total requests
 - `http_reqs_rate`: Requests per second
 - `success_count`: Successful requests
 
 ### Connection Metrics
+
 - `active_connections`: Active concurrent connections
 - `http_conn_reused`: Reused connections
 
@@ -326,18 +339,21 @@ k6-reporter reports/results.json
 ## Performance Optimization
 
 ### Before Load Testing
+
 - [ ] Profile application
 - [ ] Identify slow queries
 - [ ] Review code for inefficiencies
 - [ ] Set up monitoring
 
 ### During Load Testing
+
 - [ ] Monitor system resources
 - [ ] Check error logs
 - [ ] Track response times
 - [ ] Identify bottlenecks
 
 ### After Load Testing
+
 - [ ] Analyze results
 - [ ] Identify issues
 - [ ] Implement fixes
@@ -365,18 +381,21 @@ jobs:
 ## Troubleshooting
 
 ### High Error Rate
+
 - Check API logs
 - Verify database connectivity
 - Check rate limiting
 - Review error messages
 
 ### High Response Times
+
 - Profile endpoints
 - Check database queries
 - Monitor server resources
 - Review network latency
 
 ### Memory Issues
+
 - Check for memory leaks
 - Monitor garbage collection
 - Review connection pooling

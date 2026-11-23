@@ -1,5 +1,13 @@
 import { useState, useMemo } from 'react'
-import { Search, BookOpen, CheckCircle, XCircle, ChevronDown, ChevronUp, Printer } from 'lucide-react'
+import {
+  Search,
+  BookOpen,
+  CheckCircle,
+  XCircle,
+  ChevronDown,
+  ChevronUp,
+  Printer
+} from 'lucide-react'
 import { Input } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
@@ -23,49 +31,51 @@ export interface GuideEntry {
 export const RECYCLING_GUIDES: GuideEntry[] = [
   {
     wasteType: WasteType.Paper,
-    description: 'Paper is one of the most recycled materials. Keeping it clean and dry maximises its value.',
+    description:
+      'Paper is one of the most recycled materials. Keeping it clean and dry maximises its value.',
     dos: [
       'Flatten cardboard boxes before recycling',
       'Remove staples and plastic windows from envelopes',
       'Keep paper dry and free from food contamination',
-      'Bundle newspapers and magazines together',
+      'Bundle newspapers and magazines together'
     ],
     donts: [
       'Do not recycle greasy pizza boxes',
       'Do not mix paper with wet waste',
       'Do not shred paper into very small pieces',
-      'Do not include wax-coated paper',
+      'Do not include wax-coated paper'
     ],
     steps: [
       'Sort paper by type (cardboard, newspaper, office paper)',
       'Remove any non-paper attachments',
       'Flatten and bundle securely',
-      'Place in designated paper recycling bin',
+      'Place in designated paper recycling bin'
     ],
-    tips: ['Dry paper fetches higher prices', 'Office paper is the most valuable grade'],
+    tips: ['Dry paper fetches higher prices', 'Office paper is the most valuable grade']
   },
   {
     wasteType: WasteType.PetPlastic,
-    description: 'PET (polyethylene terephthalate) plastic is highly recyclable and in demand by manufacturers.',
+    description:
+      'PET (polyethylene terephthalate) plastic is highly recyclable and in demand by manufacturers.',
     dos: [
       'Rinse bottles before recycling',
       'Remove caps and labels where possible',
       'Crush bottles to save space',
-      'Keep PET separate from other plastics',
+      'Keep PET separate from other plastics'
     ],
     donts: [
       'Do not include PVC or HDPE bottles',
       'Do not leave liquid inside bottles',
       'Do not mix with general plastic waste',
-      'Do not include contaminated bottles',
+      'Do not include contaminated bottles'
     ],
     steps: [
       'Empty and rinse each bottle',
       'Remove caps (recycle separately if possible)',
       'Crush flat',
-      'Bundle or bag together',
+      'Bundle or bag together'
     ],
-    tips: ['Clear PET is worth more than coloured', 'Baled PET commands premium prices'],
+    tips: ['Clear PET is worth more than coloured', 'Baled PET commands premium prices']
   },
   {
     wasteType: WasteType.Plastic,
@@ -74,44 +84,45 @@ export const RECYCLING_GUIDES: GuideEntry[] = [
       'Check the resin code on the bottom',
       'Clean containers before recycling',
       'Keep rigid plastics separate from film',
-      'Flatten where possible',
+      'Flatten where possible'
     ],
     donts: [
       'Do not include plastic bags or film',
       'Do not include polystyrene foam',
       'Do not mix food-contaminated plastics',
-      'Do not include multi-layer packaging',
+      'Do not include multi-layer packaging'
     ],
     steps: [
       'Identify resin type using the recycling symbol',
       'Clean and dry the item',
       'Sort by resin code',
-      'Place in correct collection stream',
+      'Place in correct collection stream'
     ],
-    tips: ['HDPE (code 2) and PP (code 5) are most valuable', 'Sorting by colour increases value'],
+    tips: ['HDPE (code 2) and PP (code 5) are most valuable', 'Sorting by colour increases value']
   },
   {
     wasteType: WasteType.Metal,
-    description: 'Metals are infinitely recyclable without loss of quality, making them highly valuable.',
+    description:
+      'Metals are infinitely recyclable without loss of quality, making them highly valuable.',
     dos: [
       'Separate ferrous (iron/steel) from non-ferrous (aluminium, copper)',
       'Remove non-metal attachments',
       'Crush cans to save space',
-      'Keep metals dry to prevent rust',
+      'Keep metals dry to prevent rust'
     ],
     donts: [
       'Do not include paint or chemical containers',
       'Do not mix metals with other waste',
       'Do not include radioactive or hazardous metals',
-      'Do not include metal with heavy coatings',
+      'Do not include metal with heavy coatings'
     ],
     steps: [
       'Use a magnet to separate ferrous from non-ferrous',
       'Clean and dry all metal items',
       'Crush cans where possible',
-      'Sort by metal type and deliver to collection point',
+      'Sort by metal type and deliver to collection point'
     ],
-    tips: ['Aluminium is the most valuable common metal', 'Copper wire commands premium prices'],
+    tips: ['Aluminium is the most valuable common metal', 'Copper wire commands premium prices']
   },
   {
     wasteType: WasteType.Glass,
@@ -120,22 +131,22 @@ export const RECYCLING_GUIDES: GuideEntry[] = [
       'Sort by colour: clear, green, brown',
       'Remove lids and caps',
       'Rinse bottles and jars',
-      'Handle carefully to avoid breakage',
+      'Handle carefully to avoid breakage'
     ],
     donts: [
       'Do not include window glass or mirrors',
       'Do not include ceramics or pyrex',
       'Do not mix colours if colour-sorted collection is available',
-      'Do not include light bulbs',
+      'Do not include light bulbs'
     ],
     steps: [
       'Empty and rinse containers',
       'Remove metal lids',
       'Sort by colour',
-      'Place gently in glass recycling bin',
+      'Place gently in glass recycling bin'
     ],
-    tips: ['Clear glass is most valuable', 'Broken glass should be wrapped safely before disposal'],
-  },
+    tips: ['Clear glass is most valuable', 'Broken glass should be wrapped safely before disposal']
+  }
 ]
 
 // ── Pure helpers (exported for tests) ────────────────────────────────────────
@@ -167,16 +178,17 @@ function GuideCard({ guide }: { guide: GuideEntry }) {
 
   return (
     <Card>
-      <CardHeader
-        className="cursor-pointer select-none"
-        onClick={() => setExpanded((v) => !v)}
-      >
+      <CardHeader className="cursor-pointer select-none" onClick={() => setExpanded((v) => !v)}>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-base">
             <BookOpen className="h-4 w-4 text-primary" />
             {wasteTypeLabel(guide.wasteType)}
           </CardTitle>
-          {expanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+          {expanded ? (
+            <ChevronUp className="h-4 w-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          )}
         </div>
         <p className="text-sm text-muted-foreground">{guide.description}</p>
       </CardHeader>
@@ -219,7 +231,9 @@ function GuideCard({ guide }: { guide: GuideEntry }) {
             <p className="mb-2 text-sm font-semibold">Step-by-step instructions</p>
             <ol className="space-y-1 list-decimal list-inside">
               {guide.steps.map((s, i) => (
-                <li key={i} className="text-sm text-muted-foreground">{s}</li>
+                <li key={i} className="text-sm text-muted-foreground">
+                  {s}
+                </li>
               ))}
             </ol>
           </div>
@@ -227,7 +241,9 @@ function GuideCard({ guide }: { guide: GuideEntry }) {
           {/* Tips */}
           <div className="flex flex-wrap gap-2">
             {guide.tips.map((t, i) => (
-              <Badge key={i} variant="outline" className="text-xs">{t}</Badge>
+              <Badge key={i} variant="outline" className="text-xs">
+                {t}
+              </Badge>
             ))}
           </div>
         </CardContent>
@@ -281,9 +297,7 @@ export function RecyclingGuidePage() {
 
       {/* Guides */}
       {results.length === 0 ? (
-        <div className="py-16 text-center text-muted-foreground">
-          No guides match your search.
-        </div>
+        <div className="py-16 text-center text-muted-foreground">No guides match your search.</div>
       ) : (
         <div className="space-y-3">
           {results.map((guide) => (

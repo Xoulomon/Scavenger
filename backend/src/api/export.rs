@@ -1,14 +1,14 @@
 //! Export API endpoints for data export functionality
-//! 
+//!
 //! This module provides endpoints for exporting various data types
 //! in different formats (CSV, JSON).
-//! 
+//!
 //! Note: Legacy formats have been removed as part of #1077.
 //! Active formats: CSV, JSON.
 
 use actix_web::{web, HttpResponse};
-use serde::{Deserialize, Serialize};
 use chrono::Utc;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     cache::Cache,
@@ -19,7 +19,7 @@ use crate::{
 };
 
 // ============================================
-# Types
+// Types
 // ============================================
 
 /// Export format options
@@ -69,27 +69,21 @@ pub struct ExportListQuery {
 }
 
 // ============================================
-# Endpoint Handlers
+// Endpoint Handlers
 // ============================================
 
 /// Export data
-/// 
+///
 /// POST /api/export
 /// Body: { format, data_type, start_date, end_date }
-pub async fn export_data(
-    cache: web::Data<Cache>,
-    body: web::Json<ExportRequest>,
-) -> HttpResponse {
+pub async fn export_data(cache: web::Data<Cache>, body: web::Json<ExportRequest>) -> HttpResponse {
     let service = ExportService::new(cache.get_ref().clone());
     export_data_with_service(&service, body).await
 }
 
 /// Controller logic for `export_data`, decoupled from the concrete service
 /// so it can be unit tested with a mock implementation.
-async fn export_data_with_service<S: ExportServiceTrait>(
-    service: &S,
-    body: web::Json<ExportRequest>,
-) -> HttpResponse {
+async fn export_data_with_service<S: ExportServiceTrait>(service: &S, body: web::Json<ExportRequest>) -> HttpResponse {
     let mut errors = Vec::new();
 
     if let Some(ref err) = validate_export_format(&body.format) {
@@ -110,7 +104,12 @@ async fn export_data_with_service<S: ExportServiceTrait>(
     }
 
     match service
-        .create_export(&body.format, &body.data_type, body.start_date.as_deref(), body.end_date.as_deref())
+        .create_export(
+            &body.format,
+            &body.data_type,
+            body.start_date.as_deref(),
+            body.end_date.as_deref(),
+        )
         .await
     {
         Ok(result) => {
@@ -131,21 +130,15 @@ async fn export_data_with_service<S: ExportServiceTrait>(
 }
 
 /// Download export
-/// 
+///
 /// GET /api/export/{export_id}
-pub async fn download_export(
-    cache: web::Data<Cache>,
-    path: web::Path<String>,
-) -> HttpResponse {
+pub async fn download_export(cache: web::Data<Cache>, path: web::Path<String>) -> HttpResponse {
     let service = ExportService::new(cache.get_ref().clone());
     download_export_with_service(&service, path).await
 }
 
 /// Controller logic for `download_export`, decoupled from the concrete service.
-async fn download_export_with_service<S: ExportServiceTrait>(
-    service: &S,
-    path: web::Path<String>,
-) -> HttpResponse {
+async fn download_export_with_service<S: ExportServiceTrait>(service: &S, path: web::Path<String>) -> HttpResponse {
     let export_id = path.into_inner();
 
     match service.get_export_content(&export_id).await {
@@ -156,21 +149,17 @@ async fn download_export_with_service<S: ExportServiceTrait>(
                 format!("attachment; filename=\"{}.csv\"", export_id),
             ))
             .body(data),
-        Ok(None) => HttpResponse::NotFound()
-            .json(ApiBuilder::error_response::<String>("Export not found or expired")),
+        Ok(None) => HttpResponse::NotFound().json(ApiBuilder::error_response::<String>("Export not found or expired")),
         Err(e) => HttpResponse::InternalServerError()
             .json(ApiBuilder::error_response::<String>(format!("Export failed: {}", e))),
     }
 }
 
 /// List exports
-/// 
+///
 /// GET /api/exports
 /// Query: page, limit
-pub async fn list_exports(
-    cache: web::Data<Cache>,
-    query: web::Query<ExportListQuery>,
-) -> HttpResponse {
+pub async fn list_exports(cache: web::Data<Cache>, query: web::Query<ExportListQuery>) -> HttpResponse {
     let service = ExportService::new(cache.get_ref().clone());
     list_exports_with_service(&service, query).await
 }
@@ -201,12 +190,9 @@ async fn list_exports_with_service<S: ExportServiceTrait>(
 }
 
 /// Create scheduled export
-/// 
+///
 /// POST /api/export/schedule
-pub async fn create_scheduled_export(
-    cache: web::Data<Cache>,
-    body: web::Json<ScheduledExportConfig>,
-) -> HttpResponse {
+pub async fn create_scheduled_export(cache: web::Data<Cache>, body: web::Json<ScheduledExportConfig>) -> HttpResponse {
     let service = ExportService::new(cache.get_ref().clone());
     create_scheduled_export_with_service(&service, body).await
 }
@@ -255,19 +241,17 @@ async fn create_scheduled_export_with_service<S: ExportServiceTrait>(
         .await
     {
         Ok(_) => HttpResponse::Ok().json(ApiBuilder::success_response("Scheduled export created")),
-        Err(e) => HttpResponse::InternalServerError().json(ApiBuilder::error_response::<String>(
-            format!("Failed to create scheduled export: {}", e),
-        )),
+        Err(e) => HttpResponse::InternalServerError().json(ApiBuilder::error_response::<String>(format!(
+            "Failed to create scheduled export: {}",
+            e
+        ))),
     }
 }
 
 /// Delete scheduled export
-/// 
+///
 /// DELETE /api/export/schedule/{id}
-pub async fn delete_scheduled_export(
-    cache: web::Data<Cache>,
-    path: web::Path<String>,
-) -> HttpResponse {
+pub async fn delete_scheduled_export(cache: web::Data<Cache>, path: web::Path<String>) -> HttpResponse {
     let service = ExportService::new(cache.get_ref().clone());
     delete_scheduled_export_with_service(&service, path).await
 }
@@ -284,13 +268,14 @@ async fn delete_scheduled_export_with_service<S: ExportServiceTrait>(
             "Scheduled export {} deleted",
             export_id
         ))),
-        Err(e) => HttpResponse::InternalServerError().json(ApiBuilder::error_response::<String>(
-            format!("Failed to delete scheduled export: {}", e),
-        )),
+        Err(e) => HttpResponse::InternalServerError().json(ApiBuilder::error_response::<String>(format!(
+            "Failed to delete scheduled export: {}",
+            e
+        ))),
     }
 }
 // ============================================
-# Route Registration
+// Route Registration
 // ============================================
 
 /// Configure export routes
@@ -299,39 +284,39 @@ pub fn configure_routes(cfg: &mut web::ServiceConfig) {
         web::scope("/api")
             .route("/export", web::post().to(export_data))
             .route("/export/{export_id}", web::get().to(download_export))
-            .route("/exports", web::get().to(list_exports))
+            .route("/exports", web::get().to(list_exports)),
     );
 }
 
 // ============================================
-# Changelog
+// Changelog
 // ============================================
 
 ///
 /// # Changelog - Export Endpoints
-/// 
+///
 /// ## Removed (Issue #1077)
 /// - `GET /api/export/excel` - Legacy Excel format (no active usage)
 /// - `GET /api/export/xml` - Legacy XML format (no active usage)
 /// - `GET /api/export/pdf` - Legacy PDF format (no active usage)
 /// - `GET /api/export/legacy` - Legacy endpoint (no active usage)
-/// 
+///
 /// ## Removed (Issue #1700)
 /// - `POST /api/export/send-email` - Unused email export handler (referenced
 ///   undefined `EmailService`/`TransactionalEmail` types; never functional)
 /// - `POST /api/export/schedule` - Unused scheduled export stub (no persistence)
 /// - `DELETE /api/export/schedule/{id}` - Unused scheduled export deletion stub
-/// 
+///
 /// ## Kept (Active)
 /// - `POST /api/export` - CSV and JSON formats
 /// - `GET /api/export/{id}` - Download export
 /// - `GET /api/exports` - List exports
-/// 
+///
 /// ## Migration
 /// Clients should migrate to the active endpoints:
 /// - Use `format=csv` for CSV data
 /// - Use `format=json` for JSON data
-/// 
+///
 /// ## Date
 /// 2024-01-15: Legacy endpoints removed
 /// 2024-02-01: Unused/deprecated handlers removed (#1700)
@@ -399,10 +384,7 @@ mod tests {
 
     #[test]
     fn test_export_request_deserialization() {
-        let request: ExportRequest = serde_json::from_str(
-            r#"{"format":"csv","data_type":"waste"}"#,
-        )
-        .unwrap();
+        let request: ExportRequest = serde_json::from_str(r#"{"format":"csv","data_type":"waste"}"#).unwrap();
         assert_eq!(request.format, "csv");
         assert_eq!(request.data_type, "waste");
         assert!(request.start_date.is_none());
@@ -450,11 +432,7 @@ mod tests {
                 .unwrap_or_else(|| Ok(None))
         }
 
-        async fn list_exports(
-            &self,
-            _page: u32,
-            _limit: u32,
-        ) -> Result<PaginatedResponse<ExportHistoryEntry>, String> {
+        async fn list_exports(&self, _page: u32, _limit: u32) -> Result<PaginatedResponse<ExportHistoryEntry>, String> {
             self.list_result
                 .lock()
                 .unwrap()
@@ -541,10 +519,7 @@ mod tests {
         });
 
         let resp = export_data_with_service(&service, body).await;
-        assert_eq!(
-            resp.status(),
-            actix_web::http::StatusCode::INTERNAL_SERVER_ERROR
-        );
+        assert_eq!(resp.status(), actix_web::http::StatusCode::INTERNAL_SERVER_ERROR);
     }
 
     #[actix_web::test]
@@ -640,9 +615,7 @@ mod tests {
         let service = MockExportService::default();
         *service.delete_schedule_result.lock().unwrap() = Some(Ok(()));
 
-        let resp =
-            delete_scheduled_export_with_service(&service, web::Path::from("sched-1".to_string()))
-                .await;
+        let resp = delete_scheduled_export_with_service(&service, web::Path::from("sched-1".to_string())).await;
         assert_eq!(resp.status(), actix_web::http::StatusCode::OK);
     }
 }

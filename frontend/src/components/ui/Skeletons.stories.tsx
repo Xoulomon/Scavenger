@@ -1,9 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { StatCardSkeleton, WasteCardSkeleton, IncentiveCardSkeleton, PageSkeleton } from './Skeletons'
+import {
+  StatCardSkeleton,
+  WasteCardSkeleton,
+  IncentiveCardSkeleton,
+  PageSkeleton
+} from './Skeletons'
 
 const meta: Meta = {
   title: 'Design System/Skeletons',
-  tags: ['autodocs'],
+  tags: ['autodocs']
 }
 export default meta
 
@@ -14,7 +19,7 @@ export const StatCard: StoryObj = {
       <StatCardSkeleton />
       <StatCardSkeleton />
     </div>
-  ),
+  )
 }
 
 export const WasteCard: StoryObj = {
@@ -28,7 +33,7 @@ export const WasteCard: StoryObj = {
         </tbody>
       </table>
     </div>
-  ),
+  )
 }
 
 export const IncentiveCard: StoryObj = {
@@ -41,9 +46,9 @@ export const IncentiveCard: StoryObj = {
         </tbody>
       </table>
     </div>
-  ),
+  )
 }
 
 export const FullPage: StoryObj = {
-  render: () => <PageSkeleton />,
+  render: () => <PageSkeleton />
 }

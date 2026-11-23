@@ -1,8 +1,4 @@
-import {
-  TransactionBuilder,
-  BASE_FEE,
-  xdr,
-} from '@stellar/stellar-sdk'
+import { TransactionBuilder, BASE_FEE, xdr } from '@stellar/stellar-sdk'
 import { SigningError } from './errors'
 
 /**
@@ -18,10 +14,7 @@ import { SigningError } from './errors'
  * const signed = await signWithFreighter(tx.toXDR(), 'Test SDF Network ; September 2025')
  * ```
  */
-export async function signWithFreighter(
-  txXdr: string,
-  networkPassphrase: string
-): Promise<string> {
+export async function signWithFreighter(txXdr: string, networkPassphrase: string): Promise<string> {
   try {
     const { signTransaction } = await import('@stellar/freighter-api')
     const result = await signTransaction(txXdr, { networkPassphrase })
@@ -36,7 +29,9 @@ export async function signWithFreighter(
     if (err instanceof SigningError) throw err
     const message = err instanceof Error ? err.message : String(err)
     if (message.includes('is not defined') || message.includes('freighter')) {
-      throw new SigningError('Freighter wallet is not installed. Please install the Freighter browser extension.')
+      throw new SigningError(
+        'Freighter wallet is not installed. Please install the Freighter browser extension.'
+      )
     }
     throw new SigningError(`Transaction signing failed: ${message}`)
   }

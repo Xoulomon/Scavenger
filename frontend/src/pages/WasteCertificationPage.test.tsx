@@ -9,7 +9,7 @@ import {
   filterCertificates,
   getCertificateHistory,
   type WasteCertificate,
-  type CertificateHistoryEntry,
+  type CertificateHistoryEntry
 } from './WasteCertificationPage'
 
 const NOW = 1_700_000_000
@@ -26,7 +26,7 @@ function makeCert(overrides: Partial<WasteCertificate> = {}): WasteCertificate {
     expiresAt: NOW + 86400 * 365,
     status: 'valid',
     blockchainTxId: 'abc123',
-    ...overrides,
+    ...overrides
   }
 }
 
@@ -76,7 +76,7 @@ describe('WasteCertificationPage — filterCertificates', () => {
   const certs: WasteCertificate[] = [
     makeCert({ id: 'CERT-A', status: 'valid', wasteType: WasteType.Paper, holder: 'GHOLDER1' }),
     makeCert({ id: 'CERT-B', status: 'expired', wasteType: WasteType.Metal, holder: 'GHOLDER2' }),
-    makeCert({ id: 'CERT-C', status: 'revoked', wasteType: WasteType.Glass, holder: 'GHOLDER3' }),
+    makeCert({ id: 'CERT-C', status: 'revoked', wasteType: WasteType.Glass, holder: 'GHOLDER3' })
   ]
 
   it('returns all when no filter', () => {
@@ -110,7 +110,7 @@ describe('WasteCertificationPage — getCertificateHistory', () => {
   const history: CertificateHistoryEntry[] = [
     { certificateId: 'CERT-A', action: 'issued', actor: 'G1', timestamp: 1000 },
     { certificateId: 'CERT-A', action: 'verified', actor: 'G2', timestamp: 2000 },
-    { certificateId: 'CERT-B', action: 'issued', actor: 'G3', timestamp: 3000 },
+    { certificateId: 'CERT-B', action: 'issued', actor: 'G3', timestamp: 3000 }
   ]
 
   it('returns history for a specific certificate', () => {

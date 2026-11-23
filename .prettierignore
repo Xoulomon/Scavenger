@@ -1,0 +1,41 @@
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+build
+out
+.cache
+coverage
+storybook-static
+target
+.soroban
+.docusaurus
+
+# Lockfiles (formatting would corrupt them)
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Minified / generated assets
+*.min.js
+*.wasm
+
+# Native mobile projects (Xcode / Gradle managed)
+mobile/ios
+mobile/android
+
+# Secrets & local environment
+.env*
+demo/demo-accounts.json
+demo/*-secret.txt
+security-reports
+
+# Test artifacts
+playwright-report
+test-results
+
+# Editor / OS
+.vscode
+.idea
+.DS_Store

@@ -8,7 +8,7 @@ import {
   formatNumber,
   formatWeight,
   formatDistance,
-  formatDate,
+  formatDate
 } from './locale'
 
 describe('getLocaleConfig', () => {

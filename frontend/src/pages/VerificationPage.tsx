@@ -8,7 +8,7 @@ import {
   ChevronRight,
   ZoomIn,
   ZoomOut,
-  History,
+  History
 } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ScavengerClient } from '@/api/client'
@@ -63,7 +63,7 @@ function usePendingMaterials() {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       // Fetch participant's materials and filter unverified
       const ids = await client.getParticipantWastes(address)
@@ -73,7 +73,7 @@ function usePendingMaterials() {
       return results.filter((m): m is Material => m !== null && !m.verified)
     },
     enabled: !!address,
-    staleTime: 30_000,
+    staleTime: 30_000
   })
 }
 
@@ -88,13 +88,13 @@ function useVerifyMaterial() {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       return client.verifyMaterial(materialId, address, address)
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: cacheKeys.pendingVerifications() })
-    },
+    }
   })
 }
 
@@ -106,12 +106,12 @@ const GRADE_COLOR: Record<QualityGrade, string> = {
   B: 'bg-green-500 text-white',
   C: 'bg-yellow-500 text-white',
   D: 'bg-orange-500 text-white',
-  F: 'bg-destructive text-destructive-foreground',
+  F: 'bg-destructive text-destructive-foreground'
 }
 
 function GradeSelector({
   value,
-  onChange,
+  onChange
 }: {
   value: QualityGrade
   onChange: (g: QualityGrade) => void
@@ -212,7 +212,7 @@ function ImageGallery({ images }: { images: string[] }) {
 
 function VerificationPanel({
   material,
-  onDone,
+  onDone
 }: {
   material: Material
   onDone: (record: VerificationRecord) => void
@@ -235,7 +235,7 @@ function VerificationPanel({
         contaminated,
         grade,
         verifiedAt: Math.floor(Date.now() / 1000),
-        verifier: address ?? '',
+        verifier: address ?? ''
       }
       addVerificationRecord(record)
       onDone(record)
@@ -346,9 +346,7 @@ function HistoryTab() {
   const [history] = useState<VerificationRecord[]>(getVerificationHistory())
 
   if (history.length === 0) {
-    return (
-      <p className="text-sm text-muted-foreground">No verifications recorded this session.</p>
-    )
+    return <p className="text-sm text-muted-foreground">No verifications recorded this session.</p>
   }
 
   return (
@@ -392,13 +390,10 @@ export function VerificationPage() {
   const pending = queue.filter((m) => !done.includes(m.id))
   const current = pending[queueIdx] ?? null
 
-  const handleDone = useCallback(
-    (record: VerificationRecord) => {
-      setDone((d) => [...d, record.materialId])
-      setQueueIdx((i) => Math.max(0, i))
-    },
-    []
-  )
+  const handleDone = useCallback((record: VerificationRecord) => {
+    setDone((d) => [...d, record.materialId])
+    setQueueIdx((i) => Math.max(0, i))
+  }, [])
 
   if (!address) {
     return (

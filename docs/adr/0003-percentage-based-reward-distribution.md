@@ -28,10 +28,10 @@ under the `RWD_CFG` instance key, and are set by admins via `set_percentages`.
 
 ## Alternatives Considered
 
-| Alternative | Why it was rejected |
-|-------------|---------------------|
-| Fixed reward amounts per material type | Cannot respond to token price movements or changed incentive needs without a contract upgrade. |
-| Percentages hard-coded as constants | Same problem: tuning the economics would require redeploying. |
+| Alternative                                      | Why it was rejected                                                                                                                                                                                                                                                                         |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fixed reward amounts per material type           | Cannot respond to token price movements or changed incentive needs without a contract upgrade.                                                                                                                                                                                              |
+| Percentages hard-coded as constants              | Same problem: tuning the economics would require redeploying.                                                                                                                                                                                                                               |
 | Two separate storage keys (`COL_PCT`, `OWN_PCT`) | This was the original layout. Consolidated into `RWD_CFG` so one storage read fetches both values, halving instance-storage lookups on every reward path. The old keys are unused and expire with the instance TTL; deployments upgraded from that layout must call `set_percentages` once. |
 
 ## Consequences

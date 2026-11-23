@@ -5,12 +5,14 @@
 
 use soroban_sdk::Address;
 
-use super::{MAX_NOTE_LEN, ValidationError};
+use super::{ValidationError, MAX_NOTE_LEN};
 
 /// Validates a waste transfer: `from` and `to` must differ.
 pub fn validate_parties(from: &Address, to: &Address) -> Result<(), ValidationError> {
     if from == to {
-        return Err(ValidationError::AddressesNotDistinct { context: "waste transfer" });
+        return Err(ValidationError::AddressesNotDistinct {
+            context: "waste transfer",
+        });
     }
     Ok(())
 }
@@ -18,13 +20,19 @@ pub fn validate_parties(from: &Address, to: &Address) -> Result<(), ValidationEr
 /// Validates that collector + owner reward percentages do not exceed 100.
 pub fn validate_reward_split(collector_pct: u32, owner_pct: u32) -> Result<(), ValidationError> {
     if collector_pct > 100 {
-        return Err(ValidationError::PercentageTooHigh { field: "collector_percentage" });
+        return Err(ValidationError::PercentageTooHigh {
+            field: "collector_percentage",
+        });
     }
     if owner_pct > 100 {
-        return Err(ValidationError::PercentageTooHigh { field: "owner_percentage" });
+        return Err(ValidationError::PercentageTooHigh {
+            field: "owner_percentage",
+        });
     }
     if collector_pct + owner_pct > 100 {
-        return Err(ValidationError::PercentageTooHigh { field: "collector_percentage + owner_percentage" });
+        return Err(ValidationError::PercentageTooHigh {
+            field: "collector_percentage + owner_percentage",
+        });
     }
     Ok(())
 }
@@ -32,7 +40,10 @@ pub fn validate_reward_split(collector_pct: u32, owner_pct: u32) -> Result<(), V
 /// Validates an optional transfer note/memo length.
 pub fn validate_note(note: &soroban_sdk::String) -> Result<(), ValidationError> {
     if note.len() > MAX_NOTE_LEN {
-        return Err(ValidationError::StringTooLong { field: "transfer note", max_len: MAX_NOTE_LEN });
+        return Err(ValidationError::StringTooLong {
+            field: "transfer note",
+            max_len: MAX_NOTE_LEN,
+        });
     }
     Ok(())
 }
@@ -56,7 +67,9 @@ mod tests {
         let a = Address::generate(&env);
         assert_eq!(
             validate_parties(&a, &a),
-            Err(ValidationError::AddressesNotDistinct { context: "waste transfer" })
+            Err(ValidationError::AddressesNotDistinct {
+                context: "waste transfer"
+            })
         );
     }
 
@@ -70,7 +83,9 @@ mod tests {
     fn reward_split_rejects_collector_over_100() {
         assert_eq!(
             validate_reward_split(101, 0),
-            Err(ValidationError::PercentageTooHigh { field: "collector_percentage" })
+            Err(ValidationError::PercentageTooHigh {
+                field: "collector_percentage"
+            })
         );
     }
 
@@ -78,7 +93,9 @@ mod tests {
     fn reward_split_rejects_owner_over_100() {
         assert_eq!(
             validate_reward_split(0, 101),
-            Err(ValidationError::PercentageTooHigh { field: "owner_percentage" })
+            Err(ValidationError::PercentageTooHigh {
+                field: "owner_percentage"
+            })
         );
     }
 
@@ -104,7 +121,10 @@ mod tests {
         let note = soroban_sdk::String::from_str(&env, &long);
         assert!(matches!(
             validate_note(&note),
-            Err(ValidationError::StringTooLong { field: "transfer note", .. })
+            Err(ValidationError::StringTooLong {
+                field: "transfer note",
+                ..
+            })
         ));
     }
 }

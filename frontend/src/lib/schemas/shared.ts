@@ -11,9 +11,7 @@ import { WasteType } from '@scavngr/types'
 export const wasteTypeSchema = z.nativeEnum(WasteType)
 
 /** Stellar public key: 56 chars, starts with G. */
-export const stellarAddressSchema = z
-  .string()
-  .regex(/^G[A-Z2-7]{55}$/, 'Invalid Stellar address.')
+export const stellarAddressSchema = z.string().regex(/^G[A-Z2-7]{55}$/, 'Invalid Stellar address.')
 
 /** Waste weight in kilograms: positive, at most 100,000 kg. */
 export const wasteWeightSchema = z
@@ -30,7 +28,7 @@ export const coordinatesSchema = z.object({
   longitude: z
     .number({ invalid_type_error: 'Longitude must be a number.' })
     .min(-180, 'Longitude must be at least -180.')
-    .max(180, 'Longitude must not exceed 180.'),
+    .max(180, 'Longitude must not exceed 180.')
 })
 
 /** Free-form notes: optional, trimmed, at most 500 characters. */

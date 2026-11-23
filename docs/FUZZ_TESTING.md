@@ -13,21 +13,25 @@ Fuzz testing uses property-based testing to generate random inputs and verify co
 ## Fuzz Test Scenarios
 
 ### 1. Participant Registration Fuzzing
+
 - **Input**: Random role (0-2), latitude (-90 to 90), longitude (-180 to 180)
 - **Property**: Should not panic with any valid coordinates
 - **Regression**: Stores failing cases in `.proptest-regressions`
 
 ### 2. Waste Submission Fuzzing
+
 - **Input**: Random weight (1 to u128::MAX), coordinates
 - **Property**: Should handle any weight value without panicking
 - **Edge Cases**: Zero weight, maximum weight, extreme coordinates
 
 ### 3. Waste Transfer Fuzzing
+
 - **Input**: Random waste_id, coordinates
 - **Property**: Should gracefully handle invalid waste IDs
 - **Validation**: No panics on non-existent waste
 
 ### 4. Incentive Creation Fuzzing
+
 - **Input**: Random reward_points, budget values
 - **Property**: Should accept any positive reward/budget combination
 - **Bounds**: Tests u128 boundaries

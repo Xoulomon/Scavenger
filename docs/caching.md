@@ -68,6 +68,7 @@ let strategies = manager.generate_invalidation_strategy(
 ## Monitoring
 
 Metrics available via `cache.get_metrics()`:
+
 - `hits` / `misses`
 - `evictions`
 - `hit_rate`

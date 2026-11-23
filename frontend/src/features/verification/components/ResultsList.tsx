@@ -18,7 +18,7 @@ export function ResultsList({
   sortDir,
   onSort,
   hasActiveFilters,
-  onClearFilters,
+  onClearFilters
 }: {
   materials: Material[]
   isLoading: boolean
@@ -53,11 +53,11 @@ export function ResultsList({
         </div>
         <div className="flex items-center gap-1">
           <span className="text-xs text-muted-foreground">Sort:</span>
-          {([
+          {[
             { field: 'date' as SortField, label: 'Date' },
             { field: 'id' as SortField, label: 'ID' },
-            { field: 'weight' as SortField, label: 'Weight' },
-          ]).map(({ field, label }) => (
+            { field: 'weight' as SortField, label: 'Weight' }
+          ].map(({ field, label }) => (
             <Button
               key={field}
               variant={sortField === field ? 'secondary' : 'ghost'}
@@ -67,13 +67,12 @@ export function ResultsList({
               className="h-7 px-2 text-xs"
             >
               {label}
-              {sortField === field && (
-                sortDir === 'asc' ? (
+              {sortField === field &&
+                (sortDir === 'asc' ? (
                   <ChevronUp className="ml-0.5 h-3 w-3" />
                 ) : (
                   <ChevronDown className="ml-0.5 h-3 w-3" />
-                )
-              )}
+                ))}
             </Button>
           ))}
         </div>
@@ -102,7 +101,11 @@ export function ResultsList({
           )}
         </div>
       ) : (
-        <div className="space-y-2 max-h-[calc(100vh-24rem)] overflow-y-auto pr-1" role="listbox" aria-label="Waste materials list">
+        <div
+          className="space-y-2 max-h-[calc(100vh-24rem)] overflow-y-auto pr-1"
+          role="listbox"
+          aria-label="Waste materials list"
+        >
           {materials.map((material) => (
             <WasteListItem
               key={material.id}

@@ -20,7 +20,7 @@ export function OfflineStatus({
   isOnline: isOnlineProp,
   onRetry,
   message = DEFAULT_OFFLINE_MESSAGE,
-  className,
+  className
 }: OfflineStatusProps) {
   const hookOnline = useOnlineStatus()
   const isOnline = isOnlineProp ?? hookOnline

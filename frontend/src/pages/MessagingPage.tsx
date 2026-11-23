@@ -13,7 +13,7 @@ import { formatDate } from '@/lib/helpers'
 function ComposeModal({
   initial,
   onSend,
-  onClose,
+  onClose
 }: {
   initial?: Partial<ComposeData>
   onSend: (data: ComposeData) => Promise<void>
@@ -29,7 +29,12 @@ function ComposeModal({
     if (!to.trim() || !subject.trim() || !body.trim()) return
     setSending(true)
     try {
-      await onSend({ to: to.trim(), subject: subject.trim(), body: body.trim(), threadId: initial?.threadId })
+      await onSend({
+        to: to.trim(),
+        subject: subject.trim(),
+        body: body.trim(),
+        threadId: initial?.threadId
+      })
       onClose()
     } finally {
       setSending(false)
@@ -41,7 +46,9 @@ function ComposeModal({
       <div className="w-full max-w-lg rounded-xl border bg-background shadow-xl">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <h2 className="font-semibold">{t('messaging.composeMessage')}</h2>
-          <Button size="sm" variant="ghost" onClick={onClose}><X className="h-4 w-4" /></Button>
+          <Button size="sm" variant="ghost" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
         </div>
         <div className="space-y-3 p-4">
           <input
@@ -64,9 +71,12 @@ function ComposeModal({
             onChange={(e) => setBody(e.target.value)}
           />
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={onClose}>{t('common.cancel')}</Button>
+            <Button variant="outline" onClick={onClose}>
+              {t('common.cancel')}
+            </Button>
             <Button onClick={handleSend} disabled={sending || !to || !subject || !body}>
-              <Send className="mr-2 h-4 w-4" /> {sending ? t('messaging.sending') : t('messaging.send')}
+              <Send className="mr-2 h-4 w-4" />{' '}
+              {sending ? t('messaging.sending') : t('messaging.send')}
             </Button>
           </div>
         </div>
@@ -79,7 +89,7 @@ function MessageRow({
   msg,
   onSelect,
   onArchive,
-  onBlock,
+  onBlock
 }: {
   msg: Message
   onSelect: (m: Message) => void
@@ -100,10 +110,24 @@ function MessageRow({
       </div>
       <div className="flex shrink-0 items-center gap-1">
         <span className="text-xs text-muted-foreground">{formatDate(msg.createdAt / 1000)}</span>
-        <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); onArchive(msg.id) }}>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={(e) => {
+            e.stopPropagation()
+            onArchive(msg.id)
+          }}
+        >
           <Archive className="h-3 w-3" />
         </Button>
-        <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); onBlock(msg.from) }}>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={(e) => {
+            e.stopPropagation()
+            onBlock(msg.from)
+          }}
+        >
           <Ban className="h-3 w-3" />
         </Button>
       </div>
@@ -123,7 +147,7 @@ export function MessagingPage() {
     markRead,
     archiveMessage,
     blockUser,
-    searchMessages,
+    searchMessages
   } = useMessaging(address)
 
   const [folder, setFolder] = useState<MessageFolder>('inbox')
@@ -144,7 +168,11 @@ export function MessagingPage() {
 
   const handleReply = () => {
     if (!selected) return
-    setComposing({ to: selected.from, subject: t('messaging.replySubject', { subject: selected.subject }), threadId: selected.threadId })
+    setComposing({
+      to: selected.from,
+      subject: t('messaging.replySubject', { subject: selected.subject }),
+      threadId: selected.threadId
+    })
   }
 
   const messages = searchResults ?? getFolder(folder)
@@ -176,11 +204,26 @@ export function MessagingPage() {
           className="flex-1 rounded-md border bg-background px-3 py-2 text-sm"
           placeholder={t('messaging.searchPlaceholder')}
           value={searchTerm}
-          onChange={(e) => { setSearchTerm(e.target.value); if (!e.target.value) setSearchResults(null) }}
+          onChange={(e) => {
+            setSearchTerm(e.target.value)
+            if (!e.target.value) setSearchResults(null)
+          }}
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
         />
-        <Button variant="outline" onClick={handleSearch}><Search className="h-4 w-4" /></Button>
-        {searchResults && <Button variant="ghost" onClick={() => { setSearchResults(null); setSearchTerm('') }}><X className="h-4 w-4" /></Button>}
+        <Button variant="outline" onClick={handleSearch}>
+          <Search className="h-4 w-4" />
+        </Button>
+        {searchResults && (
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setSearchResults(null)
+              setSearchTerm('')
+            }}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
       </div>
 
       <div className="flex min-h-0 flex-1 gap-4">
@@ -190,7 +233,11 @@ export function MessagingPage() {
             <button
               key={f}
               className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm capitalize transition-colors ${folder === f && !searchResults ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
-              onClick={() => { setFolder(f); setSearchResults(null); setSearchTerm('') }}
+              onClick={() => {
+                setFolder(f)
+                setSearchResults(null)
+                setSearchTerm('')
+              }}
             >
               {f === 'inbox' && <Mail className="h-4 w-4" />}
               {f === 'sent' && <Send className="h-4 w-4" />}
@@ -204,17 +251,25 @@ export function MessagingPage() {
         <Card className="flex min-h-0 flex-1 flex-col">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm capitalize">
-              {searchResults ? t('messaging.searchResults', { count: searchResults.length }) : t(`messaging.folders.${folder}`)}
+              {searchResults
+                ? t('messaging.searchResults', { count: searchResults.length })
+                : t(`messaging.folders.${folder}`)}
             </CardTitle>
           </CardHeader>
           <CardContent className="min-h-0 flex-1 overflow-y-auto space-y-2">
             {isLoading && (
               <div className="space-y-2">
-                {[1, 2, 3].map((i) => <div key={i} className="h-12 animate-pulse rounded bg-muted" />)}
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-12 animate-pulse rounded bg-muted" />
+                ))}
               </div>
             )}
             {!isLoading && messages.length === 0 && (
-              <EmptyState icon={Mail} title={t('messaging.noMessages')} description={t('messaging.nothingHere')} />
+              <EmptyState
+                icon={Mail}
+                title={t('messaging.noMessages')}
+                description={t('messaging.nothingHere')}
+              />
             )}
             {messages.map((msg) => (
               <MessageRow
@@ -235,10 +290,16 @@ export function MessagingPage() {
               <div className="flex items-start justify-between gap-2">
                 <div>
                   <CardTitle className="text-sm">{selected.subject}</CardTitle>
-                  <p className="text-xs text-muted-foreground">{t('messaging.from', { address: selected.from })}</p>
-                  <p className="text-xs text-muted-foreground">{formatDate(selected.createdAt / 1000)}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {t('messaging.from', { address: selected.from })}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatDate(selected.createdAt / 1000)}
+                  </p>
                 </div>
-                <Button size="sm" variant="ghost" onClick={() => setSelected(null)}><X className="h-4 w-4" /></Button>
+                <Button size="sm" variant="ghost" onClick={() => setSelected(null)}>
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
             </CardHeader>
             <CardContent className="min-h-0 flex-1 overflow-y-auto">
@@ -254,11 +315,7 @@ export function MessagingPage() {
       </div>
 
       {composing !== null && (
-        <ComposeModal
-          initial={composing}
-          onSend={sendMessage}
-          onClose={() => setComposing(null)}
-        />
+        <ComposeModal initial={composing} onSend={sendMessage} onClose={() => setComposing(null)} />
       )}
     </div>
   )

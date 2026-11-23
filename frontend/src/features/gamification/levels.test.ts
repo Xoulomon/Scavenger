@@ -25,7 +25,7 @@ describe('computeXP', () => {
     const stats: UserStats = {
       materialsSubmitted: 10,
       transfersCount: 5,
-      totalEarned: 1000n,
+      totalEarned: 1000n
     }
     // 10 * 10 + 5 * 20 + floor(1000 / 100) = 100 + 100 + 10 = 210
     expect(computeXP(stats)).toBe(210)

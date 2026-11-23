@@ -117,6 +117,7 @@ Scavenger uses Soroban's persistent storage to maintain on-chain state. The sche
 **Storage Key:** `DataKey::Admin`
 
 **Data Structure:**
+
 ```rust
 pub struct AdminConfig {
     pub admin: Address,
@@ -128,13 +129,14 @@ pub struct AdminConfig {
 ```
 
 **Fields:**
-| Field | Type | Description |
-|-------|------|-------------|
-| `admin` | Address | Current contract administrator |
-| `charity_contract` | Option<Address> | Charity donation recipient |
-| `token_address` | Option<Address> | Reward token contract |
-| `collector_percentage` | u32 | Percentage for collectors (0-100) |
-| `owner_percentage` | u32 | Percentage for waste owner (0-100) |
+
+| Field                  | Type            | Description                        |
+| ---------------------- | --------------- | ---------------------------------- |
+| `admin`                | Address         | Current contract administrator     |
+| `charity_contract`     | Option<Address> | Charity donation recipient         |
+| `token_address`        | Option<Address> | Reward token contract              |
+| `collector_percentage` | u32             | Percentage for collectors (0-100)  |
+| `owner_percentage`     | u32             | Percentage for waste owner (0-100) |
 
 **Access Pattern:** Single read/write per transaction
 
@@ -147,6 +149,7 @@ pub struct AdminConfig {
 **Storage Key:** `DataKey::Participant(address)`
 
 **Data Structure:**
+
 ```rust
 pub struct Participant {
     pub address: Address,
@@ -160,17 +163,19 @@ pub struct Participant {
 ```
 
 **Fields:**
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `address` | Address | Stellar address | Unique, immutable |
-| `role` | ParticipantRole | Recycler/Collector/Manufacturer | Enum |
-| `name` | String | Human-readable name | Max 256 chars |
-| `latitude` | i32 | GPS latitude | -90,000,000 to 90,000,000 |
-| `longitude` | i32 | GPS longitude | -180,000,000 to 180,000,000 |
-| `registered_at` | u64 | Registration timestamp | Unix seconds |
-| `is_active` | bool | Active status | Default: true |
+
+| Field           | Type            | Description                     | Constraints                 |
+| --------------- | --------------- | ------------------------------- | --------------------------- |
+| `address`       | Address         | Stellar address                 | Unique, immutable           |
+| `role`          | ParticipantRole | Recycler/Collector/Manufacturer | Enum                        |
+| `name`          | String          | Human-readable name             | Max 256 chars               |
+| `latitude`      | i32             | GPS latitude                    | -90,000,000 to 90,000,000   |
+| `longitude`     | i32             | GPS longitude                   | -180,000,000 to 180,000,000 |
+| `registered_at` | u64             | Registration timestamp          | Unix seconds                |
+| `is_active`     | bool            | Active status                   | Default: true               |
 
 **Access Patterns:**
+
 - Get by address: `O(1)`
 - List all: `O(n)` — requires iteration
 - Filter by role: `O(n)` — requires iteration
@@ -184,6 +189,7 @@ pub struct Participant {
 **Storage Key:** `DataKey::ParticipantWastes(address)`
 
 **Data Structure:**
+
 ```rust
 pub struct ParticipantWastes {
     pub waste_ids: Vec<u64>,
@@ -191,11 +197,13 @@ pub struct ParticipantWastes {
 ```
 
 **Fields:**
-| Field | Type | Description |
-|-------|------|-------------|
+
+| Field       | Type     | Description                            |
+| ----------- | -------- | -------------------------------------- |
 | `waste_ids` | Vec<u64> | List of waste IDs owned by participant |
 
 **Access Patterns:**
+
 - Get all wastes for participant: `O(1)` storage read, `O(n)` iteration
 - Add waste: `O(1)` append
 - Remove waste: `O(n)` search and remove
@@ -209,6 +217,7 @@ pub struct ParticipantWastes {
 **Storage Key:** `DataKey::ParticipantStats(address)`
 
 **Data Structure:**
+
 ```rust
 pub struct ParticipantStats {
     pub total_waste_submitted: u128,
@@ -220,15 +229,17 @@ pub struct ParticipantStats {
 ```
 
 **Fields:**
-| Field | Type | Description |
-|-------|------|-------------|
-| `total_waste_submitted` | u128 | Total weight submitted |
-| `total_waste_verified` | u128 | Total weight verified |
+
+| Field                     | Type | Description              |
+| ------------------------- | ---- | ------------------------ |
+| `total_waste_submitted`   | u128 | Total weight submitted   |
+| `total_waste_verified`    | u128 | Total weight verified    |
 | `total_waste_transferred` | u128 | Total weight transferred |
-| `total_tokens_earned` | u128 | Total tokens earned |
-| `waste_by_type` | Map | Breakdown by waste type |
+| `total_tokens_earned`     | u128 | Total tokens earned      |
+| `waste_by_type`           | Map  | Breakdown by waste type  |
 
 **Access Patterns:**
+
 - Get stats: `O(1)`
 - Update stats: `O(1)` per field
 
@@ -241,6 +252,7 @@ pub struct ParticipantStats {
 **Storage Key:** `DataKey::Waste(waste_id)`
 
 **Data Structure:**
+
 ```rust
 pub struct Waste {
     pub id: u64,
@@ -256,19 +268,21 @@ pub struct Waste {
 ```
 
 **Fields:**
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `id` | u64 | Unique waste ID | Auto-increment |
-| `waste_type` | WasteType | Type of waste | Enum |
-| `weight` | u128 | Weight in grams | > 0 |
-| `owner` | Address | Current owner | Mutable |
-| `submitted_at` | u64 | Submission timestamp | Unix seconds |
-| `submitted_by` | Address | Original submitter | Immutable |
-| `is_confirmed` | bool | Confirmation status | Default: false |
-| `confirmer` | Option<Address> | Who confirmed | Optional |
-| `is_active` | bool | Active status | Default: true |
+
+| Field          | Type            | Description          | Constraints    |
+| -------------- | --------------- | -------------------- | -------------- |
+| `id`           | u64             | Unique waste ID      | Auto-increment |
+| `waste_type`   | WasteType       | Type of waste        | Enum           |
+| `weight`       | u128            | Weight in grams      | > 0            |
+| `owner`        | Address         | Current owner        | Mutable        |
+| `submitted_at` | u64             | Submission timestamp | Unix seconds   |
+| `submitted_by` | Address         | Original submitter   | Immutable      |
+| `is_confirmed` | bool            | Confirmation status  | Default: false |
+| `confirmer`    | Option<Address> | Who confirmed        | Optional       |
+| `is_active`    | bool            | Active status        | Default: true  |
 
 **Access Patterns:**
+
 - Get by ID: `O(1)`
 - Get all: `O(n)` — requires iteration
 - Filter by type: `O(n)` — requires iteration
@@ -282,6 +296,7 @@ pub struct Waste {
 **Storage Key:** `DataKey::WasteTransferHistory(waste_id)`
 
 **Data Structure:**
+
 ```rust
 pub struct TransferRecord {
     pub waste_id: u64,
@@ -295,17 +310,19 @@ pub struct TransferRecord {
 ```
 
 **Fields:**
-| Field | Type | Description |
-|-------|------|-------------|
-| `waste_id` | u64 | Reference to waste |
-| `from` | Address | Sender address |
-| `to` | Address | Recipient address |
-| `timestamp` | u64 | Transfer time |
-| `latitude` | i32 | Transfer location latitude |
-| `longitude` | i32 | Transfer location longitude |
-| `note` | String | Transfer notes |
+
+| Field       | Type    | Description                 |
+| ----------- | ------- | --------------------------- |
+| `waste_id`  | u64     | Reference to waste          |
+| `from`      | Address | Sender address              |
+| `to`        | Address | Recipient address           |
+| `timestamp` | u64     | Transfer time               |
+| `latitude`  | i32     | Transfer location latitude  |
+| `longitude` | i32     | Transfer location longitude |
+| `note`      | String  | Transfer notes              |
 
 **Access Patterns:**
+
 - Get history for waste: `O(1)` read, `O(n)` iteration
 - Append transfer: `O(1)` append
 - Immutable: No updates
@@ -319,6 +336,7 @@ pub struct TransferRecord {
 **Storage Key:** `DataKey::Incentive(incentive_id)`
 
 **Data Structure:**
+
 ```rust
 pub struct Incentive {
     pub id: u64,
@@ -332,17 +350,19 @@ pub struct Incentive {
 ```
 
 **Fields:**
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `id` | u64 | Unique incentive ID | Auto-increment |
-| `manufacturer` | Address | Creator address | Immutable |
-| `waste_type` | WasteType | Target waste type | Enum |
-| `reward_points` | u128 | Points per unit | > 0 |
-| `budget` | u128 | Total budget | > 0 |
-| `created_at` | u64 | Creation timestamp | Unix seconds |
-| `is_active` | bool | Active status | Mutable |
+
+| Field           | Type      | Description         | Constraints    |
+| --------------- | --------- | ------------------- | -------------- |
+| `id`            | u64       | Unique incentive ID | Auto-increment |
+| `manufacturer`  | Address   | Creator address     | Immutable      |
+| `waste_type`    | WasteType | Target waste type   | Enum           |
+| `reward_points` | u128      | Points per unit     | > 0            |
+| `budget`        | u128      | Total budget        | > 0            |
+| `created_at`    | u64       | Creation timestamp  | Unix seconds   |
+| `is_active`     | bool      | Active status       | Mutable        |
 
 **Access Patterns:**
+
 - Get by ID: `O(1)`
 - Get by waste type: `O(n)` — requires iteration
 - Get by manufacturer: `O(n)` — requires iteration
@@ -356,6 +376,7 @@ pub struct Incentive {
 **Storage Key:** `DataKey::GlobalMetrics`
 
 **Data Structure:**
+
 ```rust
 pub struct GlobalMetrics {
     pub total_waste_submitted: u128,
@@ -368,16 +389,18 @@ pub struct GlobalMetrics {
 ```
 
 **Fields:**
-| Field | Type | Description |
-|-------|------|-------------|
-| `total_waste_submitted` | u128 | Total weight submitted |
-| `total_waste_verified` | u128 | Total weight verified |
-| `total_tokens_distributed` | u128 | Total tokens given |
-| `total_participants` | u64 | Number of participants |
-| `waste_counter` | u64 | Next waste ID |
-| `incentive_counter` | u64 | Next incentive ID |
+
+| Field                      | Type | Description            |
+| -------------------------- | ---- | ---------------------- |
+| `total_waste_submitted`    | u128 | Total weight submitted |
+| `total_waste_verified`     | u128 | Total weight verified  |
+| `total_tokens_distributed` | u128 | Total tokens given     |
+| `total_participants`       | u64  | Number of participants |
+| `waste_counter`            | u64  | Next waste ID          |
+| `incentive_counter`        | u64  | Next incentive ID      |
 
 **Access Patterns:**
+
 - Get metrics: `O(1)`
 - Update metrics: `O(1)` per field
 
@@ -400,11 +423,11 @@ Source of truth: `stellar-contract/src/lib.rs` (key constants),
 Soroban exposes three storage tiers. Each has different cost, lifetime, and
 recovery semantics, and the contract uses all three deliberately.
 
-| Tier | Soroban accessor | Lifetime | Recoverable after expiry? | Used in Scavngr for |
-|------|------------------|----------|---------------------------|---------------------|
-| **Instance** | `env.storage().instance()` | Tied to the contract instance; extended on every call via `bump_instance` | Yes — restoring the instance restores all entries | Config scalars, counters, and the bulk of per-entity records |
-| **Persistent** | `env.storage().persistent()` | Per-entry TTL; archived (not deleted) when it lapses | Yes — entry must be explicitly restored before use | Participant records (`participant.rs`), compliance reports, performance snapshots, search index |
-| **Temporary** | `env.storage().temporary()` | Per-entry TTL; **permanently deleted** on expiry | **No** — data is unrecoverable | Read caches and hot-path derived data only |
+| Tier           | Soroban accessor             | Lifetime                                                                  | Recoverable after expiry?                          | Used in Scavngr for                                                                             |
+| -------------- | ---------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| **Instance**   | `env.storage().instance()`   | Tied to the contract instance; extended on every call via `bump_instance` | Yes — restoring the instance restores all entries  | Config scalars, counters, and the bulk of per-entity records                                    |
+| **Persistent** | `env.storage().persistent()` | Per-entry TTL; archived (not deleted) when it lapses                      | Yes — entry must be explicitly restored before use | Participant records (`participant.rs`), compliance reports, performance snapshots, search index |
+| **Temporary**  | `env.storage().temporary()`  | Per-entry TTL; **permanently deleted** on expiry                          | **No** — data is unrecoverable                     | Read caches and hot-path derived data only                                                      |
 
 **Rule of thumb enforced in this codebase:** never put anything in temporary storage
 that cannot be recomputed from instance or persistent storage. Every temporary entry
@@ -431,7 +454,7 @@ Consequences integrators should plan for:
 
 - A contract invoked at least once every ~30 days never expires; its instance TTL is
   continuously refreshed.
-- Because instance storage is a **single ledger entry**, bumping it extends *all*
+- Because instance storage is a **single ledger entry**, bumping it extends _all_
   instance-keyed data at once. This is why the layout keeps large, rarely-read
   collections out of instance storage where practical.
 - A contract that goes fully idle for more than ~30 days has its instance archived.
@@ -456,74 +479,74 @@ Consequences integrators should plan for:
 Declared in `stellar-contract/src/lib.rs`. All are read via
 `env.storage().instance()` and inherit the ~30-day instance TTL described above.
 
-| Rust constant | On-chain symbol | Value type | Purpose |
-|---------------|-----------------|------------|---------|
-| `ADMINS` | `ADMINS` | `Vec<Address>` | Contract administrators |
-| `CHARITY` | `CHARITY` | `Address` | Charity payout destination |
-| `TOKEN_ADDR` | `TKN_ADDR` | `Address` | Reward token contract address |
-| `REWARD_CFG` | `RWD_CFG` | `RewardConfig` | Collector/owner reward split |
-| `TOTAL_WEIGHT` | `TOT_WGT` | `u128` | Cumulative waste weight (grams) |
-| `TOTAL_TOKENS` | `TOT_TKN` | `u128` | Cumulative reward tokens issued |
-| `TOTAL_CARBON` | `TOT_CARB` | `u128` | Cumulative carbon credits |
-| `PART_INDEX` | `PART_IDX` | `Vec<Address>` | Enumerable participant index |
-| `PAUSED` | `PAUSED` | `bool` | Emergency pause flag |
-| `REENTRANCY_GUARD` | `RE_GUARD` | `bool` | Reentrancy lock (set/removed within one call) |
-| `MULTISIG_THRESHOLD` | `MS_THRESH` | `u32` | Approvals required for admin actions |
-| `PROPOSAL_COUNT` | `PROP_CNT` | `u64` | Multi-sig proposal ID counter |
-| `MIN_WEIGHT` | `MIN_WGT` | `u128` | Minimum accepted submission weight |
-| `SEASONAL_MUL` | `SEAS_MUL` | `u32` | Seasonal reward multiplier |
-| `MILESTONES_KEY` | `MLSTONES` | `Vec<..>` | Milestone definitions |
-| `CHALLENGE_COUNT` | `CHAL_CNT` | `u64` | Challenge ID counter |
-| `PENDING_XFR_CNT` | `PXFR_CNT` | `u64` | Pending-transfer ID counter |
-| `AUCTION_COUNT` | `AUC_CNT` | `u64` | Auction ID counter |
-| `DISPUTE_CNT` | `DISP_CNT` | `u64` | Dispute ID counter |
-| `ROUTE_CNT` | `ROUTE_CNT` | `u64` | Collection-route ID counter |
-| `BATCH_COUNT` | `BATCH_CNT` | `u64` | Batch ID counter |
-| `BATCH_INDEX` | `BATCH_IDX` | `Vec<u64>` | Batch enumeration index |
-| `CARB_LIST_CNT` | `CARB_CNT` | `u64` | Carbon-credit listing counter |
-| `CARB_LIST_IDX` | `CARB_IDX` | `Vec<u64>` | Active carbon-credit listing index |
-| `CONTAMINATED_LIST` | `CONT_LST` | `Vec<u128>` | Waste IDs flagged as contaminated |
-| `CERTIFICATIONS` | `CERT_IDX` | `Vec<..>` | Certification index |
-| `PERMISSIONS` | `PERMS` | RBAC map | Role-based permission grants (issue #704) |
-| `RECONCIL_LOG` | `REC_LOG` | `Vec<..>` | Reconciliation audit trail (issue #706) |
-| `QUALITY_SCORES` | `QUAL_SC` | scores | Quality scoring data (issue #654) |
-| `LOCATION_HISTORY` | `LOC_HIST` | `Vec<..>` | Location tracking history (issue #655) |
-| `REPORT_COUNT` | `REP_CNT` | `u64` | Compliance report ID counter |
-| `TRANSACTION_STATS` | `TX_STATS` | stats | Transaction benchmarking stats (issue #703) |
+| Rust constant        | On-chain symbol | Value type     | Purpose                                       |
+| -------------------- | --------------- | -------------- | --------------------------------------------- |
+| `ADMINS`             | `ADMINS`        | `Vec<Address>` | Contract administrators                       |
+| `CHARITY`            | `CHARITY`       | `Address`      | Charity payout destination                    |
+| `TOKEN_ADDR`         | `TKN_ADDR`      | `Address`      | Reward token contract address                 |
+| `REWARD_CFG`         | `RWD_CFG`       | `RewardConfig` | Collector/owner reward split                  |
+| `TOTAL_WEIGHT`       | `TOT_WGT`       | `u128`         | Cumulative waste weight (grams)               |
+| `TOTAL_TOKENS`       | `TOT_TKN`       | `u128`         | Cumulative reward tokens issued               |
+| `TOTAL_CARBON`       | `TOT_CARB`      | `u128`         | Cumulative carbon credits                     |
+| `PART_INDEX`         | `PART_IDX`      | `Vec<Address>` | Enumerable participant index                  |
+| `PAUSED`             | `PAUSED`        | `bool`         | Emergency pause flag                          |
+| `REENTRANCY_GUARD`   | `RE_GUARD`      | `bool`         | Reentrancy lock (set/removed within one call) |
+| `MULTISIG_THRESHOLD` | `MS_THRESH`     | `u32`          | Approvals required for admin actions          |
+| `PROPOSAL_COUNT`     | `PROP_CNT`      | `u64`          | Multi-sig proposal ID counter                 |
+| `MIN_WEIGHT`         | `MIN_WGT`       | `u128`         | Minimum accepted submission weight            |
+| `SEASONAL_MUL`       | `SEAS_MUL`      | `u32`          | Seasonal reward multiplier                    |
+| `MILESTONES_KEY`     | `MLSTONES`      | `Vec<..>`      | Milestone definitions                         |
+| `CHALLENGE_COUNT`    | `CHAL_CNT`      | `u64`          | Challenge ID counter                          |
+| `PENDING_XFR_CNT`    | `PXFR_CNT`      | `u64`          | Pending-transfer ID counter                   |
+| `AUCTION_COUNT`      | `AUC_CNT`       | `u64`          | Auction ID counter                            |
+| `DISPUTE_CNT`        | `DISP_CNT`      | `u64`          | Dispute ID counter                            |
+| `ROUTE_CNT`          | `ROUTE_CNT`     | `u64`          | Collection-route ID counter                   |
+| `BATCH_COUNT`        | `BATCH_CNT`     | `u64`          | Batch ID counter                              |
+| `BATCH_INDEX`        | `BATCH_IDX`     | `Vec<u64>`     | Batch enumeration index                       |
+| `CARB_LIST_CNT`      | `CARB_CNT`      | `u64`          | Carbon-credit listing counter                 |
+| `CARB_LIST_IDX`      | `CARB_IDX`      | `Vec<u64>`     | Active carbon-credit listing index            |
+| `CONTAMINATED_LIST`  | `CONT_LST`      | `Vec<u128>`    | Waste IDs flagged as contaminated             |
+| `CERTIFICATIONS`     | `CERT_IDX`      | `Vec<..>`      | Certification index                           |
+| `PERMISSIONS`        | `PERMS`         | RBAC map       | Role-based permission grants (issue #704)     |
+| `RECONCIL_LOG`       | `REC_LOG`       | `Vec<..>`      | Reconciliation audit trail (issue #706)       |
+| `QUALITY_SCORES`     | `QUAL_SC`       | scores         | Quality scoring data (issue #654)             |
+| `LOCATION_HISTORY`   | `LOC_HIST`      | `Vec<..>`      | Location tracking history (issue #655)        |
+| `REPORT_COUNT`       | `REP_CNT`       | `u64`          | Compliance report ID counter                  |
+| `TRANSACTION_STATS`  | `TX_STATS`      | stats          | Transaction benchmarking stats (issue #703)   |
 
 ### Instance Storage Keys — Per-Entity Records
 
 Composite tuple keys. The first tuple element is the discriminator shown below.
 
-| Key pattern | Value type | Purpose |
-|-------------|------------|---------|
-| `(address,)` | `Participant` | Participant record keyed by address |
-| `("stats", address)` | `RecyclingStats` | Per-participant recycling statistics |
-| `("participant_wastes", address)` | `Vec<u128>` | Waste IDs owned/submitted by a participant |
-| `("goals", address)` | goal record | Per-participant recycling goals |
-| `("waste", waste_id)` | `Waste` | Waste record (v1 layout) |
-| `("waste_v2", waste_id)` | `Waste` | Waste record (v2 layout, with expiry support) |
-| `("waste_count",)` | `u128` | Waste ID counter |
-| `("waste_ttl", waste_type)` | `u64` | **Business** expiry in seconds per waste type (see note below) |
-| `("transfers", waste_id)` | `Vec<TransferRecord>` | Transfer chain for a waste item |
-| `("transfer_history", waste_id)` | `Vec<..>` | Historical transfer detail |
-| `("pending_xfr", id)` | pending transfer | Transfer awaiting approval |
-| `("incentive", incentive_id)` | `Incentive` | Incentive record |
-| `("incentive_count",)` | `u64` | Incentive ID counter |
-| `("rewarder_incentives", address)` | `Vec<u64>` | Incentive IDs created by a rewarder/manufacturer |
-| `("general_incentives", waste_type)` | `Vec<u64>` | Incentive IDs applicable to a waste type |
-| `("auction", auction_id)` | auction record | Carbon-credit / material auction |
-| `("carb_list", listing_id)` | listing | Carbon-credit marketplace listing |
-| `("challenge", id)` | challenge | Community challenge definition |
-| `("chal_prog", id, address)` | progress | Per-participant challenge progress |
-| `("milestones", address)` | `Vec<..>` | Milestones reached by a participant |
-| `("dispute", dispute_id)` | dispute | Dispute record (issue #549) |
-| `("route", route_id)` | route | Collection route (issue #552) |
-| `("proposal", proposal_id)` | `AdminProposal` | Multi-sig admin proposal |
-| `("grade_history", waste_id)` | `Vec<..>` | Grading history for a waste item |
-| `("ai_grade_conf",)` | config | AI grading configuration |
-| `("contamination_reports", waste_id)` | `Vec<..>` | Contamination reports for a waste item |
-| `("index", name, key)` | `Address` | Generic secondary index (`StorageIndex` helper) |
+| Key pattern                           | Value type            | Purpose                                                        |
+| ------------------------------------- | --------------------- | -------------------------------------------------------------- |
+| `(address,)`                          | `Participant`         | Participant record keyed by address                            |
+| `("stats", address)`                  | `RecyclingStats`      | Per-participant recycling statistics                           |
+| `("participant_wastes", address)`     | `Vec<u128>`           | Waste IDs owned/submitted by a participant                     |
+| `("goals", address)`                  | goal record           | Per-participant recycling goals                                |
+| `("waste", waste_id)`                 | `Waste`               | Waste record (v1 layout)                                       |
+| `("waste_v2", waste_id)`              | `Waste`               | Waste record (v2 layout, with expiry support)                  |
+| `("waste_count",)`                    | `u128`                | Waste ID counter                                               |
+| `("waste_ttl", waste_type)`           | `u64`                 | **Business** expiry in seconds per waste type (see note below) |
+| `("transfers", waste_id)`             | `Vec<TransferRecord>` | Transfer chain for a waste item                                |
+| `("transfer_history", waste_id)`      | `Vec<..>`             | Historical transfer detail                                     |
+| `("pending_xfr", id)`                 | pending transfer      | Transfer awaiting approval                                     |
+| `("incentive", incentive_id)`         | `Incentive`           | Incentive record                                               |
+| `("incentive_count",)`                | `u64`                 | Incentive ID counter                                           |
+| `("rewarder_incentives", address)`    | `Vec<u64>`            | Incentive IDs created by a rewarder/manufacturer               |
+| `("general_incentives", waste_type)`  | `Vec<u64>`            | Incentive IDs applicable to a waste type                       |
+| `("auction", auction_id)`             | auction record        | Carbon-credit / material auction                               |
+| `("carb_list", listing_id)`           | listing               | Carbon-credit marketplace listing                              |
+| `("challenge", id)`                   | challenge             | Community challenge definition                                 |
+| `("chal_prog", id, address)`          | progress              | Per-participant challenge progress                             |
+| `("milestones", address)`             | `Vec<..>`             | Milestones reached by a participant                            |
+| `("dispute", dispute_id)`             | dispute               | Dispute record (issue #549)                                    |
+| `("route", route_id)`                 | route                 | Collection route (issue #552)                                  |
+| `("proposal", proposal_id)`           | `AdminProposal`       | Multi-sig admin proposal                                       |
+| `("grade_history", waste_id)`         | `Vec<..>`             | Grading history for a waste item                               |
+| `("ai_grade_conf",)`                  | config                | AI grading configuration                                       |
+| `("contamination_reports", waste_id)` | `Vec<..>`             | Contamination reports for a waste item                         |
+| `("index", name, key)`                | `Address`             | Generic secondary index (`StorageIndex` helper)                |
 
 > **`waste_ttl` is not a storage TTL.** It is an application-level expiry measured in
 > **seconds against the ledger timestamp**, configured per waste type via
@@ -537,12 +560,12 @@ Composite tuple keys. The first tuple element is the discriminator shown below.
 
 Entries with independent TTLs that are archived rather than deleted on expiry.
 
-| Key pattern | Value type | Defined in | Purpose |
-|-------------|------------|------------|---------|
-| `(Symbol("PART"), address)` | `Participant` | `participant.rs` | Participant record via `require_participant` / `save_participant` |
-| `(REPORTS, report_id)` — symbol `REPORTS` | report | `lib.rs` | Compliance report (issue #700) |
-| `PERF_SNAPSHOTS` — symbol `PERF_SNP` | `Vec<..>` | `lib.rs` | Performance benchmark snapshots (issue #703) |
-| `Symbol("idx")` | `Vec<(String, u64, String)>` | `search.rs` | On-chain search index |
+| Key pattern                               | Value type                   | Defined in       | Purpose                                                           |
+| ----------------------------------------- | ---------------------------- | ---------------- | ----------------------------------------------------------------- |
+| `(Symbol("PART"), address)`               | `Participant`                | `participant.rs` | Participant record via `require_participant` / `save_participant` |
+| `(REPORTS, report_id)` — symbol `REPORTS` | report                       | `lib.rs`         | Compliance report (issue #700)                                    |
+| `PERF_SNAPSHOTS` — symbol `PERF_SNP`      | `Vec<..>`                    | `lib.rs`         | Performance benchmark snapshots (issue #703)                      |
+| `Symbol("idx")`                           | `Vec<(String, u64, String)>` | `search.rs`      | On-chain search index                                             |
 
 > **Known duplication.** Participant data is reachable through two paths: the
 > instance-keyed `(address,)` entries used throughout `lib.rs`, and the
@@ -555,10 +578,10 @@ Entries with independent TTLs that are archived rather than deleted on expiry.
 
 Ephemeral, unrecoverable on expiry. Every entry here is a cache of durable data.
 
-| Key pattern | TTL (ledgers) | Purpose |
-|-------------|---------------|---------|
-| `("cache", key)` | Caller-supplied; `1000` for prefetched participant and stats records | Generic read cache (`StorageCache`) |
-| `("waste_hot", waste_id)` | `5000` | Hot subset of a waste record (`is_active`, `current_owner`, `waste_type`) |
+| Key pattern               | TTL (ledgers)                                                        | Purpose                                                                   |
+| ------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `("cache", key)`          | Caller-supplied; `1000` for prefetched participant and stats records | Generic read cache (`StorageCache`)                                       |
+| `("waste_hot", waste_id)` | `5000`                                                               | Hot subset of a waste record (`is_active`, `current_owner`, `waste_type`) |
 
 At ~5 s/ledger these correspond to roughly 1.4 hours (1 000 ledgers) and 7 hours
 (5 000 ledgers). A cache miss is always safe: the caller falls back to the durable
@@ -566,15 +589,15 @@ tier.
 
 ### TTL Policy Summary
 
-| Concern | Policy |
-|---------|--------|
-| Instance TTL | Bumped to 518 400 ledgers (~30 days) on every invocation |
-| Persistent TTL | Per-entry; archived on expiry, restorable via `RestoreFootprint` |
-| Temporary TTL | 1 000–5 000 ledgers; **unrecoverable** on expiry, cache-only |
+| Concern                       | Policy                                                                       |
+| ----------------------------- | ---------------------------------------------------------------------------- |
+| Instance TTL                  | Bumped to 518 400 ledgers (~30 days) on every invocation                     |
+| Persistent TTL                | Per-entry; archived on expiry, restorable via `RestoreFootprint`             |
+| Temporary TTL                 | 1 000–5 000 ledgers; **unrecoverable** on expiry, cache-only                 |
 | Business expiry (`waste_ttl`) | Seconds, per waste type, `0` = never; applies only to newly registered waste |
-| Transfer approval expiry | `TRANSFER_EXPIRY_SECS` = 24 hours |
-| Admin proposal expiry | `PROPOSAL_TTL_SECS` = 7 days |
-| Reputation decay window | `DECAY_WINDOW_SECS` = 30 days, then 1 point/day |
+| Transfer approval expiry      | `TRANSFER_EXPIRY_SECS` = 24 hours                                            |
+| Admin proposal expiry         | `PROPOSAL_TTL_SECS` = 7 days                                                 |
+| Reputation decay window       | `DECAY_WINDOW_SECS` = 30 days, then 1 point/day                              |
 
 ### Persistence Guarantees for Integrators
 
@@ -597,6 +620,7 @@ tier.
 ### Enums
 
 **ParticipantRole:**
+
 ```rust
 pub enum ParticipantRole {
     Recycler = 0,      // Collects and processes recyclables
@@ -606,6 +630,7 @@ pub enum ParticipantRole {
 ```
 
 **WasteType:**
+
 ```rust
 pub enum WasteType {
     Plastic = 0,
@@ -621,16 +646,16 @@ pub enum WasteType {
 
 ### Data Types
 
-| Type | Size | Range | Notes |
-|------|------|-------|-------|
-| `u32` | 4 bytes | 0 to 4,294,967,295 | Percentages, small counts |
-| `u64` | 8 bytes | 0 to 18,446,744,073,709,551,615 | IDs, timestamps, counters |
-| `u128` | 16 bytes | 0 to 340,282,366,920,938,463,463,374,607,431,768,211,455 | Weights, tokens, amounts |
-| `i32` | 4 bytes | -2,147,483,648 to 2,147,483,647 | Coordinates |
-| `Address` | 32 bytes | - | Stellar address |
-| `String` | Variable | - | UTF-8 text |
-| `Vec<T>` | Variable | - | Dynamic array |
-| `Map<K,V>` | Variable | - | Key-value store |
+| Type       | Size     | Range                                                    | Notes                     |
+| ---------- | -------- | -------------------------------------------------------- | ------------------------- |
+| `u32`      | 4 bytes  | 0 to 4,294,967,295                                       | Percentages, small counts |
+| `u64`      | 8 bytes  | 0 to 18,446,744,073,709,551,615                          | IDs, timestamps, counters |
+| `u128`     | 16 bytes | 0 to 340,282,366,920,938,463,463,374,607,431,768,211,455 | Weights, tokens, amounts  |
+| `i32`      | 4 bytes  | -2,147,483,648 to 2,147,483,647                          | Coordinates               |
+| `Address`  | 32 bytes | -                                                        | Stellar address           |
+| `String`   | Variable | -                                                        | UTF-8 text                |
+| `Vec<T>`   | Variable | -                                                        | Dynamic array             |
+| `Map<K,V>` | Variable | -                                                        | Key-value store           |
 
 ---
 
@@ -639,6 +664,7 @@ pub enum WasteType {
 ### Primary Indexes
 
 **Participant by Address:**
+
 ```
 Key: DataKey::Participant(address)
 Type: Direct lookup
@@ -647,6 +673,7 @@ Use case: Get participant info
 ```
 
 **Waste by ID:**
+
 ```
 Key: DataKey::Waste(waste_id)
 Type: Direct lookup
@@ -655,6 +682,7 @@ Use case: Get waste details
 ```
 
 **Incentive by ID:**
+
 ```
 Key: DataKey::Incentive(incentive_id)
 Type: Direct lookup
@@ -665,6 +693,7 @@ Use case: Get incentive details
 ### Secondary Indexes
 
 **Participant Wastes:**
+
 ```
 Key: DataKey::ParticipantWastes(address)
 Type: Vector of IDs
@@ -673,6 +702,7 @@ Use case: List all wastes for participant
 ```
 
 **Active Incentives by Waste Type:**
+
 ```
 Key: DataKey::ActiveIncentivesByType(waste_type)
 Type: Vector of incentive IDs
@@ -683,15 +713,17 @@ Use case: Find incentives for waste type
 ### Query Optimization Tips
 
 1. **Use direct lookups when possible:**
+
    ```rust
    // Fast: O(1)
    let participant = get_participant(&env, address);
-   
+
    // Slow: O(n)
    let all_participants = list_all_participants(&env);
    ```
 
 2. **Batch operations:**
+
    ```rust
    // Efficient: Single transaction
    for waste_id in waste_ids {
@@ -700,6 +732,7 @@ Use case: Find incentives for waste type
    ```
 
 3. **Cache frequently accessed data:**
+
    ```rust
    // Store in local variable to avoid repeated reads
    let metrics = get_metrics(&env);
@@ -721,6 +754,7 @@ Use case: Find incentives for waste type
 ### Common Queries
 
 **Get participant info:**
+
 ```rust
 pub fn get_participant(env: &Env, address: Address) -> Result<Participant, Error> {
     env.storage()
@@ -731,6 +765,7 @@ pub fn get_participant(env: &Env, address: Address) -> Result<Participant, Error
 ```
 
 **Get all wastes for participant:**
+
 ```rust
 pub fn get_participant_wastes(env: &Env, address: Address) -> Result<Vec<u64>, Error> {
     let wastes = env.storage()
@@ -742,13 +777,14 @@ pub fn get_participant_wastes(env: &Env, address: Address) -> Result<Vec<u64>, E
 ```
 
 **Get active incentives for waste type:**
+
 ```rust
 pub fn get_incentives(env: &Env, waste_type: WasteType) -> Result<Vec<Incentive>, Error> {
     let incentive_ids = env.storage()
         .persistent()
         .get(&DataKey::ActiveIncentivesByType(waste_type))
         .unwrap_or_default();
-    
+
     let mut incentives = Vec::new();
     for id in incentive_ids {
         if let Ok(incentive) = get_incentive(env, id) {
@@ -763,14 +799,14 @@ pub fn get_incentives(env: &Env, waste_type: WasteType) -> Result<Vec<Incentive>
 
 ### Performance Considerations
 
-| Operation | Complexity | Cost | Notes |
-|-----------|-----------|------|-------|
-| Get by ID | O(1) | Low | Direct storage read |
-| List all | O(n) | High | Requires iteration |
-| Filter | O(n) | High | Requires iteration |
-| Update | O(1) | Low | Direct storage write |
-| Delete | O(1) | Low | Mark inactive |
-| Batch read | O(n) | Medium | Multiple reads |
+| Operation  | Complexity | Cost   | Notes                |
+| ---------- | ---------- | ------ | -------------------- |
+| Get by ID  | O(1)       | Low    | Direct storage read  |
+| List all   | O(n)       | High   | Requires iteration   |
+| Filter     | O(n)       | High   | Requires iteration   |
+| Update     | O(1)       | Low    | Direct storage write |
+| Delete     | O(1)       | Low    | Mark inactive        |
+| Batch read | O(n)       | Medium | Multiple reads       |
 
 ---
 
@@ -779,6 +815,7 @@ pub fn get_incentives(env: &Env, waste_type: WasteType) -> Result<Vec<Incentive>
 ### Adding New Fields
 
 1. **Create new storage key:**
+
    ```rust
    pub enum DataKey {
        // Existing keys...
@@ -787,6 +824,7 @@ pub fn get_incentives(env: &Env, waste_type: WasteType) -> Result<Vec<Incentive>
    ```
 
 2. **Add migration function:**
+
    ```rust
    pub fn migrate_add_new_field(env: &Env) -> Result<(), Error> {
        // Initialize new field for existing data
@@ -819,6 +857,7 @@ pub fn get_incentives(env: &Env, waste_type: WasteType) -> Result<Vec<Incentive>
 ### Backup Strategy
 
 **On-chain backup:**
+
 ```bash
 # Export contract state
 soroban contract read \
@@ -827,6 +866,7 @@ soroban contract read \
 ```
 
 **Off-chain backup:**
+
 ```bash
 # Archive important data
 tar -czf scavenger-backup-$(date +%Y%m%d).tar.gz \
@@ -838,6 +878,7 @@ tar -czf scavenger-backup-$(date +%Y%m%d).tar.gz \
 ### Restore Procedures
 
 **Restore from backup:**
+
 ```bash
 # Redeploy contract
 soroban contract deploy \
@@ -855,12 +896,14 @@ soroban contract deploy \
 **In case of data loss:**
 
 1. **Identify last known good state:**
+
    ```bash
    # Check transaction history
    soroban contract info --id <contract-id> --network <network>
    ```
 
 2. **Replay transactions:**
+
    ```bash
    # Re-execute transactions from logs
    for tx in $(cat transaction-log.txt); do
@@ -888,7 +931,7 @@ pub fn get_participant_dashboard(
     let participant = get_participant(env, address.clone())?;
     let stats = get_stats(env, address.clone())?;
     let wastes = get_participant_wastes(env, address)?;
-    
+
     Ok(ParticipantDashboard {
         participant,
         stats,

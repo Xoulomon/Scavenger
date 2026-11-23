@@ -13,16 +13,16 @@
  *   - "legacy-csv" branch with a different column order (superseded by
  *     the current CSV path in useAnalyticsExport)
  */
-import { useCallback } from 'react';
-import { useAsync } from './useAsync';
+import { useCallback } from 'react'
+import { useAsync } from './useAsync'
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
-export type CsvRow = string[];
+export type CsvRow = string[]
 
 export interface ExportOptions {
   /** File name without extension. Defaults to `"export-<timestamp>"`. */
-  filename?: string;
+  filename?: string
 }
 
 // ── Hook ──────────────────────────────────────────────────────────────────
@@ -40,7 +40,7 @@ export interface ExportOptions {
  *   - Empty input is a no-op: it resolves without triggering a download.
  */
 export function useExport() {
-  const { loading, error, run, reset } = useAsync();
+  const { loading, error, run, reset } = useAsync()
 
   /**
    * Serialises a 2D string array to CSV and triggers a browser download.
@@ -58,14 +58,14 @@ export function useExport() {
   const exportToCSV = useCallback(
     (rows: CsvRow[], options: ExportOptions = {}) =>
       run(() => {
-        if (rows.length === 0) return;
+        if (rows.length === 0) return
 
-        const csv = rows.map((row) => row.join(',')).join('\n');
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        triggerDownload(blob, buildFilename(options.filename, 'csv'));
+        const csv = rows.map((row) => row.join(',')).join('\n')
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+        triggerDownload(blob, buildFilename(options.filename, 'csv'))
       }),
-    [run],
-  );
+    [run]
+  )
 
   /**
    * Serialises an arbitrary value to pretty-printed JSON and triggers a
@@ -78,29 +78,29 @@ export function useExport() {
    * exportToJSON(participants, { filename: 'participants' })
    */
   const exportToJSON = useCallback(
-    <T,>(data: T, options: ExportOptions = {}) =>
+    <T>(data: T, options: ExportOptions = {}) =>
       run(() => {
-        const json = JSON.stringify(data, null, 2);
-        const blob = new Blob([json], { type: 'application/json;charset=utf-8;' });
-        triggerDownload(blob, buildFilename(options.filename, 'json'));
+        const json = JSON.stringify(data, null, 2)
+        const blob = new Blob([json], { type: 'application/json;charset=utf-8;' })
+        triggerDownload(blob, buildFilename(options.filename, 'json'))
       }),
-    [run],
-  );
+    [run]
+  )
 
-  return { exportToCSV, exportToJSON, loading, error, reset };
+  return { exportToCSV, exportToJSON, loading, error, reset }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
 function buildFilename(base: string | undefined, ext: string): string {
-  return `${base ?? `export-${Date.now()}`}.${ext}`;
+  return `${base ?? `export-${Date.now()}`}.${ext}`
 }
 
 function triggerDownload(blob: Blob, filename: string): void {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  link.click()
+  URL.revokeObjectURL(url)
 }

@@ -11,7 +11,7 @@ What is the situation that forces a decision? State the constraints, the pressur
 and what was true at the time. This section should be readable by someone who joins
 the project a year from now and has no memory of the discussion.
 
-Avoid describing the solution here. If a reader cannot tell from this section *why*
+Avoid describing the solution here. If a reader cannot tell from this section _why_
 a decision was needed, the ADR has not done its job.
 
 ## Decision
@@ -24,8 +24,8 @@ decision that cannot be violated is not a decision worth recording.
 ## Alternatives Considered
 
 | Alternative | Why it was rejected |
-|-------------|---------------------|
-| … | … |
+| ----------- | ------------------- |
+| …           | …                   |
 
 Record the options that were genuinely on the table, and why each lost. This is the
 part that saves the most time later, because it stops the project from relitigating

@@ -5,7 +5,7 @@ import type { TransferStep } from '../types'
 
 export function StepIndicator({
   currentStep,
-  onStepClick,
+  onStepClick
 }: {
   currentStep: TransferStep
   onStepClick: (step: TransferStep) => void

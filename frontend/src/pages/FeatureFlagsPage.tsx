@@ -6,7 +6,13 @@ import { Badge } from '@/components/ui/Badge'
 import { useFeatureFlags } from '@/hooks/useFeatureFlags'
 import { getFlagAnalytics, type FeatureFlag } from '@/lib/featureFlags'
 
-function FlagRow({ flag, value, hasOverride, onToggle, onClear }: {
+function FlagRow({
+  flag,
+  value,
+  hasOverride,
+  onToggle,
+  onClear
+}: {
   flag: FeatureFlag
   value: unknown
   hasOverride: boolean
@@ -85,9 +91,7 @@ export function FeatureFlagsPage() {
             <Flag className="h-5 w-5 xs:h-6 xs:w-6 shrink-0" />
             {t('featureFlags.title')}
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            {t('featureFlags.subtitle')}
-          </p>
+          <p className="text-muted-foreground text-sm mt-1">{t('featureFlags.subtitle')}</p>
         </div>
         {overrideCount > 0 && (
           <button
@@ -126,9 +130,7 @@ export function FeatureFlagsPage() {
       <Card>
         <CardHeader>
           <CardTitle>{t('featureFlags.allFlags')}</CardTitle>
-          <CardDescription>
-            {t('featureFlags.allFlagsDescription')}
-          </CardDescription>
+          <CardDescription>{t('featureFlags.allFlagsDescription')}</CardDescription>
         </CardHeader>
         <CardContent className="divide-y p-0 px-3 xs:px-4 tablet:px-6">
           {Object.values(flags).map((flag) => (
@@ -155,7 +157,11 @@ export function FeatureFlagsPage() {
               <BarChart2 className="h-4 w-4" />
               {t('featureFlags.recentEvents')}
             </CardTitle>
-            {showAnalytics ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            {showAnalytics ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
           </button>
         </CardHeader>
         {showAnalytics && (
@@ -168,10 +174,14 @@ export function FeatureFlagsPage() {
                   <li key={i} className="flex items-center gap-2 text-muted-foreground">
                     <span className="font-mono">{e.flagKey}</span>
                     <span>→</span>
-                    <Badge className={`text-xs ${e.value ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'}`}>
+                    <Badge
+                      className={`text-xs ${e.value ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'}`}
+                    >
                       {String(e.value)}
                     </Badge>
-                    <span className="ml-auto text-xs">{new Date(e.timestamp).toLocaleTimeString()}</span>
+                    <span className="ml-auto text-xs">
+                      {new Date(e.timestamp).toLocaleTimeString()}
+                    </span>
                   </li>
                 ))}
               </ul>

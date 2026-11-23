@@ -17,10 +17,10 @@ We will run the stack in a primary region (us-east-1) and a warm standby (us-eas
 
 ## Alternatives Considered
 
-| Alternative | Why it was rejected |
-|-------------|---------------------|
-| Active-active across regions | Requires conflict resolution for indexer writes, which the schema does not support yet. |
-| Single region with backups only | RTO measured in hours, which the operations team judged too long for a supply-chain system. |
+| Alternative                          | Why it was rejected                                                                           |
+| ------------------------------------ | --------------------------------------------------------------------------------------------- |
+| Active-active across regions         | Requires conflict resolution for indexer writes, which the schema does not support yet.       |
+| Single region with backups only      | RTO measured in hours, which the operations team judged too long for a supply-chain system.   |
 | Synchronous cross-region replication | Adds write latency on every indexed event for a durability gain the RPO target does not need. |
 
 ## Consequences

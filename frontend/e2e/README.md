@@ -46,32 +46,32 @@ npx playwright test --headed
 
 ## Test Organization
 
-| File | Description |
-|------|-------------|
+| File                                           | Description                                                   |
+| ---------------------------------------------- | ------------------------------------------------------------- |
 | `waste-submission-verification-reward.spec.ts` | **Canonical smoke test** — full happy-path flow (Issue #1118) |
-| `core-flows.spec.ts` | Core user flow tests |
-| `smoke.spec.ts` | Quick smoke checks |
-| `smoke-build.spec.ts` | Build verification smoke tests |
-| `user-registration.spec.ts` | Participant registration flow |
-| `waste-submission.spec.ts` | Waste submission form tests |
-| `waste-transfer.spec.ts` | Waste transfer flow |
-| `incentive-creation.spec.ts` | Incentive creation flow |
-| `admin-operations.spec.ts` | Admin operations |
-| `accessibility.spec.ts` | Accessibility checks (axe-core) |
-| `keyboard-navigation.spec.ts` | Keyboard navigation |
-| `visual-regression.spec.ts` | Visual regression snapshots |
-| `dispute-resolution.spec.ts` | Dispute resolution flow |
-| `tests.spec.ts` | Combined flow tests |
+| `core-flows.spec.ts`                           | Core user flow tests                                          |
+| `smoke.spec.ts`                                | Quick smoke checks                                            |
+| `smoke-build.spec.ts`                          | Build verification smoke tests                                |
+| `user-registration.spec.ts`                    | Participant registration flow                                 |
+| `waste-submission.spec.ts`                     | Waste submission form tests                                   |
+| `waste-transfer.spec.ts`                       | Waste transfer flow                                           |
+| `incentive-creation.spec.ts`                   | Incentive creation flow                                       |
+| `admin-operations.spec.ts`                     | Admin operations                                              |
+| `accessibility.spec.ts`                        | Accessibility checks (axe-core)                               |
+| `keyboard-navigation.spec.ts`                  | Keyboard navigation                                           |
+| `visual-regression.spec.ts`                    | Visual regression snapshots                                   |
+| `dispute-resolution.spec.ts`                   | Dispute resolution flow                                       |
+| `tests.spec.ts`                                | Combined flow tests                                           |
 
 ## Shared Utilities
 
-| Path | Purpose |
-|------|---------|
-| `test-utils.ts` | Canonical helpers: `seedWalletConnection`, `seedApiRoutes`, `seedLocalStorageAuth`, `waitForAppReady`, `dismissNotifications` |
-| `fixtures/test-data.ts` | Test data constants (participants, waste types, incentives) |
-| `fixtures/seed.ts` | Backwards-compatible re-export shim → imports from `test-utils` |
-| `pages/index.ts` | Page object models (LoginPage, RegistrationPage, WasteSubmissionPage, etc.) |
-| `helpers/test-helpers.ts` | Low-level test helpers |
+| Path                      | Purpose                                                                                                                       |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `test-utils.ts`           | Canonical helpers: `seedWalletConnection`, `seedApiRoutes`, `seedLocalStorageAuth`, `waitForAppReady`, `dismissNotifications` |
+| `fixtures/test-data.ts`   | Test data constants (participants, waste types, incentives)                                                                   |
+| `fixtures/seed.ts`        | Backwards-compatible re-export shim → imports from `test-utils`                                                               |
+| `pages/index.ts`          | Page object models (LoginPage, RegistrationPage, WasteSubmissionPage, etc.)                                                   |
+| `helpers/test-helpers.ts` | Low-level test helpers                                                                                                        |
 
 ## Playwright Configuration
 

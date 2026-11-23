@@ -15,7 +15,7 @@ export function TransferTimeline({
   history,
   currentOwner,
   isLoading,
-  className,
+  className
 }: TransferTimelineProps) {
   if (isLoading) {
     return (
@@ -51,9 +51,7 @@ export function TransferTimeline({
     <ol className={cn('relative space-y-0', className)} aria-label="Transfer history">
       {history.map((transfer, idx) => {
         const isLast = idx === history.length - 1
-        const isCurrent = currentOwner
-          ? transfer.to === currentOwner
-          : isLast
+        const isCurrent = currentOwner ? transfer.to === currentOwner : isLast
 
         return (
           <li key={`${transfer.waste_id}-${idx}`} className="flex gap-4">

@@ -6,7 +6,7 @@ import { WasteSubmissionForm } from '@/components/WasteSubmissionForm'
 vi.mock('@/hooks/useImageUpload', () => ({
   useImageUpload: vi.fn(),
   MAX_IMAGES: 5,
-  MAX_SIZE_MB: 5,
+  MAX_SIZE_MB: 5
 }))
 
 interface MockImageUploadProps {
@@ -20,7 +20,7 @@ vi.mock('@/components/ui/ImageUpload', () => ({
       <span data-testid="image-count">{images.length}</span>
       {validationError && <span data-testid="image-error">{validationError}</span>}
     </div>
-  ),
+  )
 }))
 
 import { useImageUpload } from '@/hooks/useImageUpload'
@@ -34,7 +34,7 @@ const defaultImageUpload = {
   removeImage: vi.fn(),
   cids: [],
   isUploading: false,
-  validationError: null,
+  validationError: null
 }
 
 beforeEach(() => {
@@ -43,9 +43,7 @@ beforeEach(() => {
 })
 
 function renderForm() {
-  return render(
-    <WasteSubmissionForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />
-  )
+  return render(<WasteSubmissionForm onSubmit={mockOnSubmit} onCancel={mockOnCancel} />)
 }
 
 describe('WasteSubmissionForm', () => {
@@ -117,8 +115,10 @@ describe('WasteSubmissionForm', () => {
     const user = userEvent.setup()
     vi.mocked(useImageUpload).mockReturnValue({
       ...defaultImageUpload,
-      images: [{ id: '1', file: new File([], 'test.jpg'), preview: '', progress: 100, cid: 'Qm123' }],
-      cids: ['Qm123'],
+      images: [
+        { id: '1', file: new File([], 'test.jpg'), preview: '', progress: 100, cid: 'Qm123' }
+      ],
+      cids: ['Qm123']
     })
     mockOnSubmit.mockResolvedValue(undefined)
 
@@ -140,7 +140,7 @@ describe('WasteSubmissionForm', () => {
         latitude: '40.7128',
         longitude: '-74.006',
         notes: '',
-        photoCids: ['Qm123'],
+        photoCids: ['Qm123']
       })
     })
   })
@@ -157,8 +157,10 @@ describe('WasteSubmissionForm', () => {
     const user = userEvent.setup()
     vi.mocked(useImageUpload).mockReturnValue({
       ...defaultImageUpload,
-      images: [{ id: '1', file: new File([], 'test.jpg'), preview: '', progress: 100, cid: 'Qm123' }],
-      cids: ['Qm123'],
+      images: [
+        { id: '1', file: new File([], 'test.jpg'), preview: '', progress: 100, cid: 'Qm123' }
+      ],
+      cids: ['Qm123']
     })
     mockOnSubmit.mockResolvedValue(undefined)
 
@@ -179,4 +181,3 @@ describe('WasteSubmissionForm', () => {
     expect(mockOnCancel).toHaveBeenCalled()
   })
 })
-

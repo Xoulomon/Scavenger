@@ -27,7 +27,7 @@
 
 mod common;
 
-use common::setup::{setup_full_env, setup_with_recycler, setup_admin, register_participant_with_role};
+use common::setup::{register_participant_with_role, setup_admin, setup_full_env, setup_with_recycler};
 use soroban_sdk::{testutils::Address as _, Address, Env};
 use stellar_scavngr_contract::{
     Error, ErrorCategory, ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType,
@@ -389,7 +389,7 @@ fn error_propagates_not_registered_through_transfer_v2_four_levels() {
     // The error may be NotRegistered (participant check) or NotWasteOwner (ownership check);
     // both are Auth-category errors confirming the error surfaced correctly.
     match result {
-        Err(Ok(Error::NotRegistered)) | Err(Ok(Error::NotWasteOwner)) => {},
+        Err(Ok(Error::NotRegistered)) | Err(Ok(Error::NotWasteOwner)) => {}
         other => panic!("Expected NotRegistered or NotWasteOwner, got {other:?}"),
     }
 }

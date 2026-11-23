@@ -582,18 +582,11 @@ mod tests {
     /// (Issue #1738) No two `InstanceKey` variants map to the same Symbol.
     #[test]
     fn test_instance_key_enum_unique() {
-        let symbols: Vec<_> = InstanceKey::ALL
-            .iter()
-            .map(|k| k.to_symbol().to_string())
-            .collect();
+        let symbols: Vec<_> = InstanceKey::ALL.iter().map(|k| k.to_symbol().to_string()).collect();
         let mut unique = symbols.clone();
         unique.sort();
         unique.dedup();
-        assert_eq!(
-            symbols.len(),
-            unique.len(),
-            "Duplicate InstanceKey symbols found"
-        );
+        assert_eq!(symbols.len(), unique.len(), "Duplicate InstanceKey symbols found");
     }
 
     /// (Issue #1738) The `InstanceKey` enum and the `pub const` set must stay
@@ -646,10 +639,7 @@ mod tests {
             ANALYTICS_BATCH_COUNT.to_string(),
             MAT_COUNT.to_string(),
         ];
-        let enum_symbols: Vec<_> = InstanceKey::ALL
-            .iter()
-            .map(|k| k.to_symbol().to_string())
-            .collect();
+        let enum_symbols: Vec<_> = InstanceKey::ALL.iter().map(|k| k.to_symbol().to_string()).collect();
         // Sets must match (drift detection) …
         let mut a = const_symbols.clone();
         a.sort();

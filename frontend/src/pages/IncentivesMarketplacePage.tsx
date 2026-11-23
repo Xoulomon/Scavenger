@@ -17,7 +17,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/Select'
 import { cn } from '@/lib/utils'
 import { wasteTypeLabel } from '@/lib/helpers'
@@ -30,7 +30,7 @@ import {
   type ViewMode,
   type SortField,
   type SortDir,
-  type IncentiveFilters,
+  type IncentiveFilters
 } from '@/lib/incentivesUtils'
 
 // Re-export pure functions and types for consumers / tests
@@ -48,7 +48,9 @@ function getClaimedIds(address: string | null | undefined): Set<number> {
     if (!raw) return new Set()
     const parsed = JSON.parse(raw)
     if (Array.isArray(parsed)) return new Set(parsed as number[])
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return new Set()
 }
 
@@ -58,12 +60,16 @@ function addClaimedId(address: string | null | undefined, id: number): void {
     const existing = getClaimedIds(address)
     existing.add(id)
     localStorage.setItem(`${CLAIMS_KEY_PREFIX}${address}`, JSON.stringify([...existing]))
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const ALL_WASTE_TYPES = Object.values(WasteType).filter((v): v is WasteType => typeof v === 'number')
+const ALL_WASTE_TYPES = Object.values(WasteType).filter(
+  (v): v is WasteType => typeof v === 'number'
+)
 
 const GRID_COLS_DESKTOP = 3
 const GRID_COLS_TABLET = 2
@@ -88,7 +94,9 @@ function gridColsForWidth(width: number): number {
 
 function IncentiveSkeletonCard({ className }: { className?: string }) {
   return (
-    <div className={cn('rounded-lg border bg-card shadow-sm p-4 space-y-3 animate-pulse', className)}>
+    <div
+      className={cn('rounded-lg border bg-card shadow-sm p-4 space-y-3 animate-pulse', className)}
+    >
       <div className="flex items-center justify-between">
         <div className="h-4 w-24 rounded bg-muted" />
         <div className="h-5 w-14 rounded-full bg-muted" />
@@ -135,7 +143,10 @@ function VirtualRow({ index, style, data }: ListChildComponentProps<RowData>) {
             type="checkbox"
             aria-label={t('incentives.compareAriaLabel', { id: inc.id })}
             checked={data.compareIds.has(inc.id)}
-            onChange={(e) => { e.stopPropagation(); data.onToggleCompare(inc.id) }}
+            onChange={(e) => {
+              e.stopPropagation()
+              data.onToggleCompare(inc.id)
+            }}
             onClick={(e) => e.stopPropagation()}
             className="h-4 w-4 shrink-0 cursor-pointer"
           />
@@ -150,7 +161,9 @@ function VirtualRow({ index, style, data }: ListChildComponentProps<RowData>) {
             {t('incentives.points', { value: Number(inc.reward_points).toLocaleString() })}
           </span>
           <span className="shrink-0 text-muted-foreground">
-            {t('incentives.remainingLeft', { value: Number(inc.remaining_budget).toLocaleString() })}
+            {t('incentives.remainingLeft', {
+              value: Number(inc.remaining_budget).toLocaleString()
+            })}
           </span>
         </div>
       </div>
@@ -229,10 +242,14 @@ function ComparisonPanel({ incentives, selectedIds, onClear }: ComparisonPanelPr
         >
           {selected.map((inc) => (
             <div key={inc.id} className="min-w-0 rounded-lg border bg-card p-3 text-xs space-y-1.5">
-              <p className="truncate text-sm font-semibold">#{inc.id} — {wasteTypeLabel(inc.waste_type)}</p>
+              <p className="truncate text-sm font-semibold">
+                #{inc.id} — {wasteTypeLabel(inc.waste_type)}
+              </p>
               <CompareRow
                 label={t('incentives.compare.reward')}
-                value={t('incentives.points', { value: Number(inc.reward_points).toLocaleString() })}
+                value={t('incentives.points', {
+                  value: Number(inc.reward_points).toLocaleString()
+                })}
               />
               <CompareRow
                 label={t('incentives.compare.budget')}
@@ -288,14 +305,13 @@ export function IncentivesMarketplacePage() {
       ...f,
       wasteTypes: f.wasteTypes.includes(wt)
         ? f.wasteTypes.filter((t) => t !== wt)
-        : [...f.wasteTypes, wt],
+        : [...f.wasteTypes, wt]
     }))
   }, [])
 
   const clearFilters = useCallback(() => setFilters({ wasteTypes: [], rewarder: '' }), [])
 
-  const activeFilterCount =
-    filters.wasteTypes.length + (filters.rewarder.trim() !== '' ? 1 : 0)
+  const activeFilterCount = filters.wasteTypes.length + (filters.rewarder.trim() !== '' ? 1 : 0)
 
   const [selectedIncentive, setSelectedIncentive] = useState<Incentive | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
@@ -307,11 +323,14 @@ export function IncentivesMarketplacePage() {
 
   const [claimedIds, setClaimedIds] = useState<Set<number>>(() => getClaimedIds(user?.address))
 
-  const handleClaim = useCallback(async (incentiveId: number) => {
-    await claimIncentive(incentiveId)
-    addClaimedId(user?.address, incentiveId)
-    setClaimedIds((prev) => new Set([...prev, incentiveId]))
-  }, [claimIncentive, user?.address])
+  const handleClaim = useCallback(
+    async (incentiveId: number) => {
+      await claimIncentive(incentiveId)
+      addClaimedId(user?.address, incentiveId)
+      setClaimedIds((prev) => new Set([...prev, incentiveId]))
+    },
+    [claimIncentive, user?.address]
+  )
 
   const [compareIds, setCompareIds] = useState<Set<number>>(new Set())
 
@@ -369,7 +388,7 @@ export function IncentivesMarketplacePage() {
       colCount,
       compareIds,
       onToggleCompare: handleToggleCompare,
-      onCardClick: handleCardClick,
+      onCardClick: handleCardClick
     }),
     [rows, viewMode, containerWidth, colCount, compareIds, handleToggleCompare, handleCardClick]
   )
@@ -395,7 +414,9 @@ export function IncentivesMarketplacePage() {
             <SelectContent>
               <SelectItem value="reward_points:desc">{t('incentives.sort.rewardDesc')}</SelectItem>
               <SelectItem value="reward_points:asc">{t('incentives.sort.rewardAsc')}</SelectItem>
-              <SelectItem value="remaining_budget:desc">{t('incentives.sort.budgetDesc')}</SelectItem>
+              <SelectItem value="remaining_budget:desc">
+                {t('incentives.sort.budgetDesc')}
+              </SelectItem>
               <SelectItem value="remaining_budget:asc">{t('incentives.sort.budgetAsc')}</SelectItem>
               <SelectItem value="waste_type:asc">{t('incentives.sort.wasteType')}</SelectItem>
             </SelectContent>
@@ -417,7 +438,11 @@ export function IncentivesMarketplacePage() {
             )}
           </Button>
 
-          <div className="flex rounded-md border" role="group" aria-label={t('incentives.viewModeAriaLabel')}>
+          <div
+            className="flex rounded-md border"
+            role="group"
+            aria-label={t('incentives.viewModeAriaLabel')}
+          >
             <button
               className={cn(
                 'flex h-9 w-9 items-center justify-center rounded-l-md transition-colors',

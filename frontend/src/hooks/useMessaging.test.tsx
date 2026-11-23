@@ -15,7 +15,7 @@ const mocks = vi.hoisted(() => ({
   orderBy: vi.fn((...args: unknown[]) => args),
   collection: vi.fn(() => 'col'),
   doc: vi.fn(() => 'docRef'),
-  serverTimestamp: vi.fn(() => ({ _type: 'serverTimestamp' })),
+  serverTimestamp: vi.fn(() => ({ _type: 'serverTimestamp' }))
 }))
 
 vi.mock('@/lib/firebase', () => ({ db: {} }))
@@ -30,7 +30,7 @@ vi.mock('firebase/firestore', () => ({
   doc: mocks.doc,
   serverTimestamp: mocks.serverTimestamp,
   getDocs: mocks.getDocs,
-  Timestamp: { now: () => ({ toMillis: () => Date.now() }) },
+  Timestamp: { now: () => ({ toMillis: () => Date.now() }) }
 }))
 
 import { useMessaging, Message } from '@/hooks/useMessaging'
@@ -46,16 +46,25 @@ function makeMsg(overrides: Partial<Message> = {}): Message {
     archived: false,
     createdAt: 1700000000000,
     threadId: 'thread1',
-    ...overrides,
+    ...overrides
   }
 }
 
-function setupSnapshots(inboxMsgs: Message[], sentMsgs: Message[] = [], archivedMsgs: Message[] = []) {
+function setupSnapshots(
+  inboxMsgs: Message[],
+  sentMsgs: Message[] = [],
+  archivedMsgs: Message[] = []
+) {
   let callCount = 0
   mocks.onSnapshot.mockImplementation((_q: unknown, cb: (snap: unknown) => void) => {
     const idx = callCount++
     const msgs = [inboxMsgs, sentMsgs, archivedMsgs][idx] ?? []
-    cb({ docs: msgs.map((m) => ({ id: m.id, data: () => ({ ...m, createdAt: { toMillis: () => m.createdAt } }) })) })
+    cb({
+      docs: msgs.map((m) => ({
+        id: m.id,
+        data: () => ({ ...m, createdAt: { toMillis: () => m.createdAt } })
+      }))
+    })
     return vi.fn()
   })
 }
@@ -130,7 +139,9 @@ describe('useMessaging', () => {
     setupSnapshots([])
     const { result } = renderHook(() => useMessaging('ADDR_B'))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
-    await act(async () => { await result.current.markRead('msg1') })
+    await act(async () => {
+      await result.current.markRead('msg1')
+    })
     expect(mocks.updateDoc).toHaveBeenCalledWith('docRef', { read: true })
   })
 
@@ -138,7 +149,9 @@ describe('useMessaging', () => {
     setupSnapshots([])
     const { result } = renderHook(() => useMessaging('ADDR_B'))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
-    await act(async () => { await result.current.archiveMessage('msg1') })
+    await act(async () => {
+      await result.current.archiveMessage('msg1')
+    })
     expect(mocks.updateDoc).toHaveBeenCalledWith('docRef', { archived: true })
   })
 
@@ -165,8 +178,14 @@ describe('useMessaging', () => {
     mocks.getDocs.mockResolvedValue({
       docs: [
         { id: 'msg1', data: () => ({ ...makeMsg(), createdAt: { toMillis: () => 0 } }) },
-        { id: 'msg2', data: () => ({ ...makeMsg({ id: 'msg2', subject: 'Other' }), createdAt: { toMillis: () => 0 } }) },
-      ],
+        {
+          id: 'msg2',
+          data: () => ({
+            ...makeMsg({ id: 'msg2', subject: 'Other' }),
+            createdAt: { toMillis: () => 0 }
+          })
+        }
+      ]
     })
     const { result } = renderHook(() => useMessaging('ADDR_B'))
     await waitFor(() => expect(result.current.isLoading).toBe(false))
@@ -185,7 +204,11 @@ describe('useMessaging', () => {
 
 // ── ComposeModal unit test ────────────────────────────────────────────────────
 
-function ComposeStub({ onSend }: { onSend: (d: { to: string; subject: string; body: string }) => Promise<void> }) {
+function ComposeStub({
+  onSend
+}: {
+  onSend: (d: { to: string; subject: string; body: string }) => Promise<void>
+}) {
   const [to, setTo] = useState('')
   const [subject, setSubject] = useState('')
   const [body, setBody] = useState('')
@@ -207,6 +230,10 @@ describe('ComposeModal stub', () => {
     fireEvent.change(screen.getByLabelText('subject'), { target: { value: 'Test Subject' } })
     fireEvent.change(screen.getByLabelText('body'), { target: { value: 'Test body' } })
     fireEvent.click(screen.getByText('Send'))
-    expect(onSend).toHaveBeenCalledWith({ to: 'ADDR_X', subject: 'Test Subject', body: 'Test body' })
+    expect(onSend).toHaveBeenCalledWith({
+      to: 'ADDR_X',
+      subject: 'Test Subject',
+      body: 'Test body'
+    })
   })
 })

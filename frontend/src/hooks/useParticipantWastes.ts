@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
-import '@tanstack/react-query';
-import '@/api/client';
+import '@tanstack/react-query'
+import '@/api/client'
 import { Waste } from '@/api/types'
 import { useWallet } from '@/context/WalletContext'
 import { cacheKeys } from '@/lib/cacheKeys'
@@ -42,7 +42,7 @@ export function useParticipantWastes(filters?: WasteFilters) {
       const wastes = results.filter((w): w is Waste => w !== null)
       return applyWasteFilters(wastes, filters)
     },
-    ...queryCachePolicy,
+    ...queryCachePolicy
   })
 
   // Memoize the selector so consumers receive a stable array reference when
@@ -52,6 +52,6 @@ export function useParticipantWastes(filters?: WasteFilters) {
   return {
     wastes,
     isLoading,
-    isError,
+    isError
   }
 }

@@ -1,4 +1,4 @@
-import '@tanstack/react-query';
+import '@tanstack/react-query'
 import { Participant } from '@/api/types'
 import { useWallet } from '@/context/WalletContext'
 import { useContract } from '@/context/ContractContext'
@@ -37,12 +37,12 @@ export function useParticipant() {
     enabled: !!address,
     ...queryCachePolicy,
     retry: false,
-    config,
+    config
   })
 
   return {
     participant: data ?? null,
     isLoading,
-    isError,
+    isError
   }
 }

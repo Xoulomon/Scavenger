@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 const meta: Meta<typeof Card> = {
   title: 'Design System/Card',
   component: Card,
-  tags: ['autodocs'],
+  tags: ['autodocs']
 }
 export default meta
 type Story = StoryObj<typeof Card>
@@ -27,7 +27,7 @@ export const Default: Story = {
         <Button className="w-full">Submit Waste</Button>
       </CardFooter>
     </Card>
-  ),
+  )
 }
 
 export const StatCard: Story = {
@@ -41,7 +41,7 @@ export const StatCard: Story = {
         <p className="text-xs text-muted-foreground">+12% from last month</p>
       </CardContent>
     </Card>
-  ),
+  )
 }
 
 export const WithBadge: Story = {
@@ -63,5 +63,5 @@ export const WithBadge: Story = {
         </dl>
       </CardContent>
     </Card>
-  ),
+  )
 }

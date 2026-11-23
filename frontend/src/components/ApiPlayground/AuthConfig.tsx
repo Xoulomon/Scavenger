@@ -1,9 +1,9 @@
-import React from 'react';
-import { AuthConfig } from './types';
+import React from 'react'
+import { AuthConfig } from './types'
 
 interface Props {
-  auth: AuthConfig;
-  onChange: (auth: AuthConfig) => void;
+  auth: AuthConfig
+  onChange: (auth: AuthConfig) => void
 }
 
 export const AuthConfigPanel: React.FC<Props> = ({ auth, onChange }) => {
@@ -63,8 +63,10 @@ export const AuthConfigPanel: React.FC<Props> = ({ auth, onChange }) => {
       )}
 
       {auth.type === 'none' && (
-        <p className="text-xs text-gray-400 italic">No authentication will be applied to this request.</p>
+        <p className="text-xs text-gray-400 italic">
+          No authentication will be applied to this request.
+        </p>
       )}
     </div>
-  );
-};
+  )
+}

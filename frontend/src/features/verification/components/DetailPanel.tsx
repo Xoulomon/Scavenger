@@ -5,7 +5,7 @@ import type { Material } from '@/api/types'
 import { Badge } from '@/components/ui/Badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { useMaterialTransfers } from '@/hooks/useVerificationDashboard'
-import { formatAddress,formatDate, wasteTypeLabel } from '@/lib/helpers'
+import { formatAddress, formatDate, wasteTypeLabel } from '@/lib/helpers'
 import { cn } from '@/lib/utils'
 
 import { formatWeight } from '../format'
@@ -17,10 +17,14 @@ import { WasteTimeline } from './WasteTimeline'
 export function DetailPanel({
   material,
   onVerify,
-  isVerifying,
+  isVerifying
 }: {
   material: Material
-  onVerify: (materialId: number, decision: 'approved' | 'rejected', form: VerificationFormData) => void
+  onVerify: (
+    materialId: number,
+    decision: 'approved' | 'rejected',
+    form: VerificationFormData
+  ) => void
   isVerifying: boolean
 }) {
   const [activeTab, setActiveTab] = useState<'details' | 'timeline'>('details')
@@ -44,7 +48,11 @@ export function DetailPanel({
       </div>
 
       {/* Tab buttons */}
-      <div className="flex gap-1 rounded-lg border bg-muted/50 p-1" role="tablist" aria-label="Detail sections">
+      <div
+        className="flex gap-1 rounded-lg border bg-muted/50 p-1"
+        role="tablist"
+        aria-label="Detail sections"
+      >
         <button
           role="tab"
           aria-selected={activeTab === 'details'}
@@ -109,12 +117,13 @@ export function DetailPanel({
                       : 'Pending'}
               </p>
             </div>
-            {material.confirmer && material.confirmer !== 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' && (
-              <div className="sm:col-span-2">
-                <span className="text-muted-foreground">Confirmer</span>
-                <p className="font-mono text-xs">{formatAddress(material.confirmer)}</p>
-              </div>
-            )}
+            {material.confirmer &&
+              material.confirmer !== 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' && (
+                <div className="sm:col-span-2">
+                  <span className="text-muted-foreground">Confirmer</span>
+                  <p className="font-mono text-xs">{formatAddress(material.confirmer)}</p>
+                </div>
+              )}
           </div>
 
           {/* Image comparison */}
@@ -137,11 +146,7 @@ export function DetailPanel({
           )}
         </div>
       ) : (
-        <WasteTimeline
-          material={material}
-          transfers={transfers}
-          isLoading={transfersLoading}
-        />
+        <WasteTimeline material={material} transfers={transfers} isLoading={transfersLoading} />
       )}
     </div>
   )

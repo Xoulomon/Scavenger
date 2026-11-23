@@ -269,17 +269,8 @@ impl SearchQueryBuilder {
 
     /// Boolean query combining multiple conditions.
     #[must_use]
-    pub fn bool_query(
-        mut self,
-        must: Vec<QueryType>,
-        should: Vec<QueryType>,
-        must_not: Vec<QueryType>,
-    ) -> Self {
-        self.query.query = QueryType::Bool {
-            must,
-            should,
-            must_not,
-        };
+    pub fn bool_query(mut self, must: Vec<QueryType>, should: Vec<QueryType>, must_not: Vec<QueryType>) -> Self {
+        self.query.query = QueryType::Bool { must, should, must_not };
         self
     }
 
@@ -384,8 +375,14 @@ impl SearchQueryBuilder {
         let mut params: Vec<Value> = Vec::new();
         let mut body = Map::new();
 
-        body.insert("from".to_string(), bind_usize(self.query.from, &mut params, parameterized));
-        body.insert("size".to_string(), bind_usize(self.query.size, &mut params, parameterized));
+        body.insert(
+            "from".to_string(),
+            bind_usize(self.query.from, &mut params, parameterized),
+        );
+        body.insert(
+            "size".to_string(),
+            bind_usize(self.query.size, &mut params, parameterized),
+        );
         body.insert(
             "query".to_string(),
             query_type_to_json(&self.query.query, &mut params, parameterized),
@@ -401,10 +398,7 @@ impl SearchQueryBuilder {
             );
         }
         if let Some(aggs) = &self.query.aggregations {
-            body.insert(
-                "aggs".to_string(),
-                bind_value(json!(aggs), &mut params, parameterized),
-            );
+            body.insert("aggs".to_string(), bind_value(json!(aggs), &mut params, parameterized));
         }
         if let Some(source) = &self.query.source {
             body.insert("_source".to_string(), json!(source));
@@ -460,14 +454,8 @@ fn field_value_clause(
 }
 
 /// Render a multi_match clause: query value is bound, field names are inline.
-fn multi_match_to_json(
-    fields: &[SearchField],
-    query: &str,
-    params: &mut Vec<Value>,
-    parameterized: bool,
-) -> Value {
-    let field_names: Vec<Value> =
-        fields.iter().map(|f| Value::String(f.as_str().to_string())).collect();
+fn multi_match_to_json(fields: &[SearchField], query: &str, params: &mut Vec<Value>, parameterized: bool) -> Value {
+    let field_names: Vec<Value> = fields.iter().map(|f| Value::String(f.as_str().to_string())).collect();
     let mut inner = Map::new();
     inner.insert(
         "query".to_string(),
@@ -588,27 +576,27 @@ fn query_type_to_json(qt: &QueryType, params: &mut Vec<Value>, parameterized: bo
         QueryType::Match { field, query } => {
             field_value_clause("match", *field, Value::String(query.clone()), params, parameterized)
         }
-        QueryType::MultiMatch { fields, query } => {
-            multi_match_to_json(fields, query, params, parameterized)
-        }
-        QueryType::Term { field, value } => {
-            field_value_clause("term", *field, value.clone(), params, parameterized)
-        }
-        QueryType::Range { field, gte, lte, gt, lt } => {
-            range_to_json(*field, gte, lte, gt, lt, params, parameterized)
-        }
-        QueryType::Bool { must, should, must_not } => {
-            bool_to_json(must, should, must_not, params, parameterized)
-        }
+        QueryType::MultiMatch { fields, query } => multi_match_to_json(fields, query, params, parameterized),
+        QueryType::Term { field, value } => field_value_clause("term", *field, value.clone(), params, parameterized),
+        QueryType::Range {
+            field,
+            gte,
+            lte,
+            gt,
+            lt,
+        } => range_to_json(*field, gte, lte, gt, lt, params, parameterized),
+        QueryType::Bool { must, should, must_not } => bool_to_json(must, should, must_not, params, parameterized),
         QueryType::Wildcard { field, value } => {
             field_value_clause("wildcard", *field, Value::String(value.clone()), params, parameterized)
         }
         QueryType::Prefix { field, value } => {
             field_value_clause("prefix", *field, Value::String(value.clone()), params, parameterized)
         }
-        QueryType::Fuzzy { field, value, fuzziness } => {
-            fuzzy_to_json(*field, value, fuzziness.as_deref(), params, parameterized)
-        }
+        QueryType::Fuzzy {
+            field,
+            value,
+            fuzziness,
+        } => fuzzy_to_json(*field, value, fuzziness.as_deref(), params, parameterized),
     }
 }
 
@@ -667,7 +655,9 @@ mod tests {
 
     #[test]
     fn test_match_query() {
-        let query = SearchQueryBuilder::new().match_query(SearchField::Title, "test").build();
+        let query = SearchQueryBuilder::new()
+            .match_query(SearchField::Title, "test")
+            .build();
 
         match query.query {
             QueryType::Match { field, query } => {
@@ -711,8 +701,7 @@ mod tests {
 
     #[test]
     fn test_multi_match_query_json() {
-        let builder =
-            SearchQueryBuilder::new().multi_match(vec![SearchField::Title, SearchField::Body], "recycling");
+        let builder = SearchQueryBuilder::new().multi_match(vec![SearchField::Title, SearchField::Body], "recycling");
         assert_eq!(
             builder.to_elasticsearch_json()["query"],
             json!({ "multi_match": { "query": "recycling", "fields": ["title", "body"] } })
@@ -858,8 +847,9 @@ mod tests {
 
     #[test]
     fn test_single_sort_field() {
-        let query =
-            SearchQueryBuilder::new().sort(SearchField::CreatedAt, SortOrder::Desc).build();
+        let query = SearchQueryBuilder::new()
+            .sort(SearchField::CreatedAt, SortOrder::Desc)
+            .build();
         assert_eq!(
             query.sort,
             Some(vec![SortClause::new(SearchField::CreatedAt, SortOrder::Desc)])
@@ -889,10 +879,7 @@ mod tests {
         let body = SearchQueryBuilder::new()
             .sort(SearchField::CreatedAt, SortOrder::Desc)
             .to_elasticsearch_json();
-        assert_eq!(
-            body["sort"],
-            json!([{ "created_at": { "order": "desc" } }])
-        );
+        assert_eq!(body["sort"], json!([{ "created_at": { "order": "desc" } }]));
     }
 
     // ── pagination edges ─────────────────────────────────────────────────
@@ -933,8 +920,7 @@ mod tests {
 
     #[test]
     fn test_highlight_json_shape() {
-        let builder = SearchQueryBuilder::new()
-            .highlight(vec![SearchField::Title, SearchField::Body]);
+        let builder = SearchQueryBuilder::new().highlight(vec![SearchField::Title, SearchField::Body]);
         let body = builder.to_elasticsearch_json();
         assert_eq!(body["highlight"]["pre_tags"], json!(["<em>"]));
         assert_eq!(body["highlight"]["post_tags"], json!(["</em>"]));
@@ -957,10 +943,7 @@ mod tests {
         let query = SearchQueryBuilder::new()
             .source(vec![SearchField::Id, SearchField::Title])
             .build();
-        assert_eq!(
-            query.source,
-            Some(vec![SearchField::Id, SearchField::Title])
-        );
+        assert_eq!(query.source, Some(vec![SearchField::Id, SearchField::Title]));
     }
 
     #[test]
@@ -995,7 +978,9 @@ mod tests {
         // that reach the query are the known enum variants.
         assert_eq!(SearchField::from_name(r#"title"; DROP TABLE items; --"#), None);
         // A valid field renders as exactly one key.
-        let body = SearchQueryBuilder::new().match_query(SearchField::Title, "value").build();
+        let body = SearchQueryBuilder::new()
+            .match_query(SearchField::Title, "value")
+            .build();
         match body.query {
             QueryType::Match { field, query } => {
                 assert_eq!(field, SearchField::Title);
@@ -1105,10 +1090,7 @@ mod tests {
     #[test]
     fn aggregation_name_and_value_are_bound_together() {
         let pq = SearchQueryBuilder::new()
-            .aggregation(
-                "status'; DROP TABLE items; --",
-                json!({"terms": {"field": "status"}}),
-            )
+            .aggregation("status'; DROP TABLE items; --", json!({"terms": {"field": "status"}}))
             .to_parameterized();
 
         assert_eq!(pq.body["aggs"], json!("$3"));
@@ -1171,9 +1153,7 @@ mod tests {
                 }
                 None => Value::String(s),
             },
-            Value::Array(a) => {
-                Value::Array(a.into_iter().map(|v| substitute_params(v, params)).collect())
-            }
+            Value::Array(a) => Value::Array(a.into_iter().map(|v| substitute_params(v, params)).collect()),
             Value::Object(m) => {
                 let mut out = Map::with_capacity(m.len());
                 for (k, v) in m {
@@ -1233,12 +1213,10 @@ mod tests {
     fn arb_query_type() -> impl Strategy<Value = QueryType> {
         let leaf = prop_oneof![
             Just(QueryType::MatchAll),
-            (arb_search_field(), arb_text())
-                .prop_map(|(f, q)| QueryType::Match { field: f, query: q }),
+            (arb_search_field(), arb_text()).prop_map(|(f, q)| QueryType::Match { field: f, query: q }),
             (prop::collection::vec(arb_search_field(), 1..5), arb_text())
                 .prop_map(|(fs, q)| QueryType::MultiMatch { fields: fs, query: q }),
-            (arb_search_field(), arb_value())
-                .prop_map(|(f, v)| QueryType::Term { field: f, value: v }),
+            (arb_search_field(), arb_value()).prop_map(|(f, v)| QueryType::Term { field: f, value: v }),
             (
                 arb_search_field(),
                 prop::option::of(arb_value()),
@@ -1246,13 +1224,20 @@ mod tests {
                 prop::option::of(arb_value()),
                 prop::option::of(arb_value())
             )
-                .prop_map(|(f, gte, lte, gt, lt)| QueryType::Range { field: f, gte, lte, gt, lt }),
-            (arb_search_field(), arb_text())
-                .prop_map(|(f, v)| QueryType::Wildcard { field: f, value: v }),
-            (arb_search_field(), arb_text())
-                .prop_map(|(f, v)| QueryType::Prefix { field: f, value: v }),
-            (arb_search_field(), arb_text(), prop::option::of(arb_text()))
-                .prop_map(|(f, v, fz)| QueryType::Fuzzy { field: f, value: v, fuzziness: fz }),
+                .prop_map(|(f, gte, lte, gt, lt)| QueryType::Range {
+                    field: f,
+                    gte,
+                    lte,
+                    gt,
+                    lt
+                }),
+            (arb_search_field(), arb_text()).prop_map(|(f, v)| QueryType::Wildcard { field: f, value: v }),
+            (arb_search_field(), arb_text()).prop_map(|(f, v)| QueryType::Prefix { field: f, value: v }),
+            (arb_search_field(), arb_text(), prop::option::of(arb_text())).prop_map(|(f, v, fz)| QueryType::Fuzzy {
+                field: f,
+                value: v,
+                fuzziness: fz
+            }),
         ];
 
         leaf.prop_recursive(3, 16, 4, |inner| {

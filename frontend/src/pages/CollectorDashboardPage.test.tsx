@@ -5,11 +5,11 @@ import { CollectorDashboardPage } from './CollectorDashboardPage'
 vi.mock('@/hooks/useAppTitle', () => ({ useAppTitle: vi.fn() }))
 
 vi.mock('react-router-dom', () => ({
-  useNavigate: vi.fn(() => vi.fn()),
+  useNavigate: vi.fn(() => vi.fn())
 }))
 
 vi.mock('@/context/WalletContext', () => ({
-  useWallet: vi.fn(() => ({ address: 'GTEST' })),
+  useWallet: vi.fn(() => ({ address: 'GTEST' }))
 }))
 
 vi.mock('@/hooks/useCollectorDashboard', () => ({
@@ -21,8 +21,8 @@ vi.mock('@/hooks/useCollectorDashboard', () => ({
     statsByWasteType: {},
     isLoading: false,
     error: null,
-    refetch: vi.fn(),
-  })),
+    refetch: vi.fn()
+  }))
 }))
 
 describe('CollectorDashboardPage', () => {

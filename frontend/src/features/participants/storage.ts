@@ -1,4 +1,4 @@
-import { emptyDraft,STORAGE_KEY } from './constants'
+import { emptyDraft, STORAGE_KEY } from './constants'
 import type { FormDraft } from './types'
 
 export function loadDraft(): FormDraft {

@@ -114,10 +114,7 @@ mod tests {
             field: "date".to_string(),
             expected: "YYYY-MM-DD".to_string(),
         };
-        assert_eq!(
-            format_validation(&format_err),
-            "• date: expected YYYY-MM-DD"
-        );
+        assert_eq!(format_validation(&format_err), "• date: expected YYYY-MM-DD");
 
         let multiple = ValidationError::Multiple(vec![
             FieldError {

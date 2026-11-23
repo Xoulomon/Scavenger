@@ -3,19 +3,27 @@ import { render, screen } from '@testing-library/react'
 import { memo, useMemo, useState } from 'react'
 
 // Test component - memoized list item
-const MemoizedListItem = memo(({ item, onSelect }: { item: { id: string; name: string }; onSelect: (id: string) => void }) => {
-  return (
-    <li data-testid={`item-${item.id}`} onClick={() => onSelect(item.id)}>
-      {item.name}
-    </li>
-  )
-})
+const MemoizedListItem = memo(
+  ({ item, onSelect }: { item: { id: string; name: string }; onSelect: (id: string) => void }) => {
+    return (
+      <li data-testid={`item-${item.id}`} onClick={() => onSelect(item.id)}>
+        {item.name}
+      </li>
+    )
+  }
+)
 
 // Test component - list with memoization
-const MemoizedList = ({ items, onSelect }: { items: Array<{ id: string; name: string }>; onSelect: (id: string) => void }) => {
+const MemoizedList = ({
+  items,
+  onSelect
+}: {
+  items: Array<{ id: string; name: string }>
+  onSelect: (id: string) => void
+}) => {
   return (
     <ul>
-      {items.map(item => (
+      {items.map((item) => (
         <MemoizedListItem key={item.id} item={item} onSelect={onSelect} />
       ))}
     </ul>
@@ -26,14 +34,14 @@ describe('Memoized List Component', () => {
   const mockItems = [
     { id: '1', name: 'Item 1' },
     { id: '2', name: 'Item 2' },
-    { id: '3', name: 'Item 3' },
+    { id: '3', name: 'Item 3' }
   ]
 
   it('renders all items', () => {
     const handleSelect = vi.fn()
     render(<MemoizedList items={mockItems} onSelect={handleSelect} />)
 
-    mockItems.forEach(item => {
+    mockItems.forEach((item) => {
       expect(screen.getByTestId(`item-${item.id}`)).toBeInTheDocument()
     })
   })
@@ -71,11 +79,7 @@ describe('Memoized List Component', () => {
     const handleSelect = vi.fn()
     const { rerender } = render(<MemoizedList items={mockItems} onSelect={handleSelect} />)
 
-    const newItems = [
-      ...mockItems,
-      { id: '4', name: 'Item 4' },
-      { id: '5', name: 'Item 5' },
-    ]
+    const newItems = [...mockItems, { id: '4', name: 'Item 4' }, { id: '5', name: 'Item 5' }]
 
     rerender(<MemoizedList items={newItems} onSelect={handleSelect} />)
 
@@ -102,7 +106,7 @@ describe('Memoized List Component', () => {
     const updatedItems = [
       { id: '1', name: 'Updated Item 1' },
       { id: '2', name: 'Item 2' },
-      { id: '3', name: 'Item 3' },
+      { id: '3', name: 'Item 3' }
     ]
 
     rerender(<MemoizedList items={updatedItems} onSelect={handleSelect} />)
@@ -114,7 +118,7 @@ describe('Memoized List Component', () => {
     const handleSelect = vi.fn()
     const largeList = Array.from({ length: 1000 }, (_, i) => ({
       id: String(i),
-      name: `Item ${i}`,
+      name: `Item ${i}`
     }))
 
     const { container } = render(<MemoizedList items={largeList} onSelect={handleSelect} />)
@@ -134,7 +138,7 @@ describe('Memoized List Component', () => {
 
     const TestList = ({ items }: { items: Array<{ id: string; name: string }> }) => (
       <ul>
-        {items.map(item => (
+        {items.map((item) => (
           <SpyedMemoizedItem key={item.id} item={item} />
         ))}
       </ul>
@@ -151,14 +155,20 @@ describe('Memoized List Component', () => {
 })
 
 describe('List with useMemo Optimization', () => {
-  const TestListWithMemo = ({ items, filter }: { items: Array<{ id: string; name: string }>; filter: string }) => {
+  const TestListWithMemo = ({
+    items,
+    filter
+  }: {
+    items: Array<{ id: string; name: string }>
+    filter: string
+  }) => {
     const filteredItems = useMemo(() => {
-      return items.filter(item => item.name.toLowerCase().includes(filter.toLowerCase()))
+      return items.filter((item) => item.name.toLowerCase().includes(filter.toLowerCase()))
     }, [items, filter])
 
     return (
       <ul>
-        {filteredItems.map(item => (
+        {filteredItems.map((item) => (
           <li key={item.id} data-testid={`item-${item.id}`}>
             {item.name}
           </li>
@@ -171,7 +181,7 @@ describe('List with useMemo Optimization', () => {
     const items = [
       { id: '1', name: 'Apple' },
       { id: '2', name: 'Banana' },
-      { id: '3', name: 'Apricot' },
+      { id: '3', name: 'Apricot' }
     ]
 
     render(<TestListWithMemo items={items} filter="ap" />)
@@ -187,7 +197,10 @@ describe('List with useMemo Optimization', () => {
 
     expect(screen.getByText('Test')).toBeInTheDocument()
 
-    const newItems = [{ id: '1', name: 'Test' }, { id: '2', name: 'Testing' }]
+    const newItems = [
+      { id: '1', name: 'Test' },
+      { id: '2', name: 'Testing' }
+    ]
     rerender(<TestListWithMemo items={newItems} filter="test" />)
 
     expect(screen.getByText('Test')).toBeInTheDocument()
@@ -198,7 +211,7 @@ describe('List with useMemo Optimization', () => {
     const items = [
       { id: '1', name: 'Cat' },
       { id: '2', name: 'Car' },
-      { id: '3', name: 'Dog' },
+      { id: '3', name: 'Dog' }
     ]
 
     const { rerender } = render(<TestListWithMemo items={items} filter="ca" />)
@@ -226,7 +239,7 @@ describe('List with useMemo Optimization', () => {
     const items = [
       { id: '1', name: 'Apple' },
       { id: '2', name: 'Banana' },
-      { id: '3', name: 'Cherry' },
+      { id: '3', name: 'Cherry' }
     ]
 
     const { rerender } = render(<TestListWithMemo items={items} filter="a" />)
@@ -253,7 +266,7 @@ describe('VirtualizedList - Performance', () => {
     return (
       <div data-testid="virtual-list">
         <ul>
-          {visibleItems.map(item => (
+          {visibleItems.map((item) => (
             <li key={item.id} data-testid={`item-${item.id}`}>
               {item.name}
             </li>
@@ -266,7 +279,7 @@ describe('VirtualizedList - Performance', () => {
   it('renders only visible items for large lists', () => {
     const largeList = Array.from({ length: 1000 }, (_, i) => ({
       id: String(i),
-      name: `Item ${i}`,
+      name: `Item ${i}`
     }))
 
     render(<TestVirtualizedList items={largeList} />)
@@ -281,7 +294,7 @@ describe('VirtualizedList - Performance', () => {
   it('renders first 50 items by default', () => {
     const items = Array.from({ length: 100 }, (_, i) => ({
       id: String(i),
-      name: `Item ${i}`,
+      name: `Item ${i}`
     }))
 
     render(<TestVirtualizedList items={items} />)
@@ -295,7 +308,7 @@ describe('VirtualizedList - Performance', () => {
     const items = [
       { id: '1', name: 'Short' },
       { id: '2', name: 'This is a much longer item name' },
-      { id: '3', name: 'M' },
+      { id: '3', name: 'M' }
     ]
 
     render(<TestVirtualizedList items={items} />)

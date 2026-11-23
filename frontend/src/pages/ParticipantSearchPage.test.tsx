@@ -5,7 +5,7 @@ import { ParticipantSearchPage } from './ParticipantSearchPage'
 vi.mock('@/hooks/useAppTitle', () => ({ useAppTitle: vi.fn() }))
 
 vi.mock('@/hooks/useSearch', () => ({
-  useSearch: vi.fn(() => ({ results: [], isLoading: false })),
+  useSearch: vi.fn(() => ({ results: [], isLoading: false }))
 }))
 
 describe('ParticipantSearchPage', () => {
@@ -27,9 +27,7 @@ describe('ParticipantSearchPage', () => {
 
   it('shows empty message when no query', () => {
     render(<ParticipantSearchPage />)
-    expect(
-      screen.getByText('Enter a search query to find participants')
-    ).toBeInTheDocument()
+    expect(screen.getByText('Enter a search query to find participants')).toBeInTheDocument()
   })
 
   it('updates search query on input change', () => {

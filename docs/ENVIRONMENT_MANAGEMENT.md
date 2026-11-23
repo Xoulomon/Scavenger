@@ -3,6 +3,7 @@
 ## Overview
 
 Scavenger operates three distinct environments with specific configurations:
+
 - **Development**: Local/containerized for feature development
 - **Staging**: QA environment mirroring production
 - **Production**: Live customer environment
@@ -68,6 +69,7 @@ kubectl patch service scavenger-backend -n prod \
 ### Environment-Specific Settings
 
 All environment variables are defined in:
+
 - `terraform/environments/{dev,staging,prod}.tfvars`
 - `config/vault-secrets-config.hcl` (Vault policies)
 - Kubernetes ConfigMaps per environment
@@ -75,12 +77,14 @@ All environment variables are defined in:
 ### Secrets Management
 
 **Development**: `.env.local` (git-ignored)
+
 ```bash
 cp .env.example .env.local
 # Edit with local values
 ```
 
 **Staging/Production**: HashiCorp Vault
+
 ```bash
 # Login to Vault
 vault login -method=oidc
@@ -129,18 +133,21 @@ curl http://scavenger-backend-{env}.internal:8080/health
 ## Scaling Policies
 
 ### Development
+
 - Min: 1 replica
 - Max: 2 replicas
 - Target CPU: 70%
 - Target Memory: 80%
 
 ### Staging
+
 - Min: 2 replicas
 - Max: 5 replicas
 - Target CPU: 70%
 - Target Memory: 80%
 
 ### Production
+
 - Min: 3 replicas
 - Max: 10 replicas
 - Target CPU: 60%
@@ -166,10 +173,10 @@ npm run migrate:prod --require-approval
 ### Backup Schedules
 
 | Environment | Backup Frequency | Retention |
-|---|---|---|
-| Dev | Manual | N/A |
-| Staging | Daily | 7 days |
-| Production | Hourly | 90 days |
+| ----------- | ---------------- | --------- |
+| Dev         | Manual           | N/A       |
+| Staging     | Daily            | 7 days    |
+| Production  | Hourly           | 90 days   |
 
 ## Monitoring & Logging
 
@@ -182,6 +189,7 @@ npm run migrate:prod --require-approval
 ### Environment Dashboards
 
 Access Grafana dashboards:
+
 - Dev: http://grafana-dev.internal
 - Staging: http://grafana-staging.internal
 - Production: http://grafana-prod.internal
@@ -189,16 +197,19 @@ Access Grafana dashboards:
 ## Cost Optimization
 
 ### Development
+
 - Scheduled shutdown: 7 PM - 7 AM
 - t3.micro database
 - No redundancy
 
 ### Staging
+
 - Continuous operation
 - t3.small database
 - Single backup retention
 
 ### Production
+
 - Continuous operation
 - r6i.large database (HA)
 - Full backup retention
@@ -208,13 +219,14 @@ Access Grafana dashboards:
 
 Environment variables are documented in three `.env.example` files, one per component:
 
-| Component | Example file | Code that references variables |
-|---|---|---|
-| Root / backend | `.env.example` | `src/` (Node backend) |
-| Frontend | `frontend/.env.example` | `frontend/src/` (`VITE_*` variables) |
-| Indexer | `indexer/.env.example` | `indexer/src/` (`process.env.*`) |
+| Component      | Example file            | Code that references variables       |
+| -------------- | ----------------------- | ------------------------------------ |
+| Root / backend | `.env.example`          | `src/` (Node backend)                |
+| Frontend       | `frontend/.env.example` | `frontend/src/` (`VITE_*` variables) |
+| Indexer        | `indexer/.env.example`  | `indexer/src/` (`process.env.*`)     |
 
 ### Common Variables
+
 ```
 ENVIRONMENT=dev|staging|prod
 RUST_LOG=debug|info|warn
@@ -223,6 +235,7 @@ ENABLE_PROFILING=true|false
 ```
 
 ### Service-Specific
+
 ```
 # Backend
 DATABASE_MAX_CONNECTIONS=20|50|100
@@ -238,15 +251,18 @@ SYNC_INTERVAL_SECONDS=30|60|120
 ### Required Variables by Component
 
 **Root / backend (`.env.example`)**
+
 - Every variable read via `process.env.*` in the backend source must be listed here.
 - Includes database, Redis, S3, logging and environment settings shown above.
 
 **Frontend (`frontend/.env.example`)**
+
 - Only `VITE_*` variables are exposed to the browser bundle and must be prefixed with `VITE_`.
 - Every `import.meta.env.VITE_*` / `VITE_*` reference in `frontend/src` must appear in this file.
 - Never put secrets in `VITE_*` variables — they are embedded in the client bundle.
 
 **Indexer (`indexer/.env.example`)**
+
 - Every `process.env.*` reference in `indexer/src` must appear in this file.
 - Includes `SOROBAN_NETWORK`, `CONTRACT_ID`, `SYNC_INTERVAL_SECONDS` and related settings.
 
@@ -352,6 +368,7 @@ kubectl scale deployment scavenger-backend --replicas=5 -n {env}
 ## Disaster Recovery
 
 For environment-specific recovery procedures, see:
+
 - [Disaster Recovery Runbook](DISASTER_RECOVERY_RUNBOOK.md)
 - RTO/RPO SLAs by environment in runbook
 - Automated backup verification scripts

@@ -26,11 +26,11 @@
 
 Scavngr exposes two API surfaces:
 
-| Surface | Base URL | Purpose |
-|---------|----------|---------|
+| Surface              | Base URL                | Purpose                                     |
+| -------------------- | ----------------------- | ------------------------------------------- |
 | **Indexer REST API** | `http://localhost:3001` | Query indexed chain events, replay, metrics |
-| **Soroban Contract** | Stellar RPC | On-chain state mutations and reads |
-| **TypeScript SDK** | `@scavngr/sdk` | Typed wrapper for both surfaces |
+| **Soroban Contract** | Stellar RPC             | On-chain state mutations and reads          |
+| **TypeScript SDK**   | `@scavngr/sdk`          | Typed wrapper for both surfaces             |
 
 All REST responses are JSON. All times are ISO 8601 strings unless stated otherwise.
 
@@ -49,10 +49,10 @@ All REST responses are JSON. All times are ISO 8601 strings unless stated otherw
 The Indexer REST API follows the OpenAPI 3.1 schema below.
 
 ```yaml
-openapi: "3.1.0"
+openapi: '3.1.0'
 info:
   title: Scavngr Indexer API
-  version: "1.0.0"
+  version: '1.0.0'
   description: REST API for querying indexed Scavngr blockchain events
   contact:
     name: Scavngr Developers
@@ -80,24 +80,24 @@ paths:
       tags: [health]
       summary: Health check
       responses:
-        "200":
+        '200':
           description: Service is healthy
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/HealthResponse"
+                $ref: '#/components/schemas/HealthResponse'
 
   /metrics:
     get:
       tags: [metrics]
       summary: Indexer operational metrics
       responses:
-        "200":
+        '200':
           description: Current metrics snapshot
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MetricsResponse"
+                $ref: '#/components/schemas/MetricsResponse'
 
   /events:
     get:
@@ -142,21 +142,21 @@ paths:
             type: integer
             default: 0
       responses:
-        "200":
+        '200':
           description: Event list
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/EventListResponse"
-        "500":
-          $ref: "#/components/responses/InternalError"
+                $ref: '#/components/schemas/EventListResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
   /events/stream:
     get:
       tags: [events]
       summary: Server-Sent Events stream of new contract events
       responses:
-        "200":
+        '200':
           description: SSE stream
           content:
             text/event-stream:
@@ -172,18 +172,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ReplayRequest"
+              $ref: '#/components/schemas/ReplayRequest'
       responses:
-        "202":
+        '202':
           description: Replay accepted and started
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ReplayAcceptedResponse"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "405":
-          $ref: "#/components/responses/MethodNotAllowed"
+                $ref: '#/components/schemas/ReplayAcceptedResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
 
   /replay/status/{id}:
     get:
@@ -196,12 +196,12 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: Replay subsystem status
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ReplayStatusResponse"
+                $ref: '#/components/schemas/ReplayStatusResponse'
 
   /alerts:
     get:
@@ -216,14 +216,14 @@ paths:
             maximum: 200
             description: Values above the maximum are clamped, not rejected
       responses:
-        "200":
+        '200':
           description: Alert list
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AlertListResponse"
-        "500":
-          $ref: "#/components/responses/InternalError"
+                $ref: '#/components/schemas/AlertListResponse'
+        '500':
+          $ref: '#/components/responses/InternalError'
 
 components:
   schemas:
@@ -306,7 +306,7 @@ components:
         events:
           type: array
           items:
-            $ref: "#/components/schemas/IndexerEvent"
+            $ref: '#/components/schemas/IndexerEvent'
         total:
           type: integer
           description: Total rows matching the filters, ignoring limit/offset
@@ -383,7 +383,7 @@ components:
         alerts:
           type: array
           items:
-            $ref: "#/components/schemas/Alert"
+            $ref: '#/components/schemas/Alert'
 
     ErrorResponse:
       type: object
@@ -398,25 +398,25 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: '#/components/schemas/ErrorResponse'
     NotFound:
       description: Unknown path
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: '#/components/schemas/ErrorResponse'
     MethodNotAllowed:
       description: HTTP method not supported for this path
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: '#/components/schemas/ErrorResponse'
     InternalError:
       description: Unhandled server error
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ErrorResponse"
+            $ref: '#/components/schemas/ErrorResponse'
 ```
 
 ---
@@ -428,6 +428,7 @@ components:
 All state-changing contract calls require a signed Stellar transaction from the caller's account.
 
 **Freighter (browser):**
+
 ```typescript
 import { signWithFreighter } from '@scavngr/sdk'
 
@@ -437,6 +438,7 @@ await client.registerParticipant({ ... })
 ```
 
 **Secret Key (server-side / testing):**
+
 ```typescript
 import { signWithSecretKey } from '@scavngr/sdk'
 
@@ -464,22 +466,22 @@ The Indexer API is **unauthenticated** by default. For production deployments be
 The limiter's own contract, for operators wiring it in and for clients that need to
 handle throttling:
 
-| Concept | Behaviour |
-|---------|-----------|
-| Identifier | Caller-supplied string (typically API key or client IP) |
-| Tier | Named group of per-endpoint `{ windowMs, maxRequests }` configs |
-| Unknown tier or endpoint | Request allowed, `remaining` reported as `-1` |
-| Whitelisted identifier | Always allowed, `remaining` reported as `-1` |
-| Blacklisted identifier | Always denied |
-| Algorithm | Sliding window over a Redis sorted set, keyed `ratelimit:{id}:{endpoint}` |
+| Concept                  | Behaviour                                                                 |
+| ------------------------ | ------------------------------------------------------------------------- |
+| Identifier               | Caller-supplied string (typically API key or client IP)                   |
+| Tier                     | Named group of per-endpoint `{ windowMs, maxRequests }` configs           |
+| Unknown tier or endpoint | Request allowed, `remaining` reported as `-1`                             |
+| Whitelisted identifier   | Always allowed, `remaining` reported as `-1`                              |
+| Blacklisted identifier   | Always denied                                                             |
+| Algorithm                | Sliding window over a Redis sorted set, keyed `ratelimit:{id}:{endpoint}` |
 
 Recommended starting limits, matching the values in `.env.example`
 (`RATE_LIMIT_REQUESTS_PER_MINUTE`, `RATE_LIMIT_BURST_SIZE`):
 
-| Tier | Limit | Window |
-|------|-------|--------|
+| Tier    | Limit  | Window   |
+| ------- | ------ | -------- |
 | Default | 60 req | 1 minute |
-| Burst | 10 req | 1 second |
+| Burst   | 10 req | 1 second |
 
 When the limiter is attached, throttled requests return `429 Too Many Requests`:
 
@@ -506,10 +508,10 @@ using `limit`/`offset` rather than issuing many small concurrent requests.
 
 Stellar's public RPC endpoints enforce their own rate limits. For production, run a dedicated RPC node or use a paid provider.
 
-| Network | Public RPC | Rate Limit |
-|---------|------------|-----------|
-| Testnet | `https://soroban-testnet.stellar.org` | 100 req/s |
-| Mainnet | `https://mainnet.sorobanrpc.com` | Contact provider |
+| Network | Public RPC                            | Rate Limit       |
+| ------- | ------------------------------------- | ---------------- |
+| Testnet | `https://soroban-testnet.stellar.org` | 100 req/s        |
+| Mainnet | `https://mainnet.sorobanrpc.com`      | Contact provider |
 
 ---
 
@@ -520,19 +522,22 @@ Endpoints served by the backend (`backend/src/api`). Route registrations in `bac
 ### 1. Global Conventions & Architecture
 
 #### Base URL
+
 - Local Development: `http://localhost:8080`
 - Production: `https://api.scavenger.io`
 
 #### Authentication & Headers
-| Header | Type | Description | Required For |
-|--------|------|-------------|--------------|
-| `Authorization` | `Bearer <JWT>` | Bearer token verifying caller identity and role | Protected endpoints (Free / Premium / Admin tiers) |
-| `X-CSRF-Token` | `string` | CSRF protection token | Mutating HTTP methods (`POST`, `PUT`, `DELETE`) from web browsers |
-| `Idempotency-Key` | `UUIDv4` | Deduplication key ensuring safe retries on mutating endpoints | Mutating operations (`POST`, `PUT`) |
-| `X-Session-ID` | `string` | Client session identifier for audit tracing | Optional |
-| `X-Request-ID` | `UUIDv4` | Unique request tracking ID (auto-generated if omitted) | Injected in all responses |
+
+| Header            | Type           | Description                                                   | Required For                                                      |
+| ----------------- | -------------- | ------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `Authorization`   | `Bearer <JWT>` | Bearer token verifying caller identity and role               | Protected endpoints (Free / Premium / Admin tiers)                |
+| `X-CSRF-Token`    | `string`       | CSRF protection token                                         | Mutating HTTP methods (`POST`, `PUT`, `DELETE`) from web browsers |
+| `Idempotency-Key` | `UUIDv4`       | Deduplication key ensuring safe retries on mutating endpoints | Mutating operations (`POST`, `PUT`)                               |
+| `X-Session-ID`    | `string`       | Client session identifier for audit tracing                   | Optional                                                          |
+| `X-Request-ID`    | `UUIDv4`       | Unique request tracking ID (auto-generated if omitted)        | Injected in all responses                                         |
 
 #### Idempotency (`backend/src/middleware/idempotency.rs`)
+
 `IdempotencyMiddleware` is mounted once, app-wide, in `main.rs` — it inspects **every** `POST` / `PUT` / `PATCH` / `DELETE` request across **every** route (including `signing_api.rs` and `contracts.rs`), so SDK consumers do not need to check per-endpoint whether a given write is covered.
 
 - Send an `Idempotency-Key` header (max 128 bytes, typically a UUIDv4) on any mutating request you may need to safely retry — e.g. after a timeout or connection drop.
@@ -543,16 +548,18 @@ Endpoints served by the backend (`backend/src/api`). Route registrations in `bac
 - Omitting the header is allowed (the request just isn't deduplicated) except where a specific endpoint's docs say otherwise — see the per-file notes in `signing_api.rs` for operations (signing, multisig, revocation) where a retried request without this header can double-execute a sensitive action.
 
 #### Rate Limiting Tiers
+
 Rate limiting is enforced at the middleware layer (`backend/src/middleware/rate_limit.rs`) with tier-based quotas and window headers:
 
-| Tier | Rate Limits | Applied Route Categories |
-|------|-------------|--------------------------|
-| **Anonymous** | 30 requests / min · 200 requests / hour | Public read endpoints (`/api/v1/contracts/*`, `/api/v1/search/*`) |
-| **Free** | 60 requests / min · 1,000 requests / hour | Standard authenticated users (`/api/v1/audit/*`, `/ws`, general API) |
-| **Premium** | 300 requests / min · 10,000 requests / hour | High-throughput integrated partners |
-| **Admin** | 1,200 requests / min · 50,000 requests / hour | Internal administrative operations |
+| Tier          | Rate Limits                                   | Applied Route Categories                                             |
+| ------------- | --------------------------------------------- | -------------------------------------------------------------------- |
+| **Anonymous** | 30 requests / min · 200 requests / hour       | Public read endpoints (`/api/v1/contracts/*`, `/api/v1/search/*`)    |
+| **Free**      | 60 requests / min · 1,000 requests / hour     | Standard authenticated users (`/api/v1/audit/*`, `/ws`, general API) |
+| **Premium**   | 300 requests / min · 10,000 requests / hour   | High-throughput integrated partners                                  |
+| **Admin**     | 1,200 requests / min · 50,000 requests / hour | Internal administrative operations                                   |
 
 ##### Standard Response Headers:
+
 - `X-RateLimit-Limit-Minute`: Quota per minute
 - `X-RateLimit-Limit-Hour`: Quota per hour
 - `X-RateLimit-Remaining-Minute`: Remaining tokens in current minute window
@@ -564,11 +571,13 @@ Rate limiting is enforced at the middleware layer (`backend/src/middleware/rate_
 ### 2. Health & System Endpoints
 
 #### `GET /health`
+
 Returns the operational status of the backend and its connected core subsystems.
 
 - **Auth Required**: None
 - **Rate Limit Tier**: Anonymous (30 RPM)
 - **Response `200 OK`**:
+
 ```json
 {
   "status": "healthy",
@@ -583,19 +592,21 @@ Returns the operational status of the backend and its connected core subsystems.
 ### 3. Contracts & Cache API (`backend/src/api/contracts.rs`)
 
 #### `GET /api/v1/contracts/wastes`
+
 List waste records with filtering and pagination.
 
 - **Auth Required**: None (Public)
 - **Rate Limit Tier**: Anonymous (30 RPM)
 - **Query Parameters**:
-  - `page` (*integer*, optional, default `1`): Page number
-  - `limit` (*integer*, optional, default `20`, max `100`): Items per page
-  - `status` (*string*, optional): Filter by status (`active`, `confirmed`, `recycled`, `frozen`)
-  - `waste_type` (*string*, optional): Filter by waste material (`Plastic`, `Metal`, `Glass`, `Organic`, `Paper`, `Electronic`)
-  - `participant_id` (*string*, optional): Filter by submitter or holder address
-  - `sort_by` (*string*, optional): Sort field (`created_at`, `weight`)
-  - `sort_order` (*string*, optional): Sort order (`asc`, `desc`)
+  - `page` (_integer_, optional, default `1`): Page number
+  - `limit` (_integer_, optional, default `20`, max `100`): Items per page
+  - `status` (_string_, optional): Filter by status (`active`, `confirmed`, `recycled`, `frozen`)
+  - `waste_type` (_string_, optional): Filter by waste material (`Plastic`, `Metal`, `Glass`, `Organic`, `Paper`, `Electronic`)
+  - `participant_id` (_string_, optional): Filter by submitter or holder address
+  - `sort_by` (_string_, optional): Sort field (`created_at`, `weight`)
+  - `sort_order` (_string_, optional): Sort order (`asc`, `desc`)
 - **Response `200 OK`**:
+
 ```json
 {
   "data": [
@@ -620,40 +631,45 @@ List waste records with filtering and pagination.
 ```
 
 #### `GET /api/v1/contracts/wastes/{id}`
+
 Retrieve details for a single waste submission by its identifier.
 
 - **Auth Required**: None
 - **Rate Limit Tier**: Anonymous (30 RPM)
-- **Path Parameters**: `id` (*string* or *u128*): Unique waste ID
+- **Path Parameters**: `id` (_string_ or _u128_): Unique waste ID
 - **Response `200 OK`**: Single `WasteResponse` object
 - **Response `404 Not Found`**: `{"error": "Waste item not found"}`
 
 #### `GET /api/v1/contracts/participants`
+
 List registered network participants.
 
 - **Auth Required**: None
 - **Rate Limit Tier**: Anonymous (30 RPM)
 - **Query Parameters**:
-  - `page` (*integer*, default `1`)
-  - `limit` (*integer*, default `20`)
-  - `role` (*string*, optional): Filter by role (`Recycler`, `Collector`, `Manufacturer`)
-  - `search` (*string*, optional): Substring search on name or address
+  - `page` (_integer_, default `1`)
+  - `limit` (_integer_, default `20`)
+  - `role` (_string_, optional): Filter by role (`Recycler`, `Collector`, `Manufacturer`)
+  - `search` (_string_, optional): Substring search on name or address
 - **Response `200 OK`**: Paginated list of `ParticipantResponse`
 
 #### `GET /api/v1/contracts/participants/{id}`
+
 Retrieve a specific participant's profile and reputation stats.
 
 - **Auth Required**: None
 - **Rate Limit Tier**: Anonymous (30 RPM)
-- **Path Parameters**: `id` (*string*): Participant Stellar address or ID
+- **Path Parameters**: `id` (_string_): Participant Stellar address or ID
 - **Response `200 OK`**: Single `ParticipantResponse`
 
 #### `GET /api/v1/contracts/stats`
+
 Get aggregated smart contract recycling statistics and carbon impact metrics.
 
 - **Auth Required**: None
 - **Rate Limit Tier**: Anonymous (30 RPM)
 - **Response `200 OK`**:
+
 ```json
 {
   "total_wastes": 1420,
@@ -666,11 +682,13 @@ Get aggregated smart contract recycling statistics and carbon impact metrics.
 ```
 
 #### `GET /api/v1/contracts/info`
+
 Get on-chain contract address, network configuration, and version metadata.
 
 - **Auth Required**: None
 - **Rate Limit Tier**: Anonymous (30 RPM)
 - **Response `200 OK`**:
+
 ```json
 {
   "contract_id": "CA3D...992",
@@ -682,6 +700,7 @@ Get on-chain contract address, network configuration, and version metadata.
 ```
 
 #### `POST /api/v1/cache/invalidate/waste/{id}`
+
 Evict cached contract data for a specific waste item.
 
 - **Auth Required**: Bearer Token (Admin / Verifier)
@@ -689,6 +708,7 @@ Evict cached contract data for a specific waste item.
 - **Response `200 OK`**: `{"success": true, "message": "Waste cache invalidated"}`
 
 #### `POST /api/v1/cache/invalidate/all`
+
 Flush all on-chain cached queries.
 
 - **Auth Required**: Bearer Token (Admin)
@@ -696,6 +716,7 @@ Flush all on-chain cached queries.
 - **Response `200 OK`**: `{"success": true, "message": "All contract caches invalidated"}`
 
 #### `GET /api/v1/cache/metrics`
+
 Retrieve cache performance metrics (hits, misses, evictions, latency).
 
 - **Auth Required**: Bearer Token (Admin)
@@ -707,6 +728,7 @@ Retrieve cache performance metrics (hits, misses, evictions, latency).
 ### 4. WebSocket Gateway (`backend/src/api/ws.rs`)
 
 #### `GET /ws`
+
 Establishes a bi-directional WebSocket connection for streaming contract events, status transitions, and notifications.
 
 - **Auth Required**: Initiated via WebSocket frame (`Authenticate { token }`)
@@ -719,11 +741,13 @@ Establishes a bi-directional WebSocket connection for streaming contract events,
   5. Server streams events: `{"type": "Event", "payload": {"channel": "wastes:GBZX...3X4", "data": {...}}}`
 
 #### `GET /ws/health`
+
 Check WebSocket manager health and active connection count.
 
 - **Auth Required**: None
 - **Rate Limit Tier**: Free (60 RPM)
 - **Response `200 OK`**:
+
 ```json
 {
   "status": "healthy",
@@ -737,11 +761,13 @@ Check WebSocket manager health and active connection count.
 ### 5. Export Services (`backend/src/api/export.rs`)
 
 #### `POST /api/v1/exports`
+
 Request an asynchronous data export job in CSV, PDF, or JSON format.
 
 - **Auth Required**: Bearer Token
 - **Rate Limit Tier**: Free (60 RPM)
 - **Request Body**:
+
 ```json
 {
   "format": "csv",
@@ -752,7 +778,9 @@ Request an asynchronous data export job in CSV, PDF, or JSON format.
   "filters": { "status": "recycled" }
 }
 ```
+
 - **Response `200 OK`**:
+
 ```json
 {
   "id": "exp-9921",
@@ -766,13 +794,15 @@ Request an asynchronous data export job in CSV, PDF, or JSON format.
 ```
 
 #### `GET /api/v1/exports`
+
 List export history for the authenticated user.
 
 - **Auth Required**: Bearer Token
 - **Rate Limit Tier**: Free (60 RPM)
-- **Query Parameters**: `page` (*integer*), `limit` (*integer*), `status` (*string*)
+- **Query Parameters**: `page` (_integer_), `limit` (_integer_), `status` (_string_)
 
 #### `GET /api/v1/exports/{id}/download`
+
 Download the generated export file.
 
 - **Auth Required**: Bearer Token
@@ -780,6 +810,7 @@ Download the generated export file.
 - **Response `200 OK`**: Binary file stream (`text/csv`, `application/pdf`, or `application/json`)
 
 #### `POST /api/v1/exports/{id}/email`
+
 Trigger sending the completed export file to the user's verified email.
 
 - **Auth Required**: Bearer Token
@@ -787,11 +818,13 @@ Trigger sending the completed export file to the user's verified email.
 - **Response `200 OK`**: `{"success": true, "message": "Export sent via email"}`
 
 #### `POST /api/v1/exports/scheduled`
+
 Schedule a recurring export report.
 
 - **Auth Required**: Bearer Token (Admin / Manufacturer)
 - **Rate Limit Tier**: Free (60 RPM)
 - **Request Body**:
+
 ```json
 {
   "format": "pdf",
@@ -804,9 +837,11 @@ Schedule a recurring export report.
 ```
 
 #### `GET /api/v1/exports/scheduled`
+
 List all scheduled recurring export jobs.
 
 #### `DELETE /api/v1/exports/scheduled/{id}`
+
 Cancel and delete a scheduled export job.
 
 ---
@@ -814,39 +849,47 @@ Cancel and delete a scheduled export job.
 ### 6. Audit & Retention API (`backend/src/api/audit.rs`)
 
 #### `GET /api/v1/audit/logs`
+
 Query security and compliance audit logs.
 
 - **Auth Required**: Bearer Token (Admin / Auditor)
 - **Rate Limit Tier**: Free (60 RPM)
 - **Query Parameters**:
-  - `page`, `limit` (*integers*)
-  - `event_type` (*string*): `contract`, `admin`, `auth`, `data_access`
-  - `user_id` (*string*): Filter by actor
-  - `action` (*string*): Filter by action name
-  - `resource_type` (*string*): Filter by affected resource
-  - `start_date`, `end_date` (*ISO 8601 strings*)
-  - `severity` (*string*): `info`, `warning`, `critical`
+  - `page`, `limit` (_integers_)
+  - `event_type` (_string_): `contract`, `admin`, `auth`, `data_access`
+  - `user_id` (_string_): Filter by actor
+  - `action` (_string_): Filter by action name
+  - `resource_type` (_string_): Filter by affected resource
+  - `start_date`, `end_date` (_ISO 8601 strings_)
+  - `severity` (_string_): `info`, `warning`, `critical`
 - **Response `200 OK`**: Paginated list of `AuditEntry`
 
 #### `GET /api/v1/audit/logs/{id}`
+
 Retrieve a specific audit entry by ID.
 
 #### `GET /api/v1/audit/summary`
+
 Get aggregated audit statistics (actions per category, anomaly counts).
 
 #### `POST /api/v1/audit/report`
+
 Generate a formal audit report over a given time window.
 
 #### `GET /api/v1/audit/export`
+
 Stream raw audit records as CSV or JSON for external SIEM ingestion.
 
 #### `POST /api/v1/audit/alerts` & `GET /api/v1/audit/alerts`
+
 Create and list automated alert trigger rules for suspicious audit event patterns.
 
 #### `GET /api/v1/audit/retention` & `PUT /api/v1/audit/retention`
+
 View and configure audit data retention policies (`max_age_days`, `max_entries`, `archive_enabled`).
 
 #### `POST /api/v1/audit/purge`
+
 Manually execute log pruning according to configured retention rules.
 
 ---
@@ -854,6 +897,7 @@ Manually execute log pruning according to configured retention rules.
 ### 7. Participant & Waste Verification (`backend/src/api/verification.rs`)
 
 #### `POST /api/v1/verification/start`
+
 Start the verification onboarding process for a participant.
 
 - **Auth Required**: Bearer Token
@@ -862,15 +906,18 @@ Start the verification onboarding process for a participant.
 - **Response `200 OK`**: `{"success": true, "data": {"verification_id": "v-1001", "status": "pending"}}`
 
 #### `GET /api/v1/verification/{participant_id}/status`
+
 Query the verification status, submitted documents, and checklist progression.
 
 - **Auth Required**: Bearer Token
 - **Rate Limit Tier**: Free (60 RPM)
 
 #### `POST /api/v1/verification/document`
+
 Submit a KYC, recycling license, or facility certificate document for review.
 
 - **Request Body**:
+
 ```json
 {
   "participant_id": "GBZX...3X4",
@@ -880,20 +927,25 @@ Submit a KYC, recycling license, or facility certificate document for review.
 ```
 
 #### `POST /api/v1/verification/document/{doc_id}/verify`
+
 Verifier marks a submitted document as verified or rejected.
 
 #### `POST /api/v1/verification/checklist`
+
 Submit answers for compliance inspection checklist questions.
 
 #### `GET /api/v1/verification/pending-reviews`
+
 List all participant verifications pending human reviewer action.
 
 - **Auth Required**: Bearer Token (Verifier role)
 
 #### `POST /api/v1/verification/approve` & `POST /api/v1/verification/reject`
+
 Grant or deny final verified status to a participant.
 
 #### `POST /api/v1/verification/{participant_id}/retry`
+
 Reset a failed verification to allow resubmission of required documents.
 
 ---
@@ -901,12 +953,15 @@ Reset a failed verification to allow resubmission of required documents.
 ### 8. Compliance API (`backend/src/api/compliance_api.rs`)
 
 #### `GET /api/v1/compliance/checklists` & `POST /api/v1/compliance/checklists`
+
 List standard regulatory compliance checklists or register new checklists.
 
 #### `POST /api/v1/compliance/check`
+
 Run an automated compliance evaluation against active transactions and participant certifications.
 
 - **Response `200 OK`**:
+
 ```json
 {
   "success": true,
@@ -920,12 +975,15 @@ Run an automated compliance evaluation against active transactions and participa
 ```
 
 #### `GET /api/v1/compliance/alerts` & `POST /api/v1/compliance/alert-rules`
+
 List active compliance breach alerts and configure compliance alert threshold rules.
 
 #### `GET /api/v1/compliance/audit-trail`
+
 Retrieve the non-repudiable audit trail for compliance verification milestones.
 
 #### `POST /api/v1/compliance/report`
+
 Generate a structured compliance certification report for regulatory bodies.
 
 ---
@@ -933,11 +991,13 @@ Generate a structured compliance certification report for regulatory bodies.
 ### 9. Transaction Signing & Multi-Sig (`backend/src/api/signing_api.rs`)
 
 #### `POST /api/v1/signing/sign`
+
 Cryptographically sign a transaction payload using an authenticated hardware or custodial key.
 
 - **Auth Required**: Bearer Token
 - **Rate Limit Tier**: Free (60 RPM)
 - **Request Body**:
+
 ```json
 {
   "transaction_id": "tx-8819",
@@ -947,21 +1007,27 @@ Cryptographically sign a transaction payload using an authenticated hardware or 
 ```
 
 #### `POST /api/v1/signing/verify`
+
 Verify an ED25519 or Secp256k1 signature over a provided transaction payload.
 
 #### `POST /api/v1/signing/multisig`
+
 Create a multi-signature transaction proposal requiring $M$-of-$N$ threshold signatures.
 
 #### `POST /api/v1/signing/multisig/sign`
+
 Submit an additional signature to an open multi-signature proposal.
 
 #### `POST /api/v1/signing/revoke`
+
 Revoke an active signature or compromised key.
 
 #### `GET /api/v1/signing/events` & `GET /api/v1/signing/revocations`
+
 List cryptographic signing audit events and revocation logs.
 
 #### `GET /api/v1/signing/documentation`
+
 Returns cryptographic schemas and signing protocol documentation.
 
 ---
@@ -969,16 +1035,18 @@ Returns cryptographic schemas and signing protocol documentation.
 ### 10. Search & Discovery API (`backend/src/api/search.rs`)
 
 #### `GET /api/v1/search`
+
 Unified search across wastes, participants, batches, and transactions.
 
 - **Auth Required**: None (Public)
 - **Rate Limit Tier**: Anonymous (30 RPM)
 - **Query Parameters**:
-  - `q` (*string*, required): Search query term
-  - `from` (*integer*, default `0`): Pagination offset
-  - `size` (*integer*, default `20`): Page size
-  - `filters` (*array of strings*, optional): Facet filters (`type:Plastic`, `status:recycled`)
+  - `q` (_string_, required): Search query term
+  - `from` (_integer_, default `0`): Pagination offset
+  - `size` (_integer_, default `20`): Page size
+  - `filters` (_array of strings_, optional): Facet filters (`type:Plastic`, `status:recycled`)
 - **Response `200 OK`**:
+
 ```json
 {
   "total": 45,
@@ -991,9 +1059,11 @@ Unified search across wastes, participants, batches, and transactions.
 ```
 
 #### `GET /api/v1/search/suggest`
+
 Autocomplete suggestions for search queries.
 
 #### `GET /api/v1/search/config`
+
 Returns search engine configuration (indexed fields, boost weights, supported facets).
 
 ---
@@ -1001,21 +1071,27 @@ Returns search engine configuration (indexed fields, boost weights, supported fa
 ### 11. Data Archival API (`backend/src/api/archival.rs`)
 
 #### `POST /api/v1/archival/policies` & `GET /api/v1/archival/policies`
+
 Create and list data archival policies defining storage tier transitions (Hot -> Warm -> Cold / S3 Glacier) and TTL intervals.
 
 #### `GET /api/v1/archival/policies/{id}` / `PUT` / `DELETE`
+
 Retrieve, modify, or delete a specific archival policy.
 
 #### `GET /api/v1/archival/archives` & `POST /api/v1/archival/archives`
+
 Query archived data bundles or manually trigger immediate archival for a block of historical records.
 
 #### `POST /api/v1/archival/archives/{id}/restore`
+
 Initiate unarchival to restore cold records back into primary queryable storage.
 
 #### `GET /api/v1/archival/stats`
+
 Returns storage volume metrics across tiers (hot database size, compressed archive volume, cost savings).
 
 #### `GET /api/v1/archival/jobs` & `GET /api/v1/archival/jobs/{id}`
+
 List and inspect the execution status of background compression and migration jobs.
 
 ---
@@ -1054,15 +1130,15 @@ endpoints, this file wins.
 
 ### Endpoint Summary
 
-| Method | Path | Purpose | Success |
-|--------|------|---------|---------|
-| `GET` | `/health` | Liveness probe | `200` |
-| `GET` | `/metrics` | Process metrics snapshot | `200` |
-| `GET` | `/events` | Query indexed events | `200` |
-| `GET` | `/events/stream` | SSE stream of new events | `200` |
-| `POST` | `/replay` | Replay stored events | `202` |
-| `GET` | `/replay/status/:id` | Replay subsystem status | `200` |
-| `GET` | `/alerts` | Recent alert history | `200` |
+| Method | Path                 | Purpose                  | Success |
+| ------ | -------------------- | ------------------------ | ------- |
+| `GET`  | `/health`            | Liveness probe           | `200`   |
+| `GET`  | `/metrics`           | Process metrics snapshot | `200`   |
+| `GET`  | `/events`            | Query indexed events     | `200`   |
+| `GET`  | `/events/stream`     | SSE stream of new events | `200`   |
+| `POST` | `/replay`            | Replay stored events     | `202`   |
+| `GET`  | `/replay/status/:id` | Replay subsystem status  | `200`   |
+| `GET`  | `/alerts`            | Recent alert history     | `200`   |
 
 ---
 
@@ -1073,11 +1149,13 @@ connections — it does **not** check database connectivity or sync lag. Use
 `GET /metrics` and its `syncLag` field for readiness decisions.
 
 **Request:**
+
 ```bash
 curl -s http://localhost:3001/health
 ```
 
 **Response — `200 OK`:**
+
 ```json
 {
   "status": "ok",
@@ -1085,10 +1163,10 @@ curl -s http://localhost:3001/health
 }
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `status` | string | Always `ok` while the process is serving |
-| `timestamp` | string | ISO 8601 timestamp of the response |
+| Field       | Type   | Description                              |
+| ----------- | ------ | ---------------------------------------- |
+| `status`    | string | Always `ok` while the process is serving |
+| `timestamp` | string | ISO 8601 timestamp of the response       |
 
 ---
 
@@ -1098,11 +1176,13 @@ In-memory metrics for the running indexer process. Counters reset on restart —
 `startTime` tells you the epoch they are relative to.
 
 **Request:**
+
 ```bash
 curl -s http://localhost:3001/metrics
 ```
 
 **Response — `200 OK`:**
+
 ```json
 {
   "eventsProcessed": 14823,
@@ -1120,16 +1200,16 @@ curl -s http://localhost:3001/metrics
 }
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `eventsProcessed` | integer | Events successfully handled since start |
-| `eventsFailed` | integer | Events that threw during handling |
+| Field                | Type           | Description                                                        |
+| -------------------- | -------------- | ------------------------------------------------------------------ |
+| `eventsProcessed`    | integer        | Events successfully handled since start                            |
+| `eventsFailed`       | integer        | Events that threw during handling                                  |
 | `lastEventTimestamp` | string \| null | Close time of the most recent event; `null` before the first event |
-| `syncLag` | integer | Ledgers behind chain tip |
-| `reorgsDetected` | integer | Reorganisations detected since start |
-| `alertsFired` | integer | Alerts raised since start |
-| `startTime` | string | Process start time |
-| `eventsByType` | object | Per-event-type counts, keyed by contract event symbol |
+| `syncLag`            | integer        | Ledgers behind chain tip                                           |
+| `reorgsDetected`     | integer        | Reorganisations detected since start                               |
+| `alertsFired`        | integer        | Alerts raised since start                                          |
+| `startTime`          | string         | Process start time                                                 |
+| `eventsByType`       | object         | Per-event-type counts, keyed by contract event symbol              |
 
 ---
 
@@ -1140,24 +1220,26 @@ Query indexed contract events. Results are ordered newest-first by
 
 **Query parameters:**
 
-| Parameter | Type | Default | Max | Description |
-|-----------|------|---------|-----|-------------|
-| `type` | string | — | — | Exact match on `event_type` (`recycled`, `transfer`, `confirmed`, `reg`, `rewarded`, `donated`, …) |
-| `from` | integer | — | — | Start ledger sequence, inclusive |
-| `to` | integer | — | — | End ledger sequence, inclusive |
-| `contractId` | string | — | — | Exact match on emitting contract ID |
-| `txHash` | string | — | — | Exact match on transaction hash |
-| `limit` | integer | `100` | `1000` | Page size; higher values are clamped |
-| `offset` | integer | `0` | — | Pagination offset |
+| Parameter    | Type    | Default | Max    | Description                                                                                        |
+| ------------ | ------- | ------- | ------ | -------------------------------------------------------------------------------------------------- |
+| `type`       | string  | —       | —      | Exact match on `event_type` (`recycled`, `transfer`, `confirmed`, `reg`, `rewarded`, `donated`, …) |
+| `from`       | integer | —       | —      | Start ledger sequence, inclusive                                                                   |
+| `to`         | integer | —       | —      | End ledger sequence, inclusive                                                                     |
+| `contractId` | string  | —       | —      | Exact match on emitting contract ID                                                                |
+| `txHash`     | string  | —       | —      | Exact match on transaction hash                                                                    |
+| `limit`      | integer | `100`   | `1000` | Page size; higher values are clamped                                                               |
+| `offset`     | integer | `0`     | —      | Pagination offset                                                                                  |
 
 All filters are ANDed. Unknown query parameters are ignored.
 
 **Request:**
+
 ```bash
 curl -s "http://localhost:3001/events?type=recycled&from=1000000&limit=2"
 ```
 
 **Response — `200 OK`:**
+
 ```json
 {
   "events": [
@@ -1185,26 +1267,26 @@ curl -s "http://localhost:3001/events?type=recycled&from=1000000&limit=2"
 }
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `events` | array | Rows from `raw_events` (see column reference below) |
-| `total` | integer | Total rows matching the filters, ignoring `limit`/`offset` |
-| `limit` | integer | Effective page size after clamping |
-| `offset` | integer | Echo of the requested offset |
+| Field    | Type    | Description                                                |
+| -------- | ------- | ---------------------------------------------------------- |
+| `events` | array   | Rows from `raw_events` (see column reference below)        |
+| `total`  | integer | Total rows matching the filters, ignoring `limit`/`offset` |
+| `limit`  | integer | Effective page size after clamping                         |
+| `offset` | integer | Echo of the requested offset                               |
 
 **`raw_events` columns:**
 
-| Column | SQL type | JSON type | Description |
-|--------|----------|-----------|-------------|
-| `id` | `BIGSERIAL` | string | Monotonic insertion ID |
-| `ledger_sequence` | `BIGINT` | string | Ledger the event was emitted in |
-| `ledger_close_time` | `TIMESTAMPTZ` | string | Ledger close time |
-| `transaction_hash` | `TEXT` | string | Emitting transaction |
-| `contract_id` | `TEXT` | string | Emitting contract |
-| `event_type` | `TEXT` | string | Contract event symbol |
-| `topic` | `TEXT[]` | string[] | Raw event topics |
-| `value` | `JSONB` | object | Decoded event payload |
-| `created_at` | `TIMESTAMPTZ` | string | When the indexer persisted the row |
+| Column              | SQL type      | JSON type | Description                        |
+| ------------------- | ------------- | --------- | ---------------------------------- |
+| `id`                | `BIGSERIAL`   | string    | Monotonic insertion ID             |
+| `ledger_sequence`   | `BIGINT`      | string    | Ledger the event was emitted in    |
+| `ledger_close_time` | `TIMESTAMPTZ` | string    | Ledger close time                  |
+| `transaction_hash`  | `TEXT`        | string    | Emitting transaction               |
+| `contract_id`       | `TEXT`        | string    | Emitting contract                  |
+| `event_type`        | `TEXT`        | string    | Contract event symbol              |
+| `topic`             | `TEXT[]`      | string[]  | Raw event topics                   |
+| `value`             | `JSONB`       | object    | Decoded event payload              |
+| `created_at`        | `TIMESTAMPTZ` | string    | When the indexer persisted the row |
 
 **Pagination:** page with `limit`/`offset` and stop when
 `offset + events.length >= total`. Because ordering is newest-first, a deep paginated
@@ -1222,11 +1304,13 @@ server sends a `{"type":"connected"}` frame, then one frame per event, plus a
 `:keepalive` comment every 15 seconds to hold the connection open through proxies.
 
 **Request:**
+
 ```bash
 curl -N -H "Accept: text/event-stream" http://localhost:3001/events/stream
 ```
 
 **Response — `200 OK`, `Content-Type: text/event-stream`:**
+
 ```
 data: {"type":"connected"}
 
@@ -1270,13 +1354,14 @@ asynchronously** in the background. A `202` means "accepted and started", not
 
 **Request body:**
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `fromLedger` | integer | **yes** | Start ledger, inclusive. Must be a JSON number. |
-| `toLedger` | integer | no | End ledger, inclusive. Omit to replay through the newest stored event. |
-| `eventTypes` | string[] | no | Restrict to these event types. Omit or pass an empty array for all types. |
+| Field        | Type     | Required | Description                                                               |
+| ------------ | -------- | -------- | ------------------------------------------------------------------------- |
+| `fromLedger` | integer  | **yes**  | Start ledger, inclusive. Must be a JSON number.                           |
+| `toLedger`   | integer  | no       | End ledger, inclusive. Omit to replay through the newest stored event.    |
+| `eventTypes` | string[] | no       | Restrict to these event types. Omit or pass an empty array for all types. |
 
 **Request:**
+
 ```bash
 curl -s -X POST http://localhost:3001/replay \
   -H 'Content-Type: application/json' \
@@ -1284,6 +1369,7 @@ curl -s -X POST http://localhost:3001/replay \
 ```
 
 **Response — `202 Accepted`:**
+
 ```json
 {
   "replayId": "replay_1750970400000_a1b2c3",
@@ -1292,19 +1378,19 @@ curl -s -X POST http://localhost:3001/replay \
 }
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `replayId` | string | Correlation ID, emitted in indexer logs for this replay |
-| `eventCount` | integer | Rows selected for replay |
-| `status` | string | Always `started` |
+| Field        | Type    | Description                                             |
+| ------------ | ------- | ------------------------------------------------------- |
+| `replayId`   | string  | Correlation ID, emitted in indexer logs for this replay |
+| `eventCount` | integer | Rows selected for replay                                |
+| `status`     | string  | Always `started`                                        |
 
 **Errors:**
 
-| Status | Body | Cause |
-|--------|------|-------|
-| `400` | `{"error":"fromLedger is required"}` | `fromLedger` missing or not a number |
-| `400` | `{"error":"SyntaxError: ..."}` | Body is not valid JSON |
-| `405` | `{"error":"Method not allowed"}` | Any method other than `POST` |
+| Status | Body                                 | Cause                                |
+| ------ | ------------------------------------ | ------------------------------------ |
+| `400`  | `{"error":"fromLedger is required"}` | `fromLedger` missing or not a number |
+| `400`  | `{"error":"SyntaxError: ..."}`       | Body is not valid JSON               |
+| `405`  | `{"error":"Method not allowed"}`     | Any method other than `POST`         |
 
 `replayId` is a log correlation handle only — it cannot be used to poll progress (see
 the next endpoint). Track a replay by grepping the indexer logs for it; failures are
@@ -1321,11 +1407,13 @@ Reports whether the replay subsystem is available.
 > state of any particular replay. Treat this as a capability check, not a job poller.
 
 **Request:**
+
 ```bash
 curl -s http://localhost:3001/replay/status/replay_1750970400000_a1b2c3
 ```
 
 **Response — `200 OK`:**
+
 ```json
 {
   "status": "available",
@@ -1343,18 +1431,20 @@ here means "this alert fired at this time", not "this alert is active now".
 
 **Query parameters:**
 
-| Parameter | Type | Default | Max | Description |
-|-----------|------|---------|-----|-------------|
-| `limit` | integer | `50` | `200` | Page size; higher values are clamped |
+| Parameter | Type    | Default | Max   | Description                          |
+| --------- | ------- | ------- | ----- | ------------------------------------ |
+| `limit`   | integer | `50`    | `200` | Page size; higher values are clamped |
 
 There is no `offset` — this endpoint returns only the most recent window.
 
 **Request:**
+
 ```bash
 curl -s "http://localhost:3001/alerts?limit=10"
 ```
 
 **Response — `200 OK`:**
+
 ```json
 {
   "alerts": [
@@ -1370,14 +1460,14 @@ curl -s "http://localhost:3001/alerts?limit=10"
 }
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | string | `BIGSERIAL` primary key |
-| `alert_name` | string | Alert rule name |
-| `severity` | string | One of `info`, `warning`, `critical` |
-| `message` | string | Human-readable description |
-| `metadata` | object \| null | Rule-specific context |
-| `created_at` | string | When the alert fired |
+| Field        | Type           | Description                          |
+| ------------ | -------------- | ------------------------------------ |
+| `id`         | string         | `BIGSERIAL` primary key              |
+| `alert_name` | string         | Alert rule name                      |
+| `severity`   | string         | One of `info`, `warning`, `critical` |
+| `message`    | string         | Human-readable description           |
+| `metadata`   | object \| null | Rule-specific context                |
+| `created_at` | string         | When the alert fired                 |
 
 **Errors:** `500` if the database query fails.
 
@@ -1387,12 +1477,12 @@ curl -s "http://localhost:3001/alerts?limit=10"
 
 Every error body is `{"error": "<message>"}`.
 
-| Status | Body | When |
-|--------|------|------|
-| `400 Bad Request` | `{"error":"fromLedger is required"}` | Invalid `POST /replay` body |
-| `404 Not Found` | `{"error":"Not found"}` | Path does not match any route |
-| `405 Method Not Allowed` | `{"error":"Method not allowed"}` | Wrong method on a matched path |
-| `500 Internal Server Error` | `{"error":"Internal server error"}` | Unhandled exception; details are logged server-side, not returned |
+| Status                      | Body                                 | When                                                              |
+| --------------------------- | ------------------------------------ | ----------------------------------------------------------------- |
+| `400 Bad Request`           | `{"error":"fromLedger is required"}` | Invalid `POST /replay` body                                       |
+| `404 Not Found`             | `{"error":"Not found"}`              | Path does not match any route                                     |
+| `405 Method Not Allowed`    | `{"error":"Method not allowed"}`     | Wrong method on a matched path                                    |
+| `500 Internal Server Error` | `{"error":"Internal server error"}`  | Unhandled exception; details are logged server-side, not returned |
 
 Note that `500` bodies are deliberately generic. When debugging an integration,
 correlate by timestamp against the indexer logs rather than expecting detail in the
@@ -1431,6 +1521,7 @@ For the full contract function reference see [`docs/CONTRACT_DOCUMENTATION.md`](
 ### Quick Examples (Soroban CLI)
 
 **Register a participant:**
+
 ```bash
 soroban contract invoke \
   --id $CONTRACT_ID \
@@ -1442,6 +1533,7 @@ soroban contract invoke \
 ```
 
 **Submit waste material:**
+
 ```bash
 soroban contract invoke \
   --id $CONTRACT_ID --source $SECRET_KEY --network testnet \
@@ -1451,6 +1543,7 @@ soroban contract invoke \
 ```
 
 **Get global metrics:**
+
 ```bash
 soroban contract invoke \
   --id $CONTRACT_ID --network testnet \
@@ -1477,7 +1570,7 @@ import { ScavengerClient, Network, signWithFreighter } from '@scavngr/sdk'
 const client = new ScavengerClient({
   rpcUrl: 'https://soroban-testnet.stellar.org',
   networkPassphrase: 'Test SDF Network ; September 2025',
-  contractId: process.env.VITE_CONTRACT_ID!,
+  contractId: process.env.VITE_CONTRACT_ID!
 })
 
 // For browser (Freighter wallet)
@@ -1498,7 +1591,7 @@ await client.registerParticipant({
   role: Role.Recycler,
   name: 'Alice',
   latitude: 40_714_000,
-  longitude: -74_006_000,
+  longitude: -74_006_000
 })
 
 // Get participant info
@@ -1517,7 +1610,7 @@ const wasteId: bigint = await client.submitMaterial({
   wasteType: WasteType.Plastic,
   weight: 1000n,
   latitude: 40_714_000n,
-  longitude: -74_006_000n,
+  longitude: -74_006_000n
 })
 
 // Transfer waste
@@ -1527,7 +1620,7 @@ await client.transferWaste({
   to: 'GDEF...',
   latitude: 40_714_000n,
   longitude: -74_006_000n,
-  note: 'Delivered to collector',
+  note: 'Delivered to collector'
 })
 
 // Get waste details
@@ -1545,7 +1638,7 @@ const incentiveId: bigint = await client.createIncentive({
   rewarder: 'GMFR...',
   wasteType: WasteType.Plastic,
   rewardPoints: 100n,
-  budget: 50_000n,
+  budget: 50_000n
 })
 
 // Get active incentives for a waste type
@@ -1555,7 +1648,7 @@ const incentives: Incentive[] = await client.getIncentives(WasteType.Plastic)
 await client.distributeRewards({
   wasteId,
   incentiveId,
-  manufacturer: 'GMFR...',
+  manufacturer: 'GMFR...'
 })
 ```
 
@@ -1563,7 +1656,7 @@ await client.distributeRewards({
 
 ```typescript
 const metrics: GlobalMetrics = await client.getMetrics()
-console.log(metrics.total_wastes_count)  // number
+console.log(metrics.total_wastes_count) // number
 console.log(metrics.total_tokens_earned) // bigint
 
 const stats: ParticipantStats | null = await client.getStats('GABC...')
@@ -1577,30 +1670,62 @@ interface ClientOptions {
   rpcUrl: string
   networkPassphrase: string
   contractId: string
-  pollTimeoutMs?: number   // default: 30000
-  pollIntervalMs?: number  // default: 1500
+  pollTimeoutMs?: number // default: 30000
+  pollIntervalMs?: number // default: 1500
 }
 
-enum Role        { Recycler, Collector, Manufacturer }
-enum WasteType   { Paper=0, PetPlastic=1, Plastic=2, Metal=3, Glass=4, Organic=5, Electronic=6 }
-enum Network     { Standalone, Testnet, Futurenet, Mainnet }
+enum Role {
+  Recycler,
+  Collector,
+  Manufacturer
+}
+enum WasteType {
+  Paper = 0,
+  PetPlastic = 1,
+  Plastic = 2,
+  Metal = 3,
+  Glass = 4,
+  Organic = 5,
+  Electronic = 6
+}
+enum Network {
+  Standalone,
+  Testnet,
+  Futurenet,
+  Mainnet
+}
 
 interface Participant {
-  address: string; role: Role; name: string
-  latitude: number; longitude: number; registered_at: number
+  address: string
+  role: Role
+  name: string
+  latitude: number
+  longitude: number
+  registered_at: number
 }
 
 interface Waste {
-  waste_id: bigint; waste_type: WasteType; weight: bigint
-  current_owner: string; latitude: bigint; longitude: bigint
-  recycled_timestamp: number; is_active: boolean
-  is_confirmed: boolean; confirmer: string
+  waste_id: bigint
+  waste_type: WasteType
+  weight: bigint
+  current_owner: string
+  latitude: bigint
+  longitude: bigint
+  recycled_timestamp: number
+  is_active: boolean
+  is_confirmed: boolean
+  confirmer: string
 }
 
 interface Incentive {
-  id: number; rewarder: string; waste_type: WasteType
-  reward_points: number; total_budget: number
-  remaining_budget: number; active: boolean; created_at: number
+  id: number
+  rewarder: string
+  waste_type: WasteType
+  reward_points: number
+  total_budget: number
+  remaining_budget: number
+  active: boolean
+  created_at: number
 }
 
 interface GlobalMetrics {
@@ -1634,38 +1759,38 @@ try {
 
 ### HTTP Error Codes (Indexer API)
 
-| Status | Meaning |
-|--------|---------|
-| 200 | Success |
-| 202 | Accepted (async job started) |
-| 400 | Bad Request — invalid query parameters |
-| 404 | Not Found — resource doesn't exist |
-| 429 | Too Many Requests — rate limit exceeded |
-| 500 | Internal Server Error |
+| Status | Meaning                                 |
+| ------ | --------------------------------------- |
+| 200    | Success                                 |
+| 202    | Accepted (async job started)            |
+| 400    | Bad Request — invalid query parameters  |
+| 404    | Not Found — resource doesn't exist      |
+| 429    | Too Many Requests — rate limit exceeded |
+| 500    | Internal Server Error                   |
 
 ### Soroban Contract Errors
 
 All contract functions return `Result<T, Error>`. The numeric error code is embedded in the transaction result.
 
-| Code | Variant | Likely Cause | Resolution |
-|------|---------|-------------|------------|
-| 1 | `AlreadyInitialized` | `initialize_admin` called twice | Deploy a fresh contract |
-| 2 | `Unauthorized` | Non-admin called admin function | Use the correct admin key |
-| 3 | `NotRegistered` | Participant not on chain | Call `register_participant` first |
-| 4 | `AlreadyRegistered` | Address already exists | Address is already active |
-| 5 | `NotManufacturer` | Role ≠ Manufacturer | Switch to a Manufacturer account |
-| 6 | `NotWasteOwner` | Caller doesn't own waste | Use the waste's current owner address |
-| 7 | `WasteNotFound` | Invalid waste ID | Check `get_participant_wastes` for valid IDs |
-| 9 | `IncentiveNotFound` | Invalid incentive ID | Check `get_active_incentives` |
-| 12 | `InvalidWeight` | Weight = 0 | Provide weight > 0 |
-| 13 | `InvalidCoordinates` | lat/lon out of range | lat ∈ [-90M, +90M], lon ∈ [-180M, +180M] |
-| 14 | `InvalidPercentage` | Sum > 100 | collector% + owner% ≤ 100 |
-| 18 | `WasteDeactivated` | Waste was deactivated | Cannot be used after deactivation |
-| 22 | `SelfConfirmation` | Owner confirmed own waste | Use a different confirmer address |
-| 26 | `NoRewardAvailable` | Budget exhausted | Create a new incentive with fresh budget |
-| 27 | `InvalidTransferRoute` | Invalid role combination | Only Recycler→Collector/Mfr, Collector→Mfr |
-| 31 | `InsufficientBudget` | Budget < reward | Increase incentive budget |
-| 44 | `WasteExpired` | Waste TTL elapsed | Waste can no longer be transferred |
+| Code | Variant                | Likely Cause                    | Resolution                                   |
+| ---- | ---------------------- | ------------------------------- | -------------------------------------------- |
+| 1    | `AlreadyInitialized`   | `initialize_admin` called twice | Deploy a fresh contract                      |
+| 2    | `Unauthorized`         | Non-admin called admin function | Use the correct admin key                    |
+| 3    | `NotRegistered`        | Participant not on chain        | Call `register_participant` first            |
+| 4    | `AlreadyRegistered`    | Address already exists          | Address is already active                    |
+| 5    | `NotManufacturer`      | Role ≠ Manufacturer             | Switch to a Manufacturer account             |
+| 6    | `NotWasteOwner`        | Caller doesn't own waste        | Use the waste's current owner address        |
+| 7    | `WasteNotFound`        | Invalid waste ID                | Check `get_participant_wastes` for valid IDs |
+| 9    | `IncentiveNotFound`    | Invalid incentive ID            | Check `get_active_incentives`                |
+| 12   | `InvalidWeight`        | Weight = 0                      | Provide weight > 0                           |
+| 13   | `InvalidCoordinates`   | lat/lon out of range            | lat ∈ [-90M, +90M], lon ∈ [-180M, +180M]     |
+| 14   | `InvalidPercentage`    | Sum > 100                       | collector% + owner% ≤ 100                    |
+| 18   | `WasteDeactivated`     | Waste was deactivated           | Cannot be used after deactivation            |
+| 22   | `SelfConfirmation`     | Owner confirmed own waste       | Use a different confirmer address            |
+| 26   | `NoRewardAvailable`    | Budget exhausted                | Create a new incentive with fresh budget     |
+| 27   | `InvalidTransferRoute` | Invalid role combination        | Only Recycler→Collector/Mfr, Collector→Mfr   |
+| 31   | `InsufficientBudget`   | Budget < reward                 | Increase incentive budget                    |
+| 44   | `WasteExpired`         | Waste TTL elapsed               | Waste can no longer be transferred           |
 
 ---
 
@@ -1703,7 +1828,7 @@ integrated against v1.0.0 docs, review the following:
 - `GET /replay/status/:id` — documented as an availability probe; per-job progress
   tracking does not exist, and the `:id` segment is ignored.
 - `GET /alerts` — documented the `limit` parameter (default 50, max 200) and the
-  actual `alert_history` row shape; this is alert *history*, not active-alert state.
+  actual `alert_history` row shape; this is alert _history_, not active-alert state.
 - Rate limiting — corrected to state that the Redis-backed limiter is **not currently
   attached** to the HTTP server; suggested limits aligned with `.env.example`
   (60 req/min, burst 10) rather than the previously stated 100 req/min.

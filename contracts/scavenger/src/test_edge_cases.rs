@@ -15,11 +15,11 @@
 
 #![cfg(test)]
 
-use soroban_sdk::{testutils::Address as _, Address, Env, String, Vec};
 use soroban_sdk::token::StellarAssetClient;
+use soroban_sdk::{testutils::Address as _, Address, Env, String, Vec};
 
-use crate::{ScavengerContract, ScavengerContractClient};
 use crate::types::{Role, WasteType};
+use crate::{ScavengerContract, ScavengerContractClient};
 
 fn setup(env: &Env) -> (ScavengerContractClient<'_>, Address, Address) {
     let contract_id = env.register(ScavengerContract, ());

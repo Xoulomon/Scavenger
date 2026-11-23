@@ -1,34 +1,34 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react'
 
 export interface WasteFilter {
-  wasteType?: string[];
-  status?: string[];
+  wasteType?: string[]
+  status?: string[]
   dateRange?: {
-    start: Date;
-    end: Date;
-  };
+    start: Date
+    end: Date
+  }
   weight?: {
-    min: number;
-    max: number;
-  };
+    min: number
+    max: number
+  }
   location?: {
-    lat: number;
-    lon: number;
-    radius: number;
-  };
-  verificationStatus?: 'verified' | 'unverified' | 'all';
+    lat: number
+    lon: number
+    radius: number
+  }
+  verificationStatus?: 'verified' | 'unverified' | 'all'
 }
 
 export interface FilterPreset {
-  id: string;
-  name: string;
-  filters: WasteFilter;
+  id: string
+  name: string
+  filters: WasteFilter
 }
 
 interface WasteFilterManagerProps {
-  onFilterChange: (filters: WasteFilter) => void;
-  presets?: FilterPreset[];
-  onSavePreset?: (preset: FilterPreset) => void;
+  onFilterChange: (filters: WasteFilter) => void
+  presets?: FilterPreset[]
+  onSavePreset?: (preset: FilterPreset) => void
 }
 
 const DEFAULT_PRESETS: FilterPreset[] = [
@@ -38,90 +38,90 @@ const DEFAULT_PRESETS: FilterPreset[] = [
     filters: {
       dateRange: {
         start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        end: new Date(),
-      },
-    },
+        end: new Date()
+      }
+    }
   },
   {
     id: 'high-weight',
     name: 'High Weight',
     filters: {
-      weight: { min: 100, max: Infinity },
-    },
+      weight: { min: 100, max: Infinity }
+    }
   },
   {
     id: 'verified',
     name: 'Verified Only',
     filters: {
-      verificationStatus: 'verified',
-    },
-  },
-];
+      verificationStatus: 'verified'
+    }
+  }
+]
 
 export const WasteFilterManager: React.FC<WasteFilterManagerProps> = ({
   onFilterChange,
   presets = DEFAULT_PRESETS,
-  onSavePreset,
+  onSavePreset
 }) => {
-  const [filters, setFilters] = useState<WasteFilter>({});
-  const [savedPresets, setSavedPresets] = useState<FilterPreset[]>(presets);
+  const [filters, setFilters] = useState<WasteFilter>({})
+  const [savedPresets, setSavedPresets] = useState<FilterPreset[]>(presets)
 
   const updateFilter = useCallback(
     (newFilters: Partial<WasteFilter>) => {
-      const updated = { ...filters, ...newFilters };
-      setFilters(updated);
-      onFilterChange(updated);
+      const updated = { ...filters, ...newFilters }
+      setFilters(updated)
+      onFilterChange(updated)
     },
     [filters, onFilterChange]
-  );
+  )
 
   const clearFilters = useCallback(() => {
-    setFilters({});
-    onFilterChange({});
-  }, [onFilterChange]);
+    setFilters({})
+    onFilterChange({})
+  }, [onFilterChange])
 
   const applyPreset = useCallback(
     (presetId: string) => {
-      const preset = savedPresets.find((p) => p.id === presetId);
+      const preset = savedPresets.find((p) => p.id === presetId)
       if (preset) {
-        setFilters(preset.filters);
-        onFilterChange(preset.filters);
+        setFilters(preset.filters)
+        onFilterChange(preset.filters)
       }
     },
     [savedPresets, onFilterChange]
-  );
+  )
 
   const saveCurrentAsPreset = useCallback(
     (name: string) => {
       const newPreset: FilterPreset = {
         id: `preset-${Date.now()}`,
         name,
-        filters,
-      };
-      setSavedPresets([...savedPresets, newPreset]);
-      onSavePreset?.(newPreset);
+        filters
+      }
+      setSavedPresets([...savedPresets, newPreset])
+      onSavePreset?.(newPreset)
     },
     [filters, savedPresets, onSavePreset]
-  );
+  )
 
   const isFilterActive = useMemo(() => {
-    return Object.keys(filters).length > 0;
-  }, [filters]);
+    return Object.keys(filters).length > 0
+  }, [filters])
 
   const activePresets = useMemo(() => {
     return savedPresets.filter((preset) => {
-      const presetFilters = preset.filters;
+      const presetFilters = preset.filters
       return Object.keys(presetFilters).some((key) => {
-        const filterKey = key as keyof WasteFilter;
-        const currentValue = filters[filterKey];
-        const presetValue = presetFilters[filterKey];
+        const filterKey = key as keyof WasteFilter
+        const currentValue = filters[filterKey]
+        const presetValue = presetFilters[filterKey]
         if (currentValue === undefined || presetValue === undefined) {
-          return false;
+          return false
         }
-        return JSON.stringify(currentValue) === JSON.stringify(presetValue);
-      });
-    });
-  }, [savedPresets, filters]);
+        return JSON.stringify(currentValue) === JSON.stringify(presetValue)
+      })
+    })
+  }, [savedPresets, filters])
 
   return useMemo(
     () => ({
@@ -132,7 +132,7 @@ export const WasteFilterManager: React.FC<WasteFilterManagerProps> = ({
       saveCurrentAsPreset,
       isFilterActive,
       presets: savedPresets,
-      activePresets,
+      activePresets
     }),
     [
       filters,
@@ -142,9 +142,9 @@ export const WasteFilterManager: React.FC<WasteFilterManagerProps> = ({
       saveCurrentAsPreset,
       isFilterActive,
       savedPresets,
-      activePresets,
+      activePresets
     ]
-  );
-};
+  )
+}
 
-export default WasteFilterManager;
+export default WasteFilterManager

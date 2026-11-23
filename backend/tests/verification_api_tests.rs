@@ -1,7 +1,7 @@
 //! Comprehensive integration tests for the verification API module
 //! Tests for verification request/response contracts and API handlers
 
-use scavenger_backend::validation::{validate_required, validate_doc_type, validate_url};
+use scavenger_backend::validation::{validate_doc_type, validate_required, validate_url};
 
 #[test]
 fn test_validate_required_with_empty_string() {

@@ -15,7 +15,13 @@ function TrendIcon({ trend }: { trend: Prediction['trend'] }) {
   return <Minus className="h-4 w-4 text-muted-foreground" />
 }
 
-function MiniChart({ points, forecast }: { points: { x: number; y: number }[]; forecast: { x: number; y: number }[] }) {
+function MiniChart({
+  points,
+  forecast
+}: {
+  points: { x: number; y: number }[]
+  forecast: { x: number; y: number }[]
+}) {
   const all = [...points, ...forecast]
   if (all.length === 0) return null
   const maxY = Math.max(...all.map((p) => p.y), 1)
@@ -25,24 +31,45 @@ function MiniChart({ points, forecast }: { points: { x: number; y: number }[]; f
 
   const toSvg = (p: { x: number; y: number }, total: number) => ({
     sx: pad + (p.x / (total - 1 || 1)) * (W - 2 * pad),
-    sy: H - pad - (p.y / maxY) * (H - 2 * pad),
+    sy: H - pad - (p.y / maxY) * (H - 2 * pad)
   })
 
   const total = all.length
-  const histPath = points.map((p, i) => {
-    const { sx, sy } = toSvg({ x: i, y: p.y }, total)
-    return `${i === 0 ? 'M' : 'L'}${sx.toFixed(1)},${sy.toFixed(1)}`
-  }).join(' ')
+  const histPath = points
+    .map((p, i) => {
+      const { sx, sy } = toSvg({ x: i, y: p.y }, total)
+      return `${i === 0 ? 'M' : 'L'}${sx.toFixed(1)},${sy.toFixed(1)}`
+    })
+    .join(' ')
 
-  const forecastPath = forecast.map((p, i) => {
-    const { sx, sy } = toSvg({ x: points.length + i, y: p.y }, total)
-    return `${i === 0 ? 'M' : 'L'}${sx.toFixed(1)},${sy.toFixed(1)}`
-  }).join(' ')
+  const forecastPath = forecast
+    .map((p, i) => {
+      const { sx, sy } = toSvg({ x: points.length + i, y: p.y }, total)
+      return `${i === 0 ? 'M' : 'L'}${sx.toFixed(1)},${sy.toFixed(1)}`
+    })
+    .join(' ')
 
   return (
     <svg width={W} height={H} className="overflow-visible">
-      {histPath && <path d={histPath} fill="none" stroke="currentColor" strokeWidth="1.5" className="text-primary" />}
-      {forecastPath && <path d={forecastPath} fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 2" className="text-orange-400" />}
+      {histPath && (
+        <path
+          d={histPath}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          className="text-primary"
+        />
+      )}
+      {forecastPath && (
+        <path
+          d={forecastPath}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeDasharray="4 2"
+          className="text-orange-400"
+        />
+      )}
     </svg>
   )
 }
@@ -52,7 +79,9 @@ function exportPredictions(predictions: Prediction[]) {
   for (const p of predictions) {
     if (p.historicalPoints.length === 0) continue
     const forecasts = p.forecastPoints.map((f) => f.y).join(',')
-    lines.push(`${wasteTypeLabel(p.wasteType)},${p.trend},${p.regression.slope},${p.regression.r2},${forecasts}`)
+    lines.push(
+      `${wasteTypeLabel(p.wasteType)},${p.trend},${p.regression.slope},${p.regression.r2},${forecasts}`
+    )
   }
   const blob = new Blob([lines.join('\n')], { type: 'text/csv' })
   const url = URL.createObjectURL(blob)
@@ -69,7 +98,8 @@ export function PredictiveAnalyticsPage() {
   const { predictions, optimalTimes } = usePredictiveAnalytics(wastes)
   const [activeType, setActiveType] = useState<number | null>(null)
 
-  const activePrediction = activeType !== null ? predictions.find((p) => p.wasteType === activeType) : null
+  const activePrediction =
+    activeType !== null ? predictions.find((p) => p.wasteType === activeType) : null
   const hasData = predictions.some((p) => p.historicalPoints.length > 0)
 
   return (
@@ -88,12 +118,18 @@ export function PredictiveAnalyticsPage() {
 
       {isLoading && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => <div key={i} className="h-32 animate-pulse rounded-xl bg-muted" />)}
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-32 animate-pulse rounded-xl bg-muted" />
+          ))}
         </div>
       )}
 
       {!isLoading && !hasData && (
-        <EmptyState icon={TrendingUp} title="No data yet" description="Submit waste items to see predictions" />
+        <EmptyState
+          icon={TrendingUp}
+          title="No data yet"
+          description="Submit waste items to see predictions"
+        />
       )}
 
       {!isLoading && hasData && (
@@ -121,8 +157,20 @@ export function PredictiveAnalyticsPage() {
                       <div className="flex gap-2 text-xs text-muted-foreground">
                         <span>R²: {p.regression.r2}</span>
                         <span>·</span>
-                        <span className={p.trend === 'up' ? 'text-green-600' : p.trend === 'down' ? 'text-red-600' : ''}>
-                          {p.trend === 'up' ? '↑ Growing' : p.trend === 'down' ? '↓ Declining' : '→ Stable'}
+                        <span
+                          className={
+                            p.trend === 'up'
+                              ? 'text-green-600'
+                              : p.trend === 'down'
+                                ? 'text-red-600'
+                                : ''
+                          }
+                        >
+                          {p.trend === 'up'
+                            ? '↑ Growing'
+                            : p.trend === 'down'
+                              ? '↓ Declining'
+                              : '→ Stable'}
                         </span>
                       </div>
                     </>
@@ -157,13 +205,17 @@ export function PredictiveAnalyticsPage() {
                 </div>
 
                 <div>
-                  <p className="mb-2 text-sm font-medium">4-Week Forecast with 95% Confidence Interval</p>
+                  <p className="mb-2 text-sm font-medium">
+                    4-Week Forecast with 95% Confidence Interval
+                  </p>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b">
                           <th className="px-3 py-1.5 text-left text-muted-foreground">Period</th>
-                          <th className="px-3 py-1.5 text-left text-muted-foreground">Predicted (kg)</th>
+                          <th className="px-3 py-1.5 text-left text-muted-foreground">
+                            Predicted (kg)
+                          </th>
                           <th className="px-3 py-1.5 text-left text-muted-foreground">Lower</th>
                           <th className="px-3 py-1.5 text-left text-muted-foreground">Upper</th>
                         </tr>
@@ -173,8 +225,12 @@ export function PredictiveAnalyticsPage() {
                           <tr key={fp.x} className="border-b last:border-0">
                             <td className="px-3 py-1.5">Week +{i + 1}</td>
                             <td className="px-3 py-1.5 font-medium">{fp.y}</td>
-                            <td className="px-3 py-1.5 text-muted-foreground">{activePrediction.confidenceInterval[i]?.lower}</td>
-                            <td className="px-3 py-1.5 text-muted-foreground">{activePrediction.confidenceInterval[i]?.upper}</td>
+                            <td className="px-3 py-1.5 text-muted-foreground">
+                              {activePrediction.confidenceInterval[i]?.lower}
+                            </td>
+                            <td className="px-3 py-1.5 text-muted-foreground">
+                              {activePrediction.confidenceInterval[i]?.upper}
+                            </td>
                           </tr>
                         ))}
                       </tbody>

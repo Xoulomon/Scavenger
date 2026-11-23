@@ -5,15 +5,15 @@ in the Scavngr ecosystem.
 
 ## Material Struct
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | `u64` | Unique identifier |
-| `waste_type` | `WasteType` | Type of waste (Paper, PetPlastic, Plastic, Metal, Glass) |
-| `weight` | `u64` | Weight in grams |
-| `submitter` | `Address` | Participant who submitted the material |
-| `submitted_at` | `u64` | Timestamp of submission |
-| `verified` | `bool` | Verification status |
-| `description` | `String` | Optional description |
+| Field          | Type        | Description                                              |
+| -------------- | ----------- | -------------------------------------------------------- |
+| `id`           | `u64`       | Unique identifier                                        |
+| `waste_type`   | `WasteType` | Type of waste (Paper, PetPlastic, Plastic, Metal, Glass) |
+| `weight`       | `u64`       | Weight in grams                                          |
+| `submitter`    | `Address`   | Participant who submitted the material                   |
+| `submitted_at` | `u64`       | Timestamp of submission                                  |
+| `verified`     | `bool`      | Verification status                                      |
+| `description`  | `String`    | Optional description                                     |
 
 ## Reward Point System
 
@@ -21,13 +21,13 @@ Materials earn reward points based on type and weight.
 
 ### Multipliers
 
-| Waste Type | Multiplier | Notes |
-|------------|-----------|-------|
-| Paper | 1× | Base rate |
-| PetPlastic | 3× | High value recyclable |
-| Plastic | 2× | Medium value |
-| Metal | 5× | Highest value — infinitely recyclable |
-| Glass | 2× | Medium value — infinitely recyclable |
+| Waste Type | Multiplier | Notes                                 |
+| ---------- | ---------- | ------------------------------------- |
+| Paper      | 1×         | Base rate                             |
+| PetPlastic | 3×         | High value recyclable                 |
+| Plastic    | 2×         | Medium value                          |
+| Metal      | 5×         | Highest value — infinitely recyclable |
+| Glass      | 2×         | Medium value — infinitely recyclable  |
 
 **Formula:** `Points = (weight in kg) × multiplier × 10`
 
@@ -82,10 +82,10 @@ Verifies a material submission.
 
 Materials are stored in Soroban instance storage:
 
-| Key | Value |
-|-----|-------|
-| `("material", material_id)` | `Material` struct |
-| `("material_count",)` | `u64` (last material ID) |
+| Key                         | Value                    |
+| --------------------------- | ------------------------ |
+| `("material", material_id)` | `Material` struct        |
+| `("material_count",)`       | `u64` (last material ID) |
 
 ## Integration with WasteType
 

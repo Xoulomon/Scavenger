@@ -54,7 +54,7 @@ export function useWastes(filters?: WasteFilters): UseWastesResult {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       const ids = await client.getParticipantWastes(address)
       const results = await Promise.all(ids.map((id) => client.getWaste(id)))
@@ -70,7 +70,7 @@ export function useWastes(filters?: WasteFilters): UseWastesResult {
       return wastes
     },
     enabled: !!address,
-    ...queryCachePolicy.wastes,
+    ...queryCachePolicy.wastes
   })
 
   const wastes = useMemo<Waste[]>(() => data ?? [], [data])

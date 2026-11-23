@@ -16,13 +16,13 @@ issue description and acceptance criteria.
   - Arithmetic: `5000–5099`
   - Config: `6000–6099`
 - [x] Consolidate duplicate waste-type mismatch variants into
-  `Error::WasteTypeMismatch`.
+      `Error::WasteTypeMismatch`.
 - [x] Remove duplicate validation helper definitions and route percentage
-  validation through one shared helper.
+      validation through one shared helper.
 - [x] Add a unit test that checks the actual enum discriminants for uniqueness
-  and another that checks each discriminant against its domain range.
+      and another that checks each discriminant against its domain range.
 - [x] Publish the full numeric-code table in
-  `../docs/ERROR_MESSAGE_GUIDE.md`.
+      `../docs/ERROR_MESSAGE_GUIDE.md`.
 
 The numeric assignments replace the former sequential `1–54` contract error
 codes. Client applications that switch on those numeric values must update to

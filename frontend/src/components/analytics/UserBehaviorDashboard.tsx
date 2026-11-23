@@ -30,7 +30,7 @@ export function UserBehaviorDashboard() {
       events.reduce<Record<string, number>>((acc, e) => {
         acc[e.action] = (acc[e.action] ?? 0) + 1
         return acc
-      }, {}),
+      }, {})
     )
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
@@ -50,10 +50,7 @@ export function UserBehaviorDashboard() {
         <StatBox label="Total Events" value={data.events.length} />
         <StatBox label="Page Views" value={data.session.pageViews} />
         <StatBox label="Session Events" value={data.session.events} />
-        <StatBox
-          label="Unique Categories"
-          value={Object.keys(data.byCategory).length}
-        />
+        <StatBox label="Unique Categories" value={Object.keys(data.byCategory).length} />
       </div>
 
       {/* Daily page views */}

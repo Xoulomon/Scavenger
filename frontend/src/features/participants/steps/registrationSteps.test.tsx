@@ -1,4 +1,4 @@
-import { fireEvent,render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { Role } from '@/api/types'
@@ -52,9 +52,7 @@ describe('ProfileStep', () => {
   })
 
   it('counts remaining bio characters', () => {
-    render(
-      <ProfileStep draft={{ ...emptyDraft, bio: 'abcd' }} errors={{}} onChange={vi.fn()} />
-    )
+    render(<ProfileStep draft={{ ...emptyDraft, bio: 'abcd' }} errors={{}} onChange={vi.fn()} />)
     expect(screen.getByText(/196 chars remaining/)).toBeInTheDocument()
   })
 })
@@ -65,7 +63,7 @@ describe('ConfirmStep', () => {
     errors: {},
     summaryItems: [{ label: 'Role', value: 'Recycler' }],
     geo: { loading: false, error: null, onDetect: vi.fn() },
-    onChange: vi.fn(),
+    onChange: vi.fn()
   }
 
   it('toggles terms agreement through onChange', () => {

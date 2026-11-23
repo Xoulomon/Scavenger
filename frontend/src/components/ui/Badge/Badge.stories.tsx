@@ -8,27 +8,27 @@ const meta: Meta<typeof Badge> = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'secondary', 'destructive', 'outline'],
-    },
-  },
+      options: ['default', 'secondary', 'destructive', 'outline']
+    }
+  }
 }
 export default meta
 type Story = StoryObj<typeof Badge>
 
 export const Default: Story = {
-  args: { children: 'Verified', variant: 'default' },
+  args: { children: 'Verified', variant: 'default' }
 }
 
 export const Secondary: Story = {
-  args: { children: 'Pending', variant: 'secondary' },
+  args: { children: 'Pending', variant: 'secondary' }
 }
 
 export const Destructive: Story = {
-  args: { children: 'Rejected', variant: 'destructive' },
+  args: { children: 'Rejected', variant: 'destructive' }
 }
 
 export const Outline: Story = {
-  args: { children: 'Draft', variant: 'outline' },
+  args: { children: 'Draft', variant: 'outline' }
 }
 
 export const AllVariants: Story = {
@@ -39,7 +39,7 @@ export const AllVariants: Story = {
       <Badge variant="destructive">Rejected</Badge>
       <Badge variant="outline">Draft</Badge>
     </div>
-  ),
+  )
 }
 
 export const WasteTypes: Story = {
@@ -51,5 +51,5 @@ export const WasteTypes: Story = {
         </Badge>
       ))}
     </div>
-  ),
+  )
 }

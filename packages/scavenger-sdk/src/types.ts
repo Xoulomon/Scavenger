@@ -11,7 +11,7 @@ export type {
   WasteTransfer,
   ParticipantStats,
   GlobalMetrics,
-  ContractError,
+  ContractError
 } from '@scavngr/types'
 
 // SDK-specific types and client extensions

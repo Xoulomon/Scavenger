@@ -5,6 +5,7 @@ Comprehensive integration tests for the Scavenger platform covering all system c
 ## Overview
 
 This test suite includes 15+ integration tests covering:
+
 - Contract-Frontend integration
 - Contract-Backend integration
 - Database integration
@@ -14,6 +15,7 @@ This test suite includes 15+ integration tests covering:
 ## Test Categories
 
 ### 1. Contract-Frontend Integration (6 tests)
+
 - Participant registration through frontend API
 - Participant data retrieval from contract
 - Waste submission and verification
@@ -22,6 +24,7 @@ This test suite includes 15+ integration tests covering:
 - Concurrent operations
 
 ### 2. Contract-Backend Integration (7 tests)
+
 - Participant data synchronization
 - Waste transfer handling
 - Incentive data consistency
@@ -31,6 +34,7 @@ This test suite includes 15+ integration tests covering:
 - Transaction integrity
 
 ### 3. Database Integration (5 tests)
+
 - Data persistence
 - Referential integrity
 - Concurrent writes
@@ -38,6 +42,7 @@ This test suite includes 15+ integration tests covering:
 - Query consistency
 
 ### 4. Event Handling (6 tests)
+
 - Participant registered events
 - Waste submitted events
 - Waste transferred events
@@ -46,6 +51,7 @@ This test suite includes 15+ integration tests covering:
 - Event propagation
 
 ### 5. External API Integration (3 tests)
+
 - Stellar testnet integration
 - Rate limiting
 - Timeout handling
@@ -106,6 +112,7 @@ pnpm run test:watch
 ### Mock Data
 
 Test fixtures are automatically created for each test:
+
 - Test participants with unique IDs
 - Test waste materials
 - Test incentives
@@ -114,6 +121,7 @@ Test fixtures are automatically created for each test:
 ### Cleanup
 
 Tests automatically clean up after themselves:
+
 - Remove test participants
 - Remove test waste
 - Remove test incentives
@@ -156,6 +164,7 @@ jobs:
 **Error**: `ECONNREFUSED`
 
 **Solution**:
+
 - Verify API is running
 - Check API_URL environment variable
 - Check network connectivity
@@ -165,6 +174,7 @@ jobs:
 **Error**: `ENOTFOUND`
 
 **Solution**:
+
 - Verify database is running
 - Check DATABASE_URL environment variable
 - Check database credentials
@@ -174,6 +184,7 @@ jobs:
 **Error**: `ETIMEDOUT`
 
 **Solution**:
+
 - Increase timeout in test configuration
 - Check system resources
 - Check network latency
@@ -183,6 +194,7 @@ jobs:
 **Error**: `AssertionError`
 
 **Solution**:
+
 - Check test logs
 - Verify test data
 - Check API responses

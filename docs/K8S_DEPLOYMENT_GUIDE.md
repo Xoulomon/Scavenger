@@ -83,6 +83,7 @@ kubectl logs -n scavenger deployment/scavenger-backend
 ### Environment Variables
 
 Set in complete-deployment.yml:
+
 - `RUST_LOG`: Logging level (default: info)
 - `DATABASE_URL`: PostgreSQL connection string
 - `STELLAR_NETWORK`: Network (testnet/mainnet)
@@ -90,6 +91,7 @@ Set in complete-deployment.yml:
 ### Resource Limits
 
 Backend:
+
 - CPU: 250m request / 500m limit
 - Memory: 512Mi request / 1Gi limit
 
@@ -119,22 +121,26 @@ kubectl scale deployment scavenger-backend --replicas=5 -n scavenger
 ### Autoscaling
 
 HPA automatically scales between 3-10 replicas based on:
+
 - CPU utilization: 70%
 - Memory utilization: 80%
 
 ## Monitoring & Logs
 
 ### View logs
+
 ```bash
 kubectl logs -f deployment/scavenger-backend -n scavenger
 ```
 
 ### Port forwarding
+
 ```bash
 kubectl port-forward svc/scavenger-backend 8080:80 -n scavenger
 ```
 
 ### Pod disruption budget
+
 Ensures minimum 2 replicas are always available during maintenance.
 
 ## Troubleshooting

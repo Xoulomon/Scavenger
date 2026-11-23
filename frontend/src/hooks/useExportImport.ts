@@ -27,5 +27,5 @@ export {
   type ParsedImportResult,
   type ImportPreviewRow,
   type WasteExportData,
-  type PDFExportOptions,
+  type PDFExportOptions
 } from '@/lib/exportImport'

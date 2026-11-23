@@ -21,9 +21,7 @@
 #![allow(dead_code)]
 
 use soroban_sdk::{testutils::Address as _, Address, Env};
-use stellar_scavngr_contract::{
-    ParticipantRole, ScavengerContract, ScavengerContractClient,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavengerContract, ScavengerContractClient};
 
 /// Register a fresh contract instance and return a client for it.
 pub fn make_client(env: &Env) -> ScavengerContractClient<'_> {
@@ -50,13 +48,7 @@ pub fn register_participant_with_role(
     name: &str,
 ) -> Address {
     let participant = Address::generate(env);
-    client.register_participant(
-        &participant,
-        &role,
-        &soroban_sdk::Symbol::short(name),
-        &0,
-        &0,
-    );
+    client.register_participant(&participant, &role, &soroban_sdk::Symbol::short(name), &0, &0);
     participant
 }
 
@@ -72,14 +64,11 @@ pub fn setup_with_recycler(env: &Env) -> (ScavengerContractClient<'_>, Address, 
 /// `setup_admin` plus one registered participant of each common role.
 ///
 /// Returns `(client, admin, recycler, collector, manufacturer)`.
-pub fn setup_full_env(
-    env: &Env,
-) -> (ScavengerContractClient<'_>, Address, Address, Address, Address) {
+pub fn setup_full_env(env: &Env) -> (ScavengerContractClient<'_>, Address, Address, Address, Address) {
     let (client, admin) = setup_admin(env);
     let recycler = register_participant_with_role(env, &client, ParticipantRole::Recycler, "recycler");
     let collector = register_participant_with_role(env, &client, ParticipantRole::Collector, "col");
-    let manufacturer =
-        register_participant_with_role(env, &client, ParticipantRole::Manufacturer, "mfg");
+    let manufacturer = register_participant_with_role(env, &client, ParticipantRole::Manufacturer, "mfg");
     (client, admin, recycler, collector, manufacturer)
 }
 

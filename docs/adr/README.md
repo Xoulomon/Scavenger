@@ -6,33 +6,33 @@ contradicts one is visible as such in review.
 
 An ADR is not documentation of how the system works; that lives in
 [`docs/ARCHITECTURE.md`](../ARCHITECTURE.md) and its siblings. An ADR captures the
-*reasoning* that produced a design, including the alternatives that lost. That
+_reasoning_ that produced a design, including the alternatives that lost. That
 reasoning is the part that is otherwise lost when contributors move on.
 
 ## Index
 
-| # | Title | Status | Area |
-|---|-------|--------|------|
-| [0001](./0001-use-soroban-for-smart-contracts.md) | Use Soroban and Rust for the on-chain contract | Accepted | Contract |
-| [0002](./0002-off-chain-event-driven-indexing.md) | Serve queries from an off-chain event-driven indexer | Accepted | Indexer |
-| [0003](./0003-percentage-based-reward-distribution.md) | Distribute rewards by configurable percentage | Accepted | Contract |
-| [0004](./0004-contract-storage-key-layout.md) | Tier contract storage by access pattern, with typed tuple keys | Accepted | Contract |
-| [0005](./0005-indexer-relational-schema.md) | Project events into a normalised Postgres schema, keeping raw events | Accepted | Indexer |
-| [0006](./0006-wallet-based-authentication-flow.md) | Authenticate with wallet signatures; treat frontend session state as UI only | Accepted | Frontend / Auth |
-| [0007](./0007-multichain-backend-boundary.md) | Multichain and Contract Upgrade Boundaries in the Backend Service | Accepted | Backend / Architecture |
-| [0008](./0008-contract-module-layout-and-storage-keys.md) | Split the contract into modules with typed storage keys | Accepted | Contract |
-| [0009](./0009-feature-folder-layout.md) | Feature-folder layout for frontend domains, imported through `index.ts` only | Accepted | Frontend |
+| #                                                         | Title                                                                        | Status   | Area                   |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------- | -------- | ---------------------- |
+| [0001](./0001-use-soroban-for-smart-contracts.md)         | Use Soroban and Rust for the on-chain contract                               | Accepted | Contract               |
+| [0002](./0002-off-chain-event-driven-indexing.md)         | Serve queries from an off-chain event-driven indexer                         | Accepted | Indexer                |
+| [0003](./0003-percentage-based-reward-distribution.md)    | Distribute rewards by configurable percentage                                | Accepted | Contract               |
+| [0004](./0004-contract-storage-key-layout.md)             | Tier contract storage by access pattern, with typed tuple keys               | Accepted | Contract               |
+| [0005](./0005-indexer-relational-schema.md)               | Project events into a normalised Postgres schema, keeping raw events         | Accepted | Indexer                |
+| [0006](./0006-wallet-based-authentication-flow.md)        | Authenticate with wallet signatures; treat frontend session state as UI only | Accepted | Frontend / Auth        |
+| [0007](./0007-multichain-backend-boundary.md)             | Multichain and Contract Upgrade Boundaries in the Backend Service            | Accepted | Backend / Architecture |
+| [0008](./0008-contract-module-layout-and-storage-keys.md) | Split the contract into modules with typed storage keys                      | Accepted | Contract               |
+| [0009](./0009-feature-folder-layout.md)                   | Feature-folder layout for frontend domains, imported through `index.ts` only | Accepted | Frontend               |
 
 Template: [`template.md`](./template.md)
 
 ## Status values
 
-| Status | Meaning |
-|--------|---------|
-| **Proposed** | Under discussion; not yet binding |
-| **Accepted** | Binding. Code that contradicts it should be challenged in review |
-| **Deprecated** | No longer applies, and nothing replaced it |
-| **Superseded** | Replaced by a later ADR, which is linked from the header |
+| Status         | Meaning                                                          |
+| -------------- | ---------------------------------------------------------------- |
+| **Proposed**   | Under discussion; not yet binding                                |
+| **Accepted**   | Binding. Code that contradicts it should be challenged in review |
+| **Deprecated** | No longer applies, and nothing replaced it                       |
+| **Superseded** | Replaced by a later ADR, which is linked from the header         |
 
 ## Writing a new ADR
 

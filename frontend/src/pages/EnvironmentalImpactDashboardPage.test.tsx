@@ -11,12 +11,12 @@ vi.mock('@/hooks/useImpactCalculator', () => ({
       carKm: 0,
       smartphoneCharges: 0,
       showerMinutes: 0,
-      lightbulbHours: 0,
+      lightbulbHours: 0
     },
     shareText: '',
     isLoading: false,
-    isError: false,
-  })),
+    isError: false
+  }))
 }))
 
 describe('EnvironmentalImpactDashboardPage', () => {
@@ -26,9 +26,7 @@ describe('EnvironmentalImpactDashboardPage', () => {
 
   it('renders the Environmental Impact Dashboard heading', () => {
     render(<EnvironmentalImpactDashboardPage />)
-    expect(
-      screen.getByText('Environmental Impact Dashboard')
-    ).toBeInTheDocument()
+    expect(screen.getByText('Environmental Impact Dashboard')).toBeInTheDocument()
   })
 
   it('renders the empty state when there is no impact data', () => {

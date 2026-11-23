@@ -7,18 +7,11 @@ import {
   ShieldAlert,
   Activity,
   AlertTriangle,
-  Heart,
+  Heart
 } from 'lucide-react'
 
 export type AdminTab =
-  | 'overview'
-  | 'users'
-  | 'disputes'
-  | 'wastes'
-  | 'incentives'
-  | 'health'
-  | 'config'
-  | 'audit'
+  'overview' | 'users' | 'disputes' | 'wastes' | 'incentives' | 'health' | 'config' | 'audit'
 
 export interface AdminTabConfig {
   id: AdminTab
@@ -35,7 +28,7 @@ export const ADMIN_TABS: AdminTabConfig[] = [
   { id: 'incentives', label: 'Incentives', icon: <Gift className="h-4 w-4" /> },
   { id: 'health', label: 'System Health', icon: <Heart className="h-4 w-4" /> },
   { id: 'config', label: 'Config', icon: <Settings className="h-4 w-4" />, adminOnly: true },
-  { id: 'audit', label: 'Audit Log', icon: <ShieldAlert className="h-4 w-4" /> },
+  { id: 'audit', label: 'Audit Log', icon: <ShieldAlert className="h-4 w-4" /> }
 ]
 
 export interface UseAdminTabsOptions {
@@ -54,6 +47,6 @@ export function useAdminTabs(options: UseAdminTabsOptions = {}) {
     activeTab,
     setActiveTab,
     visibleTabs,
-    allTabs: tabs,
+    allTabs: tabs
   }
 }

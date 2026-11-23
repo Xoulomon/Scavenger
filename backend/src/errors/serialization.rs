@@ -48,7 +48,6 @@ impl ErrorResponse {
         }
     }
 }
-=======
 
 impl AppError {
     /// Serialise to the canonical JSON wire format.
@@ -191,9 +190,6 @@ mod tests {
     #[test]
     fn status_mapping_is_preserved() {
         let err = AppError::unauthorized("nope");
-        assert_eq!(
-            ResponseError::status_code(&err).as_u16(),
-            AppError::status_code(&err)
-        );
+        assert_eq!(ResponseError::status_code(&err).as_u16(), AppError::status_code(&err));
     }
 }

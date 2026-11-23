@@ -96,9 +96,7 @@ impl WsErrorCode {
             AppError::NotFound(_) => Self::ChannelNotFound,
             AppError::Validation(_) | AppError::BadRequest(_) => Self::MessageParseError,
             AppError::ServiceUnavailable(_) => Self::ServerShuttingDown,
-            AppError::Internal(_) | AppError::Database(_) | AppError::Other(_) => {
-                Self::MessageUnknownType
-            }
+            AppError::Internal(_) | AppError::Database(_) | AppError::Other(_) => Self::MessageUnknownType,
         }
     }
 }
@@ -156,8 +154,9 @@ impl WsErrorFrame {
     /// Serialise the frame to a JSON string, falling back to a plain-text
     /// sentinel on serialisation failure (should never happen in practice).
     pub fn to_json(&self) -> String {
-        serde_json::to_string(self)
-            .unwrap_or_else(|_| r#"{"type":"error","payload":{"code":"internal","message":"serialisation failure"}}"#.to_string())
+        serde_json::to_string(self).unwrap_or_else(|_| {
+            r#"{"type":"error","payload":{"code":"internal","message":"serialisation failure"}}"#.to_string()
+        })
     }
 }
 

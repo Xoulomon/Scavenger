@@ -1,5 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { NotificationStore, InMemoryNotificationTransport, type NotificationTransport, type Notification } from '.'
+import {
+  NotificationStore,
+  InMemoryNotificationTransport,
+  type NotificationTransport,
+  type Notification
+} from '.'
 
 const WALLET = 'GSTORE'
 const LS_KEY = `scavngr_notifications_${WALLET}`
@@ -16,7 +21,7 @@ function brokenTransport(): NotificationTransport {
     subscribe: (_a, _l, _o, onError) => {
       onError?.(new Error('remote down'))
       return () => {}
-    },
+    }
   }
 }
 
@@ -42,7 +47,12 @@ describe('NotificationStore transport boundary', () => {
     const remote = new InMemoryNotificationTransport()
     const store = new NotificationStore(WALLET, { remote })
 
-    await store.add({ type: 'reward', title: 'Reward', body: 'You earned 5', createdAt: Date.now() })
+    await store.add({
+      type: 'reward',
+      title: 'Reward',
+      body: 'You earned 5',
+      createdAt: Date.now()
+    })
 
     const seen: Notification[][] = []
     const stop = store.subscribe(10, (items) => seen.push(items))
@@ -63,9 +73,25 @@ describe('NotificationStore transport boundary', () => {
   })
 
   it('switches a failing subscription to localStorage', async () => {
-    localStorage.setItem(LS_KEY, JSON.stringify([{ id: 'x', type: 'system', title: 'Cached', body: '', read: false, createdAt: Date.now(), count: 1 }]))
+    localStorage.setItem(
+      LS_KEY,
+      JSON.stringify([
+        {
+          id: 'x',
+          type: 'system',
+          title: 'Cached',
+          body: '',
+          read: false,
+          createdAt: Date.now(),
+          count: 1
+        }
+      ])
+    )
     const seen: Notification[][] = []
-    const stop = new NotificationStore(WALLET, { remote: brokenTransport() }).subscribe(5, (items) => seen.push(items))
+    const stop = new NotificationStore(WALLET, { remote: brokenTransport() }).subscribe(
+      5,
+      (items) => seen.push(items)
+    )
     await flush()
 
     expect(seen.at(-1)?.[0]?.title).toBe('Cached')
@@ -73,7 +99,10 @@ describe('NotificationStore transport boundary', () => {
   })
 
   it('does not write preferences-disabled types', async () => {
-    localStorage.setItem('scavngr_notif_prefs', JSON.stringify({ transfer: false, confirmation: true, reward: true, system: true }))
+    localStorage.setItem(
+      'scavngr_notif_prefs',
+      JSON.stringify({ transfer: false, confirmation: true, reward: true, system: true })
+    )
     const remote = new InMemoryNotificationTransport()
     const store = new NotificationStore(WALLET, { remote })
 

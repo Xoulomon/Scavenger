@@ -4,13 +4,7 @@ import { cn } from '@/lib/utils'
 
 import { STEP_LABELS } from '../constants'
 
-export function RegistrationStepIndicator({
-  current,
-  total,
-}: {
-  current: number
-  total: number
-}) {
+export function RegistrationStepIndicator({ current, total }: { current: number; total: number }) {
   return (
     <nav aria-label="Registration progress" className="mb-8">
       <div className="flex items-center justify-between">
@@ -30,11 +24,7 @@ export function RegistrationStepIndicator({
                   )}
                   aria-current={isActive ? 'step' : undefined}
                 >
-                  {isComplete ? (
-                    <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
-                  ) : (
-                    stepNum
-                  )}
+                  {isComplete ? <CheckCircle2 className="h-5 w-5" aria-hidden="true" /> : stepNum}
                 </div>
                 <span
                   className={cn(

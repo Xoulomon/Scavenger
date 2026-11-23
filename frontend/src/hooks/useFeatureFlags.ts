@@ -9,7 +9,7 @@ import {
   getAllFlagOverrides,
   FLAGS,
   type FlagValue,
-  type FlagOverride,
+  type FlagOverride
 } from '@/lib/featureFlags'
 
 /** Returns the evaluated value of a single flag, re-renders on storage change. */
@@ -74,6 +74,6 @@ export function useFeatureFlags() {
     override,
     clearOverride,
     clearAll,
-    refresh,
+    refresh
   }
 }

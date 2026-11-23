@@ -29,7 +29,7 @@ export function useRecycleWaste() {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       return client.recycleWaste(recycler, wasteType, weightGrams, latitude, longitude, recycler)
     },
@@ -45,7 +45,7 @@ export function useRecycleWaste() {
     onError: (error) => {
       track('failed', error.message)
       toast.error(error)
-    },
+    }
   })
 
   return {
@@ -53,6 +53,6 @@ export function useRecycleWaste() {
     /** Current lifecycle status of the recycle-waste transaction. */
     status: mutation.status,
     /** Clears the tracked transaction status back to idle. */
-    resetStatus: reset,
+    resetStatus: reset
   }
 }

@@ -60,26 +60,26 @@ export function computeMilestones(stats: ParticipantStats): Milestone[] {
       id: 'first_submission',
       label: 'First Submission',
       description: 'Submit your first waste item',
-      reached: stats.materials_submitted >= 1,
+      reached: stats.materials_submitted >= 1
     },
     {
       id: 'ten_transfers',
       label: '10 Transfers',
       description: 'Complete 10 waste transfers',
-      reached: stats.transfers_count >= 10,
+      reached: stats.transfers_count >= 10
     },
     {
       id: 'hundred_tokens',
       label: '100 Tokens',
       description: 'Earn 100 tokens',
-      reached: Number(stats.total_earned) >= 100,
+      reached: Number(stats.total_earned) >= 100
     },
     {
       id: 'fifty_materials',
       label: '50 Submissions',
       description: 'Submit 50 waste items',
-      reached: stats.materials_submitted >= 50,
-    },
+      reached: stats.materials_submitted >= 50
+    }
   ]
 }
 

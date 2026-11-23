@@ -42,15 +42,14 @@ export function useSearch(query: string, filters?: Partial<SearchFilters>): Sear
     // --- Search participants ---
     // Prefix match via cacheKeys.participant() so all participant query
     // variants (per-address, lists) are included regardless of staleTime.
-    const participantQueries = queryClient
-      .getQueriesData<Participant | null>({
-        queryKey: cacheKeys.participant(),
-        // Only consider entries that are still within the cache policy's
-        // stale window; stale entries are excluded from search results.
-        predicate: (q) =>
-          q.state.dataUpdatedAt === 0 ||
-          Date.now() - q.state.dataUpdatedAt <= queryCachePolicy.staleTime,
-      })
+    const participantQueries = queryClient.getQueriesData<Participant | null>({
+      queryKey: cacheKeys.participant(),
+      // Only consider entries that are still within the cache policy's
+      // stale window; stale entries are excluded from search results.
+      predicate: (q) =>
+        q.state.dataUpdatedAt === 0 ||
+        Date.now() - q.state.dataUpdatedAt <= queryCachePolicy.staleTime
+    })
 
     for (const [, participant] of participantQueries) {
       if (!participant) continue
@@ -64,7 +63,7 @@ export function useSearch(query: string, filters?: Partial<SearchFilters>): Sear
           id: participant.address,
           label: participant.name,
           sublabel: participant.address,
-          data: participant,
+          data: participant
         })
       }
     }
@@ -76,14 +75,14 @@ export function useSearch(query: string, filters?: Partial<SearchFilters>): Sear
         queryKey: cacheKeys.wastes(),
         predicate: (q) =>
           q.state.dataUpdatedAt === 0 ||
-          Date.now() - q.state.dataUpdatedAt <= queryCachePolicy.staleTime,
+          Date.now() - q.state.dataUpdatedAt <= queryCachePolicy.staleTime
       }),
       ...queryClient.getQueriesData<Waste[]>({
         queryKey: cacheKeys.participantWastes(),
         predicate: (q) =>
           q.state.dataUpdatedAt === 0 ||
-          Date.now() - q.state.dataUpdatedAt <= queryCachePolicy.staleTime,
-      }),
+          Date.now() - q.state.dataUpdatedAt <= queryCachePolicy.staleTime
+      })
     ]
 
     const seenWasteIds = new Set<string>()
@@ -117,7 +116,7 @@ export function useSearch(query: string, filters?: Partial<SearchFilters>): Sear
             id: wasteIdStr,
             label: `Waste #${wasteIdStr}`,
             sublabel: waste.current_owner,
-            data: waste,
+            data: waste
           })
         }
       }

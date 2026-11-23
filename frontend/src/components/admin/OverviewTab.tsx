@@ -36,4 +36,3 @@ export function OverviewTab({ registeredUsersCount = 0 }: OverviewTabProps) {
     </div>
   )
 }
-

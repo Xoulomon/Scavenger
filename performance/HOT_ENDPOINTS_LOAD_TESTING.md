@@ -61,6 +61,7 @@ The following endpoints have been identified as "hot" and require load testing:
 The hot endpoints load test (`k6-hot-endpoints-load-test.js`) includes three comprehensive scenarios:
 
 ### Scenario 1: Steady State (Normal Operations)
+
 - **Duration**: 9 minutes
 - **Concurrent Users**: 100
 - **Ramp-up**: 2 minutes
@@ -75,6 +76,7 @@ The hot endpoints load test (`k6-hot-endpoints-load-test.js`) includes three com
 **Purpose**: Verify system performance under normal, sustained load
 
 ### Scenario 2: Spike Test
+
 - **Duration**: 5 minutes
 - **Initial Users**: 100 → **Peak Users**: 1000 (sudden spike)
 - **Spike attack**: 30 seconds at 1000 users
@@ -87,6 +89,7 @@ The hot endpoints load test (`k6-hot-endpoints-load-test.js`) includes three com
 **Purpose**: Test system resilience to sudden traffic spikes
 
 ### Scenario 3: Stress Test
+
 - **Duration**: 13 minutes
 - **Peak Concurrent Users**: 10000
 - **Gradual ramp-up**: 6 minutes (100 → 1000 → 5000 → 10000)
@@ -170,11 +173,11 @@ k6 run --out json=performance/reports/hot-endpoints-results.json \
 
 Test results are evaluated against three levels:
 
-| Level | p95 Latency | Error Rate | Action |
-|-------|-------------|-----------|--------|
-| **Baseline** | < 300-600ms | < 1-2% | ✓ Expected performance |
-| **Warning** | 300-800ms | 2-5% | ⚠ Monitor and optimize |
-| **Critical** | > 800-900ms | > 5-10% | ✗ Requires investigation |
+| Level        | p95 Latency | Error Rate | Action                   |
+| ------------ | ----------- | ---------- | ------------------------ |
+| **Baseline** | < 300-600ms | < 1-2%     | ✓ Expected performance   |
+| **Warning**  | 300-800ms   | 2-5%       | ⚠ Monitor and optimize   |
+| **Critical** | > 800-900ms | > 5-10%    | ✗ Requires investigation |
 
 ## Performance Baseline Recording
 
@@ -209,6 +212,7 @@ Thresholds are defined in `hot-endpoints-thresholds.json` and include:
 - **Critical**: Performance that requires investigation and optimization
 
 These can be adjusted based on:
+
 - Infrastructure capacity
 - Business requirements
 - Historical performance data

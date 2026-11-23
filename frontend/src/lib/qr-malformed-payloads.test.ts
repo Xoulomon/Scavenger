@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  decodeQR,
-  validateQRPayload,
-  sanitizeQRData,
-} from './qr'
+import { decodeQR, validateQRPayload, sanitizeQRData } from './qr'
 
 /**
  * Tests for malformed QR payload handling
@@ -27,7 +23,7 @@ describe('QR Malformed Payload Handling', () => {
     })
 
     it('should reject payloads with invalid UTF-8 sequences', () => {
-      const invalidUtf8 = String.fromCharCode(0xDC, 0x00)
+      const invalidUtf8 = String.fromCharCode(0xdc, 0x00)
       const result = decodeQR(invalidUtf8)
       // Should handle without crashing
       expect(result).toBeDefined()
@@ -214,7 +210,7 @@ describe('QR Malformed Payload Handling', () => {
 
   describe('Error recovery', () => {
     it('should gracefully handle circular references', () => {
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- circular reference fixture requires any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- circular reference fixture requires any
       const circular: any = {}
       circular.self = circular
       const result = decodeQR(circular)
@@ -226,7 +222,7 @@ describe('QR Malformed Payload Handling', () => {
       const throwingObj = {
         toString: () => {
           throw new Error('toString failed')
-        },
+        }
       }
       expect(() => {
         decodeQR(throwingObj)
@@ -238,9 +234,9 @@ describe('QR Malformed Payload Handling', () => {
       const results = await Promise.all([
         Promise.resolve(decodeQR(payload)),
         Promise.resolve(decodeQR(payload)),
-        Promise.resolve(decodeQR(payload)),
+        Promise.resolve(decodeQR(payload))
       ])
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.isValid).toBe(true)
         expect(result.data).toBe(payload)
       })

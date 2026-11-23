@@ -14,10 +14,10 @@
 
 use soroban_sdk::{symbol_short, testutils::Address as _, Address, Env, String};
 
-use crate::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 use crate::storage_keys::CONTRACT_VERSION;
-use crate::upgrade::{UpgradeHistory, UpgradeProposal, UpgradeStatus, ProxyState};
-use crate::versioning::{ApiVersion, check_version_transition};
+use crate::upgrade::{ProxyState, UpgradeHistory, UpgradeProposal, UpgradeStatus};
+use crate::versioning::{check_version_transition, ApiVersion};
+use crate::{ParticipantRole, ScavengerContract, ScavengerContractClient, WasteType};
 
 // ── Setup helper ──────────────────────────────────────────────────────────────
 
@@ -53,12 +53,27 @@ fn test_contract_version_key_length_ok() {
 #[test]
 fn test_contract_version_key_not_colliding_with_existing_keys() {
     let ver = CONTRACT_VERSION.to_string();
-    let existing = ["ADMINS", "PAUSED", "RWD_CFG", "TOT_WGT", "TOT_TKN",
-                    "RE_GUARD", "TKN_ADDR", "PART_IDX", "MS_THRESH", "PROP_CNT",
-                    "MIN_WGT", "CHARITY", "ANAL_BAT", "ANAL_UPD", "GMTR_SNAP"];
+    let existing = [
+        "ADMINS",
+        "PAUSED",
+        "RWD_CFG",
+        "TOT_WGT",
+        "TOT_TKN",
+        "RE_GUARD",
+        "TKN_ADDR",
+        "PART_IDX",
+        "MS_THRESH",
+        "PROP_CNT",
+        "MIN_WGT",
+        "CHARITY",
+        "ANAL_BAT",
+        "ANAL_UPD",
+        "GMTR_SNAP",
+    ];
     for key in &existing {
         assert_ne!(
-            ver.as_str(), *key,
+            ver.as_str(),
+            *key,
             "CONTRACT_VERSION collides with existing key '{}'",
             key
         );
@@ -107,14 +122,7 @@ fn test_upgrade_proposal_lifecycle() {
     let approver = Address::generate(&env);
     let impl_addr = Address::generate(&env);
 
-    let mut proposal = UpgradeProposal::new(
-        &env,
-        1,
-        impl_addr,
-        String::from_str(&env, "Upgrade to v2"),
-        proposer,
-        2,
-    );
+    let mut proposal = UpgradeProposal::new(&env, 1, impl_addr, String::from_str(&env, "Upgrade to v2"), proposer, 2);
 
     assert_eq!(proposal.status, UpgradeStatus::Proposed);
 
@@ -256,10 +264,7 @@ fn test_proxy_state_downgrade_rejected() {
 
     // Same version
     let result_same = state.update_implementation(&env, impl_same.clone(), 1);
-    assert!(
-        result_same.is_err(),
-        "Updating to the same version must return Err"
-    );
+    assert!(result_same.is_err(), "Updating to the same version must return Err");
 
     // Lower version (not reachable from 1 numerically, but guard still applies)
     // We test it generically: after advancing to v2, trying v1 must fail.

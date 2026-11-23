@@ -64,7 +64,7 @@ function getMockImages(materialId: number): { before: string; after: string } {
   const hue = (materialId * 67) % 360
   return {
     before: `https://placehold.co/400x300/${hslToHex(hue, 40, 70)}/${hslToHex(hue, 40, 30)}?text=Before+%23${materialId}`,
-    after: `https://placehold.co/400x300/${hslToHex((hue + 120) % 360, 40, 70)}/${hslToHex((hue + 120) % 360, 40, 30)}?text=After+%23${materialId}`,
+    after: `https://placehold.co/400x300/${hslToHex((hue + 120) % 360, 40, 70)}/${hslToHex((hue + 120) % 360, 40, 30)}?text=After+%23${materialId}`
   }
 }
 
@@ -75,7 +75,9 @@ function hslToHex(h: number, s: number, l: number): string {
   const f = (n: number) => {
     const k = (n + h / 30) % 12
     const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1)
-    return Math.round(255 * color).toString(16).padStart(2, '0')
+    return Math.round(255 * color)
+      .toString(16)
+      .padStart(2, '0')
   }
   return `${f(0)}${f(8)}${f(4)}`
 }
@@ -88,7 +90,7 @@ const GRADE_COLORS: Record<QualityGrade, string> = {
   B: 'bg-green-500 text-white',
   C: 'bg-yellow-500 text-white',
   D: 'bg-orange-500 text-white',
-  F: 'bg-destructive text-destructive-foreground',
+  F: 'bg-destructive text-destructive-foreground'
 }
 
 const WASTE_TYPE_OPTIONS: { value: string; label: string; type: WasteType }[] = [
@@ -96,7 +98,7 @@ const WASTE_TYPE_OPTIONS: { value: string; label: string; type: WasteType }[] = 
   { value: '1', label: 'PET Plastic', type: WasteTypeEnum.PetPlastic },
   { value: '2', label: 'Plastic', type: WasteTypeEnum.Plastic },
   { value: '3', label: 'Metal', type: WasteTypeEnum.Metal },
-  { value: '4', label: 'Glass', type: WasteTypeEnum.Glass },
+  { value: '4', label: 'Glass', type: WasteTypeEnum.Glass }
 ]
 
 // ── Hooks ─────────────────────────────────────────────────────────────────────
@@ -112,7 +114,7 @@ function _useAllMaterials() {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       const ids = await client.getParticipantWastes(address)
       const results = await Promise.all(
@@ -121,7 +123,7 @@ function _useAllMaterials() {
       return results.filter((m): m is Material => m !== null)
     },
     enabled: !!address,
-    staleTime: 30_000,
+    staleTime: 30_000
   })
 }
 
@@ -136,13 +138,13 @@ function _useVerifyMaterial() {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       return client.verifyMaterial(materialId, address, address)
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: cacheKeys.dashboardMaterials() })
-    },
+    }
   })
 }
 
@@ -156,31 +158,23 @@ function useMaterialTransfers(materialId: number | null) {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       return client.getWasteTransferHistory(BigInt(materialId))
     },
     enabled: materialId !== null,
-    staleTime: 60_000,
+    staleTime: 60_000
   })
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-function DashboardStats({
-  materials,
-  isLoading,
-}: {
-  materials: Material[]
-  isLoading: boolean
-}) {
+function DashboardStats({ materials, isLoading }: { materials: Material[]; isLoading: boolean }) {
   const stats = useMemo(() => {
     const now = Math.floor(Date.now() / 1000)
     const todayStart = now - (now % 86400)
     const pending = materials.filter((m) => !m.verified)
-    const verifiedToday = materials.filter(
-      (m) => m.verified && m.submitted_at >= todayStart
-    )
+    const verifiedToday = materials.filter((m) => m.verified && m.submitted_at >= todayStart)
     const history = getSessionHistory()
     const rejected = history.filter((r) => r.decision === 'rejected')
     const rejectionRate =
@@ -257,7 +251,7 @@ function FilterBar({
   onDateFromChange,
   onDateToChange,
   showFilters,
-  onToggleFilters,
+  onToggleFilters
 }: {
   searchQuery: string
   onSearchChange: (q: string) => void
@@ -362,7 +356,7 @@ function _WasteListItem({
   isSelected,
   isChecked,
   onSelect,
-  onCheck,
+  onCheck
 }: {
   material: Material
   isSelected: boolean
@@ -489,17 +483,17 @@ function ImageComparison({ materialId }: { materialId: number }) {
           </div>
         </div>
       ) : (
-        <div className="relative h-40 overflow-hidden rounded-lg border bg-muted" aria-label="Image comparison slider">
+        <div
+          className="relative h-40 overflow-hidden rounded-lg border bg-muted"
+          aria-label="Image comparison slider"
+        >
           <img
             src={images.after}
             alt={`After image for material ${materialId}`}
             className="absolute inset-0 h-full w-full object-cover"
             loading="lazy"
           />
-          <div
-            className="absolute inset-0 overflow-hidden"
-            style={{ width: `${sliderPos}%` }}
-          >
+          <div className="absolute inset-0 overflow-hidden" style={{ width: `${sliderPos}%` }}>
             <img
               src={images.before}
               alt={`Before image for material ${materialId}`}
@@ -537,7 +531,7 @@ function ImageComparison({ materialId }: { materialId: number }) {
 
 function GradeSelector({
   value,
-  onChange,
+  onChange
 }: {
   value: QualityGrade
   onChange: (g: QualityGrade) => void
@@ -570,26 +564,27 @@ function GradeSelector({
 function VerificationForm({
   material,
   onComplete,
-  isPending,
+  isPending
 }: {
   material: Material
-  onComplete: (materialId: number, decision: 'approved' | 'rejected', form: VerificationFormData) => void
+  onComplete: (
+    materialId: number,
+    decision: 'approved' | 'rejected',
+    form: VerificationFormData
+  ) => void
   isPending: boolean
 }) {
   const [form, setForm] = useState<VerificationFormData>({
     grade: 'B',
     contaminated: false,
-    notes: '',
+    notes: ''
   })
 
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
         <label className="text-sm font-medium">Quality Grade</label>
-        <GradeSelector
-          value={form.grade}
-          onChange={(grade) => setForm((f) => ({ ...f, grade }))}
-        />
+        <GradeSelector value={form.grade} onChange={(grade) => setForm((f) => ({ ...f, grade }))} />
       </div>
 
       <div className="flex items-center gap-2">
@@ -601,7 +596,10 @@ function VerificationForm({
           className="h-4 w-4 rounded border"
           aria-label="Mark as contaminated"
         />
-        <label htmlFor={`contaminated-${material.id}`} className="flex items-center gap-1.5 text-sm">
+        <label
+          htmlFor={`contaminated-${material.id}`}
+          className="flex items-center gap-1.5 text-sm"
+        >
           <AlertTriangle className="h-3.5 w-3.5 text-yellow-500" />
           Mark as contaminated
         </label>
@@ -651,7 +649,7 @@ const EVENT_ICON: Record<TimelineEvent['type'], React.ReactNode> = {
   transfer: <Truck className="h-3.5 w-3.5" />,
   verified: <ShieldCheck className="h-3.5 w-3.5" />,
   confirmed: <CheckCircle2 className="h-3.5 w-3.5" />,
-  deactivated: <XCircle className="h-3.5 w-3.5" />,
+  deactivated: <XCircle className="h-3.5 w-3.5" />
 }
 
 const EVENT_COLOR: Record<TimelineEvent['type'], string> = {
@@ -659,13 +657,13 @@ const EVENT_COLOR: Record<TimelineEvent['type'], string> = {
   transfer: 'border-blue-500 bg-blue-500 text-white',
   verified: 'border-green-500 bg-green-500 text-white',
   confirmed: 'border-emerald-500 bg-emerald-500 text-white',
-  deactivated: 'border-destructive bg-destructive text-destructive-foreground',
+  deactivated: 'border-destructive bg-destructive text-destructive-foreground'
 }
 
 function WasteTimeline({
   material,
   transfers,
-  isLoading,
+  isLoading
 }: {
   material: Material
   transfers: WasteTransfer[]
@@ -679,8 +677,8 @@ function WasteTimeline({
         timestamp: material.submitted_at,
         label: 'Material Submitted',
         detail: `${wasteTypeLabel(material.waste_type)}, ${formatWeight(material.weight)}`,
-        actor: material.submitter,
-      },
+        actor: material.submitter
+      }
     ]
 
     for (const t of transfers) {
@@ -690,7 +688,7 @@ function WasteTimeline({
         timestamp: t.transferred_at,
         label: 'Transferred',
         detail: `${formatAddress(t.from)} to ${formatAddress(t.to)}`,
-        actor: t.from,
+        actor: t.from
       })
     }
 
@@ -700,7 +698,7 @@ function WasteTimeline({
         type: 'verified',
         timestamp: material.submitted_at,
         label: 'Verified',
-        detail: 'Material quality verified',
+        detail: 'Material quality verified'
       })
     }
 
@@ -711,7 +709,7 @@ function WasteTimeline({
         timestamp: material.submitted_at,
         label: 'Confirmed',
         detail: `Confirmed by ${formatAddress(material.confirmer)}`,
-        actor: material.confirmer,
+        actor: material.confirmer
       })
     }
 
@@ -720,7 +718,7 @@ function WasteTimeline({
         id: 'deactivated',
         type: 'deactivated',
         timestamp: material.submitted_at,
-        label: 'Deactivated',
+        label: 'Deactivated'
       })
     }
 
@@ -756,16 +754,12 @@ function WasteTimeline({
             >
               {EVENT_ICON[event.type]}
             </div>
-            {idx < events.length - 1 && (
-              <div className="h-8 w-px bg-border" />
-            )}
+            {idx < events.length - 1 && <div className="h-8 w-px bg-border" />}
           </div>
           <div className="pb-4">
             <p className="text-sm font-semibold">{event.label}</p>
             <p className="text-xs text-muted-foreground">{formatDate(event.timestamp)}</p>
-            {event.detail && (
-              <p className="mt-0.5 text-xs text-muted-foreground">{event.detail}</p>
-            )}
+            {event.detail && <p className="mt-0.5 text-xs text-muted-foreground">{event.detail}</p>}
           </div>
         </div>
       ))}
@@ -778,10 +772,14 @@ function WasteTimeline({
 function DetailPanel({
   material,
   onVerify,
-  isVerifying,
+  isVerifying
 }: {
   material: Material
-  onVerify: (materialId: number, decision: 'approved' | 'rejected', form: VerificationFormData) => void
+  onVerify: (
+    materialId: number,
+    decision: 'approved' | 'rejected',
+    form: VerificationFormData
+  ) => void
   isVerifying: boolean
 }) {
   const [activeTab, setActiveTab] = useState<'details' | 'timeline'>('details')
@@ -805,7 +803,11 @@ function DetailPanel({
       </div>
 
       {/* Tab buttons */}
-      <div className="flex gap-1 rounded-lg border bg-muted/50 p-1" role="tablist" aria-label="Detail sections">
+      <div
+        className="flex gap-1 rounded-lg border bg-muted/50 p-1"
+        role="tablist"
+        aria-label="Detail sections"
+      >
         <button
           role="tab"
           aria-selected={activeTab === 'details'}
@@ -870,12 +872,13 @@ function DetailPanel({
                       : 'Pending'}
               </p>
             </div>
-            {material.confirmer && material.confirmer !== 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' && (
-              <div className="sm:col-span-2">
-                <span className="text-muted-foreground">Confirmer</span>
-                <p className="font-mono text-xs">{formatAddress(material.confirmer)}</p>
-              </div>
-            )}
+            {material.confirmer &&
+              material.confirmer !== 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA' && (
+                <div className="sm:col-span-2">
+                  <span className="text-muted-foreground">Confirmer</span>
+                  <p className="font-mono text-xs">{formatAddress(material.confirmer)}</p>
+                </div>
+              )}
           </div>
 
           {/* Image comparison */}
@@ -898,11 +901,7 @@ function DetailPanel({
           )}
         </div>
       ) : (
-        <WasteTimeline
-          material={material}
-          transfers={transfers}
-          isLoading={transfersLoading}
-        />
+        <WasteTimeline material={material} transfers={transfers} isLoading={transfersLoading} />
       )}
     </div>
   )
@@ -915,18 +914,22 @@ function BulkVerificationPanel({
   materials,
   onBulkAction,
   onClearSelection,
-  isPending,
+  isPending
 }: {
   selectedIds: Set<number>
   materials: Material[]
-  onBulkAction: (ids: number[], decision: 'approved' | 'rejected', form: VerificationFormData) => void
+  onBulkAction: (
+    ids: number[],
+    decision: 'approved' | 'rejected',
+    form: VerificationFormData
+  ) => void
   onClearSelection: () => void
   isPending: boolean
 }) {
   const [form, setForm] = useState<VerificationFormData>({
     grade: 'B',
     contaminated: false,
-    notes: '',
+    notes: ''
   })
   const [expanded, setExpanded] = useState(false)
 
@@ -1010,7 +1013,13 @@ function BulkVerificationPanel({
             <div className="flex gap-2">
               <Button
                 className="flex-1 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
-                onClick={() => onBulkAction(pendingSelected.map((m) => m.id), 'approved', form)}
+                onClick={() =>
+                  onBulkAction(
+                    pendingSelected.map((m) => m.id),
+                    'approved',
+                    form
+                  )
+                }
                 disabled={isPending || pendingSelected.length === 0}
                 aria-label="Bulk approve selected materials"
               >
@@ -1020,7 +1029,13 @@ function BulkVerificationPanel({
               <Button
                 variant="destructive"
                 className="flex-1 gap-2"
-                onClick={() => onBulkAction(pendingSelected.map((m) => m.id), 'rejected', form)}
+                onClick={() =>
+                  onBulkAction(
+                    pendingSelected.map((m) => m.id),
+                    'rejected',
+                    form
+                  )
+                }
                 disabled={isPending || pendingSelected.length === 0}
                 aria-label="Bulk reject selected materials"
               >
@@ -1053,7 +1068,7 @@ function _exportVerificationCsv(materials: Material[], history: VerificationReco
     'Grade',
     'Contaminated',
     'Notes',
-    'Verified At',
+    'Verified At'
   ]
 
   const rows = materials.map((m) => {
@@ -1069,7 +1084,7 @@ function _exportVerificationCsv(materials: Material[], history: VerificationReco
       record?.grade ?? '',
       record?.contaminated ? 'Yes' : 'No',
       `"${(record?.notes ?? '').replace(/"/g, '""')}"`,
-      record ? formatDate(record.verifiedAt) : '',
+      record ? formatDate(record.verifiedAt) : ''
     ]
   })
 

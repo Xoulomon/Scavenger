@@ -9,4 +9,4 @@
  *   // or, once the package is published:
  *   import { ... } from '@scavngr/shared';
  */
-export * from '../../packages/shared/src/errors';
+export * from '../../packages/shared/src/errors'

@@ -81,37 +81,33 @@ For frontend and indexer tests:
 ```typescript
 // frontend/src/test/factories.ts
 
-export function createParticipant(
-  overrides?: Partial<Participant>
-): Participant {
+export function createParticipant(overrides?: Partial<Participant>): Participant {
   return {
-    id: "participant-1",
-    address: "GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    role: "recycler",
-    name: "Test User",
+    id: 'participant-1',
+    address: 'GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    role: 'recycler',
+    name: 'Test User',
     reputation: 100,
-    email: "test@example.com",
+    email: 'test@example.com',
     location: {
       latitude: 0,
-      longitude: 0,
+      longitude: 0
     },
     joinedAt: new Date().toISOString(),
-    ...overrides,
-  };
+    ...overrides
+  }
 }
 
-export function createWasteBatch(
-  overrides?: Partial<WasteBatch>
-): WasteBatch {
+export function createWasteBatch(overrides?: Partial<WasteBatch>): WasteBatch {
   return {
-    id: "waste-1",
-    type: "plastic",
+    id: 'waste-1',
+    type: 'plastic',
     weight: 100,
-    submittedBy: "participant-1",
-    status: "pending",
+    submittedBy: 'participant-1',
+    status: 'pending',
     createdAt: new Date().toISOString(),
-    ...overrides,
-  };
+    ...overrides
+  }
 }
 ```
 
@@ -122,21 +118,25 @@ export function createWasteBatch(
 Each package provides factories for these core entities:
 
 #### 1. Participant
+
 - **Fields**: id, address, role, name, reputation, email, location, joinedAt
 - **Defaults**: Random UUID, recycler role, 100 reputation, current timestamp
 - **Test usage**: `ParticipantBuilder::new().role(ParticipantRole::Manufacturer).build()`
 
 #### 2. Waste Batch
+
 - **Fields**: id, type, weight, submittedBy, status, createdAt, updatedAt
 - **Defaults**: Random ID, "plastic" type, 100 weight, "pending" status
 - **Test usage**: `WasteBatchBuilder::new().weight(500).build()`
 
 #### 3. Transfer
+
 - **Fields**: id, wasteId, fromAddress, toAddress, status, createdAt
 - **Defaults**: Random IDs, "pending" status, current timestamp
 - **Test usage**: `TransferBuilder::new().status(TransferStatus::Completed).build()`
 
 #### 4. Incentive
+
 - **Fields**: id, rewardAmount, wasteType, startDate, endDate, active
 - **Defaults**: 50 reward, "plastic" waste type, active=true
 - **Test usage**: `IncentiveBuilder::new().wasteType(WasteType::Glass).build()`
@@ -161,7 +161,7 @@ fn test_manufacturer_permissions() {
     let participant = ParticipantBuilder::new()
         .role(ParticipantRole::Manufacturer)
         .build();
-    
+
     assert!(has_manufacturing_permissions(&participant));
 }
 ```
@@ -174,15 +174,15 @@ fn test_transfer_between_users() {
     let from = ParticipantBuilder::new()
         .role(ParticipantRole::Recycler)
         .build();
-    
+
     let to = ParticipantBuilder::new()
         .role(ParticipantRole::Collector)
         .build();
-    
+
     let waste = WasteBatchBuilder::new()
         .submittedBy(from.id.clone())
         .build();
-    
+
     assert!(transfer_waste(&waste, from, to).is_ok());
 }
 ```
@@ -200,7 +200,7 @@ fn test_leaderboard_calculation() {
                 .build()
         })
         .collect();
-    
+
     let leaderboard = calculate_leaderboard(&participants);
     assert_eq!(leaderboard.len(), 100);
 }
@@ -238,7 +238,7 @@ mod factory_tests {
     #[test]
     fn test_participant_factory_defaults() {
         let participant = ParticipantBuilder::new().build();
-        
+
         assert!(!participant.address.is_empty());
         assert_eq!(participant.role, ParticipantRole::Recycler);
         assert_eq!(participant.reputation, 100);
@@ -252,7 +252,7 @@ mod factory_tests {
             .role(ParticipantRole::Manufacturer)
             .reputation(500)
             .build();
-        
+
         assert_eq!(participant.address, custom_address);
         assert_eq!(participant.role, ParticipantRole::Manufacturer);
         assert_eq!(participant.reputation, 500);
@@ -284,7 +284,7 @@ When entities evolve:
 - [Testing Guide](./TESTING_GUIDE.md)
 - [API Documentation](./API_DOCUMENTATION.md)
 - [Data Models](./DATABASE_SCHEMA.md)
-Closes #946.
+  Closes #946.
 
 ## Why Factories?
 
@@ -323,53 +323,53 @@ fn my_test() {
 
 ### Environment helpers
 
-| Function | Description |
-|---|---|
-| `make_client(env)` | Register contract, enable `mock_all_auths`, return client |
-| `make_client_no_auth(env)` | Register contract without calling `mock_all_auths` |
-| `setup_full_env(env)` | Full setup: client + admin + recycler + collector + manufacturer |
+| Function                   | Description                                                      |
+| -------------------------- | ---------------------------------------------------------------- |
+| `make_client(env)`         | Register contract, enable `mock_all_auths`, return client        |
+| `make_client_no_auth(env)` | Register contract without calling `mock_all_auths`               |
+| `setup_full_env(env)`      | Full setup: client + admin + recycler + collector + manufacturer |
 
 ### `ParticipantFactory`
 
-| Method | Description |
-|---|---|
-| `recycler(env, client)` | Register and return a Recycler address |
-| `collector(env, client)` | Register and return a Collector address |
-| `manufacturer(env, client)` | Register and return a Manufacturer address |
-| `with_role(env, client, role)` | Register with any role |
-| `with_location(env, client, role, lat, lon)` | Register with a specific location |
+| Method                                       | Description                                |
+| -------------------------------------------- | ------------------------------------------ |
+| `recycler(env, client)`                      | Register and return a Recycler address     |
+| `collector(env, client)`                     | Register and return a Collector address    |
+| `manufacturer(env, client)`                  | Register and return a Manufacturer address |
+| `with_role(env, client, role)`               | Register with any role                     |
+| `with_location(env, client, role, lat, lon)` | Register with a specific location          |
 
 All methods generate a unique `Address` via `Address::generate(env)`.
 
 ### `WasteFactory`
 
-| Method | Description |
-|---|---|
-| `plastic(env, client, owner)` | Submit 1 000 g of Plastic, return waste ID |
-| `metal(env, client, owner)` | Submit 1 000 g of Metal, return waste ID |
-| `glass(env, client, owner)` | Submit 1 000 g of Glass, return waste ID |
-| `paper(env, client, owner)` | Submit 1 000 g of Paper, return waste ID |
-| `electronics(env, client, owner)` | Submit 1 000 g of Electronics, return waste ID |
-| `with_type(env, client, owner, waste_type, weight)` | Custom type and weight |
-| `with_location(env, client, owner, type, weight, lat, lon)` | Custom location |
+| Method                                                      | Description                                    |
+| ----------------------------------------------------------- | ---------------------------------------------- |
+| `plastic(env, client, owner)`                               | Submit 1 000 g of Plastic, return waste ID     |
+| `metal(env, client, owner)`                                 | Submit 1 000 g of Metal, return waste ID       |
+| `glass(env, client, owner)`                                 | Submit 1 000 g of Glass, return waste ID       |
+| `paper(env, client, owner)`                                 | Submit 1 000 g of Paper, return waste ID       |
+| `electronics(env, client, owner)`                           | Submit 1 000 g of Electronics, return waste ID |
+| `with_type(env, client, owner, waste_type, weight)`         | Custom type and weight                         |
+| `with_location(env, client, owner, type, weight, lat, lon)` | Custom location                                |
 
 All methods return `u128` waste IDs (matching the contract's internal type).
 
 ### `IncentiveFactory`
 
-| Method | Description |
-|---|---|
-| `plastic(env, client, manufacturer)` | Plastic incentive, 100 reward, 1 000 budget |
-| `metal(env, client, manufacturer)` | Metal incentive, 200 reward, 2 000 budget |
-| `with_params(env, client, mfr, type, reward, budget)` | Fully custom |
+| Method                                                | Description                                 |
+| ----------------------------------------------------- | ------------------------------------------- |
+| `plastic(env, client, manufacturer)`                  | Plastic incentive, 100 reward, 1 000 budget |
+| `metal(env, client, manufacturer)`                    | Metal incentive, 200 reward, 2 000 budget   |
+| `with_params(env, client, mfr, type, reward, budget)` | Fully custom                                |
 
 All methods return `u64` incentive IDs.
 
 ### `TransferFactory`
 
-| Method | Description |
-|---|---|
-| `transfer(client, waste_id, from, to)` | Transfer at (0, 0) |
+| Method                                              | Description                     |
+| --------------------------------------------------- | ------------------------------- |
+| `transfer(client, waste_id, from, to)`              | Transfer at (0, 0)              |
 | `transfer_at(client, waste_id, from, to, lat, lon)` | Transfer at a specific location |
 
 ---

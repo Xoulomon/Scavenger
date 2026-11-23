@@ -13,7 +13,7 @@ The Scavenger contract (`contracts/scavenger/stellar-contract`) has grown from a
 
 Both decisions have long-lived consequences. Module boundaries are internal and can be refactored freely, but storage keys are part of the contract's on-chain state: once data is written under a key, that key's shape and storage tier are effectively frozen for any deployed instance. This ADR records the rationale for the current layout so future contributors understand the constraints and the alternatives that were rejected.
 
-This ADR focuses on **module layout**. The detailed rationale for the storage key *encoding* (Symbol vs tuple, length limits, tiering) is recorded in **ADR 0004 (Storage Key Layout)**; this document references it and does not duplicate it.
+This ADR focuses on **module layout**. The detailed rationale for the storage key _encoding_ (Symbol vs tuple, length limits, tiering) is recorded in **ADR 0004 (Storage Key Layout)**; this document references it and does not duplicate it.
 
 ## Decision
 
@@ -21,24 +21,24 @@ This ADR focuses on **module layout**. The detailed rationale for the storage ke
 
 `stellar-contract/src/lib.rs` acts as the crate root and public entry point. It declares and re-exports a set of focused modules, each owning a single concern:
 
-| Module | Responsibility |
-| --- | --- |
-| `analytics` | Aggregate metrics and reporting queries over contract data |
-| `audit_log` | Append-only record of privileged/administrative actions |
-| `errors` | Contract error enum and error-code conventions |
-| `events` | Event emission helpers and event schema |
-| `storage_optimizer` | Helpers for packing/compacting stored data and reducing read/write cost |
-| `storage_utils` | Low-level storage read/write helpers shared across modules |
-| `types` | Core domain types (waste, participant, incentive records, etc.) |
-| `types_domains` | Domain-specific type extensions and validation-adjacent types |
-| `upgrade` | Contract upgrade / migration entry points |
-| `validation` | Input and state validation rules |
-| `verification` | Verification workflow (who may verify what, and when) |
-| `versioning` | Contract version constants and compatibility checks |
-| `incentive` | Incentive calculation and distribution logic |
-| `participant` | Participant registration and lifecycle logic |
-| `waste` | Waste registration and lifecycle logic |
-| `participant_storage` | Persistence layer specific to participant records |
+| Module                | Responsibility                                                          |
+| --------------------- | ----------------------------------------------------------------------- |
+| `analytics`           | Aggregate metrics and reporting queries over contract data              |
+| `audit_log`           | Append-only record of privileged/administrative actions                 |
+| `errors`              | Contract error enum and error-code conventions                          |
+| `events`              | Event emission helpers and event schema                                 |
+| `storage_optimizer`   | Helpers for packing/compacting stored data and reducing read/write cost |
+| `storage_utils`       | Low-level storage read/write helpers shared across modules              |
+| `types`               | Core domain types (waste, participant, incentive records, etc.)         |
+| `types_domains`       | Domain-specific type extensions and validation-adjacent types           |
+| `upgrade`             | Contract upgrade / migration entry points                               |
+| `validation`          | Input and state validation rules                                        |
+| `verification`        | Verification workflow (who may verify what, and when)                   |
+| `versioning`          | Contract version constants and compatibility checks                     |
+| `incentive`           | Incentive calculation and distribution logic                            |
+| `participant`         | Participant registration and lifecycle logic                            |
+| `waste`               | Waste registration and lifecycle logic                                  |
+| `participant_storage` | Persistence layer specific to participant records                       |
 
 The guiding principles are:
 

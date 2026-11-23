@@ -18,7 +18,7 @@ class GatedLogger {
   constructor(config: Partial<LoggerConfig> = {}) {
     this.config = {
       enabled: config.enabled !== false,
-      level: config.level || 'info',
+      level: config.level || 'info'
     }
     this.originalConsole = console
   }
@@ -136,10 +136,7 @@ describe('GatedLogger', () => {
     it('should pass through additional arguments', () => {
       const context = { id: 'test-123' }
       logger.info('User action', context)
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.any(String),
-        context
-      )
+      expect(consoleLogSpy).toHaveBeenCalledWith(expect.any(String), context)
     })
   })
 
@@ -254,7 +251,7 @@ describe('GatedLogger', () => {
     })
 
     it('should handle objects with circular references', () => {
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- circular reference fixture requires any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- circular reference fixture requires any
       const circular: any = { ref: null }
       circular.ref = circular
       expect(() => {
@@ -352,7 +349,7 @@ describe('Logger configuration strategies', () => {
   it('should support development configuration', () => {
     const devConfig = {
       enabled: true,
-      level: 'debug' as const,
+      level: 'debug' as const
     }
     const logger = new GatedLogger(devConfig)
     expect(logger).toBeDefined()
@@ -361,7 +358,7 @@ describe('Logger configuration strategies', () => {
   it('should support production configuration', () => {
     const prodConfig = {
       enabled: false,
-      level: 'error' as const,
+      level: 'error' as const
     }
     const logger = new GatedLogger(prodConfig)
     expect(logger).toBeDefined()
@@ -370,7 +367,7 @@ describe('Logger configuration strategies', () => {
   it('should support staging configuration', () => {
     const stagingConfig = {
       enabled: true,
-      level: 'warn' as const,
+      level: 'warn' as const
     }
     const logger = new GatedLogger(stagingConfig)
     expect(logger).toBeDefined()

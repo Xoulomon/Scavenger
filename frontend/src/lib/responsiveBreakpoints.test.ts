@@ -9,7 +9,7 @@ import {
   isMobileOnly,
   isTabletAndUp,
   isDesktopAndUp,
-  getCurrentBreakpoint,
+  getCurrentBreakpoint
 } from './responsiveBreakpoints'
 
 describe('BREAKPOINTS constant', () => {
@@ -228,7 +228,7 @@ describe('Responsive breakpoint consistency', () => {
   })
 
   it('media queries are properly formatted', () => {
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- iterate all breakpoint names in test
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- iterate all breakpoint names in test
     const queries = ['sm', 'md', 'lg', 'xl', '2xl'].map((b) => createMediaQuery(b as any))
     queries.forEach((q) => {
       expect(q).toMatch(/@media \(min-width: \d+px\)/)

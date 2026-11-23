@@ -10,7 +10,7 @@ export function SelectWasteStep({
   wastes,
   isLoading,
   selectedId,
-  onSelect,
+  onSelect
 }: {
   wastes: Waste[]
   isLoading: boolean
@@ -57,9 +57,7 @@ export function SelectWasteStep({
               }`}
             >
               <div className="space-y-1">
-                <p className="font-medium">
-                  Waste #{waste.waste_id.toString()}
-                </p>
+                <p className="font-medium">Waste #{waste.waste_id.toString()}</p>
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   <Badge variant="secondary">{wasteTypeLabel(waste.waste_type)}</Badge>
                   <span>{formatWasteWeight(waste.weight)}</span>

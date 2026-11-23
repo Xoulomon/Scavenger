@@ -44,9 +44,7 @@ pub fn write_incentive(env: &Env, incentive: &Incentive) {
 /// Returns `None` if no record exists.
 pub fn read_incentive(env: &Env, incentive_id: u64) -> Option<Incentive> {
     let key = incentive_key(env, incentive_id);
-    env.storage()
-        .persistent()
-        .get::<(Symbol, u64), Incentive>(&key)
+    env.storage().persistent().get::<(Symbol, u64), Incentive>(&key)
 }
 
 /// Reads an `Incentive` record or returns [`Error::IncentiveNotFound`].
@@ -67,11 +65,7 @@ pub fn delete_incentive(env: &Env, incentive_id: u64) {
 // ── Per-manufacturer incentive-ID index ──────────────────────────────────────
 
 /// Returns the list of incentive IDs created by `manufacturer` for `waste_type`.
-pub fn get_manufacturer_incentive_ids(
-    env: &Env,
-    manufacturer: &Address,
-    waste_type: WasteType,
-) -> Vec<u64> {
+pub fn get_manufacturer_incentive_ids(env: &Env, manufacturer: &Address, waste_type: WasteType) -> Vec<u64> {
     let key = mfr_key(env, manufacturer, waste_type);
     env.storage()
         .persistent()
@@ -82,12 +76,7 @@ pub fn get_manufacturer_incentive_ids(
 /// Appends `incentive_id` to the manufacturer's index for `waste_type`.
 ///
 /// No-op if the ID is already present.
-pub fn add_incentive_to_manufacturer(
-    env: &Env,
-    manufacturer: &Address,
-    waste_type: WasteType,
-    incentive_id: u64,
-) {
+pub fn add_incentive_to_manufacturer(env: &Env, manufacturer: &Address, waste_type: WasteType, incentive_id: u64) {
     let key = mfr_key(env, manufacturer, waste_type);
     let mut ids = env
         .storage()
@@ -103,18 +92,9 @@ pub fn add_incentive_to_manufacturer(
 /// Removes `incentive_id` from the manufacturer's index for `waste_type`.
 ///
 /// Used when an incentive is deactivated so queries do not surface stale IDs.
-pub fn remove_incentive_from_manufacturer(
-    env: &Env,
-    manufacturer: &Address,
-    waste_type: WasteType,
-    incentive_id: u64,
-) {
+pub fn remove_incentive_from_manufacturer(env: &Env, manufacturer: &Address, waste_type: WasteType, incentive_id: u64) {
     let key = mfr_key(env, manufacturer, waste_type);
-    if let Some(ids) = env
-        .storage()
-        .persistent()
-        .get::<(Symbol, Address, u32), Vec<u64>>(&key)
-    {
+    if let Some(ids) = env.storage().persistent().get::<(Symbol, Address, u32), Vec<u64>>(&key) {
         let mut new_ids: Vec<u64> = Vec::new(env);
         for id in ids.iter() {
             if id != incentive_id {
@@ -153,8 +133,8 @@ fn mfr_key(_env: &Env, manufacturer: &Address, waste_type: WasteType) -> (Symbol
 #[cfg(test)]
 mod tests {
     use super::*;
-    use soroban_sdk::{testutils::Address as _, Address, Env};
     use crate::types::WasteType;
+    use soroban_sdk::{testutils::Address as _, Address, Env};
 
     fn make_incentive(env: &Env, id: u64, rewarder: &Address) -> Incentive {
         Incentive::new(
@@ -213,10 +193,7 @@ mod tests {
         let env = Env::default();
         let mfr = Address::generate(&env);
 
-        assert_eq!(
-            get_manufacturer_incentive_ids(&env, &mfr, WasteType::Plastic).len(),
-            0
-        );
+        assert_eq!(get_manufacturer_incentive_ids(&env, &mfr, WasteType::Plastic).len(), 0);
 
         add_incentive_to_manufacturer(&env, &mfr, WasteType::Plastic, 10);
         add_incentive_to_manufacturer(&env, &mfr, WasteType::Plastic, 20);
@@ -235,10 +212,7 @@ mod tests {
         add_incentive_to_manufacturer(&env, &mfr, WasteType::Glass, 5);
         add_incentive_to_manufacturer(&env, &mfr, WasteType::Glass, 5); // duplicate
 
-        assert_eq!(
-            get_manufacturer_incentive_ids(&env, &mfr, WasteType::Glass).len(),
-            1
-        );
+        assert_eq!(get_manufacturer_incentive_ids(&env, &mfr, WasteType::Glass).len(), 1);
     }
 
     #[test]

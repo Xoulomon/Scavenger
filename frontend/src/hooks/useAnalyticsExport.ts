@@ -3,7 +3,7 @@ import {
   exportAnalyticsToCSV,
   PDFExporter,
   triggerDownload,
-  type AnalyticsMonthlyRow,
+  type AnalyticsMonthlyRow
 } from '@/lib/exportImport'
 
 const MONTHLY_DATA: AnalyticsMonthlyRow[] = [
@@ -12,7 +12,7 @@ const MONTHLY_DATA: AnalyticsMonthlyRow[] = [
   { month: 'Mar', plastic: 61, metal: 42, glass: 33 },
   { month: 'Apr', plastic: 58, metal: 38, glass: 31 },
   { month: 'May', plastic: 67, metal: 45, glass: 36 },
-  { month: 'Jun', plastic: 73, metal: 51, glass: 42 },
+  { month: 'Jun', plastic: 73, metal: 51, glass: 42 }
 ]
 
 export function useAnalyticsExport() {

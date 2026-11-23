@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
+  DialogClose
 } from '@/components/ui/Dialog'
 
 describe('Modal accessibility requirements (#1468)', () => {

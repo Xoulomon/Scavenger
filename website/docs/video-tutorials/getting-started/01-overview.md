@@ -1,10 +1,10 @@
 ---
 id: 01-overview
-title: "Platform Overview — What is Scavngr?"
+title: 'Platform Overview — What is Scavngr?'
 series: Getting Started
 episode: 1
-duration: "5:00"
-youtube_id: ""
+duration: '5:00'
+youtube_id: ''
 sidebar_position: 1
 ---
 

@@ -17,7 +17,7 @@ export const colors = {
     700: '#15803d',
     800: '#166534',
     900: '#14532d',
-    950: '#052e16',
+    950: '#052e16'
   },
   blue: {
     50: '#eff6ff',
@@ -30,7 +30,7 @@ export const colors = {
     700: '#1d4ed8',
     800: '#1e40af',
     900: '#1e3a8a',
-    950: '#172554',
+    950: '#172554'
   },
   amber: {
     50: '#fffbeb',
@@ -43,7 +43,7 @@ export const colors = {
     700: '#b45309',
     800: '#92400e',
     900: '#78350f',
-    950: '#451a03',
+    950: '#451a03'
   },
   red: {
     50: '#fef2f2',
@@ -56,7 +56,7 @@ export const colors = {
     700: '#b91c1c',
     800: '#991b1b',
     900: '#7f1d1d',
-    950: '#450a0a',
+    950: '#450a0a'
   },
   neutral: {
     0: '#ffffff',
@@ -71,14 +71,14 @@ export const colors = {
     800: '#1e293b',
     900: '#0f172a',
     950: '#020617',
-    1000: '#000000',
-  },
+    1000: '#000000'
+  }
 } as const
 
 export const typography = {
   fontFamily: {
     sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-    mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+    mono: ['JetBrains Mono', 'ui-monospace', 'monospace']
   },
   fontSize: {
     xs: ['0.75rem', { lineHeight: '1rem' }],
@@ -88,20 +88,20 @@ export const typography = {
     xl: ['1.25rem', { lineHeight: '1.75rem' }],
     '2xl': ['1.5rem', { lineHeight: '2rem' }],
     '3xl': ['1.875rem', { lineHeight: '2.25rem' }],
-    '4xl': ['2.25rem', { lineHeight: '2.5rem' }],
+    '4xl': ['2.25rem', { lineHeight: '2.5rem' }]
   },
   fontWeight: {
     normal: '400',
     medium: '500',
     semibold: '600',
-    bold: '700',
+    bold: '700'
   },
   letterSpacing: {
     tight: '-0.025em',
     normal: '0em',
     wide: '0.025em',
-    wider: '0.05em',
-  },
+    wider: '0.05em'
+  }
 } as const
 
 export const spacing = {
@@ -128,7 +128,7 @@ export const spacing = {
   32: '8rem',
   40: '10rem',
   48: '12rem',
-  64: '16rem',
+  64: '16rem'
 } as const
 
 export const borderRadius = {
@@ -139,7 +139,7 @@ export const borderRadius = {
   lg: '0.75rem',
   xl: '1rem',
   '2xl': '1.5rem',
-  full: '9999px',
+  full: '9999px'
 } as const
 
 export const shadows = {
@@ -148,20 +148,20 @@ export const shadows = {
   md: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
   lg: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
   xl: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
-  none: 'none',
+  none: 'none'
 } as const
 
 export const animation = {
   duration: {
     fast: '100ms',
     normal: '200ms',
-    slow: '300ms',
+    slow: '300ms'
   },
   easing: {
     default: 'cubic-bezier(0.4, 0, 0.2, 1)',
     in: 'cubic-bezier(0.4, 0, 1, 1)',
-    out: 'cubic-bezier(0, 0, 0.2, 1)',
-  },
+    out: 'cubic-bezier(0, 0, 0.2, 1)'
+  }
 } as const
 
 /**
@@ -185,19 +185,19 @@ export const semanticTokens = {
     'card-foreground': '222 47% 11%',
     popover: '0 0% 100%',
     'popover-foreground': '222 47% 11%',
-    primary: '142 76% 30%',          // green-700 equivalent — 4.61:1 on white (raised from 36%)
+    primary: '142 76% 30%', // green-700 equivalent — 4.61:1 on white (raised from 36%)
     'primary-foreground': '0 0% 100%', // white on primary — 4.61:1
     secondary: '210 40% 94%',
     'secondary-foreground': '222 47% 11%', // ~14.6:1 on secondary
     muted: '210 40% 94%',
     'muted-foreground': '215 25% 38%', // ~5.1:1 on muted, ~5.6:1 on background
-    accent: '142 76% 94%',           // green-50-ish
+    accent: '142 76% 94%', // green-50-ish
     'accent-foreground': '142 76% 20%', // ~8.9:1 on accent
-    destructive: '0 72% 44%',        // ~4.6:1 on white background
+    destructive: '0 72% 44%', // ~4.6:1 on white background
     'destructive-foreground': '0 0% 100%', // white on destructive — ~4.6:1
     border: '214 32% 85%',
     input: '214 32% 85%',
-    ring: '142 76% 30%',             // matches primary — 4.61:1 on white (raised from 36%)
+    ring: '142 76% 30%', // matches primary — 4.61:1 on white (raised from 36%)
     radius: '0.5rem',
 
     // Surface scale (elevation-aware backgrounds)
@@ -228,7 +228,7 @@ export const semanticTokens = {
     'status-danger': '0 72% 44%',
     'status-danger-foreground': '0 0% 100%',
     'status-info': '217 91% 40%',
-    'status-info-foreground': '0 0% 100%',
+    'status-info-foreground': '0 0% 100%'
   },
   dark: {
     // Base
@@ -238,7 +238,7 @@ export const semanticTokens = {
     'card-foreground': '210 40% 96%',
     popover: '222 47% 11%',
     'popover-foreground': '210 40% 96%',
-    primary: '142 69% 58%',          // green-400 (lighter for dark bg) — ~8.0:1 on dark bg
+    primary: '142 69% 58%', // green-400 (lighter for dark bg) — ~8.0:1 on dark bg
     'primary-foreground': '222 47% 8%', // ~8.0:1 on primary
     secondary: '217 33% 20%',
     'secondary-foreground': '210 40% 96%', // ~11.8:1 on secondary
@@ -246,11 +246,11 @@ export const semanticTokens = {
     'muted-foreground': '215 25% 68%', // ~6.4:1 on muted, ~7.6:1 on background
     accent: '142 30% 20%',
     'accent-foreground': '142 69% 80%', // ~8.6:1 on accent
-    destructive: '0 72% 58%',        // raised from 55% — 4.67:1 on dark bg — WCAG AA
+    destructive: '0 72% 58%', // raised from 55% — 4.67:1 on dark bg — WCAG AA
     'destructive-foreground': '0 0% 100%', // white on destructive — ~4.67:1
     border: '217 33% 22%',
     input: '217 33% 22%',
-    ring: '142 69% 58%',             // ~8.0:1 on dark bg — visible focus indicator
+    ring: '142 69% 58%', // ~8.0:1 on dark bg — visible focus indicator
     radius: '0.5rem',
 
     // Surface scale (elevation-aware backgrounds)
@@ -281,8 +281,8 @@ export const semanticTokens = {
     'status-danger': '0 72% 58%',
     'status-danger-foreground': '0 0% 100%',
     'status-info': '213 94% 68%',
-    'status-info-foreground': '222 47% 8%',
-  },
+    'status-info-foreground': '222 47% 8%'
+  }
 } as const
 
 export type ThemeMode = keyof typeof semanticTokens
@@ -369,7 +369,7 @@ export const cssVariables = {
     '--color-neutral-800': colors.neutral[800],
     '--color-neutral-900': colors.neutral[900],
     '--color-neutral-950': colors.neutral[950],
-    '--color-neutral-1000': colors.neutral[1000],
+    '--color-neutral-1000': colors.neutral[1000]
   },
   spacing: {
     '--spacing-0': spacing[0],
@@ -395,7 +395,7 @@ export const cssVariables = {
     '--spacing-32': spacing[32],
     '--spacing-40': spacing[40],
     '--spacing-48': spacing[48],
-    '--spacing-64': spacing[64],
+    '--spacing-64': spacing[64]
   },
   typography: {
     '--font-sans': typography.fontFamily.sans.join(', '),
@@ -415,7 +415,7 @@ export const cssVariables = {
     '--letter-spacing-tight': typography.letterSpacing.tight,
     '--letter-spacing-normal': typography.letterSpacing.normal,
     '--letter-spacing-wide': typography.letterSpacing.wide,
-    '--letter-spacing-wider': typography.letterSpacing.wider,
+    '--letter-spacing-wider': typography.letterSpacing.wider
   },
   borderRadius: {
     '--radius-none': borderRadius.none,
@@ -425,7 +425,7 @@ export const cssVariables = {
     '--radius-lg': borderRadius.lg,
     '--radius-xl': borderRadius.xl,
     '--radius-2xl': borderRadius['2xl'],
-    '--radius-full': borderRadius.full,
+    '--radius-full': borderRadius.full
   },
   shadows: {
     '--shadow-sm': shadows.sm,
@@ -433,7 +433,7 @@ export const cssVariables = {
     '--shadow-md': shadows.md,
     '--shadow-lg': shadows.lg,
     '--shadow-xl': shadows.xl,
-    '--shadow-none': shadows.none,
+    '--shadow-none': shadows.none
   },
   animation: {
     '--duration-fast': animation.duration.fast,
@@ -441,8 +441,8 @@ export const cssVariables = {
     '--duration-slow': animation.duration.slow,
     '--ease-default': animation.easing.default,
     '--ease-in': animation.easing.in,
-    '--ease-out': animation.easing.out,
-  },
+    '--ease-out': animation.easing.out
+  }
 } as const
 
 /** Semantic CSS variables for a given theme mode. */
@@ -496,7 +496,7 @@ export const tokens: DesignTokens = {
   shadows,
   animation,
   semanticTokens,
-  cssVariables,
+  cssVariables
 }
 export default tokens
 

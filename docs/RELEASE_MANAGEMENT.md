@@ -1,17 +1,21 @@
 # Release Management
 
 ## Overview
+
 The release management process automates versioning, changelog generation, artifact building, and deployment across environments.
 
 ## Release Process
 
 ### 1. Version Bumping
+
 Releases follow semantic versioning (MAJOR.MINOR.PATCH):
+
 - **MAJOR**: Breaking changes or significant new features
 - **MINOR**: New features, non-breaking additions
 - **PATCH**: Bug fixes, performance improvements, minor changes
 
 ### 2. Automated Release
+
 All release steps are performed through a single entry point, `scripts/release.sh`, which exposes the `notes`, `changelog`, `track` and `publish` subcommands.
 
 ```bash
@@ -26,6 +30,7 @@ All release steps are performed through a single entry point, `scripts/release.s
 ```
 
 ### 3. What the Release Script Does
+
 1. Validates the working tree is clean
 2. Ensures you're on the release branch
 3. Fetches latest code from remote
@@ -36,6 +41,7 @@ All release steps are performed through a single entry point, `scripts/release.s
 8. Generates release notes
 
 ### 4. Changelog Generation
+
 ```bash
 # Generate full changelog
 ./scripts/release.sh changelog
@@ -45,6 +51,7 @@ All release steps are performed through a single entry point, `scripts/release.s
 ```
 
 ### 5. Release Notes
+
 ```bash
 # Generate release notes for a version
 ./scripts/release.sh notes v1.2.3
@@ -53,6 +60,7 @@ All release steps are performed through a single entry point, `scripts/release.s
 ## Release Workflows
 
 ### GitHub Actions
+
 The release management workflow (`.github/workflows/release-management.yml`) runs automatically when a `v*` tag is pushed:
 
 1. **Validate**: Verify the tag format
@@ -62,6 +70,7 @@ The release management workflow (`.github/workflows/release-management.yml`) run
 5. **Notify**: Send Slack notification to the team
 
 ### Manual Release
+
 ```bash
 # On main branch
 git checkout main
@@ -75,6 +84,7 @@ git push origin main --tags
 ```
 
 ## Release Tracking
+
 ```bash
 # View release status
 ./scripts/release.sh track status
@@ -90,19 +100,24 @@ git push origin main --tags
 ```
 
 ## Artifacts
+
 Each release produces:
+
 - Docker images: `ghcr.io/xoulomon/scavenger-{service}:{version}`
 - Helm chart: Updated version in `k8s/Chart.yaml`
 - Git tag: `v{version}`
 - GitHub Release with release notes
 
 ## Version Files
+
 `config/release-versioning.yaml` is the single source of truth for the version. All release subcommands read the version from this file only; the following files are updated to match it during a release:
+
 - `k8s/Chart.yaml` - Helm chart version
 - `frontend/package.json` - Frontend version
 - `packages/scavenger-sdk/package.json` - SDK version
 
 ## Best Practices
+
 1. Always test release candidates in staging before production
 2. Tag releases immediately after merging to main
 3. Write clear, descriptive commit messages using conventional commits

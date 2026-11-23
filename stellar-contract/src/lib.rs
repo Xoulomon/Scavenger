@@ -85,15 +85,21 @@ pub mod zkp_verifier;
 // ── Issue #925: domain-split modules ─────────────────────────────────────────
 /// Admin management: initialization, transfer, multisig proposals, pause/unpause.
 pub mod admin;
-/// Transfer workflows: initiate, approve, reject, expire pending transfers.
-pub mod transfer_mgmt;
 /// Charity domain: set_charity_contract, get_charity_contract, donate_to_charity.
 pub mod charity;
+/// Transfer workflows: initiate, approve, reject, expire pending transfers.
+pub mod transfer_mgmt;
 
 // ── Internal test modules (compile-time only) ─────────────────────────────────
 #[cfg(test)]
+#[path = "../../contracts/scavenger/src/test_coverage.rs"]
+mod test_coverage;
+#[cfg(test)]
 #[path = "../../contracts/scavenger/src/test_edge_cases.rs"]
 mod test_edge_cases_coverage;
+#[cfg(test)]
+#[path = "../../contracts/scavenger/src/test_emergency_stop.rs"]
+mod test_emergency_stop_coverage;
 #[cfg(test)]
 mod test_expiration;
 #[cfg(test)]
@@ -102,16 +108,10 @@ mod test_grading;
 #[path = "../../contracts/scavenger/src/test_pause.rs"]
 mod test_pause_coverage;
 #[cfg(test)]
-#[path = "../../contracts/scavenger/src/test_emergency_stop.rs"]
-mod test_emergency_stop_coverage;
-#[cfg(test)]
-#[path = "../../contracts/scavenger/src/test_coverage.rs"]
-mod test_coverage;
+mod test_transfer_path_validation;
 #[cfg(test)]
 #[path = "../../contracts/scavenger/src/test_upgrade.rs"]
 mod test_upgrade_migration;
-#[cfg(test)]
-mod test_transfer_path_validation;
 
 #[cfg(test)]
 #[path = "../../contracts/scavenger/src/test_error_handling.rs"]
@@ -141,8 +141,8 @@ pub use types::{
     WasteType,
 };
 pub use upgrade::{ProxyState, UpgradeHistory, UpgradeProposal, UpgradeStatus};
-pub use versioning::{check_version_transition, ApiVersion, VersionInfo};
 pub use verification::{VerificationRecord, VerificationState, VerificationWorkflow};
+pub use versioning::{check_version_transition, ApiVersion, VersionInfo};
 
 use soroban_sdk::{
     contract, contractimpl, contracttype, panic_with_error, symbol_short, token, Address, Env, String, Symbol, Vec,
@@ -169,12 +169,11 @@ use soroban_sdk::{
 // storage compatibility and the public ABI are preserved. Symbol names are
 // kept ≤ 9 chars (Soroban short-`Symbol` limit) and documented in `storage_keys`.
 use crate::storage_keys::{
-    ADMINS, CHARITY, REWARD_CFG, TOTAL_WEIGHT, TOTAL_TOKENS, REENTRANCY_GUARD, TOKEN_ADDR,
-    PART_INDEX, PAUSED, MULTISIG_THRESHOLD, PROPOSAL_COUNT, MIN_WEIGHT, CHALLENGE_COUNT,
-    PENDING_XFR_CNT, AUCTION_COUNT, SEASONAL_MUL, TOTAL_CARBON, CONTAMINATED_LIST, CARB_LIST_CNT,
-    CARB_LIST_IDX, DISPUTE_CNT, ROUTE_CNT, PERMISSIONS, RECONCIL_LOG, QUALITY_SCORES,
-    LOCATION_HISTORY, BATCH_COUNT, BATCH_INDEX, CERTIFICATIONS, REPORT_COUNT, REPORTS,
-    TRANSACTION_STATS, PERF_SNAPSHOTS, TRANSFER_THRESHOLD, REQUIRED_APPROVERS, TRANSFER_APPROVALS,
+    ADMINS, AUCTION_COUNT, BATCH_COUNT, BATCH_INDEX, CARB_LIST_CNT, CARB_LIST_IDX, CERTIFICATIONS, CHALLENGE_COUNT,
+    CHARITY, CONTAMINATED_LIST, DISPUTE_CNT, LOCATION_HISTORY, MIN_WEIGHT, MULTISIG_THRESHOLD, PART_INDEX, PAUSED,
+    PENDING_XFR_CNT, PERF_SNAPSHOTS, PERMISSIONS, PROPOSAL_COUNT, QUALITY_SCORES, RECONCIL_LOG, REENTRANCY_GUARD,
+    REPORTS, REPORT_COUNT, REQUIRED_APPROVERS, REWARD_CFG, ROUTE_CNT, SEASONAL_MUL, TOKEN_ADDR, TOTAL_CARBON,
+    TOTAL_TOKENS, TOTAL_WEIGHT, TRANSACTION_STATS, TRANSFER_APPROVALS, TRANSFER_THRESHOLD,
 };
 // Milestone records are keyed by the string tuple ("milestones", participant),
 // now constructed via `storage_keys::milestones_key` (issue #1738).
@@ -329,9 +328,10 @@ impl ScavengerContract {
         // The key is CONTRACT_VERSION ("CTRCT_VER") and the value is the ApiVersion
         // integer (2 == ApiVersion::V2). This provides an on-chain migration anchor
         // for future upgrade/migration logic without changing the public ABI.
-        env.storage()
-            .instance()
-            .set(&storage_keys::CONTRACT_VERSION, &versioning::ApiVersion::current().as_u32());
+        env.storage().instance().set(
+            &storage_keys::CONTRACT_VERSION,
+            &versioning::ApiVersion::current().as_u32(),
+        );
 
         audit_log::AuditLogService::log_action(
             &env,
@@ -1190,7 +1190,12 @@ impl ScavengerContract {
                     let adjusted_recycler_amount = (recycler_amount * cert_multiplier * tier_multiplier) / 10000;
                     events::emit_tokens_rewarded(env, &material.submitter, adjusted_owner_share, waste_id as u128);
                     if adjusted_recycler_amount > 0 {
-                        events::emit_tokens_rewarded(env, &material.submitter, adjusted_recycler_amount, waste_id as u128);
+                        events::emit_tokens_rewarded(
+                            env,
+                            &material.submitter,
+                            adjusted_recycler_amount,
+                            waste_id as u128,
+                        );
                     }
                 }
             }
@@ -3530,10 +3535,7 @@ impl ScavengerContract {
             return Err(Error::InsufficientCarbonCredits);
         }
 
-        stats.carbon_credits_earned = stats
-            .carbon_credits_earned
-            .checked_sub(amount)
-            .ok_or(Error::Overflow)?;
+        stats.carbon_credits_earned = stats.carbon_credits_earned.checked_sub(amount).ok_or(Error::Overflow)?;
         let remaining = stats.carbon_credits_earned;
         env.storage().instance().set(&("stats", participant.clone()), &stats);
 
@@ -3576,10 +3578,7 @@ impl ScavengerContract {
         }
 
         // Escrow: subtract from seller stats
-        stats.carbon_credits_earned = stats
-            .carbon_credits_earned
-            .checked_sub(amount)
-            .ok_or(Error::Overflow)?;
+        stats.carbon_credits_earned = stats.carbon_credits_earned.checked_sub(amount).ok_or(Error::Overflow)?;
         env.storage().instance().set(&("stats", seller.clone()), &stats);
 
         // Mint new listing id
@@ -3600,7 +3599,9 @@ impl ScavengerContract {
             is_active: true,
             created_at: env.ledger().timestamp(),
         };
-        env.storage().instance().set(&storage_keys::carbon_listing_key(id), &listing);
+        env.storage()
+            .instance()
+            .set(&storage_keys::carbon_listing_key(id), &listing);
 
         // Append to active-listing index
         let mut idx: Vec<u64> = env.storage().instance().get(&CARB_LIST_IDX).unwrap_or(Vec::new(&env));
@@ -3649,7 +3650,9 @@ impl ScavengerContract {
         env.storage().instance().set(&("stats", seller.clone()), &stats);
 
         listing.is_active = false;
-        env.storage().instance().set(&storage_keys::carbon_listing_key(listing_id), &listing);
+        env.storage()
+            .instance()
+            .set(&storage_keys::carbon_listing_key(listing_id), &listing);
 
         Self::remove_active_listing(&env, listing_id);
 
@@ -3722,7 +3725,9 @@ impl ScavengerContract {
         env.storage().instance().set(&("stats", buyer.clone()), &buyer_stats);
 
         listing.is_active = false;
-        env.storage().instance().set(&storage_keys::carbon_listing_key(listing_id), &listing);
+        env.storage()
+            .instance()
+            .set(&storage_keys::carbon_listing_key(listing_id), &listing);
 
         Self::remove_active_listing(&env, listing_id);
 
@@ -3737,7 +3742,9 @@ impl ScavengerContract {
 
     /// Get a carbon-credit listing by id.
     pub fn get_carbon_listing(env: Env, listing_id: u64) -> Option<CarbonListing> {
-        env.storage().instance().get(&storage_keys::carbon_listing_key(listing_id))
+        env.storage()
+            .instance()
+            .get(&storage_keys::carbon_listing_key(listing_id))
     }
 
     /// Get all currently-active carbon-credit listings.
@@ -3745,7 +3752,11 @@ impl ScavengerContract {
         let idx: Vec<u64> = env.storage().instance().get(&CARB_LIST_IDX).unwrap_or(Vec::new(&env));
         let mut out: Vec<CarbonListing> = Vec::new(&env);
         for id in idx.iter() {
-            if let Some(l) = env.storage().instance().get::<_, CarbonListing>(&storage_keys::carbon_listing_key(id)) {
+            if let Some(l) = env
+                .storage()
+                .instance()
+                .get::<_, CarbonListing>(&storage_keys::carbon_listing_key(id))
+            {
                 if l.is_active {
                     out.push_back(l);
                 }

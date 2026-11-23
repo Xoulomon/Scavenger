@@ -42,7 +42,7 @@ features/<domain>/
 Import a feature only through its `index.ts`:
 
 ```ts
-import { BADGES } from '@/features/gamification'      // allowed
+import { BADGES } from '@/features/gamification' // allowed
 import { BADGES } from '@/features/gamification/badges' // lint error (no-restricted-imports)
 ```
 
@@ -54,11 +54,13 @@ layout. Migrate a domain when you next change it.
 The app uses two complementary layers:
 
 **React Context** — for global, low-frequency state:
+
 - `AuthContext` — authenticated user (address, role, name), persisted to `localStorage`.
 - `WalletContext` — Freighter wallet connection state and `connect`/`disconnect` helpers.
 - `ContractContext` — active RPC URL, network, and contract ID (can be changed in Settings).
 
 **TanStack React Query** — for all server/contract state:
+
 - Queries cache on-chain reads (participant info, waste lists, incentives).
 - Mutations handle write transactions and automatically invalidate related queries on success.
 - Global error toasts are wired in `main.tsx` via `QueryCache` / `MutationCache` `onError`.
@@ -78,9 +80,7 @@ export function MyNewPage() {
 2. Add a lazy import in `src/router.tsx`:
 
 ```tsx
-const MyNewPage = lazy(() =>
-  import('@/pages/MyNewPage').then((m) => ({ default: m.MyNewPage }))
-)
+const MyNewPage = lazy(() => import('@/pages/MyNewPage').then((m) => ({ default: m.MyNewPage })))
 ```
 
 3. Add a route inside the protected `children` array (or at the top level for public routes):
@@ -117,11 +117,11 @@ export function useMyData() {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       return client.myReadMethod(address!)
     },
-    enabled: !!address,
+    enabled: !!address
   })
 }
 ```
@@ -147,13 +147,13 @@ export function useMyAction() {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       return client.myWriteMethod(params.foo, address)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-data'] })
-    },
+    }
   })
 }
 ```
@@ -164,7 +164,7 @@ If the action requires a confirmation step before signing, use `TransactionConfi
 import { TransactionConfirmDialog } from '@/components/ui/TransactionConfirmDialog'
 
 // In your modal/page:
-<TransactionConfirmDialog
+;<TransactionConfirmDialog
   open={showConfirm}
   action="My Action"
   params={[{ label: 'Param', value: someValue }]}

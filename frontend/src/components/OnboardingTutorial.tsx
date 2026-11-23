@@ -8,7 +8,13 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useTheme } from '@/contexts/ThemeContext'
 import { Button } from '@/components/ui/Button'
 import { Checkbox } from '@/components/ui/Checkbox'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/Dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/Dialog'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
 import { Play } from 'lucide-react'
 
@@ -43,7 +49,7 @@ export function OnboardingTutorial({ isVisible, onComplete }: OnboardingTutorial
     containerRef: dialogContentRef,
     initialFocusRef: startButtonRef,
     onEscape: () => setShowWelcomeDialog(false),
-    restoreFocusRef: previouslyFocusedRef,
+    restoreFocusRef: previouslyFocusedRef
   })
 
   useEffect(() => {
@@ -158,7 +164,7 @@ export function OnboardingTutorial({ isVisible, onComplete }: OnboardingTutorial
           last: t('joyride.last'),
           next: t('joyride.next'),
           open: t('joyride.open'),
-          skip: t('joyride.skip'),
+          skip: t('joyride.skip')
         }}
         aria-label="Onboarding tutorial"
       />
@@ -169,7 +175,7 @@ export function OnboardingTutorial({ isVisible, onComplete }: OnboardingTutorial
 // Hook to easily use onboarding in components
 export function useOnboardingTutorial(userRoleOverride?: UserRole | null) {
   const { user } = useAuth()
-  const userRole = userRoleOverride ?? ((user?.role as UserRole | undefined) ?? null)
+  const userRole = userRoleOverride ?? (user?.role as UserRole | undefined) ?? null
   const { shouldShowOnboarding, resetOnboarding } = useOnboarding()
   const [isVisible, setIsVisible] = useState(false)
 
@@ -192,6 +198,6 @@ export function useOnboardingTutorial(userRoleOverride?: UserRole | null) {
   return {
     isVisible,
     hideTutorial,
-    restartTutorial,
+    restartTutorial
   }
 }

@@ -11,20 +11,20 @@ const sharedPlugins = {
   '@typescript-eslint': tsPlugin,
   import: importPlugin,
   'error-message-format': {
-    rules: { 'error-message-format': errorMessageFormat },
-  },
+    rules: { 'error-message-format': errorMessageFormat }
+  }
 }
 
 const sharedSettings = {
   'import/resolver': {
     typescript: {
       alwaysTryTypes: true,
-      project: './tsconfig.json',
+      project: './tsconfig.json'
     },
     node: {
-      extensions: ['.js', '.ts'],
-    },
-  },
+      extensions: ['.js', '.ts']
+    }
+  }
 }
 
 const sharedRules = {
@@ -41,7 +41,7 @@ const sharedRules = {
   curly: ['error', 'all'],
   'require-jsdoc': 'off',
   'valid-jsdoc': 'off',
-  'error-message-format/error-message-format': 'error',
+  'error-message-format/error-message-format': 'error'
 }
 
 module.exports = [
@@ -55,8 +55,8 @@ module.exports = [
         project: './tsconfig.json',
         tsconfigRootDir: __dirname,
         ecmaVersion: 'latest',
-        sourceType: 'module',
-      },
+        sourceType: 'module'
+      }
     },
     plugins: sharedPlugins,
     settings: sharedSettings,
@@ -66,9 +66,9 @@ module.exports = [
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
-      ],
-    },
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
+      ]
+    }
   },
   // Test files: no-explicit-any and no-unused-vars stay enforced (issue #1767)
   {
@@ -79,8 +79,8 @@ module.exports = [
         project: './tsconfig.json',
         tsconfigRootDir: __dirname,
         ecmaVersion: 'latest',
-        sourceType: 'module',
-      },
+        sourceType: 'module'
+      }
     },
     plugins: sharedPlugins,
     settings: sharedSettings,
@@ -90,8 +90,8 @@ module.exports = [
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
-      ],
-    },
-  },
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
+      ]
+    }
+  }
 ]

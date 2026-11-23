@@ -43,8 +43,8 @@
  * `NaN` never reaches the pool settings (#1705).
  */
 function intFromEnv(raw: string | undefined, fallback: number): number {
-  const parsed = parseInt(raw ?? '', 10);
-  return Number.isFinite(parsed) ? parsed : fallback;
+  const parsed = parseInt(raw ?? '', 10)
+  return Number.isFinite(parsed) ? parsed : fallback
 }
 
 export const config = {
@@ -54,35 +54,32 @@ export const config = {
     // DB_MIN_CONNECTIONS was previously only in db/client.ts — centralised here (#1159)
     minConnections: intFromEnv(process.env.DB_MIN_CONNECTIONS, 2),
     // Support both naming conventions; DB_IDLE_TIMEOUT_MS takes precedence
-    idleTimeoutMs: intFromEnv(
-      process.env.DB_IDLE_TIMEOUT_MS || process.env.DB_IDLE_TIMEOUT,
-      30000,
-    ),
+    idleTimeoutMs: intFromEnv(process.env.DB_IDLE_TIMEOUT_MS || process.env.DB_IDLE_TIMEOUT, 30000),
     connectionTimeoutMs: intFromEnv(process.env.DB_CONNECTION_TIMEOUT_MS, 5000),
-    statementTimeoutMs: intFromEnv(process.env.DB_STATEMENT_TIMEOUT_MS, 30000),
+    statementTimeoutMs: intFromEnv(process.env.DB_STATEMENT_TIMEOUT_MS, 30000)
   },
   stellar: {
     network: process.env.STELLAR_NETWORK || 'testnet',
     rpcUrl: process.env.STELLAR_RPC_URL || 'https://soroban-testnet.stellar.org',
-    contractId: process.env.CONTRACT_ID || '',
+    contractId: process.env.CONTRACT_ID || ''
   },
   logging: {
     level: process.env.LOG_LEVEL || 'info',
-    format: process.env.LOG_FORMAT || 'json',
+    format: process.env.LOG_FORMAT || 'json'
   },
   performance: {
     slowQueryThreshold: parseInt(process.env.SLOW_QUERY_THRESHOLD || '100', 10),
-    batchSize: parseInt(process.env.BATCH_SIZE || '100', 10),
+    batchSize: parseInt(process.env.BATCH_SIZE || '100', 10)
   },
   server: {
     apiPort: Number(process.env.API_PORT ?? 3001),
-    apiHost: process.env.API_HOST ?? '0.0.0.0',
+    apiHost: process.env.API_HOST ?? '0.0.0.0'
   },
   indexer: {
     startLedger: Number(process.env.START_LEDGER ?? 0),
-    pollIntervalMs: Number(process.env.POLL_INTERVAL_MS ?? 5000),
-  },
-} as const;
+    pollIntervalMs: Number(process.env.POLL_INTERVAL_MS ?? 5000)
+  }
+} as const
 
 /**
  * Validates that all required environment variables are present.
@@ -92,8 +89,8 @@ export function validateConfig(): void {
   if (!config.stellar.contractId) {
     throw new Error(
       'CONTRACT_ID environment variable is required. ' +
-      'Set it to the deployed Soroban contract address.',
-    );
+        'Set it to the deployed Soroban contract address.'
+    )
   }
   if (!config.stellar.rpcUrl || config.stellar.rpcUrl === 'https://soroban-testnet.stellar.org') {
     // rpcUrl has a default, but warn if CONTRACT_ID is set and rpcUrl is still the default
@@ -106,8 +103,8 @@ export function validateConfig(): void {
     if (!process.env.DATABASE_URL) {
       throw new Error(
         'DATABASE_URL environment variable is required. ' +
-        'Set it to a PostgreSQL connection string.',
-      );
+          'Set it to a PostgreSQL connection string.'
+      )
     }
   }
 }

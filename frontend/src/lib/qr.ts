@@ -44,10 +44,7 @@ export function encodeQR(data: unknown, options: QREncodeOptions = {}): string {
     throw new Error('Invalid QR payload: payload is empty, too long, or malformed')
   }
 
-  const {
-    size = DEFAULT_QR_SIZE,
-    errorCorrection = DEFAULT_ERROR_CORRECTION,
-  } = options
+  const { size = DEFAULT_QR_SIZE, errorCorrection = DEFAULT_ERROR_CORRECTION } = options
 
   const encodedData = encodeURIComponent(String(data))
   return `${QR_API_BASE}?size=${size}&data=${encodedData}&ecc=${errorCorrection}`
@@ -63,7 +60,7 @@ export function decodeQR(data: unknown): QRDecodeResult {
   if (!data) {
     return {
       data: '',
-      isValid: false,
+      isValid: false
     }
   }
 
@@ -73,7 +70,7 @@ export function decodeQR(data: unknown): QRDecodeResult {
     if (!validateQRPayload(stringData)) {
       return {
         data: stringData,
-        isValid: false,
+        isValid: false
       }
     }
 
@@ -88,12 +85,12 @@ export function decodeQR(data: unknown): QRDecodeResult {
 
     return {
       data: decodedData,
-      isValid: true,
+      isValid: true
     }
   } catch (error) {
     return {
       data: String(data),
-      isValid: false,
+      isValid: false
     }
   }
 }

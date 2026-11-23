@@ -1,11 +1,13 @@
 # Responsive Design Patterns
 
 ## Overview
+
 Documentation of responsive design patterns used in Scavenger frontend.
 
 ## Mobile-First Approach
 
 ### Grid Layout
+
 ```css
 .card-grid {
   display: grid;
@@ -38,3 +40,4 @@ button, a {
   min-height: 44px;
   min-width: 44px;
 }
+```

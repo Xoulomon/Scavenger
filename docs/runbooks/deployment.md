@@ -156,6 +156,7 @@ Only one migration can be reverted at a time. For multi-step rollbacks, run the 
 **Trigger:** A critical bug (SEV-1/2) is fixed and needs to be deployed outside the normal release cycle.
 
 Hot-fixes bypass the normal PR review cadence but still require:
+
 - Sign-off from one other engineer
 - CI passing on the fix commit
 - Notification in #releases Slack channel

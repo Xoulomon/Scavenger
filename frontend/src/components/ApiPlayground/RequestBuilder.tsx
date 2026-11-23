@@ -1,53 +1,56 @@
-import React, { useState } from 'react';
-import { ApiRequest, Header, HttpMethod, QueryParam } from './types';
-import { AuthConfigPanel } from './AuthConfig';
+import React, { useState } from 'react'
+import { ApiRequest, Header, HttpMethod, QueryParam } from './types'
+import { AuthConfigPanel } from './AuthConfig'
 
 interface Props {
-  request: ApiRequest;
-  onChange: (req: ApiRequest) => void;
-  onSend: () => void;
-  loading: boolean;
+  request: ApiRequest
+  onChange: (req: ApiRequest) => void
+  onSend: () => void
+  loading: boolean
 }
 
-type Tab = 'params' | 'headers' | 'body' | 'auth';
+type Tab = 'params' | 'headers' | 'body' | 'auth'
 
 const METHOD_COLORS: Record<HttpMethod, string> = {
   GET: 'text-emerald-600',
   POST: 'text-blue-600',
   PUT: 'text-amber-600',
   PATCH: 'text-purple-600',
-  DELETE: 'text-red-600',
-};
+  DELETE: 'text-red-600'
+}
 
 export const RequestBuilder: React.FC<Props> = ({ request, onChange, onSend, loading }) => {
-  const [tab, setTab] = useState<Tab>('params');
+  const [tab, setTab] = useState<Tab>('params')
 
   const updateHeader = (idx: number, patch: Partial<Header>) => {
-    const headers = [...request.headers];
-    headers[idx] = { ...headers[idx], ...patch };
-    onChange({ ...request, headers });
-  };
+    const headers = [...request.headers]
+    headers[idx] = { ...headers[idx], ...patch }
+    onChange({ ...request, headers })
+  }
 
   const addHeader = () =>
-    onChange({ ...request, headers: [...request.headers, { key: '', value: '', enabled: true }] });
+    onChange({ ...request, headers: [...request.headers, { key: '', value: '', enabled: true }] })
 
   const removeHeader = (idx: number) =>
-    onChange({ ...request, headers: request.headers.filter((_, i) => i !== idx) });
+    onChange({ ...request, headers: request.headers.filter((_, i) => i !== idx) })
 
   const updateParam = (idx: number, patch: Partial<QueryParam>) => {
-    const queryParams = [...request.queryParams];
-    queryParams[idx] = { ...queryParams[idx], ...patch };
-    onChange({ ...request, queryParams });
-  };
+    const queryParams = [...request.queryParams]
+    queryParams[idx] = { ...queryParams[idx], ...patch }
+    onChange({ ...request, queryParams })
+  }
 
   const addParam = () =>
-    onChange({ ...request, queryParams: [...request.queryParams, { key: '', value: '', enabled: true }] });
+    onChange({
+      ...request,
+      queryParams: [...request.queryParams, { key: '', value: '', enabled: true }]
+    })
 
   const removeParam = (idx: number) =>
-    onChange({ ...request, queryParams: request.queryParams.filter((_, i) => i !== idx) });
+    onChange({ ...request, queryParams: request.queryParams.filter((_, i) => i !== idx) })
 
-  const activeTabClass = 'border-b-2 border-emerald-500 text-emerald-600 font-medium';
-  const inactiveTabClass = 'text-gray-500 hover:text-gray-700';
+  const activeTabClass = 'border-b-2 border-emerald-500 text-emerald-600 font-medium'
+  const inactiveTabClass = 'text-gray-500 hover:text-gray-700'
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
@@ -59,7 +62,9 @@ export const RequestBuilder: React.FC<Props> = ({ request, onChange, onSend, loa
           className={`font-mono font-semibold text-sm rounded border border-gray-300 px-2 py-1.5 w-24 focus:outline-none focus:ring-2 focus:ring-emerald-500 ${METHOD_COLORS[request.method]}`}
         >
           {(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as HttpMethod[]).map((m) => (
-            <option key={m} value={m}>{m}</option>
+            <option key={m} value={m}>
+              {m}
+            </option>
           ))}
         </select>
 
@@ -152,26 +157,31 @@ export const RequestBuilder: React.FC<Props> = ({ request, onChange, onSend, loa
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
 interface KVRow {
-  key: string;
-  value: string;
-  enabled: boolean;
+  key: string
+  value: string
+  enabled: boolean
 }
 
 interface KeyValueTableProps {
-  rows: KVRow[];
-  onUpdate: (idx: number, patch: Partial<KVRow>) => void;
-  onAdd: () => void;
-  onRemove: (idx: number) => void;
-  keyPlaceholder: string;
-  valuePlaceholder: string;
+  rows: KVRow[]
+  onUpdate: (idx: number, patch: Partial<KVRow>) => void
+  onAdd: () => void
+  onRemove: (idx: number) => void
+  keyPlaceholder: string
+  valuePlaceholder: string
 }
 
 const KeyValueTable: React.FC<KeyValueTableProps> = ({
-  rows, onUpdate, onAdd, onRemove, keyPlaceholder, valuePlaceholder,
+  rows,
+  onUpdate,
+  onAdd,
+  onRemove,
+  keyPlaceholder,
+  valuePlaceholder
 }) => (
   <div className="space-y-2">
     {rows.map((row, idx) => (
@@ -205,11 +215,8 @@ const KeyValueTable: React.FC<KeyValueTableProps> = ({
         </button>
       </div>
     ))}
-    <button
-      onClick={onAdd}
-      className="text-sm text-emerald-600 hover:text-emerald-800 font-medium"
-    >
+    <button onClick={onAdd} className="text-sm text-emerald-600 hover:text-emerald-800 font-medium">
       + Add
     </button>
   </div>
-);
+)

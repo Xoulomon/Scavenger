@@ -32,10 +32,16 @@ describe('Input', () => {
       )
 
       expect(container.querySelector('[data-testid="email"]')).toHaveAttribute('type', 'email')
-      expect(container.querySelector('[data-testid="password"]')).toHaveAttribute('type', 'password')
+      expect(container.querySelector('[data-testid="password"]')).toHaveAttribute(
+        'type',
+        'password'
+      )
       expect(container.querySelector('[data-testid="number"]')).toHaveAttribute('type', 'number')
       expect(container.querySelector('[data-testid="date"]')).toHaveAttribute('type', 'date')
-      expect(container.querySelector('[data-testid="checkbox"]')).toHaveAttribute('type', 'checkbox')
+      expect(container.querySelector('[data-testid="checkbox"]')).toHaveAttribute(
+        'type',
+        'checkbox'
+      )
     })
 
     it('renders with placeholder', () => {

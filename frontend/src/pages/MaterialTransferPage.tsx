@@ -1,5 +1,13 @@
-import { AlertTriangle, ArrowLeft, ArrowRight, CheckCircle2, History, Loader2,Send } from 'lucide-react'
-import { useCallback, useEffect,useState } from 'react'
+import {
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  History,
+  Loader2,
+  Send
+} from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import type { Waste } from '@/api/types'
@@ -14,7 +22,7 @@ import { StatusTimeline } from '@/features/transfers/components/StatusTimeline'
 import { StepIndicator } from '@/features/transfers/components/StepIndicator'
 import { TransferHistoryTab } from '@/features/transfers/components/TransferHistoryTab'
 import { WasteChainHistory } from '@/features/transfers/components/WasteChainHistory'
-import { INITIAL_FORM,STEPS } from '@/features/transfers/constants'
+import { INITIAL_FORM, STEPS } from '@/features/transfers/constants'
 import { transferDestinationSchema } from '@/features/transfers/schemas'
 import { buildTransferNote } from '@/features/transfers/service'
 import { addTransferRecord } from '@/features/transfers/transferHistory'
@@ -56,23 +64,23 @@ const STEPS: { key: TransferStep; labelKey: string; icon: React.ReactNode }[] = 
   {
     key: 'select',
     labelKey: 'materialTransfer.steps.select',
-    icon: <Package className="h-4 w-4" />,
+    icon: <Package className="h-4 w-4" />
   },
   {
     key: 'destination',
     labelKey: 'materialTransfer.steps.destination',
-    icon: <MapPin className="h-4 w-4" />,
+    icon: <MapPin className="h-4 w-4" />
   },
   {
     key: 'documentation',
     labelKey: 'materialTransfer.steps.documentation',
-    icon: <FileText className="h-4 w-4" />,
+    icon: <FileText className="h-4 w-4" />
   },
   {
     key: 'review',
     labelKey: 'materialTransfer.steps.review',
-    icon: <CheckCircle2 className="h-4 w-4" />,
-  },
+    icon: <CheckCircle2 className="h-4 w-4" />
+  }
 ]
 
 const INITIAL_FORM: TransferFormData = {
@@ -84,7 +92,7 @@ const INITIAL_FORM: TransferFormData = {
   handlingInstructions: '',
   beforePhotos: [],
   afterPhotos: [],
-  senderConfirmed: false,
+  senderConfirmed: false
 }
 
 // ── Local transfer history (session) ────────────────────────────────────────
@@ -113,7 +121,7 @@ function useParticipantWastes() {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       const ids = await client.getParticipantWastes(address)
       const results = await Promise.all(
@@ -122,7 +130,7 @@ function useParticipantWastes() {
       return results.filter((w): w is Waste => w !== null && w.is_active)
     },
     enabled: !!address,
-    staleTime: 30_000,
+    staleTime: 30_000
   })
 }
 
@@ -136,12 +144,12 @@ function useWasteTransferHistory(wasteId: bigint | null) {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       return client.getWasteTransferHistory(wasteId)
     },
     enabled: wasteId !== null,
-    staleTime: 15_000,
+    staleTime: 15_000
   })
 }
 
@@ -151,27 +159,19 @@ function useTransferWaste() {
   const qc = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({
-      wasteId,
-      to,
-      note,
-    }: {
-      wasteId: bigint
-      to: string
-      note: string
-    }) => {
+    mutationFn: async ({ wasteId, to, note }: { wasteId: bigint; to: string; note: string }) => {
       if (!address) throw new Error('No wallet connected.')
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       return client.transferWaste(wasteId, address, to, BigInt(0), BigInt(0), note, address)
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: cacheKeys.participantWastes() })
       qc.invalidateQueries({ queryKey: cacheKeys.wasteTransferHistory() })
-    },
+    }
   })
 }
 
@@ -179,7 +179,7 @@ function useTransferWaste() {
 
 function StepIndicator({
   currentStep,
-  onStepClick,
+  onStepClick
 }: {
   currentStep: TransferStep
   onStepClick: (step: TransferStep) => void
@@ -205,7 +205,7 @@ function StepIndicator({
                 aria-label={t('materialTransfer.stepAriaLabel', {
                   number: idx + 1,
                   label: t(step.labelKey),
-                  completed: isCompleted ? t('materialTransfer.completedSuffix') : '',
+                  completed: isCompleted ? t('materialTransfer.completedSuffix') : ''
                 })}
                 className={`flex w-full flex-col items-center gap-1 rounded-lg p-2 text-xs transition-colors sm:flex-row sm:gap-2 sm:p-3 sm:text-sm ${
                   isCurrent
@@ -249,7 +249,7 @@ function SelectWasteStep({
   wastes,
   isLoading,
   selectedId,
-  onSelect,
+  onSelect
 }: {
   wastes: Waste[]
   isLoading: boolean
@@ -294,7 +294,7 @@ function SelectWasteStep({
               aria-pressed={isSelected}
               aria-label={t('materialTransfer.selectWaste.selectAriaLabel', {
                 id: waste.waste_id.toString(),
-                type: wasteTypeLabel(waste.waste_type),
+                type: wasteTypeLabel(waste.waste_type)
               })}
               className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm transition-colors hover:bg-accent/50 ${
                 isSelected ? 'bg-primary/5 ring-1 ring-inset ring-primary' : ''
@@ -303,7 +303,7 @@ function SelectWasteStep({
               <div className="space-y-1">
                 <p className="font-medium">
                   {t('materialTransfer.selectWaste.wasteLabel', {
-                    id: waste.waste_id.toString(),
+                    id: waste.waste_id.toString()
                   })}
                 </p>
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
@@ -341,7 +341,7 @@ function SelectWasteStep({
 
 function DestinationStep({
   recipientAddress,
-  onRecipientChange,
+  onRecipientChange
 }: {
   recipientAddress: string
   onRecipientChange: (addr: string) => void
@@ -398,7 +398,7 @@ function PhotoUploadSection({
   label,
   photos,
   onPhotosChange,
-  inputId,
+  inputId
 }: {
   label: string
   photos: File[]
@@ -445,7 +445,7 @@ function PhotoUploadSection({
               type="button"
               onClick={() => removePhoto(idx)}
               aria-label={t('materialTransfer.documentation.removePhotoAriaLabel', {
-                number: idx + 1,
+                number: idx + 1
               })}
               className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
             >
@@ -459,7 +459,7 @@ function PhotoUploadSection({
             onClick={() => fileInputRef.current?.click()}
             className="flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed text-muted-foreground transition-colors hover:border-primary hover:text-primary"
             aria-label={t('materialTransfer.documentation.addPhotoAriaLabel', {
-              label: label.toLowerCase(),
+              label: label.toLowerCase()
             })}
           >
             <Camera className="h-5 w-5" />
@@ -476,7 +476,7 @@ function PhotoUploadSection({
         className="sr-only"
         onChange={handleFileChange}
         aria-label={t('materialTransfer.documentation.uploadPhotoAriaLabel', {
-          label: label.toLowerCase(),
+          label: label.toLowerCase()
         })}
       />
       <p className="text-xs text-muted-foreground">
@@ -488,7 +488,7 @@ function PhotoUploadSection({
 
 function DocumentationStep({
   form,
-  onChange,
+  onChange
 }: {
   form: TransferFormData
   onChange: (updates: Partial<TransferFormData>) => void
@@ -566,13 +566,7 @@ function DocumentationStep({
 
 // ── Step 4: Review & Confirm ────────────────────────────────────────────────
 
-function SignaturePad({
-  onSign,
-  signed,
-}: {
-  onSign: (signed: boolean) => void
-  signed: boolean
-}) {
+function SignaturePad({ onSign, signed }: { onSign: (signed: boolean) => void; signed: boolean }) {
   const { t } = useTranslation()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [isDrawing, setIsDrawing] = useState(false)
@@ -586,7 +580,7 @@ function SignaturePad({
       if ('touches' in e) {
         return {
           x: e.touches[0].clientX - rect.left,
-          y: e.touches[0].clientY - rect.top,
+          y: e.touches[0].clientY - rect.top
         }
       }
       return { x: e.clientX - rect.left, y: e.clientY - rect.top }
@@ -644,9 +638,7 @@ function SignaturePad({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium">
-          {t('materialTransfer.signature.label')}
-        </label>
+        <label className="text-sm font-medium">{t('materialTransfer.signature.label')}</label>
         {hasDrawn && (
           <Button
             type="button"
@@ -680,9 +672,7 @@ function SignaturePad({
           role="img"
         />
       </div>
-      <p className="text-xs text-muted-foreground">
-        {t('materialTransfer.signature.hint')}
-      </p>
+      <p className="text-xs text-muted-foreground">{t('materialTransfer.signature.hint')}</p>
     </div>
   )
 }
@@ -690,7 +680,7 @@ function SignaturePad({
 function ReviewStep({
   form,
   senderAddress,
-  onConfirmChange,
+  onConfirmChange
 }: {
   form: TransferFormData
   senderAddress: string
@@ -700,9 +690,7 @@ function ReviewStep({
 
   return (
     <div className="space-y-5">
-      <p className="text-sm text-muted-foreground">
-        {t('materialTransfer.review.instructions')}
-      </p>
+      <p className="text-sm text-muted-foreground">{t('materialTransfer.review.instructions')}</p>
 
       {/* Transfer summary */}
       <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
@@ -750,7 +738,9 @@ function ReviewStep({
         <div className="border-t pt-3">
           <div className="flex items-center gap-3 text-sm">
             <div className="flex-1">
-              <span className="text-muted-foreground">{t('materialTransfer.review.fromLabel')}</span>
+              <span className="text-muted-foreground">
+                {t('materialTransfer.review.fromLabel')}
+              </span>
               <p className="font-mono text-xs">{formatAddress(senderAddress)}</p>
             </div>
             <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -798,7 +788,7 @@ function ReviewStep({
               <span>
                 {t('materialTransfer.review.photoCount', {
                   before: form.beforePhotos.length,
-                  after: form.afterPhotos.length,
+                  after: form.afterPhotos.length
                 })}
               </span>
             </div>
@@ -838,26 +828,26 @@ const STATUS_CONFIG: Record<
     labelKey: 'materialTransfer.status.pending',
     icon: <Clock className="h-4 w-4" />,
     color: 'text-yellow-600',
-    bgColor: 'bg-yellow-100',
+    bgColor: 'bg-yellow-100'
   },
   'in-transit': {
     labelKey: 'materialTransfer.status.inTransit',
     icon: <Truck className="h-4 w-4" />,
     color: 'text-blue-600',
-    bgColor: 'bg-blue-100',
+    bgColor: 'bg-blue-100'
   },
   delivered: {
     labelKey: 'materialTransfer.status.delivered',
     icon: <Package className="h-4 w-4" />,
     color: 'text-purple-600',
-    bgColor: 'bg-purple-100',
+    bgColor: 'bg-purple-100'
   },
   confirmed: {
     labelKey: 'materialTransfer.status.confirmed',
     icon: <ShieldCheck className="h-4 w-4" />,
     color: 'text-emerald-600',
-    bgColor: 'bg-emerald-100',
-  },
+    bgColor: 'bg-emerald-100'
+  }
 }
 
 function StatusTimeline({ status }: { status: TransferStatus }) {
@@ -880,7 +870,9 @@ function StatusTimeline({ status }: { status: TransferStatus }) {
             <div className="flex flex-col items-center gap-1">
               <div
                 className={`flex h-8 w-8 items-center justify-center rounded-full ${
-                  isCompleted ? `${config.bgColor} ${config.color}` : 'bg-muted text-muted-foreground'
+                  isCompleted
+                    ? `${config.bgColor} ${config.color}`
+                    : 'bg-muted text-muted-foreground'
                 } ${isCurrent ? 'ring-2 ring-offset-1 ring-primary' : ''}`}
                 aria-label={t('materialTransfer.statusStepAriaLabel', {
                   label: t(config.labelKey),
@@ -888,7 +880,7 @@ function StatusTimeline({ status }: { status: TransferStatus }) {
                     ? t('materialTransfer.currentSuffix')
                     : isCompleted
                       ? t('materialTransfer.completedSuffix')
-                      : '',
+                      : ''
                 })}
               >
                 {config.icon}
@@ -977,9 +969,7 @@ function TransferHistoryTab() {
                 </div>
               </div>
 
-              {record.notes && (
-                <p className="text-xs text-muted-foreground">{record.notes}</p>
-              )}
+              {record.notes && <p className="text-xs text-muted-foreground">{record.notes}</p>}
 
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>{formatDate(record.transferredAt)}</span>
@@ -1064,7 +1054,8 @@ export function MaterialTransferPage() {
       case 'select':
         return form.wasteId !== null
       case 'destination':
-        return transferDestinationSchema.safeParse({ recipientAddress: form.recipientAddress }).success
+        return transferDestinationSchema.safeParse({ recipientAddress: form.recipientAddress })
+          .success
       case 'documentation':
         return true // documentation is optional
       case 'review':
@@ -1099,7 +1090,7 @@ export function MaterialTransferPage() {
       await transfer.mutateAsync({
         wasteId: form.wasteId,
         to: form.recipientAddress,
-        note: buildTransferNote(form),
+        note: buildTransferNote(form)
       })
 
       addTransferRecord({
@@ -1110,7 +1101,7 @@ export function MaterialTransferPage() {
         notes: form.transferNotes,
         conditionNotes: form.conditionNotes,
         handlingInstructions: form.handlingInstructions,
-        status: 'pending',
+        status: 'pending'
       })
 
       setShowSuccess(true)
@@ -1215,9 +1206,7 @@ export function MaterialTransferPage() {
                     selectedId={form.wasteId}
                     onSelect={handleSelectWaste}
                   />
-                  {form.wasteId !== null && (
-                    <WasteChainHistory wasteId={form.wasteId} />
-                  )}
+                  {form.wasteId !== null && <WasteChainHistory wasteId={form.wasteId} />}
                 </div>
               )}
               {step === 'destination' && (
@@ -1226,9 +1215,7 @@ export function MaterialTransferPage() {
                   onRecipientChange={(addr) => updateForm({ recipientAddress: addr })}
                 />
               )}
-              {step === 'documentation' && (
-                <DocumentationStep form={form} onChange={updateForm} />
-              )}
+              {step === 'documentation' && <DocumentationStep form={form} onChange={updateForm} />}
               {step === 'review' && (
                 <ReviewStep
                   form={form}

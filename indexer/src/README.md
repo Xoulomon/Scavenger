@@ -34,23 +34,27 @@ src/
 ## Key Modules
 
 ### Database (`db/`)
+
 - Connection pooling with automatic retry
 - Transaction support with rollback
 - Query performance monitoring
 - Optimized indexes for common queries
 
 ### Error Handling (`errors/`)
+
 - Typed error codes for consistency
 - Specific error classes for different scenarios
 - Error serialization for API responses
 - Automatic error recovery
 
 ### Utilities (`utils/`)
+
 - Address, waste type, and role validation
 - Data formatting (addresses, weights, dates)
 - Reusable validation and formatting functions
 
 ### Event Handlers (`handlers/`)
+
 - Processes contract events from Stellar
 - Maintains database state in sync with blockchain
 - Supports batch operations
@@ -58,19 +62,19 @@ src/
 ## Usage
 
 ```typescript
-import { getPool, withTransaction } from './db/client';
-import { ensureIndexes } from './db/queryOptimizer';
-import { ValidationError } from './errors';
-import { isValidAddress } from './utils';
+import { getPool, withTransaction } from './db/client'
+import { ensureIndexes } from './db/queryOptimizer'
+import { ValidationError } from './errors'
+import { isValidAddress } from './utils'
 
 // Initialize database
-const pool = getPool();
-await ensureIndexes(pool);
+const pool = getPool()
+await ensureIndexes(pool)
 
 // Use transactions
 await withTransaction(async (client) => {
   // Your database operations
-});
+})
 ```
 
 ## Performance

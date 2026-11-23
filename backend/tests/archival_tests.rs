@@ -182,7 +182,10 @@ async fn test_archive_respects_retention_policy_expiry() {
         })
         .unwrap();
 
-    let record = archives.iter().find(|r| r.id == archive_id).expect("archive record missing");
+    let record = archives
+        .iter()
+        .find(|r| r.id == archive_id)
+        .expect("archive record missing");
     assert!(
         record.expires_at.is_some(),
         "expires_at should be set when delete_after_days is provided"

@@ -27,7 +27,7 @@ export function RewardTrackingPage() {
       weight: waste.weight,
       rewardPoints: waste.weight * 10n, // Example: 10 points per kg
       timestamp: waste.timestamp,
-      status: waste.confirmed ? 'verified' : 'pending',
+      status: waste.confirmed ? 'verified' : 'pending'
     }))
   }, [wastes])
 
@@ -76,8 +76,8 @@ export function RewardTrackingPage() {
         e.weight.toString(),
         e.rewardPoints.toString(),
         formatDate(e.timestamp),
-        e.status,
-      ]),
+        e.status
+      ])
     ]
       .map((row) => row.join(','))
       .join('\n')
@@ -190,7 +190,9 @@ export function RewardTrackingPage() {
                         <Badge className={getStatusColor(entry.status)}>
                           {entry.status.charAt(0).toUpperCase() + entry.status.slice(1)}
                         </Badge>
-                        <span className="text-sm font-medium">{wasteTypeLabel(entry.wasteType)}</span>
+                        <span className="text-sm font-medium">
+                          {wasteTypeLabel(entry.wasteType)}
+                        </span>
                         <span className="text-sm text-gray-500">ID: {entry.wasteId}</span>
                       </div>
                       <div className="flex items-center gap-4 text-sm text-gray-600">
@@ -204,7 +206,9 @@ export function RewardTrackingPage() {
                     <div className="text-right">
                       <div className="flex items-center gap-2 justify-end">
                         <TrendingUp className="h-5 w-5 text-green-600" />
-                        <span className="text-2xl font-bold text-green-600">{entry.rewardPoints.toString()}</span>
+                        <span className="text-2xl font-bold text-green-600">
+                          {entry.rewardPoints.toString()}
+                        </span>
                       </div>
                       <p className="text-sm text-gray-500">points</p>
                     </div>
@@ -223,7 +227,9 @@ export function RewardTrackingPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3 text-sm">
-            <p className="text-gray-600">Rewards are calculated based on waste weight and verification status:</p>
+            <p className="text-gray-600">
+              Rewards are calculated based on waste weight and verification status:
+            </p>
             <ul className="space-y-2 ml-4">
               <li>• Base reward: 10 points per kg</li>
               <li>• Verified waste: Full reward points</li>

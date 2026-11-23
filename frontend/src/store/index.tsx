@@ -15,13 +15,7 @@
  *   const { state, dispatch } = useUiStore()
  */
 
-import React, {
-  createContext,
-  useContext,
-  useReducer,
-  useEffect,
-  type ReactNode,
-} from 'react'
+import React, { createContext, useContext, useReducer, useEffect, type ReactNode } from 'react'
 
 import {
   authReducer,
@@ -30,7 +24,7 @@ import {
   persistAuth,
   clearPersistedAuth,
   type AuthState,
-  type AuthAction,
+  type AuthAction
 } from './auth'
 
 import {
@@ -39,7 +33,7 @@ import {
   persistWalletAddress,
   clearPersistedWallet,
   type WalletState,
-  type WalletAction,
+  type WalletAction
 } from './wallet'
 
 import { uiReducer, uiInitialState, type UiState, type UiAction } from './ui'

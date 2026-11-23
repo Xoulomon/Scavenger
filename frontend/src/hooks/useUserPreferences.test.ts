@@ -11,7 +11,7 @@ const mockPreferences = {
   theme: 'light',
   language: 'en',
   notifications: true,
-  compactMode: false,
+  compactMode: false
 }
 
 const libMock = {
@@ -19,7 +19,7 @@ const libMock = {
   saveUserPreferences: vi.fn(),
   resetUserPreferences: vi.fn(),
   exportPreferences: vi.fn(() => JSON.stringify(mockPreferences)),
-  importPreferences: vi.fn((_json: string) => true),
+  importPreferences: vi.fn((_json: string) => true)
 }
 
 vi.mock('../lib/userPreferences', () => libMock)

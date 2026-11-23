@@ -40,7 +40,7 @@ import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 
 function MyComponent() {
   const isOnline = useOnlineStatus();
-  
+
   return <div>Status: {isOnline ? 'Online' : 'Offline'}</div>;
 }
 ```
@@ -96,7 +96,7 @@ import { useConnectionQuality } from '@/hooks/useOnlineStatus';
 
 function MyComponent() {
   const { effectiveType, downlink, rtt } = useConnectionQuality();
-  
+
   return (
     <div>
       Connection: {effectiveType} ({downlink}Mbps, {rtt}ms)
@@ -139,81 +139,81 @@ The service worker implements intelligent caching strategies:
 
 ```typescript
 // Query cache
-await saveQuery('key', data);
-const data = await getQuery('key');
-await deleteQuery('key');
-await clearQueries();
+await saveQuery('key', data)
+const data = await getQuery('key')
+await deleteQuery('key')
+await clearQueries()
 
 // Mutation queue
 const id = await queueMutation({
   mutationKey: ['create-user'],
   variables: { name: 'John' }
-});
-const pending = await getPendingMutations();
-await updateMutationStatus(id, 'success');
-await deleteMutation(id);
+})
+const pending = await getPendingMutations()
+await updateMutationStatus(id, 'success')
+await deleteMutation(id)
 
 // General cache
-await setCache('key', data, 3600000); // 1 hour TTL
-const data = await getCache('key');
-await clearCache();
+await setCache('key', data, 3600000) // 1 hour TTL
+const data = await getCache('key')
+await clearCache()
 
 // Settings
-await setSetting('key', value);
-const value = await getSetting('key');
+await setSetting('key', value)
+const value = await getSetting('key')
 
 // Database management
-await clearAllData();
-const size = await getDatabaseSize();
+await clearAllData()
+const size = await getDatabaseSize()
 ```
 
 ### Sync Manager API
 
 ```typescript
-import { syncManager } from '@/lib/offline/syncManager';
+import { syncManager } from '@/lib/offline/syncManager'
 
 // Register mutation handler
 syncManager.registerMutationHandler('create-user', async (mutation) => {
-  return await api.createUser(mutation.variables);
-});
+  return await api.createUser(mutation.variables)
+})
 
 // Manual sync
-const result = await syncManager.syncPendingMutations();
-console.log(`${result.success} succeeded, ${result.failed} failed`);
+const result = await syncManager.syncPendingMutations()
+console.log(`${result.success} succeeded, ${result.failed} failed`)
 
 // Check sync status
-const isSyncing = syncManager.syncing;
+const isSyncing = syncManager.syncing
 ```
 
 ### Service Worker API
 
 ```typescript
-import { 
+import {
   registerServiceWorker,
   unregisterServiceWorker,
-  checkServiceWorkerSupport 
-} from '@/lib/offline/serviceWorker';
+  checkServiceWorkerSupport
+} from '@/lib/offline/serviceWorker'
 
 // Register
 await registerServiceWorker({
   onSuccess: (registration) => {
-    console.log('Service worker registered');
+    console.log('Service worker registered')
   },
   onUpdate: (registration) => {
-    console.log('New version available');
+    console.log('New version available')
   },
   onOfflineReady: () => {
-    console.log('App ready for offline use');
+    console.log('App ready for offline use')
   }
-});
+})
 
 // Check support
 if (checkServiceWorkerSupport()) {
-  await registerServiceWorker();
+  await registerServiceWorker()
 }
 
 // Unregister
-await unregisterServiceWorker();
+await unregisterServiceWorker()
 ```
 
 ## IndexedDB Schema
@@ -221,6 +221,7 @@ await unregisterServiceWorker();
 ### Stores
 
 1. **queries**
+
    ```typescript
    {
      key: string,
@@ -230,6 +231,7 @@ await unregisterServiceWorker();
    ```
 
 2. **mutations**
+
    ```typescript
    {
      id: string,
@@ -243,6 +245,7 @@ await unregisterServiceWorker();
    ```
 
 3. **cache**
+
    ```typescript
    {
      key: string,
@@ -267,13 +270,13 @@ await unregisterServiceWorker();
 In your main entry file:
 
 ```typescript
-import { registerServiceWorker } from '@/lib/offline/serviceWorker';
+import { registerServiceWorker } from '@/lib/offline/serviceWorker'
 
 registerServiceWorker({
   onOfflineReady: () => {
-    console.log('App is ready for offline use');
+    console.log('App is ready for offline use')
   }
-});
+})
 ```
 
 ### Step 2: Add Offline Indicator
@@ -295,23 +298,23 @@ function App() {
 ### Step 3: Use Offline Mutations
 
 ```typescript
-import { useOfflineMutation } from '@/hooks/useOfflineMutation';
+import { useOfflineMutation } from '@/hooks/useOfflineMutation'
 
 const mutation = useOfflineMutation({
   mutationFn: apiCall,
-  mutationKey: ['my-mutation'],
-});
+  mutationKey: ['my-mutation']
+})
 ```
 
 ### Step 4: Register Sync Handlers
 
 ```typescript
-import { syncManager } from '@/lib/offline/syncManager';
+import { syncManager } from '@/lib/offline/syncManager'
 
 // Register handlers for your mutations
 syncManager.registerMutationHandler('create-waste', async (mutation) => {
-  return await api.createWaste(mutation.variables);
-});
+  return await api.createWaste(mutation.variables)
+})
 ```
 
 ## Testing
@@ -349,11 +352,11 @@ npm test tests/offline/
 
 ```typescript
 // Cache frequently accessed data
-await saveQuery('user-profile', userData);
+await saveQuery('user-profile', userData)
 
 // Don't cache sensitive data unnecessarily
 // Clear cache when user logs out
-await clearQueries();
+await clearQueries()
 ```
 
 ### 2. Handle Errors Gracefully
@@ -386,9 +389,9 @@ try {
 // Auto-sync on visibility change
 document.addEventListener('visibilitychange', async () => {
   if (!document.hidden && navigator.onLine) {
-    await syncManager.syncPendingMutations();
+    await syncManager.syncPendingMutations()
   }
-});
+})
 ```
 
 ## Performance
@@ -438,9 +441,9 @@ document.addEventListener('visibilitychange', async () => {
 ```typescript
 // Check console for errors
 if ('serviceWorker' in navigator) {
-  console.log('Service Workers supported');
+  console.log('Service Workers supported')
 } else {
-  console.log('Service Workers not supported');
+  console.log('Service Workers not supported')
 }
 ```
 
@@ -448,23 +451,23 @@ if ('serviceWorker' in navigator) {
 
 ```typescript
 // Check pending mutations
-const pending = await getPendingMutations();
-console.log('Pending mutations:', pending);
+const pending = await getPendingMutations()
+console.log('Pending mutations:', pending)
 
 // Manual sync
-await syncManager.syncPendingMutations();
+await syncManager.syncPendingMutations()
 ```
 
 ### Storage Quota Exceeded
 
 ```typescript
 // Check storage usage
-const size = await getDatabaseSize();
-console.log('Storage used:', size.formatted);
+const size = await getDatabaseSize()
+console.log('Storage used:', size.formatted)
 
 // Clear old data
-await clearQueries();
-await clearCache();
+await clearQueries()
+await clearCache()
 ```
 
 ## Future Enhancements

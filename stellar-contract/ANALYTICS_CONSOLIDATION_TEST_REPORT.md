@@ -9,6 +9,7 @@
 The Scavenger workspace has a dependency manifest issue in `backend/Cargo.toml` (duplicate key for `actix-web` on line 44), which currently prevents workspace-level cargo commands from executing. This is unrelated to the analytics consolidation and should be fixed separately.
 
 **Workaround**: Tests can be run locally by:
+
 1. Fixing the backend Cargo.toml duplicate dependencies issue
 2. Or running tests directly with `cargo test --lib analytics --manifest-path stellar-contract/Cargo.toml`
 
@@ -114,6 +115,7 @@ All tests are implemented in `stellar-contract/src/analytics.rs` under the `#[cf
 ## Code Quality Verification
 
 ### Module Structure
+
 ```
 analytics.rs
 ├── GlobalMetrics impl (6 methods)
@@ -128,18 +130,21 @@ analytics.rs
 **Delta**: +137 LOC for storage integration, tests, and documentation
 
 ### Breaking Changes
+
 - ✅ **Zero breaking changes** to contract ABI
 - ✅ Removed types were unused in production
 - ✅ GlobalMetrics and RecyclingStats types unchanged
 - ✅ analytics module remains private (internal use only)
 
 ### Functionality Preserved
+
 - ✅ All mutation helpers from contract_analytics.rs merged
 - ✅ No loss of existing logic
 - ✅ Saturation arithmetic preserved (saturating_add)
 - ✅ Guard logic preserved (e.g., active_waste_count ≥ 0)
 
 ### New Functionality Added
+
 - ✅ Storage persistence layer (save/get functions)
 - ✅ Periodic batching (every 10 transactions)
 - ✅ Migration helpers for contract upgrades
@@ -148,6 +153,7 @@ analytics.rs
 ## Removed Code Verification
 
 ### Complex Reporting Types (Confirmed Removed)
+
 - ❌ `ReportType` enum (6 variants)
 - ❌ `AnalyticsReport` struct
 - ❌ `AnalyticsDataPoint` struct
@@ -158,6 +164,7 @@ analytics.rs
 **Justification**: None of these were called anywhere in the codebase. Off-chain indexer is the appropriate place for complex reporting.
 
 ### Module Deletions
+
 - ✅ `contract_analytics.rs` deleted (fully merged)
 - ✅ `mod contract_analytics` declaration removed from lib.rs
 - ✅ All analytics exports removed from lib.rs pub use block
@@ -165,14 +172,16 @@ analytics.rs
 ## Storage Impact Analysis
 
 ### New Storage Keys
-| Key | Type | Purpose | Issue |
-|-----|------|---------|-------|
-| `GLOBAL_METRICS_SNAPSHOT` | Symbol | Global metrics snapshot | #1514 |
-| `ANALYTICS_LAST_UPDATE` | Symbol | Snapshot timestamp | #1514 |
-| `ANALYTICS_BATCH_COUNT` | Symbol | Batching counter | #1514 |
-| `recycling_stats_key(addr)` | Tuple | Per-participant stats | #1514 |
+
+| Key                         | Type   | Purpose                 | Issue |
+| --------------------------- | ------ | ----------------------- | ----- |
+| `GLOBAL_METRICS_SNAPSHOT`   | Symbol | Global metrics snapshot | #1514 |
+| `ANALYTICS_LAST_UPDATE`     | Symbol | Snapshot timestamp      | #1514 |
+| `ANALYTICS_BATCH_COUNT`     | Symbol | Batching counter        | #1514 |
+| `recycling_stats_key(addr)` | Tuple  | Per-participant stats   | #1514 |
 
 All keys follow naming conventions:
+
 - Symbol keys: ≤9 chars (Soroban limit)
 - Tuple keys: ("recycling_stats", address) format
 - No collisions verified
@@ -180,9 +189,11 @@ All keys follow naming conventions:
 ### Storage Writes Per Transaction
 
 **Without Analytics Persistence** (current):
+
 - 0 analytics storage writes per transaction
 
 **With Periodic Batching** (new):
+
 - ~1 storage write per 10 transactions (ANALYTICS_BATCH_SIZE)
 - Amortized: 0.1 writes per transaction
 - Cost: ~3-5 Stroops per transaction (Soroban storage fee)
@@ -226,6 +237,7 @@ cargo test --lib
 ## Recommendations
 
 ### Immediate (This PR)
+
 1. ✅ Merge consolidated analytics.rs
 2. ✅ Delete contract_analytics.rs
 3. ✅ Update lib.rs imports
@@ -234,6 +246,7 @@ cargo test --lib
 6. ⏳ Run full test suite to confirm
 
 ### Follow-Up (Separate PRs)
+
 1. Fix backend Cargo.toml duplicate dependencies
 2. Run integration tests measuring storage writes
 3. Integrate analytics persistence into contract operations (only call when needed)
@@ -244,6 +257,7 @@ cargo test --lib
 The analytics consolidation is **code-complete and ready for testing**. All changes have been manually verified for correctness. The blocking issue is the workspace manifest problem, which should be fixed separately before running tests.
 
 **Risk Level**: 🟢 **Low**
+
 - Consolidated code only affects unused analytics infrastructure
 - No impact on contract business logic
 - All existing functionality preserved

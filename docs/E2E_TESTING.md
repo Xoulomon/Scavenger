@@ -41,14 +41,14 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:5173',
     trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
+    screenshot: 'only-on-failure'
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
-  ],
-});
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } }
+  ]
+})
 ```
 
 ---
@@ -263,21 +263,21 @@ export const testData = {
   participants: {
     recycler: { name, role, lat, lon },
     collector: { name, role, lat, lon },
-    manufacturer: { name, role, lat, lon },
+    manufacturer: { name, role, lat, lon }
   },
   waste: {
     paper: { type, weight, lat, lon },
     plastic: { type, weight, lat, lon },
     metal: { type, weight, lat, lon },
     glass: { type, weight, lat, lon },
-    organic: { type, weight, lat, lon },
+    organic: { type, weight, lat, lon }
   },
   incentives: {
     paperIncentive: { wasteType, rewardPoints, budget },
     plasticIncentive: { wasteType, rewardPoints, budget },
-    metalIncentive: { wasteType, rewardPoints, budget },
-  },
-};
+    metalIncentive: { wasteType, rewardPoints, budget }
+  }
+}
 ```
 
 ---

@@ -4,12 +4,10 @@
 #![cfg(test)]
 
 use soroban_sdk::{testutils::Address as _, Address, Env};
-use stellar_scavngr_contract::{
-    ScavngrContractClient, ParticipantRole, WasteType,
-};
+use stellar_scavngr_contract::{ParticipantRole, ScavngrContractClient, WasteType};
 
 /// Storage Optimization Opportunities Identified:
-/// 
+///
 /// 1. Symbol Key Compression
 ///    - Current: 8-byte symbols for storage keys
 ///    - Optimization: Use shorter symbol names where possible
@@ -59,24 +57,12 @@ fn storage_optimization_batch_operations() {
     let recycler = Address::generate(&env);
 
     client.initialize_admin(&admin);
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &"Recycler".into(),
-        &0i32,
-        &0i32,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &"Recycler".into(), &0i32, &0i32);
 
     // Batch operations reduce storage overhead
     let mut waste_ids = Vec::new();
     for i in 0..50 {
-        let waste_id = client.submit_material(
-            &recycler,
-            &WasteType::Plastic,
-            &(100u128 + i as u128),
-            &0i32,
-            &0i32,
-        );
+        let waste_id = client.submit_material(&recycler, &WasteType::Plastic, &(100u128 + i as u128), &0i32, &0i32);
         waste_ids.push(waste_id);
     }
 
@@ -93,23 +79,11 @@ fn storage_optimization_query_efficiency() {
     let recycler = Address::generate(&env);
 
     client.initialize_admin(&admin);
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &"Recycler".into(),
-        &0i32,
-        &0i32,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &"Recycler".into(), &0i32, &0i32);
 
     // Create wastes
     for i in 0..30 {
-        client.submit_material(
-            &recycler,
-            &WasteType::Metal,
-            &(100u128 + i as u128),
-            &0i32,
-            &0i32,
-        );
+        client.submit_material(&recycler, &WasteType::Metal, &(100u128 + i as u128), &0i32, &0i32);
     }
 
     // Efficient query - only loads necessary data
@@ -173,13 +147,7 @@ fn storage_optimization_transfer_history() {
     let collector = Address::generate(&env);
 
     client.initialize_admin(&admin);
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &"Recycler".into(),
-        &0i32,
-        &0i32,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &"Recycler".into(), &0i32, &0i32);
     client.register_participant(
         &collector,
         &ParticipantRole::Collector,
@@ -188,13 +156,7 @@ fn storage_optimization_transfer_history() {
         &0i32,
     );
 
-    let waste_id = client.submit_material(
-        &recycler,
-        &WasteType::Plastic,
-        &100u128,
-        &0i32,
-        &0i32,
-    );
+    let waste_id = client.submit_material(&recycler, &WasteType::Plastic, &100u128, &0i32, &0i32);
 
     // Transfer history stored efficiently
     for i in 0..10 {
@@ -233,23 +195,11 @@ fn storage_optimization_metrics_consolidation() {
     let recycler = Address::generate(&env);
 
     client.initialize_admin(&admin);
-    client.register_participant(
-        &recycler,
-        &ParticipantRole::Recycler,
-        &"Recycler".into(),
-        &0i32,
-        &0i32,
-    );
+    client.register_participant(&recycler, &ParticipantRole::Recycler, &"Recycler".into(), &0i32, &0i32);
 
     // Submit multiple wastes
     for i in 0..25 {
-        client.submit_material(
-            &recycler,
-            &WasteType::Plastic,
-            &(100u128 + i as u128),
-            &0i32,
-            &0i32,
-        );
+        client.submit_material(&recycler, &WasteType::Plastic, &(100u128 + i as u128), &0i32, &0i32);
     }
 
     // Consolidated metrics query
@@ -261,7 +211,7 @@ fn storage_optimization_metrics_consolidation() {
 }
 
 // Gas Savings Summary:
-// 
+//
 // Optimization Strategy | Estimated Savings | Implementation Status
 // ---|---|---
 // Symbol Compression | 5-10% | Implemented in storage keys
@@ -269,6 +219,6 @@ fn storage_optimization_metrics_consolidation() {
 // Lazy Loading | 20-30% | Selective field loading
 // Index Consolidation | 15-20% | Reduced redundant indexes
 // Counter Packing | 25-30% | Consolidated counter storage
-// 
+//
 // Total Estimated Gas Reduction: 15-25% per operation
 // Cumulative Savings: Significant for high-volume operations

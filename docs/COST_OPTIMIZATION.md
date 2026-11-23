@@ -9,9 +9,9 @@ The `terraform/modules/cost_optimization` module implements four cost-saving mec
 Two target-tracking policies are attached to the ECS service:
 
 | Policy | Target | Scale-out cooldown | Scale-in cooldown |
-|---|---|---|---|
-| CPU | 70% | 60 s | 300 s |
-| Memory | 80% | 60 s | 300 s |
+| ------ | ------ | ------------------ | ----------------- |
+| CPU    | 70%    | 60 s               | 300 s             |
+| Memory | 80%    | 60 s               | 300 s             |
 
 Capacity bounds are controlled by `ecs_min_capacity` / `ecs_max_capacity` variables.
 
@@ -38,14 +38,14 @@ This is automatically disabled for `prod` (guarded by `var.environment != "prod"
 
 ## Terraform variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `ecs_min_capacity` | `1` | Minimum ECS task count |
-| `ecs_max_capacity` | `10` | Maximum ECS task count |
-| `spot_asg_arn` | required | ARN of the Spot ASG |
-| `monthly_budget_usd` | `"200"` | Monthly budget limit |
-| `budget_alert_emails` | `[]` | Alert recipients |
-| `scheduler_role_arn` | required | IAM role for EventBridge→SSM |
+| Variable              | Default  | Description                  |
+| --------------------- | -------- | ---------------------------- |
+| `ecs_min_capacity`    | `1`      | Minimum ECS task count       |
+| `ecs_max_capacity`    | `10`     | Maximum ECS task count       |
+| `spot_asg_arn`        | required | ARN of the Spot ASG          |
+| `monthly_budget_usd`  | `"200"`  | Monthly budget limit         |
+| `budget_alert_emails` | `[]`     | Alert recipients             |
+| `scheduler_role_arn`  | required | IAM role for EventBridge→SSM |
 
 ## Cost monitoring
 

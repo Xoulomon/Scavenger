@@ -22,7 +22,7 @@ describe('invalidationPlan', () => {
       cacheKeys.participantWastes('GA'),
       cacheKeys.transferHistory('5'),
       cacheKeys.transferHistory('6'),
-      cacheKeys.waste('5'),
+      cacheKeys.waste('5')
     ]
     seed(qc, seeded)
 
@@ -37,7 +37,7 @@ describe('invalidationPlan', () => {
       cacheKeys.participantWastes('GA'),
       cacheKeys.waste('9'),
       cacheKeys.waste('10'),
-      cacheKeys.rewards('GA'),
+      cacheKeys.rewards('GA')
     ]
     seed(qc, seeded)
 
@@ -52,7 +52,7 @@ describe('invalidationPlan', () => {
       cacheKeys.rewards('GA'),
       cacheKeys.participantStats('GA'),
       cacheKeys.supplyChainStats(),
-      cacheKeys.metrics(),
+      cacheKeys.metrics()
     ]
     seed(qc, seeded)
 
@@ -61,7 +61,7 @@ describe('invalidationPlan', () => {
     expect(hit).toEqual([
       cacheKeys.rewards('GA'),
       cacheKeys.participantStats('GA'),
-      cacheKeys.supplyChainStats(),
+      cacheKeys.supplyChainStats()
     ])
   })
 
@@ -77,7 +77,11 @@ describe('invalidationPlan', () => {
 
   it('claimIncentive invalidates every incentives query', async () => {
     const qc = new QueryClient()
-    const seeded = [cacheKeys.incentives(), cacheKeys.incentives('Plastic'), cacheKeys.activeIncentives()]
+    const seeded = [
+      cacheKeys.incentives(),
+      cacheKeys.incentives('Plastic'),
+      cacheKeys.activeIncentives()
+    ]
     seed(qc, seeded)
 
     const hit = await invalidatedAfter(qc, seeded, invalidationPlan.claimIncentive())

@@ -8,12 +8,12 @@ Owner: @on-call-team
 
 ## Severity Definitions
 
-| SEV | Criteria | Response time | Examples |
-|-----|----------|--------------|---------|
-| **SEV-1** | Complete service outage or data loss | 15 min | API down, DB unreachable, contract calls failing for all users |
-| **SEV-2** | Partial outage or significant degradation | 30 min | Error rate > 10 %, latency > 5 s P95, one region down |
-| **SEV-3** | Minor degradation, single feature broken | 2 hours | Export failures, email delays, WebSocket intermittent |
-| **SEV-4** | Low-impact bug, cosmetic | Next business day | UI glitch, non-critical API endpoint slow |
+| SEV       | Criteria                                  | Response time     | Examples                                                       |
+| --------- | ----------------------------------------- | ----------------- | -------------------------------------------------------------- |
+| **SEV-1** | Complete service outage or data loss      | 15 min            | API down, DB unreachable, contract calls failing for all users |
+| **SEV-2** | Partial outage or significant degradation | 30 min            | Error rate > 10 %, latency > 5 s P95, one region down          |
+| **SEV-3** | Minor degradation, single feature broken  | 2 hours           | Export failures, email delays, WebSocket intermittent          |
+| **SEV-4** | Low-impact bug, cosmetic                  | Next business day | UI glitch, non-critical API endpoint slow                      |
 
 ---
 
@@ -28,6 +28,7 @@ Detect → Declare → Diagnose → Mitigate → Resolve → Post-mortem
 ## Phase 1 — Detect
 
 Incidents are detected via:
+
 - Grafana alert firing (PagerDuty escalation)
 - User report in #support Slack channel
 - Automated smoke-test failure in CI
@@ -104,14 +105,14 @@ Mitigation stops the bleeding. It does not have to be the final fix.
 
 ### Common mitigations
 
-| Situation | Mitigation |
-|-----------|-----------|
-| Bad deploy causing errors | **Rollback** — see [deployment.md](./deployment.md#rollback) |
-| Traffic spike causing latency | **Scale up** — see [common-procedures.md](./common-procedures.md#1-horizontal-scaling) |
-| Runaway process consuming CPU | Restart the affected pod: `kubectl delete pod <name> -n scavenger-backend` |
-| Database connection exhaustion | Restart backend pods to reset connection pool |
-| Stellar network outage | Enable read-only mode: set `STELLAR_READ_ONLY=true` env var and restart |
-| Compromised credentials | **Rotate secrets** — see [common-procedures.md](./common-procedures.md#2-secret-rotation-automated) |
+| Situation                      | Mitigation                                                                                          |
+| ------------------------------ | --------------------------------------------------------------------------------------------------- |
+| Bad deploy causing errors      | **Rollback** — see [deployment.md](./deployment.md#rollback)                                        |
+| Traffic spike causing latency  | **Scale up** — see [common-procedures.md](./common-procedures.md#1-horizontal-scaling)              |
+| Runaway process consuming CPU  | Restart the affected pod: `kubectl delete pod <name> -n scavenger-backend`                          |
+| Database connection exhaustion | Restart backend pods to reset connection pool                                                       |
+| Stellar network outage         | Enable read-only mode: set `STELLAR_READ_ONLY=true` env var and restart                             |
+| Compromised credentials        | **Rotate secrets** — see [common-procedures.md](./common-procedures.md#2-secret-rotation-automated) |
 
 ### Read-only mode
 
@@ -126,6 +127,7 @@ kubectl rollout status deployment/scavenger-backend -n scavenger-backend
 ```
 
 In read-only mode:
+
 - `GET` endpoints continue to serve cached data
 - Mutating endpoints (`POST`, `PUT`, `PATCH`, `DELETE`) return HTTP 503 with `{ "error": "service_unavailable" }`
 - The frontend shows a maintenance banner
@@ -143,6 +145,7 @@ kubectl set env deployment/scavenger-backend \
 ## Phase 5 — Resolve
 
 An incident is resolved when:
+
 - Normal error rates and latencies are restored (confirmed in Grafana for at least 15 minutes)
 - Affected users can complete previously-broken workflows
 - No new alerts are firing
@@ -173,13 +176,13 @@ Every SEV-1 and SEV-2 requires a written post-mortem. SEV-3 incidents optionally
 
 ### Timeline
 
-| Time (UTC) | Event |
-|------------|-------|
-| HH:MM | Alert fired |
-| HH:MM | IC declared incident |
-| HH:MM | Root cause identified |
-| HH:MM | Mitigation applied |
-| HH:MM | Incident resolved |
+| Time (UTC) | Event                 |
+| ---------- | --------------------- |
+| HH:MM      | Alert fired           |
+| HH:MM      | IC declared incident  |
+| HH:MM      | Root cause identified |
+| HH:MM      | Mitigation applied    |
+| HH:MM      | Incident resolved     |
 
 ### Root Cause
 
@@ -197,8 +200,8 @@ Every SEV-1 and SEV-2 requires a written post-mortem. SEV-3 incidents optionally
 
 ### Action Items
 
-| Action | Owner | Due date |
-|--------|-------|---------|
+| Action | Owner   | Due date   |
+| ------ | ------- | ---------- |
 | [Task] | @person | YYYY-MM-DD |
 ```
 

@@ -1,10 +1,10 @@
 //! Rate limit middleware
-//! 
+//!
 //! This module provides configurable rate limiting for API endpoints.
 //! Rate limits can be configured via environment variables without code changes.
-//! 
+//!
 //! # Configuration Options
-//! 
+//!
 //! | Environment Variable | Description | Default |
 //! |----------------------|-------------|---------|
 //! | `RATE_LIMIT_DEFAULT` | Default rate limit (requests per window) | 100 |
@@ -13,9 +13,9 @@
 //! | `RATE_LIMIT_AUTH` | Auth user rate limit (limit,window) | 200,60 |
 //! | `RATE_LIMIT_UNAUTH` | Unauthenticated user rate limit (limit,window) | 20,60 |
 //! | `RATE_LIMIT_ROUTES` | Per-route overrides (method,route,limit,window;...) | None |
-//! 
+//!
 //! # Example
-//! 
+//!
 //! ```bash
 //! # Set rate limits for production
 //! export RATE_LIMIT_DEFAULT=100
@@ -45,7 +45,7 @@ use crate::config::rate_limit::{RateLimitConfig, RateLimitSettings};
 use crate::redis::RedisClient;
 
 // ============================================
-# Rate Limit Tiers (from main branch)
+// Rate Limit Tiers (from main branch)
 // ============================================
 
 #[derive(Clone, Copy, Debug)]
@@ -192,7 +192,7 @@ impl RateLimitState {
 }
 
 // ============================================
-# Rate Limit Middleware
+// Rate Limit Middleware
 // ============================================
 
 /// Rate limit middleware
@@ -365,7 +365,7 @@ where
 }
 
 // ============================================
-# Helper Functions
+// Helper Functions
 // ============================================
 
 /// Get client identifier from request
@@ -375,17 +375,17 @@ fn get_client_id(req: &ServiceRequest) -> Option<String> {
             return Some(user_id.to_string());
         }
     }
-    
+
     if let Some(ip) = req.connection_info().realip_remote_addr() {
         return Some(ip.to_string());
     }
-    
+
     if let Some(user_agent) = req.headers().get("user-agent").and_then(|v| v.to_str().ok()) {
         if let Some(ip) = req.connection_info().realip_remote_addr() {
             return Some(format!("{}:{}", ip, user_agent));
         }
     }
-    
+
     None
 }
 
@@ -409,13 +409,13 @@ async fn increment_request_count(
 }
 
 // ============================================
-# Tests
+// Tests
 // ============================================
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_rate_limit_tiers() {
         assert!(
@@ -456,7 +456,10 @@ mod tests {
 
     #[test]
     fn test_config_for_path_contracts() {
-        let mw = RateLimitMiddleware::new(RateLimitConfig::default(), web::Data::new(RedisClient::new("redis://localhost").unwrap()));
+        let mw = RateLimitMiddleware::new(
+            RateLimitConfig::default(),
+            web::Data::new(RedisClient::new("redis://localhost").unwrap()),
+        );
         let c = mw.config_for_path("/api/v1/contracts/wastes");
         assert_eq!(
             c.requests_per_minute,
@@ -466,7 +469,10 @@ mod tests {
 
     #[test]
     fn test_config_for_path_search() {
-        let mw = RateLimitMiddleware::new(RateLimitConfig::default(), web::Data::new(RedisClient::new("redis://localhost").unwrap()));
+        let mw = RateLimitMiddleware::new(
+            RateLimitConfig::default(),
+            web::Data::new(RedisClient::new("redis://localhost").unwrap()),
+        );
         let c = mw.config_for_path("/api/v1/search");
         assert_eq!(
             c.requests_per_minute,
@@ -489,9 +495,12 @@ mod tests {
 
     #[test]
     fn test_rate_limit_layer_builder() {
-        let mw = RateLimitMiddleware::new(RateLimitConfig::default(), web::Data::new(RedisClient::new("redis://localhost").unwrap()))
-            .route("/api/v1/admin/", RateLimitTier::Admin);
-        
+        let mw = RateLimitMiddleware::new(
+            RateLimitConfig::default(),
+            web::Data::new(RedisClient::new("redis://localhost").unwrap()),
+        )
+        .route("/api/v1/admin/", RateLimitTier::Admin);
+
         let admin_config = mw.config_for_path("/api/v1/admin/users");
         assert_eq!(
             admin_config.requests_per_minute,

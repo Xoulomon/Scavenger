@@ -9,13 +9,9 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from '@/components/ui/Select'
-import {
-  getFilterPresets,
-  saveFilterPreset,
-  deleteFilterPreset,
-} from '@/lib/searchStorage'
+import { getFilterPresets, saveFilterPreset, deleteFilterPreset } from '@/lib/searchStorage'
 import type { SearchFilters, FilterPreset } from '@/lib/searchStorage'
 import { WasteType } from '@/api/types'
 
@@ -26,7 +22,7 @@ export const DEFAULT_FILTERS: SearchFilters = {
   status: 'all',
   dateFrom: null,
   dateTo: null,
-  location: '',
+  location: ''
 }
 
 // ─── Pure helper: count active filters ───────────────────────────────────────
@@ -52,7 +48,7 @@ const WASTE_TYPE_OPTIONS: { value: WasteType; label: string }[] = [
   { value: WasteType.PetPlastic, label: 'PET Plastic' },
   { value: WasteType.Plastic, label: 'Plastic' },
   { value: WasteType.Metal, label: 'Metal' },
-  { value: WasteType.Glass, label: 'Glass' },
+  { value: WasteType.Glass, label: 'Glass' }
 ]
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -95,7 +91,7 @@ export function SearchPanel({ filters, onChange }: SearchPanelProps) {
     const preset: FilterPreset = {
       id: `preset_${Date.now()}`,
       name,
-      filters: { ...filters },
+      filters: { ...filters }
     }
     saveFilterPreset(preset)
     const updated = getFilterPresets()
@@ -174,7 +170,7 @@ export function SearchPanel({ filters, onChange }: SearchPanelProps) {
                 onValueChange={(v) =>
                   onChange({
                     ...filters,
-                    status: v as SearchFilters['status'],
+                    status: v as SearchFilters['status']
                   })
                 }
               >
@@ -202,9 +198,7 @@ export function SearchPanel({ filters, onChange }: SearchPanelProps) {
                   type="date"
                   placeholder="From"
                   value={filters.dateFrom ?? ''}
-                  onChange={(e) =>
-                    onChange({ ...filters, dateFrom: e.target.value || null })
-                  }
+                  onChange={(e) => onChange({ ...filters, dateFrom: e.target.value || null })}
                   className="h-9"
                 />
                 <label htmlFor="filter-date-to" className="sr-only">
@@ -215,9 +209,7 @@ export function SearchPanel({ filters, onChange }: SearchPanelProps) {
                   type="date"
                   placeholder="To"
                   value={filters.dateTo ?? ''}
-                  onChange={(e) =>
-                    onChange({ ...filters, dateTo: e.target.value || null })
-                  }
+                  onChange={(e) => onChange({ ...filters, dateTo: e.target.value || null })}
                   className="h-9"
                 />
               </div>

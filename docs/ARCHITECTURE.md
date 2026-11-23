@@ -301,12 +301,14 @@ Contract Storage
 ### Key Functions
 
 #### Participant Management
+
 - `initialize_admin()` - One-time admin setup
 - `register_participant()` - Register new participant
 - `update_role()` - Change participant role
 - `deregister_participant()` - Remove participant
 
 #### Waste Management
+
 - `submit_material()` - Submit single waste
 - `submit_materials_batch()` - Batch submission
 - `verify_material()` - Verify waste quality
@@ -315,12 +317,14 @@ Contract Storage
 - `deactivate_waste()` - Admin deactivation
 
 #### Incentive Management
+
 - `create_incentive()` - Create new incentive
 - `update_incentive()` - Modify incentive
 - `deactivate_incentive()` - Deactivate incentive
 - `distribute_rewards()` - Distribute rewards
 
 #### Query Functions
+
 - `get_participant()` - Get participant info
 - `get_waste()` - Get waste details
 - `get_incentive_by_id()` - Get incentive
@@ -538,26 +542,31 @@ Primary Failure
 ## Design Patterns Used
 
 ### 1. Storage Pattern
+
 - Efficient key-value storage
 - Indexed lookups
 - Batch operations
 
 ### 2. Event-Driven Architecture
+
 - Contract emits events
 - Indexer listens
 - Off-chain processing
 
 ### 3. Role-Based Access Control
+
 - Admin functions
 - Owner-only operations
 - Public queries
 
 ### 4. State Machine
+
 - Waste status transitions
 - Incentive lifecycle
 - Participant states
 
 ### 5. Reward Distribution
+
 - Percentage-based splits
 - Budget tracking
 - Atomic transfers
@@ -569,14 +578,14 @@ including the alternatives that were rejected and the costs each choice carries.
 
 ➡️ **[Architecture Decision Records](./adr/README.md)**
 
-| # | Decision | Area |
-|---|----------|------|
-| [0001](./adr/0001-use-soroban-for-smart-contracts.md) | Use Soroban and Rust for the on-chain contract | Contract |
-| [0002](./adr/0002-off-chain-event-driven-indexing.md) | Serve queries from an off-chain event-driven indexer | Indexer |
-| [0003](./adr/0003-percentage-based-reward-distribution.md) | Distribute rewards by configurable percentage | Contract |
-| [0004](./adr/0004-contract-storage-key-layout.md) | Tier contract storage by access pattern, with typed tuple keys | Contract |
-| [0005](./adr/0005-indexer-relational-schema.md) | Project events into a normalised Postgres schema, keeping raw events | Indexer |
-| [0006](./adr/0006-wallet-based-authentication-flow.md) | Authenticate with wallet signatures; treat frontend session state as UI only | Frontend / Auth |
+| #                                                          | Decision                                                                     | Area            |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------- | --------------- |
+| [0001](./adr/0001-use-soroban-for-smart-contracts.md)      | Use Soroban and Rust for the on-chain contract                               | Contract        |
+| [0002](./adr/0002-off-chain-event-driven-indexing.md)      | Serve queries from an off-chain event-driven indexer                         | Indexer         |
+| [0003](./adr/0003-percentage-based-reward-distribution.md) | Distribute rewards by configurable percentage                                | Contract        |
+| [0004](./adr/0004-contract-storage-key-layout.md)          | Tier contract storage by access pattern, with typed tuple keys               | Contract        |
+| [0005](./adr/0005-indexer-relational-schema.md)            | Project events into a normalised Postgres schema, keeping raw events         | Indexer         |
+| [0006](./adr/0006-wallet-based-authentication-flow.md)     | Authenticate with wallet signatures; treat frontend session state as UI only | Frontend / Auth |
 
 ADRs 0001–0003 were previously recorded inline in this document and now live in the
 log, keeping their original numbering. Changes that contradict an Accepted ADR should

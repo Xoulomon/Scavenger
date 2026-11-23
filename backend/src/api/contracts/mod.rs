@@ -131,8 +131,7 @@ mod upgrade_path_tests {
         let upgraded = apply_upgrade(&prior, 2);
 
         let encoded = serde_json::to_string(&upgraded).expect("snapshot must serialise");
-        let decoded: ContractStateSnapshot =
-            serde_json::from_str(&encoded).expect("snapshot must deserialise");
+        let decoded: ContractStateSnapshot = serde_json::from_str(&encoded).expect("snapshot must deserialise");
 
         assert_eq!(
             decoded, upgraded,
@@ -153,10 +152,7 @@ mod upgrade_path_tests {
     async fn contract_routes_are_mounted_after_upgrade() {
         // Integration-level check: the contract API surface remains wired up
         // across the upgrade boundary (routes resolve under `/api/contracts`).
-        let app = test::init_service(
-            App::new().configure(crate::api::contracts::configure_contract_routes),
-        )
-        .await;
+        let app = test::init_service(App::new().configure(crate::api::contracts::configure_contract_routes)).await;
 
         // A request to an unknown contract sub-path must not panic and must
         // return a client error rather than a server error, proving the scope
@@ -166,29 +162,26 @@ mod upgrade_path_tests {
             .to_request();
         let status = test::call_service(&app, req).await.status();
 
-        assert!(
-            status.is_client_error(),
-            "contract scope must be mounted; got {status}"
-        );
+        assert!(status.is_client_error(), "contract scope must be mounted; got {status}");
     }
 }
 
-//! #1086: `invalidate_waste_cache` and `invalidate_all_cache` are the only
-//! write (POST) endpoints in this file — everything else is a read-only
-//! query. Both are already covered by the app-level `IdempotencyMiddleware`
-//! wired in `main.rs` via `.wrap()`, which intercepts every write method on
-//! every route before it reaches a handler, so no additional per-endpoint
-//! wiring belongs here. See `signing_api.rs` for the equivalent note on
-//! transaction-signing endpoints.
+// #1086: `invalidate_waste_cache` and `invalidate_all_cache` are the only
+// write (POST) endpoints in this file — everything else is a read-only
+// query. Both are already covered by the app-level `IdempotencyMiddleware`
+// wired in `main.rs` via `.wrap()`, which intercepts every write method on
+// every route before it reaches a handler, so no additional per-endpoint
+// wiring belongs here. See `signing_api.rs` for the equivalent note on
+// transaction-signing endpoints.
 
 use actix_web::{HttpRequest, HttpResponse};
 use chrono::Utc;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
+use crate::api::pagination::{paginate, PaginationParams};
 use crate::cache::ttl::{keys as cache_keys, CacheTtl};
 use crate::cache::{Cache, CacheInvalidationManager, InvalidationEvent};
-use crate::api::pagination::{paginate, PaginationParams};
 use crate::services::api::{ApiBuilder, PaginatedResponse};
 use crate::validation::{error_response, validate_pagination};
 
@@ -777,7 +770,15 @@ mod tests {
     #[test]
     fn test_apply_waste_filters_no_filter_returns_all() {
         let mut items = sample_wastes();
-        let q = WasteQueryParams { page: None, limit: None, status: None, waste_type: None, participant_id: None, sort_by: None, sort_order: None };
+        let q = WasteQueryParams {
+            page: None,
+            limit: None,
+            status: None,
+            waste_type: None,
+            participant_id: None,
+            sort_by: None,
+            sort_order: None,
+        };
         apply_waste_filters(&mut items, &q);
         assert_eq!(items.len(), 3);
     }
@@ -785,7 +786,15 @@ mod tests {
     #[test]
     fn test_apply_waste_filters_by_status() {
         let mut items = sample_wastes();
-        let q = WasteQueryParams { page: None, limit: None, status: Some("approved".to_string()), waste_type: None, participant_id: None, sort_by: None, sort_order: None };
+        let q = WasteQueryParams {
+            page: None,
+            limit: None,
+            status: Some("approved".to_string()),
+            waste_type: None,
+            participant_id: None,
+            sort_by: None,
+            sort_order: None,
+        };
         apply_waste_filters(&mut items, &q);
         assert_eq!(items.len(), 2);
         assert!(items.iter().all(|w| w.status == "approved"));
@@ -794,7 +803,15 @@ mod tests {
     #[test]
     fn test_apply_waste_filters_by_waste_type() {
         let mut items = sample_wastes();
-        let q = WasteQueryParams { page: None, limit: None, status: None, waste_type: Some("plastic".to_string()), participant_id: None, sort_by: None, sort_order: None };
+        let q = WasteQueryParams {
+            page: None,
+            limit: None,
+            status: None,
+            waste_type: Some("plastic".to_string()),
+            participant_id: None,
+            sort_by: None,
+            sort_order: None,
+        };
         apply_waste_filters(&mut items, &q);
         assert_eq!(items.len(), 2);
         assert!(items.iter().all(|w| w.waste_type == "plastic"));
@@ -803,7 +820,15 @@ mod tests {
     #[test]
     fn test_apply_waste_filters_by_participant_id() {
         let mut items = sample_wastes();
-        let q = WasteQueryParams { page: None, limit: None, status: None, waste_type: None, participant_id: Some("p1".to_string()), sort_by: None, sort_order: None };
+        let q = WasteQueryParams {
+            page: None,
+            limit: None,
+            status: None,
+            waste_type: None,
+            participant_id: Some("p1".to_string()),
+            sort_by: None,
+            sort_order: None,
+        };
         apply_waste_filters(&mut items, &q);
         assert_eq!(items.len(), 2);
         assert!(items.iter().all(|w| w.participant_id == "p1"));
@@ -812,7 +837,15 @@ mod tests {
     #[test]
     fn test_apply_waste_filters_combined() {
         let mut items = sample_wastes();
-        let q = WasteQueryParams { page: None, limit: None, status: Some("approved".to_string()), waste_type: Some("plastic".to_string()), participant_id: None, sort_by: None, sort_order: None };
+        let q = WasteQueryParams {
+            page: None,
+            limit: None,
+            status: Some("approved".to_string()),
+            waste_type: Some("plastic".to_string()),
+            participant_id: None,
+            sort_by: None,
+            sort_order: None,
+        };
         apply_waste_filters(&mut items, &q);
         assert_eq!(items.len(), 1);
         assert_eq!(items[0].id, "w3");
@@ -821,7 +854,15 @@ mod tests {
     #[test]
     fn test_apply_waste_filters_no_match_returns_empty() {
         let mut items = sample_wastes();
-        let q = WasteQueryParams { page: None, limit: None, status: Some("nonexistent".to_string()), waste_type: None, participant_id: None, sort_by: None, sort_order: None };
+        let q = WasteQueryParams {
+            page: None,
+            limit: None,
+            status: Some("nonexistent".to_string()),
+            waste_type: None,
+            participant_id: None,
+            sort_by: None,
+            sort_order: None,
+        };
         apply_waste_filters(&mut items, &q);
         assert!(items.is_empty());
     }
@@ -830,16 +871,42 @@ mod tests {
 
     fn sample_participants() -> Vec<ParticipantResponse> {
         vec![
-            ParticipantResponse { id: "p1".to_string(), name: "Green Recycling Co".to_string(), role: "collector".to_string(), location: None, reputation: 80, joined_at: now() },
-            ParticipantResponse { id: "p2".to_string(), name: "Eco Waste Mgmt".to_string(), role: "processor".to_string(), location: None, reputation: 90, joined_at: now() },
-            ParticipantResponse { id: "p3".to_string(), name: "Blue Recycling".to_string(), role: "collector".to_string(), location: None, reputation: 70, joined_at: now() },
+            ParticipantResponse {
+                id: "p1".to_string(),
+                name: "Green Recycling Co".to_string(),
+                role: "collector".to_string(),
+                location: None,
+                reputation: 80,
+                joined_at: now(),
+            },
+            ParticipantResponse {
+                id: "p2".to_string(),
+                name: "Eco Waste Mgmt".to_string(),
+                role: "processor".to_string(),
+                location: None,
+                reputation: 90,
+                joined_at: now(),
+            },
+            ParticipantResponse {
+                id: "p3".to_string(),
+                name: "Blue Recycling".to_string(),
+                role: "collector".to_string(),
+                location: None,
+                reputation: 70,
+                joined_at: now(),
+            },
         ]
     }
 
     #[test]
     fn test_apply_participant_filters_no_filter_returns_all() {
         let mut items = sample_participants();
-        let q = ParticipantQueryParams { page: None, limit: None, role: None, search: None };
+        let q = ParticipantQueryParams {
+            page: None,
+            limit: None,
+            role: None,
+            search: None,
+        };
         apply_participant_filters(&mut items, &q);
         assert_eq!(items.len(), 3);
     }
@@ -847,7 +914,12 @@ mod tests {
     #[test]
     fn test_apply_participant_filters_by_role() {
         let mut items = sample_participants();
-        let q = ParticipantQueryParams { page: None, limit: None, role: Some("collector".to_string()), search: None };
+        let q = ParticipantQueryParams {
+            page: None,
+            limit: None,
+            role: Some("collector".to_string()),
+            search: None,
+        };
         apply_participant_filters(&mut items, &q);
         assert_eq!(items.len(), 2);
         assert!(items.iter().all(|p| p.role == "collector"));
@@ -856,7 +928,12 @@ mod tests {
     #[test]
     fn test_apply_participant_filters_by_search_case_insensitive() {
         let mut items = sample_participants();
-        let q = ParticipantQueryParams { page: None, limit: None, role: None, search: Some("recycling".to_string()) };
+        let q = ParticipantQueryParams {
+            page: None,
+            limit: None,
+            role: None,
+            search: Some("recycling".to_string()),
+        };
         apply_participant_filters(&mut items, &q);
         assert_eq!(items.len(), 2);
         let names: Vec<_> = items.iter().map(|p| p.name.as_str()).collect();
@@ -867,7 +944,12 @@ mod tests {
     #[test]
     fn test_apply_participant_filters_combined() {
         let mut items = sample_participants();
-        let q = ParticipantQueryParams { page: None, limit: None, role: Some("collector".to_string()), search: Some("green".to_string()) };
+        let q = ParticipantQueryParams {
+            page: None,
+            limit: None,
+            role: Some("collector".to_string()),
+            search: Some("green".to_string()),
+        };
         apply_participant_filters(&mut items, &q);
         assert_eq!(items.len(), 1);
         assert_eq!(items[0].id, "p1");

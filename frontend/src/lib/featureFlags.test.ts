@@ -9,7 +9,7 @@ import {
   getAllFlagOverrides,
   getFlagAnalytics,
   clearFlagAnalytics,
-  FLAGS,
+  FLAGS
 } from '@/lib/featureFlags'
 
 // Mock localStorage
@@ -17,14 +17,23 @@ const localStorageMock = (() => {
   let store: Record<string, string> = {}
   return {
     getItem: (key: string) => store[key] ?? null,
-    setItem: (key: string, value: string) => { store[key] = value },
-    removeItem: (key: string) => { delete store[key] },
-    clear: () => { store = {} },
+    setItem: (key: string, value: string) => {
+      store[key] = value
+    },
+    removeItem: (key: string) => {
+      delete store[key]
+    },
+    clear: () => {
+      store = {}
+    }
   }
 })()
 
 Object.defineProperty(globalThis, 'localStorage', { value: localStorageMock })
-Object.defineProperty(globalThis, 'window', { value: { location: { hostname: 'localhost' } }, writable: true })
+Object.defineProperty(globalThis, 'window', {
+  value: { location: { hostname: 'localhost' } },
+  writable: true
+})
 
 describe('featureFlags', () => {
   beforeEach(() => {

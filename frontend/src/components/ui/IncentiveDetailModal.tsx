@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
+  DialogFooter
 } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
@@ -28,13 +28,12 @@ export function IncentiveDetailModal({
   open,
   onClose,
   onClaim,
-  isClaiming = false,
+  isClaiming = false
 }: IncentiveDetailModalProps) {
   const { user } = useAuth()
   const [confirmStep, setConfirmStep] = useState(false)
 
-  const canClaim =
-    user?.role === Role.Recycler || user?.role === Role.Collector
+  const canClaim = user?.role === Role.Recycler || user?.role === Role.Collector
 
   function handleClose() {
     setConfirmStep(false)
@@ -56,7 +55,12 @@ export function IncentiveDetailModal({
       : 0
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose() }}>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) handleClose()
+      }}
+    >
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -65,21 +69,29 @@ export function IncentiveDetailModal({
               {incentive.active ? 'Active' : 'Inactive'}
             </Badge>
           </DialogTitle>
-          <DialogDescription>
-            Full details for this incentive offer
-          </DialogDescription>
+          <DialogDescription>Full details for this incentive offer</DialogDescription>
         </DialogHeader>
 
         {!confirmStep ? (
           <>
             <div className="space-y-3 text-sm">
               <Row label="Waste Type" value={wasteTypeLabel(incentive.waste_type)} />
-              <Row label="Rewarder" value={
-                <span className="font-mono text-xs break-all">{incentive.rewarder}</span>
-              } />
-              <Row label="Reward Points" value={`${Number(incentive.reward_points).toLocaleString()} pts`} />
-              <Row label="Total Budget" value={`${Number(incentive.total_budget).toLocaleString()}`} />
-              <Row label="Remaining Budget" value={`${Number(incentive.remaining_budget).toLocaleString()}`} />
+              <Row
+                label="Rewarder"
+                value={<span className="font-mono text-xs break-all">{incentive.rewarder}</span>}
+              />
+              <Row
+                label="Reward Points"
+                value={`${Number(incentive.reward_points).toLocaleString()} pts`}
+              />
+              <Row
+                label="Total Budget"
+                value={`${Number(incentive.total_budget).toLocaleString()}`}
+              />
+              <Row
+                label="Remaining Budget"
+                value={`${Number(incentive.remaining_budget).toLocaleString()}`}
+              />
               <Row label="Created" value={formatDate(incentive.created_at)} />
 
               {/* Budget bar */}
@@ -95,7 +107,9 @@ export function IncentiveDetailModal({
                     aria-label="Budget remaining"
                   />
                 </div>
-                <p className="text-right text-xs text-muted-foreground">{budgetPercent}% remaining</p>
+                <p className="text-right text-xs text-muted-foreground">
+                  {budgetPercent}% remaining
+                </p>
               </div>
             </div>
 
@@ -104,9 +118,7 @@ export function IncentiveDetailModal({
                 Close
               </Button>
               {canClaim && incentive.active && (
-                <Button onClick={() => setConfirmStep(true)}>
-                  Claim
-                </Button>
+                <Button onClick={() => setConfirmStep(true)}>Claim</Button>
               )}
             </DialogFooter>
           </>
@@ -117,8 +129,7 @@ export function IncentiveDetailModal({
               <p className="font-medium">Confirm Claim</p>
               <p className="text-sm text-muted-foreground">
                 Are you sure you want to claim incentive #{incentive.id} for{' '}
-                <strong>{wasteTypeLabel(incentive.waste_type)}</strong>?
-                You will earn{' '}
+                <strong>{wasteTypeLabel(incentive.waste_type)}</strong>? You will earn{' '}
                 <strong>{Number(incentive.reward_points).toLocaleString()} pts</strong>.
               </p>
             </div>

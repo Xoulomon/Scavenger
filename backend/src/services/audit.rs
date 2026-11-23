@@ -176,33 +176,25 @@ pub struct AuditReadService {
 /// #1158: extracted from query()
 /// Returns true when the entry matches the optional event_type filter.
 fn matches_event_type(entry: &AuditEntry, filter: &Option<AuditEventType>) -> bool {
-    filter
-        .as_ref()
-        .map_or(true, |et| entry.event_type == et.to_string())
+    filter.as_ref().map_or(true, |et| entry.event_type == et.to_string())
 }
 
 /// #1158: extracted from query()
 /// Returns true when the entry matches the optional user_id substring filter.
 fn matches_user_id(entry: &AuditEntry, filter: &Option<String>) -> bool {
-    filter
-        .as_ref()
-        .map_or(true, |uid| entry.user_id.contains(uid.as_str()))
+    filter.as_ref().map_or(true, |uid| entry.user_id.contains(uid.as_str()))
 }
 
 /// #1158: extracted from query()
 /// Returns true when the entry matches the optional action filter.
 fn matches_action(entry: &AuditEntry, filter: &Option<AuditAction>) -> bool {
-    filter
-        .as_ref()
-        .map_or(true, |a| entry.action == a.to_string())
+    filter.as_ref().map_or(true, |a| entry.action == a.to_string())
 }
 
 /// #1158: extracted from query()
 /// Returns true when the entry matches the optional resource_type filter.
 fn matches_resource_type(entry: &AuditEntry, filter: &Option<String>) -> bool {
-    filter
-        .as_ref()
-        .map_or(true, |rt| entry.resource_type == *rt)
+    filter.as_ref().map_or(true, |rt| entry.resource_type == *rt)
 }
 
 /// #1158: extracted from query()
@@ -592,7 +584,15 @@ impl AuditService {
         ip_address: &str,
         severity: &str,
     ) -> String {
-        self.write_service().log_entry(event_type, action, user_id, resource_type, details, ip_address, severity)
+        self.write_service().log_entry(
+            event_type,
+            action,
+            user_id,
+            resource_type,
+            details,
+            ip_address,
+            severity,
+        )
     }
 
     pub fn log_entry_with_changes(
@@ -875,14 +875,7 @@ mod tests {
     }
 
     fn base_entry() -> AuditEntry {
-        make_entry(
-            "contract",
-            "create",
-            "user-001",
-            "waste",
-            "low",
-            Utc::now(),
-        )
+        make_entry("contract", "create", "user-001", "waste", "low", Utc::now())
     }
 
     // ── #1158: predicate unit tests ────────────────────────────────────────────
@@ -1084,7 +1077,10 @@ mod tests {
         assert_eq!(entry.action, "approve");
         assert_eq!(entry.event_type, "security");
 
-        let same_entry = service.read_service().get_entry(&id).expect("read service should see same immutable record");
+        let same_entry = service
+            .read_service()
+            .get_entry(&id)
+            .expect("read service should see same immutable record");
         assert_eq!(same_entry.id, entry.id);
         assert_eq!(same_entry.timestamp, entry.timestamp);
     }
@@ -1375,12 +1371,7 @@ mod tests {
         }
 
         fn find_entry(&self, id: &str) -> Option<AuditEntry> {
-            self.entries
-                .lock()
-                .unwrap()
-                .iter()
-                .find(|e| e.id == id)
-                .cloned()
+            self.entries.lock().unwrap().iter().find(|e| e.id == id).cloned()
         }
 
         fn replace_entries(&self, new_entries: Vec<AuditEntry>) {

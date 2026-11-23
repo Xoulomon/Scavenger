@@ -20,13 +20,7 @@ npm install @scavngr/types
 ## Usage
 
 ```typescript
-import {
-  ParticipantRole,
-  WasteType,
-  Participant,
-  Waste,
-  ApiResponse,
-} from '@scavngr/types'
+import { ParticipantRole, WasteType, Participant, Waste, ApiResponse } from '@scavngr/types'
 
 // Use the shared types in your application
 const participant: Participant = {
@@ -34,7 +28,7 @@ const participant: Participant = {
   role: ParticipantRole.Recycler,
   name: 'John Doe',
   latitude: 40.7128,
-  longitude: -74.0060,
+  longitude: -74.006,
   registeredAt: Date.now()
 }
 ```
@@ -42,6 +36,7 @@ const participant: Participant = {
 ## Key Type Categories
 
 ### Core Enums
+
 - `ParticipantRole` - Recycler, Collector, Manufacturer
 - `WasteType` - Paper, Plastic, Metal, Glass, etc.
 - `WasteStatus` - Submitted, Verified, Transferred, Deactivated
@@ -49,22 +44,26 @@ const participant: Participant = {
 - `StellarNetwork` - Testnet, Mainnet, Futurenet, Standalone
 
 ### Data Interfaces
+
 - `Participant` - User account information
 - `Waste` - Waste item details
 - `Incentive` - Reward program configuration
 - `WasteTransfer` - Transfer transaction records
 
 ### API Types
+
 - `ApiResponse<T>` - Standardized API response wrapper
 - `ApiError` - Error response structure
 - `QueryResult<T>` - React Query compatible result type
 
 ### Form Types
+
 - `RegistrationFormData` - User registration form
 - `WasteSubmissionFormData` - Waste submission form
 - `WasteTransferFormData` - Waste transfer form
 
 ### Configuration
+
 - `ContractConfig` - Stellar contract connection settings
 - `NetworkConfig` - Stellar network parameters
 - `ClientOptions` - SDK initialization options

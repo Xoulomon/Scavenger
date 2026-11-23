@@ -64,9 +64,7 @@ describe('Form Components Accessibility Suite', () => {
     })
 
     it('should indicate checkbox state to screen readers', () => {
-      const { _container } = render(
-        <input type="checkbox" aria-label="Subscribe" defaultChecked />
-      )
+      const { _container } = render(<input type="checkbox" aria-label="Subscribe" defaultChecked />)
       const checkbox = screen.getByLabelText('Subscribe') as HTMLInputElement
       expect(checkbox.checked).toBe(true)
     })
@@ -144,11 +142,7 @@ describe('Form Components Accessibility Suite', () => {
       const { _container } = render(
         <div>
           <label htmlFor="comment">Comment</label>
-          <textarea
-            id="comment"
-            maxLength={500}
-            aria-describedby="char-count"
-          />
+          <textarea id="comment" maxLength={500} aria-describedby="char-count" />
           <span id="char-count">Max 500 characters</span>
         </div>
       )
@@ -158,9 +152,7 @@ describe('Form Components Accessibility Suite', () => {
 
     it('should support keyboard navigation', async () => {
       const user = userEvent.setup()
-      const { _container } = render(
-        <textarea placeholder="Enter text" />
-      )
+      const { _container } = render(<textarea placeholder="Enter text" />)
 
       const textarea = screen.getByPlaceholderText('Enter text')
       await user.click(textarea)
@@ -230,12 +222,7 @@ describe('Form Components Accessibility Suite', () => {
       const { container } = render(
         <form>
           <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            aria-describedby="pwd-hint"
-            required
-          />
+          <input id="password" type="password" aria-describedby="pwd-hint" required />
           <span id="pwd-hint">At least 8 characters, 1 number, 1 symbol</span>
           <button type="submit">Submit</button>
         </form>
@@ -267,9 +254,7 @@ describe('Form Components Accessibility Suite', () => {
 
   describe('Focus Management', () => {
     it('should show visible focus indicator on form inputs', () => {
-      const { _container } = render(
-        <input type="text" data-testid="input" />
-      )
+      const { _container } = render(<input type="text" data-testid="input" />)
       const input = screen.getByTestId('input')
       input.focus()
       expect(input).toHaveFocus()

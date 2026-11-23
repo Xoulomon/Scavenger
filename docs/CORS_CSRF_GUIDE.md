@@ -13,6 +13,7 @@ Cross-Origin Resource Sharing (CORS) is configured in `backend/src/main.rs`.
 **Max age:** 3600 seconds (preflight cache)
 
 To add a production origin:
+
 ```
 ALLOWED_ORIGINS=https://app.scavngr.io,https://staging.scavngr.io
 ```
@@ -31,7 +32,7 @@ The `CsrfMiddleware` in `backend/src/middleware/csrf.rs` protects all state-chan
 
 ```js
 // 1. Obtain token from server (e.g. /api/v1/auth/csrf-token)
-const token = await getCsrfToken();
+const token = await getCsrfToken()
 
 // 2. Include in requests
 fetch('/api/v1/contracts/wastes', {
@@ -39,15 +40,15 @@ fetch('/api/v1/contracts/wastes', {
   headers: {
     'Content-Type': 'application/json',
     'X-CSRF-Token': token,
-    'X-Session-Id': sessionId,
+    'X-Session-Id': sessionId
   },
-  body: JSON.stringify(payload),
-});
+  body: JSON.stringify(payload)
+})
 ```
 
 ### Environment variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `CSRF_SECRET` | `change-me-in-production` | Secret used to sign CSRF tokens — **must be set in production** |
-| `ALLOWED_ORIGINS` | `http://localhost:3000` | Comma-separated allowed CORS origins |
+| Variable          | Default                   | Description                                                     |
+| ----------------- | ------------------------- | --------------------------------------------------------------- |
+| `CSRF_SECRET`     | `change-me-in-production` | Secret used to sign CSRF tokens — **must be set in production** |
+| `ALLOWED_ORIGINS` | `http://localhost:3000`   | Comma-separated allowed CORS origins                            |

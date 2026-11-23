@@ -13,38 +13,29 @@ module.exports = {
     docs: {
       description: 'Disallow `.only` on test hooks',
       category: 'Possible Errors',
-      recommended: true,
+      recommended: true
     },
-    schema: [],
+    schema: []
   },
   create(context) {
-    const testHooks = new Set([
-      'describe',
-      'context',
-      'suite',
-      'it',
-      'test',
-      'specify',
-    ]);
+    const testHooks = new Set(['describe', 'context', 'suite', 'it', 'test', 'specify'])
 
     return {
       MemberExpression(node) {
-        if (node.property.type !== 'Identifier') return;
-        if (node.property.name !== 'only') return;
+        if (node.property.type !== 'Identifier') return
+        if (node.property.name !== 'only') return
 
         const objectName =
-          node.object && node.object.type === 'Identifier'
-            ? node.object.name
-            : null;
+          node.object && node.object.type === 'Identifier' ? node.object.name : null
 
         if (objectName && testHooks.has(objectName)) {
           context.report({
             node: node.property,
             message: '`{{name}}.only` is not allowed — remove it before committing.',
-            data: { name: objectName },
-          });
+            data: { name: objectName }
+          })
         }
-      },
-    };
-  },
-};
+      }
+    }
+  }
+}

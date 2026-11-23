@@ -7,7 +7,7 @@ const WASTE_DATA = [
   { label: 'Metal', value: 25, color: '#22c55e' },
   { label: 'Glass', value: 20, color: '#a855f7' },
   { label: 'Paper', value: 12, color: '#f97316' },
-  { label: 'E-Waste', value: 8, color: '#ef4444' },
+  { label: 'E-Waste', value: 8, color: '#ef4444' }
 ]
 
 function WasteTypeChartComponent() {
@@ -59,10 +59,22 @@ function WasteTypeChartComponent() {
                 transform={`rotate(-90 ${cx} ${cy})`}
               />
             ))}
-            <text x={cx} y={cy - 6} textAnchor="middle" className="fill-foreground text-sm font-bold" fontSize="14">
+            <text
+              x={cx}
+              y={cy - 6}
+              textAnchor="middle"
+              className="fill-foreground text-sm font-bold"
+              fontSize="14"
+            >
               {total}
             </text>
-            <text x={cx} y={cy + 12} textAnchor="middle" className="fill-muted-foreground" fontSize="10">
+            <text
+              x={cx}
+              y={cy + 12}
+              textAnchor="middle"
+              className="fill-muted-foreground"
+              fontSize="10"
+            >
               total
             </text>
           </svg>

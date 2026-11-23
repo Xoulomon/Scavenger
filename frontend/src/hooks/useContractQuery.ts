@@ -27,7 +27,7 @@ import {
   useQueryClient,
   type UseQueryOptions,
   type UseMutationOptions,
-  type QueryKey,
+  type QueryKey
 } from '@tanstack/react-query'
 import { useApi } from './useApi'
 import { ScavengerClient } from '@/api/client'
@@ -63,7 +63,7 @@ export function useContractQuery<T>(
     ...queryCachePolicy,
     queryKey,
     queryFn: () => fn(api),
-    ...options,
+    ...options
   })
 }
 
@@ -112,7 +112,7 @@ export function useContractMutation<TVariables, TData = void>(
       await queryClient.invalidateQueries({ queryKey: cacheKeys.contracts.all })
       restOptions.onSuccess?.(data, variables, context)
     },
-    ...restOptions,
+    ...restOptions
   })
 }
 

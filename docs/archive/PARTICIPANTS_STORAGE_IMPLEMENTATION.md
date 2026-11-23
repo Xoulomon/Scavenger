@@ -7,6 +7,7 @@ The participants storage system provides a robust map-based storage solution for
 ## Storage Architecture
 
 ### Storage Key Structure
+
 ```rust
 Key: (Address,) → Participant
 ```
@@ -18,6 +19,7 @@ Participants are stored using their address as the key, enabling O(1) lookup per
 ### Registration Functions
 
 #### `register_participant`
+
 ```rust
 pub fn register_participant(
     env: Env,
@@ -29,15 +31,18 @@ pub fn register_participant(
 Registers a new participant with the specified role.
 
 **Features:**
+
 - Requires authentication from the registering address
 - Prevents duplicate registrations
 - Records registration timestamp
 - Returns the created Participant struct
 
 **Panics:**
+
 - If participant is already registered
 
 **Example:**
+
 ```rust
 let participant = client.register_participant(
     &user_address,
@@ -46,6 +51,7 @@ let participant = client.register_participant(
 ```
 
 #### `is_participant_registered`
+
 ```rust
 pub fn is_participant_registered(env: Env, address: Address) -> bool
 ```
@@ -57,6 +63,7 @@ Checks if an address is registered as a participant.
 ### Storage Helper Functions
 
 #### `set_participant` (Internal)
+
 ```rust
 fn set_participant(env: &Env, address: &Address, participant: &Participant)
 ```
@@ -64,6 +71,7 @@ fn set_participant(env: &Env, address: &Address, participant: &Participant)
 Internal helper function for storing participant records efficiently.
 
 **Features:**
+
 - Encapsulates storage key logic
 - Used by registration and update functions
 - Ensures consistent storage patterns
@@ -71,6 +79,7 @@ Internal helper function for storing participant records efficiently.
 ### Retrieval Functions
 
 #### `get_participant`
+
 ```rust
 pub fn get_participant(env: Env, address: Address) -> Option<Participant>
 ```
@@ -82,6 +91,7 @@ Retrieves participant information by address.
 ### Update Functions
 
 #### `update_role`
+
 ```rust
 pub fn update_role(
     env: Env,
@@ -93,16 +103,19 @@ pub fn update_role(
 Updates a participant's role while preserving other data.
 
 **Features:**
+
 - Requires authentication from the participant
 - Preserves registration timestamp
 - Validates participant exists before update
 
 **Panics:**
+
 - If participant not found
 
 ## Data Integrity
 
 ### Duplicate Prevention
+
 The system prevents duplicate registrations by checking existence before creating new records:
 
 ```rust
@@ -112,6 +125,7 @@ if Self::is_participant_registered(env.clone(), address.clone()) {
 ```
 
 ### Data Preservation
+
 Updates preserve critical data like registration timestamps:
 
 ```rust
@@ -123,6 +137,7 @@ Self::set_participant(&env, &address, &participant);
 ## Usage Examples
 
 ### Basic Registration Flow
+
 ```rust
 // Register a recycler
 let recycler = client.register_participant(
@@ -140,6 +155,7 @@ assert_eq!(participant.role, ParticipantRole::Recycler);
 ```
 
 ### Role Update Flow
+
 ```rust
 // Update role from Recycler to Collector
 let updated = client.update_role(
@@ -152,6 +168,7 @@ assert_eq!(updated.role, ParticipantRole::Collector);
 ```
 
 ### Validation Flow
+
 ```rust
 // Check if user can collect materials
 let can_collect = client.can_collect(&user_address);
@@ -188,7 +205,9 @@ The implementation includes comprehensive tests:
 ## Integration with Other Systems
 
 ### Material Submission
+
 Participants must be registered to submit materials:
+
 ```rust
 // Participant registration is checked during transfers
 if !Self::is_participant_registered(env.clone(), address.clone()) {
@@ -197,7 +216,9 @@ if !Self::is_participant_registered(env.clone(), address.clone()) {
 ```
 
 ### Waste Verification
+
 Only recyclers can verify materials:
+
 ```rust
 let participant = Self::get_participant(env.clone(), verifier.clone())
     .expect("Verifier not registered");
@@ -208,7 +229,9 @@ if !participant.role.can_process_recyclables() {
 ```
 
 ### Waste Transfers
+
 Both sender and receiver must be registered:
+
 ```rust
 if !Self::is_participant_registered(env.clone(), from.clone()) {
     panic!("Sender not registered");

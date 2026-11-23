@@ -18,15 +18,16 @@ pub struct Participant {
 
 ## Roles & Permissions
 
-| Role | Collect | Process | Verify | Manufacture |
-|------|---------|---------|--------|-------------|
-| Recycler | ✅ | ✅ | ✅ | ❌ |
-| Collector | ✅ | ❌ | ❌ | ❌ |
-| Manufacturer | ❌ | ❌ | ❌ | ✅ |
+| Role         | Collect | Process | Verify | Manufacture |
+| ------------ | ------- | ------- | ------ | ----------- |
+| Recycler     | ✅      | ✅      | ✅     | ❌          |
+| Collector    | ✅      | ❌      | ❌     | ❌          |
+| Manufacturer | ❌      | ❌      | ❌     | ✅          |
 
 ## Public Functions
 
 ### Registration
+
 ```rust
 // Register new participant
 register_participant(env, address, role, name, latitude, longitude) -> Participant
@@ -42,6 +43,7 @@ update_location(env, address, latitude, longitude) -> Participant
 ```
 
 ### Queries
+
 ```rust
 // Get participant data
 get_participant(env, address) -> Option<Participant>
@@ -56,6 +58,7 @@ can_manufacture(env, address) -> bool
 ## Usage Examples
 
 ### Register a Recycler
+
 ```rust
 let name = Symbol::new(&env, "Alice");
 let participant = client.register_participant(
@@ -68,6 +71,7 @@ let participant = client.register_participant(
 ```
 
 ### Submit Material (Auto-updates stats)
+
 ```rust
 // Requires registered participant
 let material = client.submit_material(
@@ -80,6 +84,7 @@ let material = client.submit_material(
 ```
 
 ### Verify Material (Auto-updates tokens)
+
 ```rust
 // Requires registered recycler
 let verified = client.verify_material(&material_id, &recycler_address);
@@ -87,6 +92,7 @@ let verified = client.verify_material(&material_id, &recycler_address);
 ```
 
 ### Check Permissions
+
 ```rust
 if client.can_collect(&address) {
     // User can collect materials
@@ -115,12 +121,12 @@ let lon_degrees = longitude as f64 / 1_000_000.0;   // -73.985428
 
 ### Automatic Updates
 
-| Action | Updates |
-|--------|---------|
-| `submit_material()` | `total_waste_processed += weight` |
+| Action                     | Updates                                 |
+| -------------------------- | --------------------------------------- |
+| `submit_material()`        | `total_waste_processed += weight`       |
 | `submit_materials_batch()` | `total_waste_processed += sum(weights)` |
-| `verify_material()` | `total_tokens_earned += reward_points` |
-| `verify_materials_batch()` | `total_tokens_earned += sum(rewards)` |
+| `verify_material()`        | `total_tokens_earned += reward_points`  |
+| `verify_materials_batch()` | `total_tokens_earned += sum(rewards)`   |
 
 ### Reward Calculation
 
@@ -159,6 +165,7 @@ panic!("Overflow in total_tokens_earned")
 ## Security Features
 
 ### Overflow Protection
+
 ```rust
 // All arithmetic uses checked_add()
 total_waste_processed = total_waste_processed
@@ -167,6 +174,7 @@ total_waste_processed = total_waste_processed
 ```
 
 ### Registration Validation
+
 ```rust
 // All restricted actions validate registration
 fn require_registered(env: &Env, address: &Address) {
@@ -175,6 +183,7 @@ fn require_registered(env: &Env, address: &Address) {
 ```
 
 ### Authentication
+
 ```rust
 // All write operations require authentication
 address.require_auth();
@@ -183,17 +192,20 @@ address.require_auth();
 ## Testing
 
 ### Run All Tests
+
 ```bash
 cd stellar-contract
 cargo test --lib
 ```
 
 ### Run Specific Test
+
 ```bash
 cargo test test_participant_persistence
 ```
 
 ### Verify Implementation
+
 ```bash
 ./scripts/verify-participant-implementation.sh
 ```
@@ -211,6 +223,7 @@ cargo test test_participant_persistence
 ## Common Patterns
 
 ### Register and Submit
+
 ```rust
 // 1. Register participant
 let name = Symbol::new(&env, "Bob");
@@ -226,6 +239,7 @@ assert_eq!(participant.total_waste_processed, 2000);
 ```
 
 ### Verify and Earn Tokens
+
 ```rust
 // 1. Register recycler
 let name = Symbol::new(&env, "Recycler");
@@ -240,6 +254,7 @@ let submitter = client.get_participant(&submitter_address).unwrap();
 ```
 
 ### Batch Operations
+
 ```rust
 // Batch submit
 let mut materials = Vec::new(&env);
@@ -270,6 +285,7 @@ let verified = client.verify_materials_batch(&ids, &recycler);
 ## Support
 
 For issues or questions:
+
 1. Check the full documentation
 2. Review test cases for examples
 3. Run verification script

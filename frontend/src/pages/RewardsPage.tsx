@@ -7,7 +7,7 @@ import {
   Package,
   Calculator,
   Send,
-  TrendingUp,
+  TrendingUp
 } from 'lucide-react'
 import { useRewards } from '@/hooks/useRewards'
 import { useWallet } from '@/context/WalletContext'
@@ -25,7 +25,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
+  DialogFooter
 } from '@/components/ui/Dialog'
 import { useAppTitle } from '@/hooks/useAppTitle'
 
@@ -35,7 +35,7 @@ const TIERS = [
   { label: 'Bronze', min: 0n, max: 999n, color: 'text-amber-700' },
   { label: 'Silver', min: 1000n, max: 4999n, color: 'text-slate-400' },
   { label: 'Gold', min: 5000n, max: 19999n, color: 'text-yellow-500' },
-  { label: 'Platinum', min: 20000n, max: BigInt(Number.MAX_SAFE_INTEGER), color: 'text-cyan-400' },
+  { label: 'Platinum', min: 20000n, max: BigInt(Number.MAX_SAFE_INTEGER), color: 'text-cyan-400' }
 ]
 
 function getTier(balance: bigint) {
@@ -44,7 +44,15 @@ function getTier(balance: bigint) {
 
 // ── Donate dialog ─────────────────────────────────────────────────────────────
 
-function DonateDialog({ balance, open, onClose }: { balance: bigint; open: boolean; onClose: () => void }) {
+function DonateDialog({
+  balance,
+  open,
+  onClose
+}: {
+  balance: bigint
+  open: boolean
+  onClose: () => void
+}) {
   const [showConfirm, setShowConfirm] = useState(false)
   const [amount, setAmount] = useState('')
   const donate = useDonateToCharity()
@@ -66,7 +74,7 @@ function DonateDialog({ balance, open, onClose }: { balance: bigint; open: boole
         action="Donate to Charity"
         params={[
           { label: 'Amount', value: `${parsed.toLocaleString()} tokens` },
-          { label: 'Remaining balance', value: `${(balance - parsed).toLocaleString()} tokens` },
+          { label: 'Remaining balance', value: `${(balance - parsed).toLocaleString()} tokens` }
         ]}
         isPending={donate.isPending}
         onConfirm={handleDonate}
@@ -100,7 +108,9 @@ function DonateDialog({ balance, open, onClose }: { balance: bigint; open: boole
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={onClose}>Cancel</Button>
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
             <Button onClick={() => setShowConfirm(true)} disabled={!amount || isInvalid}>
               Donate
             </Button>
@@ -113,7 +123,15 @@ function DonateDialog({ balance, open, onClose }: { balance: bigint; open: boole
 
 // ── Transfer dialog ───────────────────────────────────────────────────────────
 
-function TransferDialog({ balance, open, onClose }: { balance: bigint; open: boolean; onClose: () => void }) {
+function TransferDialog({
+  balance,
+  open,
+  onClose
+}: {
+  balance: bigint
+  open: boolean
+  onClose: () => void
+}) {
   const [recipient, setRecipient] = useState('')
   const [amount, setAmount] = useState('')
 
@@ -152,7 +170,9 @@ function TransferDialog({ balance, open, onClose }: { balance: bigint; open: boo
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
           <Button disabled={isInvalid}>Transfer</Button>
         </DialogFooter>
       </DialogContent>
@@ -169,7 +189,7 @@ const RATES: Record<WasteType, number> = {
   [WasteType.Metal]: 8,
   [WasteType.Glass]: 4,
   [WasteType.Organic]: 2,
-  [WasteType.Electronic]: 6,
+  [WasteType.Electronic]: 6
 }
 
 function RewardCalculator() {
@@ -289,7 +309,10 @@ export function RewardsPage() {
         </div>
         {/* Tier badge */}
         {!isLoading && (
-          <span className={`text-sm font-semibold ${tier.color}`} aria-label={`Tier: ${tier.label}`}>
+          <span
+            className={`text-sm font-semibold ${tier.color}`}
+            aria-label={`Tier: ${tier.label}`}
+          >
             {tier.label} Tier
           </span>
         )}

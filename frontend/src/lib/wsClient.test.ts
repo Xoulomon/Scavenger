@@ -9,7 +9,7 @@ import {
   ScavengerWsClient,
   type WsErrorCode,
   type WsErrorFrame,
-  type ServerMessage,
+  type ServerMessage
 } from './wsClient'
 
 // ── WebSocket mock ─────────────────────────────────────────────────────────────
@@ -68,13 +68,16 @@ describe('ScavengerWsClient', () => {
   beforeEach(() => {
     mockWs = new MockWebSocket()
     // Patch global WebSocket so ScavengerWsClient uses our mock.
-    vi.stubGlobal('WebSocket', vi.fn(() => mockWs))
+    vi.stubGlobal(
+      'WebSocket',
+      vi.fn(() => mockWs)
+    )
   })
 
   it('sends Authenticate message on open', () => {
     const client = new ScavengerWsClient({
       url: 'ws://localhost:8080/ws',
-      token: 'my-test-token',
+      token: 'my-test-token'
     })
     client.connect()
     mockWs.triggerOpen()
@@ -90,7 +93,7 @@ describe('ScavengerWsClient', () => {
     const client = new ScavengerWsClient({
       url: 'ws://localhost:8080/ws',
       token: 'tok',
-      onOpen,
+      onOpen
     })
     client.connect()
     mockWs.triggerOpen()
@@ -159,7 +162,7 @@ describe('ScavengerWsClient', () => {
     const client = new ScavengerWsClient({
       url: 'ws://x',
       token: 't',
-      onMessage,
+      onMessage
     })
     client.connect()
     mockWs.triggerOpen()
@@ -265,7 +268,9 @@ describe('ScavengerWsClient', () => {
     mockWs.triggerOpen()
 
     // Simulate the event with raw non-JSON text (bypass triggerMessage's stringify).
-    for (const cb of (mockWs as unknown as { listeners: Record<string, ((...args: unknown[]) => void)[]> }).listeners['message'] ?? []) {
+    for (const cb of (
+      mockWs as unknown as { listeners: Record<string, ((...args: unknown[]) => void)[]> }
+    ).listeners['message'] ?? []) {
       cb({ data: 'not-json{{{{' })
     }
 

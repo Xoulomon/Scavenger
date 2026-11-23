@@ -58,8 +58,8 @@ they should be tackled (lowest-risk first):
    regression is bisectable.
 3. **Thin `lib.rs`**: once every domain's logic lives in and is called
    from its module, `lib.rs` should contain only: the `#[contract] struct
-   ScavengerContract;` declaration, the `#[contractimpl] impl
-   ScavengerContract` block with thin `pub fn` wrappers that delegate to
+ScavengerContract;` declaration, the `#[contractimpl] impl
+ScavengerContract` block with thin `pub fn` wrappers that delegate to
    the domain modules (needed because Soroban contract entry points must
    be inherent methods on the contract type, not free functions), storage
    key constants, and top-level `mod`/`pub use` declarations.

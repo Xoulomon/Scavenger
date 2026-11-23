@@ -42,7 +42,9 @@ export function ConfigTab() {
             </div>
           </div>
           {!isValid && (
-            <p className="text-xs text-destructive">Percentages must sum to 100 (currently {total}).</p>
+            <p className="text-xs text-destructive">
+              Percentages must sum to 100 (currently {total}).
+            </p>
           )}
           <Button disabled={!isValid} aria-label="Save configuration">
             Save Configuration

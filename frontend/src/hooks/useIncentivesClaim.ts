@@ -58,7 +58,7 @@ export function useIncentivesClaim() {
           ? { ...inc, remaining_budget: Math.max(0, inc.remaining_budget - 1) }
           : inc
       )
-    },
+    }
   })
 
   return {
@@ -66,6 +66,6 @@ export function useIncentivesClaim() {
     isClaiming: mutation.isPending,
     // Shared transaction lifecycle state (pending/success/failed)
     status,
-    resetStatus: reset,
+    resetStatus: reset
   }
 }

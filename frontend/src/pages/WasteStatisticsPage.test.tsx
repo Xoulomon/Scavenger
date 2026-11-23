@@ -5,15 +5,15 @@ import { WasteStatisticsPage } from './WasteStatisticsPage'
 vi.mock('@/hooks/useAppTitle', () => ({ useAppTitle: vi.fn() }))
 
 vi.mock('@/hooks/useParticipantWastes', () => ({
-  useParticipantWastes: vi.fn(() => ({ wastes: [], isLoading: false })),
+  useParticipantWastes: vi.fn(() => ({ wastes: [], isLoading: false }))
 }))
 
 vi.mock('@/hooks/useSupplyChainStats', () => ({
-  useSupplyChainStats: vi.fn(() => ({ stats: null, isLoading: false })),
+  useSupplyChainStats: vi.fn(() => ({ stats: null, isLoading: false }))
 }))
 
 vi.mock('@/context/WalletContext', () => ({
-  useWallet: vi.fn(() => ({ address: 'GTEST' })),
+  useWallet: vi.fn(() => ({ address: 'GTEST' }))
 }))
 
 describe('WasteStatisticsPage', () => {

@@ -23,7 +23,7 @@ export function RoutePlannerPage() {
     saveRoute,
     loadRoute,
     deleteRoute,
-    shareRoute,
+    shareRoute
   } = useRoutePlanner()
 
   const [saveName, setSaveName] = useState('')
@@ -68,12 +68,19 @@ export function RoutePlannerPage() {
                 </div>
               )}
               {!isLoading && wastes.length === 0 && (
-                <EmptyState icon={MapPin} title="No waste locations" description="No waste items with coordinates found" />
+                <EmptyState
+                  icon={MapPin}
+                  title="No waste locations"
+                  description="No waste items with coordinates found"
+                />
               )}
               {wastes.map((w) => {
                 const alreadyAdded = selectedStops.some((s) => s.id === w.id)
                 return (
-                  <div key={w.id} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm">
+                  <div
+                    key={w.id}
+                    className="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
+                  >
                     <div className="flex items-center gap-2">
                       <Badge variant="secondary">{wasteTypeLabel(w.waste.waste_type)}</Badge>
                       <span className="text-muted-foreground">#{w.id}</span>
@@ -91,7 +98,7 @@ export function RoutePlannerPage() {
                           lat: w.lat,
                           lng: w.lng,
                           label: `${wasteTypeLabel(w.waste.waste_type)} #${w.id}`,
-                          wastePoint: w,
+                          wastePoint: w
                         })
                       }
                     >
@@ -119,7 +126,10 @@ export function RoutePlannerPage() {
                   <p className="text-sm text-muted-foreground">No saved routes yet.</p>
                 )}
                 {savedRoutes.map((r) => (
-                  <div key={r.id} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm">
+                  <div
+                    key={r.id}
+                    className="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
+                  >
                     <div>
                       <p className="font-medium">{r.name}</p>
                       <p className="text-xs text-muted-foreground">
@@ -127,7 +137,9 @@ export function RoutePlannerPage() {
                       </p>
                     </div>
                     <div className="flex gap-1">
-                      <Button size="sm" variant="outline" onClick={() => loadRoute(r)}>Load</Button>
+                      <Button size="sm" variant="outline" onClick={() => loadRoute(r)}>
+                        Load
+                      </Button>
                       <Button size="sm" variant="ghost" onClick={() => deleteRoute(r.id)}>
                         <Trash2 className="h-3 w-3" />
                       </Button>
@@ -154,10 +166,15 @@ export function RoutePlannerPage() {
             </CardHeader>
             <CardContent className="space-y-2">
               {selectedStops.length === 0 && (
-                <p className="text-sm text-muted-foreground">Add waste locations from the left panel.</p>
+                <p className="text-sm text-muted-foreground">
+                  Add waste locations from the left panel.
+                </p>
               )}
               {selectedStops.map((s, i) => (
-                <div key={s.id} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm">
+                <div
+                  key={s.id}
+                  className="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
+                >
                   <span className="flex items-center gap-2">
                     <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
                       {i + 1}
@@ -228,7 +245,9 @@ export function RoutePlannerPage() {
                 </div>
 
                 {shareText && (
-                  <pre className="rounded-md bg-muted p-3 text-xs whitespace-pre-wrap">{shareText}</pre>
+                  <pre className="rounded-md bg-muted p-3 text-xs whitespace-pre-wrap">
+                    {shareText}
+                  </pre>
                 )}
               </CardContent>
             </Card>

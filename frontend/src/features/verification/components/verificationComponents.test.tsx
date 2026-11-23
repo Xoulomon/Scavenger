@@ -1,4 +1,4 @@
-import { fireEvent,render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 import type { Material } from '@/api/types'
@@ -23,7 +23,7 @@ const material = (overrides: Partial<Material> = {}): Material =>
     is_active: true,
     is_confirmed: false,
     confirmer: undefined,
-    ...overrides,
+    ...overrides
   }) as Material
 
 describe('GradeSelector', () => {
@@ -135,7 +135,7 @@ describe('ResultsList', () => {
     sortField: 'date' as const,
     sortDir: 'desc' as const,
     onSort: vi.fn(),
-    onClearFilters: vi.fn(),
+    onClearFilters: vi.fn()
   }
 
   it('shows the empty state with a clear action only when filters are active', () => {
@@ -200,7 +200,7 @@ describe('BulkVerificationPanel', () => {
     expect(onBulkAction).toHaveBeenCalledWith([1], 'approved', {
       grade: 'B',
       contaminated: false,
-      notes: '',
+      notes: ''
     })
   })
 })
@@ -214,7 +214,7 @@ describe('VerificationForm', () => {
     expect(onComplete).toHaveBeenCalledWith(7, 'approved', {
       grade: 'B',
       contaminated: false,
-      notes: '',
+      notes: ''
     })
   })
 

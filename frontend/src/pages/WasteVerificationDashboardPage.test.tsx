@@ -5,20 +5,20 @@ import { WasteType } from '@/api/types'
 
 vi.mock('@/context/ContractContext', () => ({
   useContract: vi.fn(() => ({
-    config: { network: 'TESTNET', rpcUrl: 'https://testnet', contractId: 'TEST_CONTRACT' },
-  })),
+    config: { network: 'TESTNET', rpcUrl: 'https://testnet', contractId: 'TEST_CONTRACT' }
+  }))
 }))
 
 vi.mock('@/context/WalletContext', () => ({
   useWallet: vi.fn(() => ({
     address: 'GABC123',
     connect: vi.fn(),
-    disconnect: vi.fn(),
-  })),
+    disconnect: vi.fn()
+  }))
 }))
 
 vi.mock('@/hooks/useAppTitle', () => ({
-  useAppTitle: vi.fn(),
+  useAppTitle: vi.fn()
 }))
 
 vi.mock('@tanstack/react-query', () => ({
@@ -34,7 +34,7 @@ vi.mock('@tanstack/react-query', () => ({
             submitter: 'GABC123',
             current_owner: 'GABC123',
             verified: false,
-            quality_grade: null,
+            quality_grade: null
           },
           {
             id: 2,
@@ -44,7 +44,7 @@ vi.mock('@tanstack/react-query', () => ({
             submitter: 'GABC123',
             current_owner: 'GABC123',
             verified: true,
-            quality_grade: 'A',
+            quality_grade: 'A'
           },
           {
             id: 3,
@@ -54,11 +54,11 @@ vi.mock('@tanstack/react-query', () => ({
             submitter: 'GABC123',
             current_owner: 'GABC123',
             verified: false,
-            quality_grade: null,
-          },
+            quality_grade: null
+          }
         ],
         isLoading: false,
-        isError: false,
+        isError: false
       }
     }
     if (options.queryKey[0] === 'material-transfers') {
@@ -70,11 +70,11 @@ vi.mock('@tanstack/react-query', () => ({
             from: 'GABC123',
             to: 'GDEF456',
             transferred_at: Math.floor(Date.now() / 1000),
-            status: 'delivered',
-          },
+            status: 'delivered'
+          }
         ],
         isLoading: false,
-        isError: false,
+        isError: false
       }
     }
     return { data: null, isLoading: false, isError: false }
@@ -82,11 +82,11 @@ vi.mock('@tanstack/react-query', () => ({
   useMutation: vi.fn(() => ({
     mutate: vi.fn(),
     isLoading: false,
-    isError: false,
+    isError: false
   })),
   useQueryClient: vi.fn(() => ({
-    invalidateQueries: vi.fn(),
-  })),
+    invalidateQueries: vi.fn()
+  }))
 }))
 
 describe('WasteVerificationDashboardPage', () => {

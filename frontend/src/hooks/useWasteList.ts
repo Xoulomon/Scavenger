@@ -36,16 +36,16 @@ export function useWasteList() {
       const client = getClient()
       const [admin, ids] = await Promise.all([
         client.getAdmin().catch(() => null),
-        client.getParticipantWastes(address as string),
+        client.getParticipantWastes(address as string)
       ])
       const materials = await Promise.all(ids.map((id) => client.getMaterial(id)))
       return {
         adminAddress: admin,
-        wastes: materials.filter((m): m is Material => m !== null),
+        wastes: materials.filter((m): m is Material => m !== null)
       }
     },
     enabled: Boolean(address),
-    ...queryCachePolicy,
+    ...queryCachePolicy
   })
 
   const wastes = wastesQuery.data?.wastes ?? []
@@ -62,45 +62,52 @@ export function useWasteList() {
     await queryClient.invalidateQueries({ queryKey: cacheKeys.wasteList(address) })
   }, [address, queryClient])
 
-  const confirmWaste = useCallback(async (wasteId: number | bigint) => {
-    if (!address) return
-    const queryKey = cacheKeys.wasteList(address)
-    // Optimistic update
-    queryClient.setQueryData<{ adminAddress: string | null; wastes: Material[] }>(
-      queryKey,
-      (prev) =>
-        prev
-          ? {
-              ...prev,
-              wastes: prev.wastes.map((w) =>
-                BigInt(w.id) === BigInt(wasteId) ? { ...w, is_confirmed: true } : w
-              ),
-            }
-          : prev
-    )
-    try {
-      await getClient().confirmWasteDetails(BigInt(wasteId), address, address)
-      toast.success(`Waste #${wasteId} confirmed successfully.`)
-      await queryClient.invalidateQueries({ queryKey })
-    } catch (err) {
-      // Revert optimistic update on failure
-      await queryClient.invalidateQueries({ queryKey })
-      toast.error(err)
-    }
-  }, [address, getClient, queryClient, toast])
+  const confirmWaste = useCallback(
+    async (wasteId: number | bigint) => {
+      if (!address) return
+      const queryKey = cacheKeys.wasteList(address)
+      // Optimistic update
+      queryClient.setQueryData<{ adminAddress: string | null; wastes: Material[] }>(
+        queryKey,
+        (prev) =>
+          prev
+            ? {
+                ...prev,
+                wastes: prev.wastes.map((w) =>
+                  BigInt(w.id) === BigInt(wasteId) ? { ...w, is_confirmed: true } : w
+                )
+              }
+            : prev
+      )
+      try {
+        await getClient().confirmWasteDetails(BigInt(wasteId), address, address)
+        toast.success(`Waste #${wasteId} confirmed successfully.`)
+        await queryClient.invalidateQueries({ queryKey })
+      } catch (err) {
+        // Revert optimistic update on failure
+        await queryClient.invalidateQueries({ queryKey })
+        toast.error(err)
+      }
+    },
+    [address, getClient, queryClient, toast]
+  )
 
-  const transferWaste = useCallback(async (wasteId: number | bigint, to: string) => {
-    if (!address) return
-    await getClient().transferWaste(BigInt(wasteId), address, to, 0n, 0n, '', address)
-    await load()
-  }, [address, getClient, load])
+  const transferWaste = useCallback(
+    async (wasteId: number | bigint, to: string) => {
+      if (!address) return
+      await getClient().transferWaste(BigInt(wasteId), address, to, 0n, 0n, '', address)
+      await load()
+    },
+    [address, getClient, load]
+  )
 
   const batchConfirmWastes = useCallback(
     async (
       wasteIds: Array<number | bigint>,
       onProgress?: (completed: number, total: number) => void
     ) => {
-      if (!address) return { succeeded: 0, failed: wasteIds.length, errors: ['No wallet connected'] }
+      if (!address)
+        return { succeeded: 0, failed: wasteIds.length, errors: ['No wallet connected'] }
       const client = getClient()
       const total = wasteIds.length
       let completed = 0
@@ -117,7 +124,7 @@ export function useWasteList() {
                   wasteIds.some((id) => BigInt(w.id) === BigInt(id))
                     ? { ...w, is_confirmed: true }
                     : w
-                ),
+                )
               }
             : prev
       )
@@ -151,7 +158,8 @@ export function useWasteList() {
       wasteIds: Array<number | bigint>,
       onProgress?: (completed: number, total: number) => void
     ) => {
-      if (!address) return { succeeded: 0, failed: wasteIds.length, errors: ['No wallet connected'] }
+      if (!address)
+        return { succeeded: 0, failed: wasteIds.length, errors: ['No wallet connected'] }
       const client = getClient()
       const total = wasteIds.length
       let completed = 0
@@ -188,7 +196,8 @@ export function useWasteList() {
       to: string,
       onProgress?: (completed: number, total: number) => void
     ) => {
-      if (!address) return { succeeded: 0, failed: wasteIds.length, errors: ['No wallet connected'] }
+      if (!address)
+        return { succeeded: 0, failed: wasteIds.length, errors: ['No wallet connected'] }
       const client = getClient()
       const total = wasteIds.length
       let completed = 0
@@ -225,7 +234,8 @@ export function useWasteList() {
       wasteIds: Array<number | bigint>,
       onProgress?: (completed: number, total: number) => void
     ) => {
-      if (!address) return { succeeded: 0, failed: wasteIds.length, errors: ['No wallet connected'] }
+      if (!address)
+        return { succeeded: 0, failed: wasteIds.length, errors: ['No wallet connected'] }
       if (!adminAddress || address !== adminAddress) {
         return { succeeded: 0, failed: wasteIds.length, errors: ['Current wallet is not admin'] }
       }
@@ -264,15 +274,9 @@ export function useWasteList() {
     [address, adminAddress]
   )
 
-  const confirmedWastes = useMemo(
-    () => wastes.filter((w) => w.is_confirmed),
-    [wastes]
-  )
+  const confirmedWastes = useMemo(() => wastes.filter((w) => w.is_confirmed), [wastes])
 
-  const unconfirmedWastes = useMemo(
-    () => wastes.filter((w) => !w.is_confirmed),
-    [wastes]
-  )
+  const unconfirmedWastes = useMemo(() => wastes.filter((w) => !w.is_confirmed), [wastes])
 
   return useMemo(
     () => ({
@@ -288,7 +292,7 @@ export function useWasteList() {
       batchConfirmWastes,
       batchVerifyWastes,
       batchTransferWastes,
-      batchDeactivateWastes,
+      batchDeactivateWastes
     }),
     [
       wastes,
@@ -303,7 +307,7 @@ export function useWasteList() {
       batchConfirmWastes,
       batchVerifyWastes,
       batchTransferWastes,
-      batchDeactivateWastes,
+      batchDeactivateWastes
     ]
   )
 }

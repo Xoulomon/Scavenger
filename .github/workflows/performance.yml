@@ -54,7 +54,7 @@ jobs:
       - name: Run k6 performance tests
         run: ./performance/run-perf-tests.sh
         env:
-          BASE_URL: "http://localhost:3000/api"
+          BASE_URL: 'http://localhost:3000/api'
 
       - name: Generate performance summary report
         run: |

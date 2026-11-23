@@ -19,6 +19,7 @@ The Scavngr smart contract has been thoroughly audited for security vulnerabilit
 ## Audit Scope
 
 ### In Scope
+
 - Smart contract source code (Rust/Soroban)
 - Access control mechanisms
 - State management and storage
@@ -28,6 +29,7 @@ The Scavngr smart contract has been thoroughly audited for security vulnerabilit
 - Error handling
 
 ### Out of Scope
+
 - Frontend application
 - Backend API
 - Indexer service
@@ -39,6 +41,7 @@ The Scavngr smart contract has been thoroughly audited for security vulnerabilit
 ## Methodology
 
 ### Tools Used
+
 - **Slither**: Static analysis
 - **Mythril**: Symbolic execution
 - **Manual Code Review**: Security patterns
@@ -46,6 +49,7 @@ The Scavngr smart contract has been thoroughly audited for security vulnerabilit
 - **Formal Verification**: Critical paths
 
 ### Testing Approach
+
 1. Static analysis for common vulnerabilities
 2. Dynamic testing with edge cases
 3. Fuzzing for boundary conditions
@@ -76,11 +80,13 @@ No high severity vulnerabilities found.
 Reward calculation multiplies weight × incentive_points. With large values, could theoretically overflow.
 
 **Code**:
+
 ```rust
 let reward = waste.weight * incentive.reward_points;
 ```
 
 **Mitigation**:
+
 - Rust's checked arithmetic catches overflows
 - Maximum weight: 18,446,744,073,709,551,615 kg (u128)
 - Maximum points: 18,446,744,073,709,551,615 (u128)
@@ -100,12 +106,14 @@ let reward = waste.weight * incentive.reward_points;
 Percentage-based reward splits may lose precision with rounding.
 
 **Code**:
+
 ```rust
 let collector_reward = (reward * collector_pct) / 100;
 let owner_reward = reward - collector_reward;
 ```
 
 **Mitigation**:
+
 - Owner receives remainder (prevents loss)
 - Percentages must sum to 100
 - Rounding favors owner (incentive alignment)
@@ -126,6 +134,7 @@ let owner_reward = reward - collector_reward;
 Admin transfer doesn't emit event for audit trail.
 
 **Recommendation**:
+
 ```rust
 env.events().publish(
     ("admin", "transferred"),
@@ -163,6 +172,7 @@ Add optional `expires_at` field to Incentive struct.
 No limit on batch size could cause gas exhaustion.
 
 **Recommendation**:
+
 ```rust
 if materials.len() > 100 {
     return Err(Error::BatchTooLarge);
@@ -260,6 +270,7 @@ if materials.len() > 100 {
 **Threat**: Attacker gains admin privileges
 
 **Mitigation**:
+
 - Admin set once at initialization
 - Transfer requires current admin signature
 - No backdoors or default credentials
@@ -273,6 +284,7 @@ if materials.len() > 100 {
 **Threat**: User claims ownership of waste they didn't submit
 
 **Mitigation**:
+
 - Ownership verified at submission
 - Only owner can transfer
 - Transfer creates immutable record
@@ -286,6 +298,7 @@ if materials.len() > 100 {
 **Threat**: Attacker manipulates reward calculations
 
 **Mitigation**:
+
 - Calculations use checked arithmetic
 - Percentages validated
 - Budget tracking prevents overspending
@@ -300,6 +313,7 @@ if materials.len() > 100 {
 **Threat**: Waste transferred twice simultaneously
 
 **Mitigation**:
+
 - Stellar blockchain ensures atomicity
 - Only one owner at a time
 - Transfer creates new record
@@ -313,6 +327,7 @@ if materials.len() > 100 {
 **Threat**: Attacker floods contract with requests
 
 **Mitigation**:
+
 - Stellar network rate limiting
 - Batch size limits (recommended)
 - Gas costs prevent spam
@@ -367,18 +382,18 @@ if materials.len() > 100 {
 
 ### OWASP Smart Contract Top 10
 
-| Issue | Status | Notes |
-|-------|--------|-------|
-| Reentrancy | ✅ PASS | Guard implemented |
-| Access Control | ✅ PASS | Properly enforced |
-| Arithmetic Issues | ✅ PASS | Checked arithmetic |
-| Unchecked Call Return | ✅ PASS | All calls checked |
-| Denial of Service | ⚠️ WARN | Batch limits recommended |
-| Bad Randomness | ✅ N/A | No randomness used |
-| Front Running | ✅ N/A | Blockchain prevents |
-| Time Manipulation | ✅ N/A | Uses block time |
-| Short Addresses | ✅ N/A | Type-safe addresses |
-| Unknown Unknowns | ✅ PASS | Comprehensive testing |
+| Issue                 | Status  | Notes                    |
+| --------------------- | ------- | ------------------------ |
+| Reentrancy            | ✅ PASS | Guard implemented        |
+| Access Control        | ✅ PASS | Properly enforced        |
+| Arithmetic Issues     | ✅ PASS | Checked arithmetic       |
+| Unchecked Call Return | ✅ PASS | All calls checked        |
+| Denial of Service     | ⚠️ WARN | Batch limits recommended |
+| Bad Randomness        | ✅ N/A  | No randomness used       |
+| Front Running         | ✅ N/A  | Blockchain prevents      |
+| Time Manipulation     | ✅ N/A  | Uses block time          |
+| Short Addresses       | ✅ N/A  | Type-safe addresses      |
+| Unknown Unknowns      | ✅ PASS | Comprehensive testing    |
 
 ---
 
@@ -386,15 +401,15 @@ if materials.len() > 100 {
 
 ### Gas Usage
 
-| Operation | Gas Cost | Status |
-|-----------|----------|--------|
-| Register Participant | ~1,000 | ✅ Optimal |
-| Submit Material | ~1,500 | ✅ Optimal |
-| Verify Material | ~800 | ✅ Optimal |
-| Transfer Waste | ~2,000 | ✅ Optimal |
-| Create Incentive | ~1,200 | ✅ Optimal |
-| Distribute Rewards | ~3,000 | ✅ Acceptable |
-| Batch Submit (10 items) | ~12,000 | ✅ Efficient |
+| Operation               | Gas Cost | Status        |
+| ----------------------- | -------- | ------------- |
+| Register Participant    | ~1,000   | ✅ Optimal    |
+| Submit Material         | ~1,500   | ✅ Optimal    |
+| Verify Material         | ~800     | ✅ Optimal    |
+| Transfer Waste          | ~2,000   | ✅ Optimal    |
+| Create Incentive        | ~1,200   | ✅ Optimal    |
+| Distribute Rewards      | ~3,000   | ✅ Acceptable |
+| Batch Submit (10 items) | ~12,000  | ✅ Efficient  |
 
 **Conclusion**: Gas usage is reasonable and efficient.
 
@@ -414,6 +429,7 @@ if materials.len() > 100 {
 ### Priority 1: Implement (High Impact)
 
 1. **Add Batch Size Limit**
+
    ```rust
    const MAX_BATCH_SIZE: usize = 100;
    ```
@@ -473,24 +489,28 @@ if materials.len() > 100 {
 ## Remediation Plan
 
 ### Phase 1: Immediate (Week 1)
+
 - [ ] Implement batch size limit
 - [ ] Add admin transfer event
 - [ ] Deploy to testnet
 - [ ] Run full test suite
 
 ### Phase 2: Short-term (Week 2-3)
+
 - [ ] Add incentive expiration
 - [ ] Implement pause mechanism
 - [ ] Add rate limiting
 - [ ] Update documentation
 
 ### Phase 3: Medium-term (Month 2)
+
 - [ ] Multi-signature admin
 - [ ] Upgrade mechanism
 - [ ] Formal verification
 - [ ] Third-party audit
 
 ### Phase 4: Long-term (Ongoing)
+
 - [ ] Monitor for new vulnerabilities
 - [ ] Community security reports
 - [ ] Regular audits
@@ -510,23 +530,27 @@ if materials.len() > 100 {
 ## Testing Results
 
 ### Unit Tests
+
 - **Total**: 150+
 - **Passed**: 150 ✅
 - **Failed**: 0
 - **Coverage**: 95%+
 
 ### Integration Tests
+
 - **Total**: 60+
 - **Passed**: 60 ✅
 - **Failed**: 0
 - **Coverage**: 90%+
 
 ### Fuzzing Tests
+
 - **Iterations**: 10,000+
 - **Crashes**: 0
 - **Anomalies**: 0
 
 ### Edge Case Tests
+
 - **Boundary Values**: ✅ PASS
 - **Maximum Values**: ✅ PASS
 - **Minimum Values**: ✅ PASS
@@ -539,6 +563,7 @@ if materials.len() > 100 {
 The Scavngr smart contract demonstrates strong security practices and has been thoroughly tested. The contract is suitable for deployment with the recommended enhancements implemented.
 
 ### Key Strengths
+
 1. ✅ Proper access control
 2. ✅ Comprehensive input validation
 3. ✅ Reentrancy protection
@@ -546,12 +571,14 @@ The Scavngr smart contract demonstrates strong security practices and has been t
 5. ✅ Clear error handling
 
 ### Areas for Improvement
+
 1. ⚠️ Add batch size limits
 2. ⚠️ Add admin transfer events
 3. ⚠️ Consider incentive expiration
 4. ⚠️ Add pause mechanism
 
 ### Overall Assessment
+
 🟢 **APPROVED FOR DEPLOYMENT**
 
 The contract is production-ready with recommended enhancements to be implemented post-launch.
@@ -561,21 +588,25 @@ The contract is production-ready with recommended enhancements to be implemented
 ## Appendix A: Vulnerability Definitions
 
 ### Critical
+
 - Funds at risk
 - Complete loss of functionality
 - Unauthorized access to all data
 
 ### High
+
 - Significant funds at risk
 - Major functionality broken
 - Unauthorized access to sensitive data
 
 ### Medium
+
 - Limited funds at risk
 - Partial functionality affected
 - Unauthorized access to some data
 
 ### Low
+
 - No funds at risk
 - Minor functionality affected
 - Information disclosure
@@ -617,6 +648,7 @@ Total Coverage: 95.2%
 ## Appendix C: Audit Tools Configuration
 
 ### Slither Configuration
+
 ```yaml
 exclude-dependencies: true
 exclude-informational: false
@@ -627,6 +659,7 @@ exclude-critical: false
 ```
 
 ### Mythril Configuration
+
 ```
 --solv 0.8.0
 --timeout 10
@@ -648,9 +681,9 @@ exclude-critical: false
 
 ## Document History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | Apr 27, 2026 | Initial audit report |
+| Version | Date         | Changes              |
+| ------- | ------------ | -------------------- |
+| 1.0     | Apr 27, 2026 | Initial audit report |
 
 ---
 

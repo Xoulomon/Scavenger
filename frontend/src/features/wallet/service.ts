@@ -11,7 +11,7 @@ import {
   getNetworkDetails,
   getPublicKey as freighterGetPublicKey,
   requestAccess,
-  signTransaction as freighterSignTransaction,
+  signTransaction as freighterSignTransaction
 } from '@stellar/freighter-api'
 import { networkConfig } from '@/lib/stellar'
 
@@ -31,7 +31,7 @@ export const initialWalletState: WalletConnectionState = {
   isConnected: false,
   isInstalled: false,
   isLoading: false,
-  error: undefined,
+  error: undefined
 }
 
 export function isWalletEnvironment(): boolean {
@@ -79,9 +79,7 @@ export async function connectWallet(): Promise<string> {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err)
     throw new Error(
-      message.includes('User declined')
-        ? 'Connection rejected by user'
-        : 'Failed to connect wallet'
+      message.includes('User declined') ? 'Connection rejected by user' : 'Failed to connect wallet'
     )
   }
 }
@@ -92,7 +90,7 @@ export async function signTransactionXDR(
 ): Promise<string> {
   try {
     const signResult = await freighterSignTransaction(transactionXDR, {
-      networkPassphrase,
+      networkPassphrase
     })
     return typeof signResult === 'string'
       ? signResult

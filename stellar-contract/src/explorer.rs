@@ -206,12 +206,7 @@ pub struct ExplorerConfig {
 
 impl ExplorerConfig {
     /// Creates a new explorer configuration
-    pub fn new(
-        env: &soroban_sdk::Env,
-        base_url: String,
-        network: String,
-        contract_address: Address,
-    ) -> Self {
+    pub fn new(env: &soroban_sdk::Env, base_url: String, network: String, contract_address: Address) -> Self {
         Self {
             base_url,
             network,
@@ -236,10 +231,7 @@ impl ExplorerConfig {
         url.append(&soroban_sdk::String::from_str(env, "/explorer/"));
         url.append(&self.network);
         url.append(&soroban_sdk::String::from_str(env, "/contract/"));
-        url.append(&soroban_sdk::String::from_str(
-            env,
-            &self.contract_address.to_string(),
-        ));
+        url.append(&soroban_sdk::String::from_str(env, &self.contract_address.to_string()));
         url
     }
 

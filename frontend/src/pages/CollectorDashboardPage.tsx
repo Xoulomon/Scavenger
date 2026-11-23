@@ -170,7 +170,9 @@ export function CollectorDashboardPage() {
       {/* Pending incoming transfers */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{t('collectorDashboard.pendingIncomingTransfers')}</CardTitle>
+          <CardTitle className="text-base">
+            {t('collectorDashboard.pendingIncomingTransfers')}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           {pendingTransfers.length === 0 ? (
@@ -210,7 +212,9 @@ export function CollectorDashboardPage() {
       {/* Collection statistics by waste type */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">{t('collectorDashboard.statisticsByWasteType')}</CardTitle>
+          <CardTitle className="text-base">
+            {t('collectorDashboard.statisticsByWasteType')}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-3 xs:grid-cols-3 tablet:grid-cols-3 lg:grid-cols-5">

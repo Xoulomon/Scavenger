@@ -3,7 +3,7 @@ import {
   SubscriptionStorage,
   Subscription,
   SubscriptionHistoryEntry,
-  SubscriptionFrequency,
+  SubscriptionFrequency
 } from '@/lib/subscriptionStorage'
 import { NotificationStore } from '@/lib/notifications'
 
@@ -50,7 +50,7 @@ export function useSubscriptions(collectorAddress: string | null | undefined) {
           type: 'system',
           title: 'Pickup Reminder',
           body: `Pickup from ${s.recyclerName} is scheduled tomorrow.`,
-          createdAt: now,
+          createdAt: now
         })
       })
   }, [subscriptions])
@@ -78,7 +78,7 @@ export function useSubscriptions(collectorAddress: string | null | undefined) {
           type: 'system',
           title: 'Subscription Created',
           body: `Weekly pickup from ${sub.recyclerName} scheduled.`,
-          createdAt: Date.now(),
+          createdAt: Date.now()
         })
         refresh()
         return sub
@@ -129,7 +129,7 @@ export function useSubscriptions(collectorAddress: string | null | undefined) {
           type: 'system',
           title: 'Pickup Completed',
           body: `Pickup recorded. Next pickup scheduled.`,
-          createdAt: Date.now(),
+          createdAt: Date.now()
         })
         refresh()
       }
@@ -155,6 +155,6 @@ export function useSubscriptions(collectorAddress: string | null | undefined) {
     resume,
     cancel,
     recordPickup,
-    refresh,
+    refresh
   }
 }

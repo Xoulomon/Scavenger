@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { LoginPage } from './LoginPage'
 
 vi.mock('react-router-dom', () => ({
-  useNavigate: vi.fn(() => vi.fn()),
+  useNavigate: vi.fn(() => vi.fn())
 }))
 
 vi.mock('@/context/WalletContext', () => ({
@@ -12,16 +12,16 @@ vi.mock('@/context/WalletContext', () => ({
     isConnected: false,
     connect: vi.fn(),
     isLoading: false,
-    error: null,
-  })),
+    error: null
+  }))
 }))
 
 vi.mock('@/context/AuthContext', () => ({
-  useAuth: vi.fn(() => ({ login: vi.fn() })),
+  useAuth: vi.fn(() => ({ login: vi.fn() }))
 }))
 
 vi.mock('@/hooks/useRegisterParticipant', () => ({
-  useRegisterParticipant: vi.fn(() => ({ mutate: vi.fn(), isError: false, isPending: false })),
+  useRegisterParticipant: vi.fn(() => ({ mutate: vi.fn(), isError: false, isPending: false }))
 }))
 
 vi.mock('@/hooks/useAppTitle', () => ({ useAppTitle: vi.fn() }))
@@ -29,13 +29,13 @@ vi.mock('@/hooks/useAppTitle', () => ({ useAppTitle: vi.fn() }))
 vi.mock('@/lib/contract', () => ({
   ScavengerClient: vi.fn(() => ({
     isParticipantRegistered: vi.fn(),
-    getParticipant: vi.fn(),
-  })),
+    getParticipant: vi.fn()
+  }))
 }))
 
 vi.mock('@/config', () => ({ config: { contractId: 'TEST' } }))
 vi.mock('@/lib/stellar', () => ({
-  networkConfig: { rpcUrl: '', networkPassphrase: '' },
+  networkConfig: { rpcUrl: '', networkPassphrase: '' }
 }))
 
 describe('LoginPage', () => {

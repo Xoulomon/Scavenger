@@ -7,17 +7,17 @@
  * Both use discriminated unions keyed on `kind` so the compiler narrows correctly.
  */
 
-import { WasteType, ParticipantRole } from '../types';
+import { WasteType, ParticipantRole } from '../types'
 
 // ---------------------------------------------------------------------------
 // Shared metadata carried through every stage
 // ---------------------------------------------------------------------------
 
 export interface EventMeta {
-  ledgerSequence: number;
-  ledgerCloseTime: Date;
-  transactionHash: string;
-  contractId: string;
+  ledgerSequence: number
+  ledgerCloseTime: Date
+  transactionHash: string
+  contractId: string
 }
 
 // ---------------------------------------------------------------------------
@@ -36,91 +36,91 @@ export type ParsedEvent =
   | ParsedWasteContaminated
   | ParsedAuctionCreated
   | ParsedAuctionEnded
-  | ParsedCarbonCreditsEarned;
+  | ParsedCarbonCreditsEarned
 
 export interface ParsedWasteRegistered extends EventMeta {
-  kind: 'WasteRegistered';
-  wasteId: string;
-  wasteTypeNum: number;
-  weight: string;
-  recycler: string;
-  lat: string;
-  lon: string;
+  kind: 'WasteRegistered'
+  wasteId: string
+  wasteTypeNum: number
+  weight: string
+  recycler: string
+  lat: string
+  lon: string
 }
 
 export interface ParsedParticipantRegistered extends EventMeta {
-  kind: 'ParticipantRegistered';
-  address: string;
-  roleNum: number;
-  name: string;
-  lat: string;
-  lon: string;
+  kind: 'ParticipantRegistered'
+  address: string
+  roleNum: number
+  name: string
+  lat: string
+  lon: string
 }
 
 export interface ParsedWasteTransferred extends EventMeta {
-  kind: 'WasteTransferred';
-  wasteId: string;
-  from: string;
-  to: string;
+  kind: 'WasteTransferred'
+  wasteId: string
+  from: string
+  to: string
 }
 
 export interface ParsedWasteConfirmed extends EventMeta {
-  kind: 'WasteConfirmed';
-  wasteId: string;
+  kind: 'WasteConfirmed'
+  wasteId: string
 }
 
 export interface ParsedTokensRewarded extends EventMeta {
-  kind: 'TokensRewarded';
-  recipient: string;
-  amount: string;
-  wasteId: string;
+  kind: 'TokensRewarded'
+  recipient: string
+  amount: string
+  wasteId: string
 }
 
 export interface ParsedWasteDeactivated extends EventMeta {
-  kind: 'WasteDeactivated';
-  wasteId: string;
+  kind: 'WasteDeactivated'
+  wasteId: string
 }
 
 export interface ParsedWasteGraded extends EventMeta {
-  kind: 'WasteGraded';
-  wasteId: string;
-  grade: string;
+  kind: 'WasteGraded'
+  wasteId: string
+  grade: string
 }
 
 export interface ParsedProcessingStatusChanged extends EventMeta {
-  kind: 'ProcessingStatusChanged';
-  wasteId: string;
-  status: number;
+  kind: 'ProcessingStatusChanged'
+  wasteId: string
+  status: number
 }
 
 export interface ParsedWasteContaminated extends EventMeta {
-  kind: 'WasteContaminated';
-  wasteId: string;
-  level: number;
+  kind: 'WasteContaminated'
+  wasteId: string
+  level: number
 }
 
 export interface ParsedAuctionCreated extends EventMeta {
-  kind: 'AuctionCreated';
-  auctionId: string;
-  wasteId: string;
-  creator: string;
-  startPrice: string;
-  endTime: string;
+  kind: 'AuctionCreated'
+  auctionId: string
+  wasteId: string
+  creator: string
+  startPrice: string
+  endTime: string
 }
 
 export interface ParsedAuctionEnded extends EventMeta {
-  kind: 'AuctionEnded';
-  auctionId: string;
-  winner: string | null;
-  finalPrice: string;
+  kind: 'AuctionEnded'
+  auctionId: string
+  winner: string | null
+  finalPrice: string
 }
 
 export interface ParsedCarbonCreditsEarned extends EventMeta {
-  kind: 'CarbonCreditsEarned';
-  participant: string;
-  wasteTypeNum: number;
-  weight: string;
-  credits: string;
+  kind: 'CarbonCreditsEarned'
+  participant: string
+  wasteTypeNum: number
+  weight: string
+  credits: string
 }
 
 // ---------------------------------------------------------------------------
@@ -139,89 +139,89 @@ export type TransformedEvent =
   | TransformedWasteContaminated
   | TransformedAuctionCreated
   | TransformedAuctionEnded
-  | TransformedCarbonCreditsEarned;
+  | TransformedCarbonCreditsEarned
 
 export interface TransformedWasteRegistered extends EventMeta {
-  kind: 'WasteRegistered';
-  wasteId: string;
-  wasteType: WasteType;
-  weight: string;
-  recycler: string;
-  lat: string;
-  lon: string;
+  kind: 'WasteRegistered'
+  wasteId: string
+  wasteType: WasteType
+  weight: string
+  recycler: string
+  lat: string
+  lon: string
 }
 
 export interface TransformedParticipantRegistered extends EventMeta {
-  kind: 'ParticipantRegistered';
-  address: string;
-  role: ParticipantRole;
-  name: string;
-  lat: string;
-  lon: string;
+  kind: 'ParticipantRegistered'
+  address: string
+  role: ParticipantRole
+  name: string
+  lat: string
+  lon: string
 }
 
 export interface TransformedWasteTransferred extends EventMeta {
-  kind: 'WasteTransferred';
-  wasteId: string;
-  from: string;
-  to: string;
+  kind: 'WasteTransferred'
+  wasteId: string
+  from: string
+  to: string
 }
 
 export interface TransformedWasteConfirmed extends EventMeta {
-  kind: 'WasteConfirmed';
-  wasteId: string;
+  kind: 'WasteConfirmed'
+  wasteId: string
 }
 
 export interface TransformedTokensRewarded extends EventMeta {
-  kind: 'TokensRewarded';
-  recipient: string;
-  amount: string;
-  wasteId: string;
+  kind: 'TokensRewarded'
+  recipient: string
+  amount: string
+  wasteId: string
 }
 
 export interface TransformedWasteDeactivated extends EventMeta {
-  kind: 'WasteDeactivated';
-  wasteId: string;
+  kind: 'WasteDeactivated'
+  wasteId: string
 }
 
 export interface TransformedWasteGraded extends EventMeta {
-  kind: 'WasteGraded';
-  wasteId: string;
-  grade: string;
+  kind: 'WasteGraded'
+  wasteId: string
+  grade: string
 }
 
 export interface TransformedProcessingStatusChanged extends EventMeta {
-  kind: 'ProcessingStatusChanged';
-  wasteId: string;
-  status: number;
+  kind: 'ProcessingStatusChanged'
+  wasteId: string
+  status: number
 }
 
 export interface TransformedWasteContaminated extends EventMeta {
-  kind: 'WasteContaminated';
-  wasteId: string;
-  level: number;
+  kind: 'WasteContaminated'
+  wasteId: string
+  level: number
 }
 
 export interface TransformedAuctionCreated extends EventMeta {
-  kind: 'AuctionCreated';
-  auctionId: string;
-  wasteId: string;
-  creator: string;
-  startPrice: string;
-  endTime: string;
+  kind: 'AuctionCreated'
+  auctionId: string
+  wasteId: string
+  creator: string
+  startPrice: string
+  endTime: string
 }
 
 export interface TransformedAuctionEnded extends EventMeta {
-  kind: 'AuctionEnded';
-  auctionId: string;
-  winner: string | null;
-  finalPrice: string;
+  kind: 'AuctionEnded'
+  auctionId: string
+  winner: string | null
+  finalPrice: string
 }
 
 export interface TransformedCarbonCreditsEarned extends EventMeta {
-  kind: 'CarbonCreditsEarned';
-  participant: string;
-  wasteType: WasteType;
-  weight: string;
-  credits: string;
+  kind: 'CarbonCreditsEarned'
+  participant: string
+  wasteType: WasteType
+  weight: string
+  credits: string
 }

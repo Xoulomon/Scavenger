@@ -67,7 +67,7 @@ export function useAsync<T, Args extends unknown[] = []>(
   const [state, setState] = useState<Omit<AsyncState<T>, 'isLoading'>>({
     status: 'idle',
     data: null,
-    error: null,
+    error: null
   })
 
   // Always call the latest fn without invalidating `run`'s identity

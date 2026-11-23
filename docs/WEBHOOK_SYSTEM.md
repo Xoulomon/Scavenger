@@ -17,6 +17,7 @@ Webhooks enable real-time event notifications for important platform events.
 ## API Endpoints
 
 ### Create Webhook
+
 ```
 POST /api/webhooks
 Content-Type: application/json
@@ -28,6 +29,7 @@ Content-Type: application/json
 ```
 
 Response:
+
 ```json
 {
   "id": "webhook_123",
@@ -41,16 +43,19 @@ Response:
 ```
 
 ### List Webhooks
+
 ```
 GET /api/webhooks
 ```
 
 ### Get Webhook
+
 ```
 GET /api/webhooks/{id}
 ```
 
 ### Update Webhook
+
 ```
 PUT /api/webhooks/{id}
 Content-Type: application/json
@@ -63,6 +68,7 @@ Content-Type: application/json
 ```
 
 ### Delete Webhook
+
 ```
 DELETE /api/webhooks/{id}
 ```
@@ -99,6 +105,7 @@ Receivers should compute the HMAC over the raw body and compare it with the sign
 ## Retry Policy
 
 Failed webhook deliveries are retried with exponential backoff:
+
 - 1st retry: 5 seconds
 - 2nd retry: 30 seconds
 - 3rd retry: 5 minutes
@@ -109,6 +116,7 @@ The default limit is 5 total attempts: the initial delivery plus 4 retries. Afte
 ## Testing
 
 Test your webhook endpoint:
+
 ```bash
 curl -X POST https://example.com/webhook \
   -H "Content-Type: application/json" \

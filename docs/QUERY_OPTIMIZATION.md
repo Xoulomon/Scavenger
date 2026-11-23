@@ -44,17 +44,17 @@ if plan.use_index {
 
 ### Supported Query Types
 
-| Query Type | Default Cost | Optimizations |
-|------------|--------------|---------------|
-| GetParticipant | 10 | Cache, Index |
-| GetWaste | 10 | Cache, Index |
-| GetWastesByStatus | 50 | Index, Filter |
-| GetWastesByType | 50 | Index, Filter |
-| GetWastesByGrade | 50 | Index, Filter |
-| GetParticipantWastes | 30 | Index |
-| GetTransferHistory | 20 | Cache |
-| GetIncentives | 30 | Cache, Filter |
-| GetLeaderboard | 100 | Cache, Scan, Sort |
+| Query Type           | Default Cost | Optimizations     |
+| -------------------- | ------------ | ----------------- |
+| GetParticipant       | 10           | Cache, Index      |
+| GetWaste             | 10           | Cache, Index      |
+| GetWastesByStatus    | 50           | Index, Filter     |
+| GetWastesByType      | 50           | Index, Filter     |
+| GetWastesByGrade     | 50           | Index, Filter     |
+| GetParticipantWastes | 30           | Index             |
+| GetTransferHistory   | 20           | Cache             |
+| GetIncentives        | 30           | Cache, Filter     |
+| GetLeaderboard       | 100          | Cache, Scan, Sort |
 
 ## Query Plans
 
@@ -81,6 +81,7 @@ pub struct QueryPlan {
 **Impact**: -10 cost units
 
 **Example:**
+
 ```rust
 // Before
 let participant = env.storage().instance().get(&key);
@@ -101,6 +102,7 @@ let plan = optimizer.optimize(QueryType::GetParticipant, env);
 **Impact**: -20 cost units
 
 **Example:**
+
 ```rust
 // Before: Full scan
 for waste_id in 1..=total_count {
@@ -126,6 +128,7 @@ let results = status_index.get_all(target_status);
 **Impact**: -50 cost units on cache hit
 
 **Example:**
+
 ```rust
 // Before: Recalculate every time
 let leaderboard = calculate_leaderboard();
@@ -175,12 +178,12 @@ println!("Storage reads: {}", metrics.storage_reads);
 
 ### Performance Targets
 
-| Metric | Target | Good | Needs Improvement |
-|--------|--------|------|-------------------|
-| Cache Hit Rate | >80% | 70-80% | <70% |
-| Response Time (ms) | <50 | 50-100 | >100 |
-| Storage Reads | <5 | 5-10 | >10 |
-| Gas Cost | <100 | 100-200 | >200 |
+| Metric             | Target | Good    | Needs Improvement |
+| ------------------ | ------ | ------- | ----------------- |
+| Cache Hit Rate     | >80%   | 70-80%  | <70%              |
+| Response Time (ms) | <50    | 50-100  | >100              |
+| Storage Reads      | <5     | 5-10    | >10               |
+| Gas Cost           | <100   | 100-200 | >200              |
 
 ## Cost Estimation
 
@@ -194,7 +197,7 @@ pub fn estimate_query_cost(query_type: &QueryType, result_size: u32) -> u32 {
         QueryType::GetLeaderboard => 100,
         // ...
     };
-    
+
     base_cost + (result_size / 10)
 }
 ```
@@ -231,6 +234,7 @@ let cost = estimate_query_cost(&QueryType::GetLeaderboard, 100);
 Transform expensive queries into efficient equivalents.
 
 **Pattern: Existence Check**
+
 ```rust
 // Before: Count all
 let count = get_all_wastes().len();
@@ -241,6 +245,7 @@ let exists = get_first_waste().is_some();
 ```
 
 **Pattern: Early Termination**
+
 ```rust
 // Before: Filter all then take
 let top_5 = get_all_wastes()
@@ -258,6 +263,7 @@ let top_5 = get_wastes_streaming()
 Choose optimal indexes based on query patterns.
 
 **Strategy:**
+
 - **Equality Filters**: Hash index
 - **Range Filters**: B-tree index (not yet supported)
 - **Full-Text Search**: Inverted index (planned)
@@ -267,6 +273,7 @@ Choose optimal indexes based on query patterns.
 Minimize cross-collection lookups.
 
 **Pattern: Denormalization**
+
 ```rust
 // Before: Join on every read
 struct Waste {
@@ -317,19 +324,19 @@ impl ScavengerContract {
 pub fn get_participant(env: Env, address: Address) -> Option<Participant> {
     let mut optimizer = Self::init_optimizer(&env);
     let plan = optimizer.optimize(QueryType::GetParticipant, &env);
-    
+
     if plan.use_cache {
         if let Some(p) = CACHE.get(&env, &address) {
             return Some(p);
         }
     }
-    
+
     let participant = env.storage().instance().get(&(address.clone(),))?;
-    
+
     if plan.use_cache {
         CACHE.set(&env, &address, &participant, 1000);
     }
-    
+
     Some(participant)
 }
 ```
@@ -347,12 +354,12 @@ pub fn get_optimizer_stats(env: Env) -> QueryOptimizerStats {
 
 ### Real-World Results
 
-| Operation | Before Optimization | After Optimization | Improvement |
-|-----------|--------------------|--------------------|-------------|
-| Dashboard Load | 450 gas | 180 gas | 60% |
-| Waste List (50 items) | 2500 gas | 750 gas | 70% |
-| Leaderboard | 5000 gas | 500 gas* | 90% |
-| Search (10 results) | 800 gas | 200 gas | 75% |
+| Operation             | Before Optimization | After Optimization | Improvement |
+| --------------------- | ------------------- | ------------------ | ----------- |
+| Dashboard Load        | 450 gas             | 180 gas            | 60%         |
+| Waste List (50 items) | 2500 gas            | 750 gas            | 70%         |
+| Leaderboard           | 5000 gas            | 500 gas*           | 90%         |
+| Search (10 results)   | 800 gas             | 200 gas            | 75%         |
 
 *Cached result; first run still ~2000 gas
 
@@ -374,6 +381,7 @@ Query: GetParticipant
 **Symptom:** Queries consuming excessive gas
 
 **Diagnosis:**
+
 ```rust
 let metrics = track_query_metrics();
 println!("Storage reads: {}", metrics.storage_reads); // Should be <5
@@ -381,6 +389,7 @@ println!("Cache hit rate: {}", metrics.cache_hit_rate()); // Should be >80%
 ```
 
 **Solutions:**
+
 - Enable caching for frequent reads
 - Add indexes for filtered queries
 - Paginate large result sets
@@ -390,6 +399,7 @@ println!("Cache hit rate: {}", metrics.cache_hit_rate()); // Should be >80%
 **Symptom:** <70% cache hit rate for frequent queries
 
 **Solutions:**
+
 - Increase cache capacity
 - Extend TTLs
 - Prefetch related data
@@ -400,6 +410,7 @@ println!("Cache hit rate: {}", metrics.cache_hit_rate()); // Should be >80%
 **Symptom:** Leaderboard taking >500 gas
 
 **Solutions:**
+
 - Increase cache TTL to 10-15 minutes
 - Implement incremental updates
 - Pre-compute top-N instead of full sort

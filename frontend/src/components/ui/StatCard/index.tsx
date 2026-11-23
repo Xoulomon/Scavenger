@@ -11,7 +11,7 @@ const variantStyles: Record<ColorVariant, string> = {
   primary: 'border-primary/30 bg-primary/5',
   success: 'border-green-500/30 bg-green-500/5',
   warning: 'border-yellow-500/30 bg-yellow-500/5',
-  destructive: 'border-destructive/30 bg-destructive/5',
+  destructive: 'border-destructive/30 bg-destructive/5'
 }
 
 const iconVariantStyles: Record<ColorVariant, string> = {
@@ -19,7 +19,7 @@ const iconVariantStyles: Record<ColorVariant, string> = {
   primary: 'text-primary',
   success: 'text-green-600 dark:text-green-400',
   warning: 'text-yellow-600 dark:text-yellow-400',
-  destructive: 'text-destructive',
+  destructive: 'text-destructive'
 }
 
 export interface StatCardProps {
@@ -41,7 +41,7 @@ export const StatCard = memo(function StatCard({
   trendLabel,
   isLoading,
   variant = 'default',
-  className,
+  className
 }: StatCardProps) {
   return (
     <Card className={cn(variantStyles[variant], className)}>

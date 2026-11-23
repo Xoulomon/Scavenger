@@ -6,14 +6,14 @@ import { WasteType, Role } from '@/api/types'
 vi.mock('@/hooks/useAppTitle', () => ({ useAppTitle: vi.fn() }))
 
 const mocks = vi.hoisted(() => ({
-  useMapData: vi.fn(),
+  useMapData: vi.fn()
 }))
 
 vi.mock('@/hooks/useMapData', async () => {
   const actual = await vi.importActual<typeof import('@/hooks/useMapData')>('@/hooks/useMapData')
   return {
     ...actual,
-    useMapData: (...args: unknown[]) => mocks.useMapData(...args),
+    useMapData: (...args: unknown[]) => mocks.useMapData(...args)
   }
 })
 
@@ -31,8 +31,8 @@ const wastePoint = {
     recycled_timestamp: 1700000000,
     is_active: true,
     is_confirmed: false,
-    confirmer: '',
-  },
+    confirmer: ''
+  }
 }
 
 const participantPoint = {
@@ -45,8 +45,8 @@ const participantPoint = {
     name: 'Downtown Recycler',
     latitude: 407306000,
     longitude: -739352000,
-    registered_at: 1700000000,
-  },
+    registered_at: 1700000000
+  }
 }
 
 describe('WasteMapPage', () => {
@@ -64,7 +64,7 @@ describe('WasteMapPage', () => {
     mocks.useMapData.mockReturnValue({
       wastes: [wastePoint],
       participants: [participantPoint],
-      isLoading: false,
+      isLoading: false
     })
 
     render(<WasteMapPage />)
@@ -79,11 +79,13 @@ describe('WasteMapPage', () => {
     mocks.useMapData.mockReturnValue({
       wastes: [],
       participants: [],
-      isLoading: false,
+      isLoading: false
     })
 
     render(<WasteMapPage />)
 
-    expect(await screen.findByText('No waste locations match the current filters.')).toBeInTheDocument()
+    expect(
+      await screen.findByText('No waste locations match the current filters.')
+    ).toBeInTheDocument()
   })
 })

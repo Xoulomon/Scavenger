@@ -8,7 +8,7 @@ describe('buildLeaderboard', () => {
   it('sorts by XP descending', () => {
     const entries = [
       { address: 'A', stats: { ...empty, materialsSubmitted: 5 } },
-      { address: 'B', stats: { ...empty, materialsSubmitted: 10 } },
+      { address: 'B', stats: { ...empty, materialsSubmitted: 10 } }
     ]
     const lb = buildLeaderboard(entries)
     expect(lb[0].address).toBe('B')
@@ -36,7 +36,7 @@ describe('buildLeaderboard', () => {
     const entries = [
       { address: 'A', stats: { ...empty, materialsSubmitted: 1 } },
       { address: 'B', stats: { ...empty, materialsSubmitted: 2 } },
-      { address: 'C', stats: { ...empty, materialsSubmitted: 3 } },
+      { address: 'C', stats: { ...empty, materialsSubmitted: 3 } }
     ]
     const lb = buildLeaderboard(entries)
     expect(lb[0].rank).toBe(1)
@@ -45,17 +45,13 @@ describe('buildLeaderboard', () => {
   })
 
   it('includes XP in result', () => {
-    const entries = [
-      { address: 'A', stats: { ...empty, materialsSubmitted: 5 } },
-    ]
+    const entries = [{ address: 'A', stats: { ...empty, materialsSubmitted: 5 } }]
     const lb = buildLeaderboard(entries)
     expect(lb[0].xp).toBe(50) // 5 * 10
   })
 
   it('includes level in result', () => {
-    const entries = [
-      { address: 'A', stats: { ...empty, materialsSubmitted: 5 } },
-    ]
+    const entries = [{ address: 'A', stats: { ...empty, materialsSubmitted: 5 } }]
     const lb = buildLeaderboard(entries)
     expect(lb[0].level).toBeDefined()
     expect(lb[0].level).toBeGreaterThan(0)
@@ -70,7 +66,7 @@ describe('buildLeaderboard', () => {
     const entries = [
       { address: 'A', stats: { ...empty, materialsSubmitted: 5 } },
       { address: 'B', stats: { ...empty, materialsSubmitted: 5 } },
-      { address: 'C', stats: { ...empty, materialsSubmitted: 5 } },
+      { address: 'C', stats: { ...empty, materialsSubmitted: 5 } }
     ]
     const lb = buildLeaderboard(entries)
     // All should have XP of 50, but order might vary
@@ -80,9 +76,7 @@ describe('buildLeaderboard', () => {
   })
 
   it('returns leaderboard entries with required fields', () => {
-    const entries = [
-      { address: 'ADDR1', stats: { ...empty, materialsSubmitted: 1 } },
-    ]
+    const entries = [{ address: 'ADDR1', stats: { ...empty, materialsSubmitted: 1 } }]
     const lb = buildLeaderboard(entries)
     const entry = lb[0]
     expect(entry.rank).toBeDefined()
@@ -93,9 +87,7 @@ describe('buildLeaderboard', () => {
   })
 
   it('preserves address in result', () => {
-    const entries = [
-      { address: 'TESTADDR123456', stats: empty },
-    ]
+    const entries = [{ address: 'TESTADDR123456', stats: empty }]
     const lb = buildLeaderboard(entries)
     expect(lb[0].address).toBe('TESTADDR123456')
   })
@@ -104,7 +96,7 @@ describe('buildLeaderboard', () => {
     const entries = [
       { address: 'A', stats: { ...empty, materialsSubmitted: 0 } }, // Level 1
       { address: 'B', stats: { ...empty, materialsSubmitted: 5 } }, // Level 2
-      { address: 'C', stats: { ...empty, materialsSubmitted: 15 } }, // Level 3
+      { address: 'C', stats: { ...empty, materialsSubmitted: 15 } } // Level 3
     ]
     const lb = buildLeaderboard(entries)
     const sorted = lb.sort((a, b) => a.xp - b.xp)

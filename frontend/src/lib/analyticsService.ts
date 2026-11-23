@@ -9,14 +9,7 @@
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type EventCategory =
-  | 'navigation'
-  | 'waste'
-  | 'rewards'
-  | 'wallet'
-  | 'participant'
-  | 'incentive'
-  | 'search'
-  | 'ui'
+  'navigation' | 'waste' | 'rewards' | 'wallet' | 'participant' | 'incentive' | 'search' | 'ui'
 
 export interface AnalyticsEvent {
   id: string
@@ -63,7 +56,7 @@ function getSession(): SessionInfo {
     sessionId: generateId(),
     startedAt: Date.now(),
     pageViews: 0,
-    events: 0,
+    events: 0
   }
   sessionStorage.setItem(SESSION_KEY, JSON.stringify(session))
   return session
@@ -99,7 +92,12 @@ export const analytics = {
   track(
     category: EventCategory,
     action: string,
-    options: { label?: string; value?: number; userId?: string; metadata?: Record<string, unknown> } = {},
+    options: {
+      label?: string
+      value?: number
+      userId?: string
+      metadata?: Record<string, unknown>
+    } = {}
   ): AnalyticsEvent {
     const session = getSession()
     const event: AnalyticsEvent = {
@@ -111,7 +109,7 @@ export const analytics = {
       userId: options.userId,
       sessionId: session.sessionId,
       timestamp: Date.now(),
-      metadata: options.metadata,
+      metadata: options.metadata
     }
     const events = loadEvents()
     events.push(event)
@@ -130,7 +128,9 @@ export const analytics = {
   },
 
   /** Retrieve all stored events, optionally filtered. */
-  getEvents(filter?: Partial<Pick<AnalyticsEvent, 'category' | 'action' | 'userId'>>): AnalyticsEvent[] {
+  getEvents(
+    filter?: Partial<Pick<AnalyticsEvent, 'category' | 'action' | 'userId'>>
+  ): AnalyticsEvent[] {
     let events = loadEvents()
     if (filter?.category) events = events.filter((e) => e.category === filter.category)
     if (filter?.action) events = events.filter((e) => e.action === filter.action)
@@ -162,7 +162,7 @@ export const analytics = {
     const events = loadEvents()
     const stepCounts = steps.map((step) => ({
       step,
-      users: new Set(events.filter((e) => e.action === step).map((e) => e.sessionId)).size,
+      users: new Set(events.filter((e) => e.action === step).map((e) => e.sessionId)).size
     }))
     return stepCounts.map((s, i) => {
       const prev = i === 0 ? s.users : stepCounts[i - 1].users
@@ -183,7 +183,9 @@ export const analytics = {
       const d = new Date()
       d.setDate(d.getDate() - i)
       const dateStr = d.toISOString().slice(0, 10)
-      const count = events.filter((e) => new Date(e.timestamp).toISOString().slice(0, 10) === dateStr).length
+      const count = events.filter(
+        (e) => new Date(e.timestamp).toISOString().slice(0, 10) === dateStr
+      ).length
       result.push({ date: dateStr, count })
     }
     return result
@@ -197,5 +199,5 @@ export const analytics = {
       .filter((e) => e.sessionId === sessionId)
       .sort((a, b) => a.timestamp - b.timestamp)
       .map((e) => e.action)
-  },
+  }
 }

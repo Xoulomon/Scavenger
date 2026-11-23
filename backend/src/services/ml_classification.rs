@@ -836,11 +836,7 @@ mod tests {
             })
             .await
             .unwrap_err();
-        assert!(
-            matches!(err, ClassificationError::ModelNotFound(_)),
-            "got {:?}",
-            err
-        );
+        assert!(matches!(err, ClassificationError::ModelNotFound(_)), "got {:?}", err);
     }
 
     #[tokio::test]
@@ -854,11 +850,7 @@ mod tests {
             })
             .await
             .unwrap_err();
-        assert!(
-            matches!(err, ClassificationError::ModelNotFound(_)),
-            "got {:?}",
-            err
-        );
+        assert!(matches!(err, ClassificationError::ModelNotFound(_)), "got {:?}", err);
     }
 
     #[tokio::test]
@@ -874,11 +866,7 @@ mod tests {
             })
             .await
             .unwrap_err();
-        assert!(
-            matches!(err, ClassificationError::InferenceError(_)),
-            "got {:?}",
-            err
-        );
+        assert!(matches!(err, ClassificationError::InferenceError(_)), "got {:?}", err);
     }
 
     #[tokio::test]
@@ -894,11 +882,7 @@ mod tests {
             })
             .await
             .unwrap_err();
-        assert!(
-            matches!(err, ClassificationError::InferenceError(_)),
-            "got {:?}",
-            err
-        );
+        assert!(matches!(err, ClassificationError::InferenceError(_)), "got {:?}", err);
     }
 
     // ── Model version management edge cases ──────────────────────────────────
@@ -975,10 +959,7 @@ mod tests {
             .unwrap();
         }
         let summary = svc.monitoring_summary();
-        assert_eq!(
-            *summary.predictions_by_category.get("plastic").unwrap_or(&0),
-            4
-        );
+        assert_eq!(*summary.predictions_by_category.get("plastic").unwrap_or(&0), 4);
     }
 
     #[tokio::test]
@@ -1090,8 +1071,7 @@ mod tests {
             category: WasteCategory::Plastic,
             confidence: 0.9,
         };
-        svc.register_version(make_version("v", true), Arc::new(engine))
-            .unwrap();
+        svc.register_version(make_version("v", true), Arc::new(engine)).unwrap();
 
         let samples = vec![
             EvaluationSample {

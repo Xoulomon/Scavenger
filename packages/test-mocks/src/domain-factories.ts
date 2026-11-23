@@ -11,7 +11,7 @@
  * Usage:
  * ```ts
  * import { createParticipant, createWaste } from '@scavenger/test-mocks';
- * 
+ *
  * const recycler = createParticipant({ role: ParticipantRole.Recycler });
  * const waste = createWaste({ current_owner: recycler.address });
  * ```
@@ -24,7 +24,7 @@ export enum ParticipantRole {
   Collector = 1,
   Processor = 2,
   Rewarder = 3,
-  Auditor = 4,
+  Auditor = 4
 }
 
 export enum WasteType {
@@ -35,64 +35,64 @@ export enum WasteType {
   Electronics = 4,
   Organic = 5,
   Textile = 6,
-  Hazardous = 7,
+  Hazardous = 7
 }
 
 export interface Participant {
-  address: string;
-  name: string;
-  role: ParticipantRole;
-  latitude: number;
-  longitude: number;
-  registered_at: number;
-  is_active: boolean;
-  total_waste_processed?: number;
-  total_tokens_earned?: number;
-  reputation_score?: number;
+  address: string
+  name: string
+  role: ParticipantRole
+  latitude: number
+  longitude: number
+  registered_at: number
+  is_active: boolean
+  total_waste_processed?: number
+  total_tokens_earned?: number
+  reputation_score?: number
 }
 
 export interface Waste {
-  waste_id: number;
-  waste_type: WasteType;
-  weight: number;
-  current_owner: string;
-  latitude: number;
-  longitude: number;
-  recycled_timestamp: number;
-  is_active: boolean;
-  is_confirmed: boolean;
-  confirmer?: string;
-  grade?: string;
-  processing_status?: number;
-  contamination_level?: number;
+  waste_id: number
+  waste_type: WasteType
+  weight: number
+  current_owner: string
+  latitude: number
+  longitude: number
+  recycled_timestamp: number
+  is_active: boolean
+  is_confirmed: boolean
+  confirmer?: string
+  grade?: string
+  processing_status?: number
+  contamination_level?: number
 }
 
 export interface WasteTransfer {
-  transfer_id: number;
-  waste_id: number;
-  from_address: string;
-  to_address: string;
-  transfer_timestamp: number;
-  transfer_type: string;
+  transfer_id: number
+  waste_id: number
+  from_address: string
+  to_address: string
+  transfer_timestamp: number
+  transfer_type: string
 }
 
 export interface Incentive {
-  incentive_id: number;
-  rewarder: string;
-  waste_type: WasteType;
-  initial_reward: number;
-  total_weight_reward: number;
-  total_weight_rewarded: number;
-  is_active: boolean;
-  start_time: number;
-  end_time: number;
+  incentive_id: number
+  rewarder: string
+  waste_type: WasteType
+  initial_reward: number
+  total_weight_reward: number
+  total_weight_rewarded: number
+  is_active: boolean
+  start_time: number
+  end_time: number
 }
 
 export interface TokenReward {
-  recipient: string;
-  amount: number;
-  waste_id: number;
-  awarded_at: number;
+  recipient: string
+  amount: number
+  waste_id: number
+  awarded_at: number
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -103,34 +103,34 @@ export const TEST_ADDRESSES = {
   COLLECTOR: 'GAAA3COLLECTOR3333333333333333333333333333333333333333',
   PROCESSOR: 'GAAA4PROCESSOR4444444444444444444444444444444444444444',
   REWARDER: 'GAAA5REWARDER55555555555555555555555555555555555555555',
-  AUDITOR: 'GAAA6AUDITOR666666666666666666666666666666666666666666',
-} as const;
+  AUDITOR: 'GAAA6AUDITOR666666666666666666666666666666666666666666'
+} as const
 
 export const DEFAULT_COORDINATES = {
   NYC: { latitude: 40_712_800, longitude: -74_006_000 },
   LA: { latitude: 34_052_230, longitude: -118_243_680 },
   CHICAGO: { latitude: 41_878_110, longitude: -87_629_800 },
   HOUSTON: { latitude: 29_760_430, longitude: -95_369_800 },
-  PHOENIX: { latitude: 33_448_370, longitude: -112_074_040 },
-} as const;
+  PHOENIX: { latitude: 33_448_370, longitude: -112_074_040 }
+} as const
 
 // ─── Participant Factories ───────────────────────────────────────────────────
 
-let participantIdCounter = 1;
+let participantIdCounter = 1
 
 export interface ParticipantOptions extends Partial<Participant> {
   /** Generate a unique address instead of using a test constant */
-  uniqueAddress?: boolean;
+  uniqueAddress?: boolean
 }
 
 /**
  * Create a test participant with sensible defaults
  */
 export function createParticipant(options: ParticipantOptions = {}): Participant {
-  const role = options.role ?? ParticipantRole.Recycler;
+  const role = options.role ?? ParticipantRole.Recycler
   const address = options.uniqueAddress
     ? `G${role}${String(participantIdCounter++).padStart(54, '0')}`
-    : options.address ?? TEST_ADDRESSES.RECYCLER_1;
+    : (options.address ?? TEST_ADDRESSES.RECYCLER_1)
 
   return {
     address,
@@ -142,8 +142,8 @@ export function createParticipant(options: ParticipantOptions = {}): Participant
     is_active: options.is_active ?? true,
     total_waste_processed: options.total_waste_processed ?? 0,
     total_tokens_earned: options.total_tokens_earned ?? 0,
-    reputation_score: options.reputation_score ?? 100,
-  };
+    reputation_score: options.reputation_score ?? 100
+  }
 }
 
 /**
@@ -154,42 +154,42 @@ export function createParticipants(count: number, options: ParticipantOptions = 
     createParticipant({
       ...options,
       uniqueAddress: true,
-      name: options.name ?? `Test Recycler ${i + 1}`,
+      name: options.name ?? `Test Recycler ${i + 1}`
     })
-  );
+  )
 }
 
 /**
  * Create a recycler participant
  */
 export function createRecycler(options: Omit<ParticipantOptions, 'role'> = {}): Participant {
-  return createParticipant({ ...options, role: ParticipantRole.Recycler });
+  return createParticipant({ ...options, role: ParticipantRole.Recycler })
 }
 
 /**
  * Create a collector participant
  */
 export function createCollector(options: Omit<ParticipantOptions, 'role'> = {}): Participant {
-  return createParticipant({ ...options, role: ParticipantRole.Collector });
+  return createParticipant({ ...options, role: ParticipantRole.Collector })
 }
 
 /**
  * Create a processor participant
  */
 export function createProcessor(options: Omit<ParticipantOptions, 'role'> = {}): Participant {
-  return createParticipant({ ...options, role: ParticipantRole.Processor });
+  return createParticipant({ ...options, role: ParticipantRole.Processor })
 }
 
 /**
  * Create a rewarder participant
  */
 export function createRewarder(options: Omit<ParticipantOptions, 'role'> = {}): Participant {
-  return createParticipant({ ...options, role: ParticipantRole.Rewarder });
+  return createParticipant({ ...options, role: ParticipantRole.Rewarder })
 }
 
 // ─── Waste Factories ─────────────────────────────────────────────────────────
 
-let wasteIdCounter = 1;
+let wasteIdCounter = 1
 
 export interface WasteOptions extends Partial<Waste> {}
 
@@ -197,7 +197,7 @@ export interface WasteOptions extends Partial<Waste> {}
  * Create a test waste record with sensible defaults
  */
 export function createWaste(options: WasteOptions = {}): Waste {
-  const wasteId = options.waste_id ?? wasteIdCounter++;
+  const wasteId = options.waste_id ?? wasteIdCounter++
 
   return {
     waste_id: wasteId,
@@ -212,15 +212,15 @@ export function createWaste(options: WasteOptions = {}): Waste {
     confirmer: options.confirmer ?? '',
     grade: options.grade,
     processing_status: options.processing_status,
-    contamination_level: options.contamination_level,
-  };
+    contamination_level: options.contamination_level
+  }
 }
 
 /**
  * Create multiple waste records with sequential IDs
  */
 export function createWastes(count: number, options: WasteOptions = {}): Waste[] {
-  return Array.from({ length: count }, () => createWaste(options));
+  return Array.from({ length: count }, () => createWaste(options))
 }
 
 /**
@@ -230,8 +230,8 @@ export function createConfirmedWaste(options: WasteOptions = {}): Waste {
   return createWaste({
     ...options,
     is_confirmed: true,
-    confirmer: options.confirmer ?? TEST_ADDRESSES.AUDITOR,
-  });
+    confirmer: options.confirmer ?? TEST_ADDRESSES.AUDITOR
+  })
 }
 
 /**
@@ -243,13 +243,13 @@ export function createWasteOfEachType(baseOptions: WasteOptions = {}): Waste[] {
     createWaste({ ...baseOptions, waste_type: WasteType.Metal }),
     createWaste({ ...baseOptions, waste_type: WasteType.Glass }),
     createWaste({ ...baseOptions, waste_type: WasteType.Paper }),
-    createWaste({ ...baseOptions, waste_type: WasteType.Electronics }),
-  ];
+    createWaste({ ...baseOptions, waste_type: WasteType.Electronics })
+  ]
 }
 
 // ─── Waste Transfer Factories ────────────────────────────────────────────────
 
-let transferIdCounter = 1;
+let transferIdCounter = 1
 
 export interface WasteTransferOptions extends Partial<WasteTransfer> {}
 
@@ -263,34 +263,31 @@ export function createWasteTransfer(options: WasteTransferOptions = {}): WasteTr
     from_address: options.from_address ?? TEST_ADDRESSES.RECYCLER_1,
     to_address: options.to_address ?? TEST_ADDRESSES.COLLECTOR,
     transfer_timestamp: options.transfer_timestamp ?? Math.floor(Date.now() / 1000),
-    transfer_type: options.transfer_type ?? 'collection',
-  };
+    transfer_type: options.transfer_type ?? 'collection'
+  }
 }
 
 /**
  * Create a transfer chain for a waste record
  */
-export function createTransferChain(
-  wasteId: number,
-  addresses: string[]
-): WasteTransfer[] {
-  const transfers: WasteTransfer[] = [];
+export function createTransferChain(wasteId: number, addresses: string[]): WasteTransfer[] {
+  const transfers: WasteTransfer[] = []
   for (let i = 0; i < addresses.length - 1; i++) {
     transfers.push(
       createWasteTransfer({
         waste_id: wasteId,
         from_address: addresses[i],
         to_address: addresses[i + 1],
-        transfer_timestamp: Math.floor(Date.now() / 1000) - (addresses.length - i - 1) * 3600,
+        transfer_timestamp: Math.floor(Date.now() / 1000) - (addresses.length - i - 1) * 3600
       })
-    );
+    )
   }
-  return transfers;
+  return transfers
 }
 
 // ─── Incentive Factories ─────────────────────────────────────────────────────
 
-let incentiveIdCounter = 1;
+let incentiveIdCounter = 1
 
 export interface IncentiveOptions extends Partial<Incentive> {}
 
@@ -298,7 +295,7 @@ export interface IncentiveOptions extends Partial<Incentive> {}
  * Create a test incentive with sensible defaults
  */
 export function createIncentive(options: IncentiveOptions = {}): Incentive {
-  const now = Math.floor(Date.now() / 1000);
+  const now = Math.floor(Date.now() / 1000)
 
   return {
     incentive_id: options.incentive_id ?? incentiveIdCounter++,
@@ -309,21 +306,21 @@ export function createIncentive(options: IncentiveOptions = {}): Incentive {
     total_weight_rewarded: options.total_weight_rewarded ?? 0,
     is_active: options.is_active ?? true,
     start_time: options.start_time ?? now - 86400,
-    end_time: options.end_time ?? now + 86400 * 30,
-  };
+    end_time: options.end_time ?? now + 86400 * 30
+  }
 }
 
 /**
  * Create an expired incentive
  */
 export function createExpiredIncentive(options: IncentiveOptions = {}): Incentive {
-  const now = Math.floor(Date.now() / 1000);
+  const now = Math.floor(Date.now() / 1000)
   return createIncentive({
     ...options,
     is_active: false,
     start_time: now - 86400 * 60,
-    end_time: now - 86400 * 30,
-  });
+    end_time: now - 86400 * 30
+  })
 }
 
 /**
@@ -333,8 +330,8 @@ export function createFullyClaimedIncentive(options: IncentiveOptions = {}): Inc
   return createIncentive({
     ...options,
     total_weight_rewarded: options.total_weight_reward ?? 100000,
-    is_active: false,
-  });
+    is_active: false
+  })
 }
 
 // ─── Token Reward Factories ──────────────────────────────────────────────────
@@ -349,8 +346,8 @@ export function createTokenReward(options: TokenRewardOptions = {}): TokenReward
     recipient: options.recipient ?? TEST_ADDRESSES.RECYCLER_1,
     amount: options.amount ?? 500,
     waste_id: options.waste_id ?? 1,
-    awarded_at: options.awarded_at ?? Math.floor(Date.now() / 1000),
-  };
+    awarded_at: options.awarded_at ?? Math.floor(Date.now() / 1000)
+  }
 }
 
 // ─── Seed Data Generators ────────────────────────────────────────────────────
@@ -361,62 +358,62 @@ export function createTokenReward(options: TokenRewardOptions = {}): TokenReward
 export function generateSeedData() {
   const recyclers = [
     createRecycler({ address: TEST_ADDRESSES.RECYCLER_1, name: 'Alice Recycler' }),
-    createRecycler({ address: TEST_ADDRESSES.RECYCLER_2, name: 'Bob Recycler' }),
-  ];
+    createRecycler({ address: TEST_ADDRESSES.RECYCLER_2, name: 'Bob Recycler' })
+  ]
 
   const collector = createCollector({
     address: TEST_ADDRESSES.COLLECTOR,
-    name: 'Charlie Collector',
-  });
+    name: 'Charlie Collector'
+  })
 
   const processor = createProcessor({
     address: TEST_ADDRESSES.PROCESSOR,
-    name: 'Diana Processor',
-  });
+    name: 'Diana Processor'
+  })
 
   const rewarder = createRewarder({
     address: TEST_ADDRESSES.REWARDER,
-    name: 'Eve Rewarder',
-  });
+    name: 'Eve Rewarder'
+  })
 
-  const participants = [...recyclers, collector, processor, rewarder];
+  const participants = [...recyclers, collector, processor, rewarder]
 
   const wastes = [
     createWaste({
       waste_id: 1,
       current_owner: TEST_ADDRESSES.RECYCLER_1,
       waste_type: WasteType.Plastic,
-      weight: 1500,
+      weight: 1500
     }),
     createWaste({
       waste_id: 2,
       current_owner: TEST_ADDRESSES.RECYCLER_2,
       waste_type: WasteType.Metal,
-      weight: 2500,
+      weight: 2500
     }),
     createConfirmedWaste({
       waste_id: 3,
       current_owner: TEST_ADDRESSES.PROCESSOR,
       waste_type: WasteType.Glass,
-      weight: 3000,
-    }),
-  ];
+      weight: 3000
+    })
+  ]
 
   const transfers = createTransferChain(1, [
     TEST_ADDRESSES.RECYCLER_1,
     TEST_ADDRESSES.COLLECTOR,
-    TEST_ADDRESSES.PROCESSOR,
-  ]);
+    TEST_ADDRESSES.PROCESSOR
+  ])
 
   const incentives = [
     createIncentive({ waste_type: WasteType.Plastic, initial_reward: 50 }),
-    createIncentive({ waste_type: WasteType.Metal, initial_reward: 75 }),
-  ];
+    createIncentive({ waste_type: WasteType.Metal, initial_reward: 75 })
+  ]
 
   const rewards = [
     createTokenReward({ recipient: TEST_ADDRESSES.RECYCLER_1, waste_id: 1, amount: 500 }),
-    createTokenReward({ recipient: TEST_ADDRESSES.RECYCLER_2, waste_id: 2, amount: 750 }),
-  ];
+    createTokenReward({ recipient: TEST_ADDRESSES.RECYCLER_2, waste_id: 2, amount: 750 })
+  ]
 
   return {
     participants,
@@ -427,16 +424,16 @@ export function generateSeedData() {
     wastes,
     transfers,
     incentives,
-    rewards,
-  };
+    rewards
+  }
 }
 
 /**
  * Reset all ID counters (useful in beforeEach hooks)
  */
 export function resetFactoryCounters() {
-  participantIdCounter = 1;
-  wasteIdCounter = 1;
-  transferIdCounter = 1;
-  incentiveIdCounter = 1;
+  participantIdCounter = 1
+  wasteIdCounter = 1
+  transferIdCounter = 1
+  incentiveIdCounter = 1
 }

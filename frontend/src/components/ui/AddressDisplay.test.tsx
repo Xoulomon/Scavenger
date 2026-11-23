@@ -10,15 +10,15 @@ expect.extend(toHaveNoViolations)
 const mockClipboardWrite = vi.fn()
 Object.assign(navigator, {
   clipboard: {
-    writeText: mockClipboardWrite,
-  },
+    writeText: mockClipboardWrite
+  }
 })
 
 // Mock config
 vi.mock('@/config', () => ({
   config: {
-    network: 'TESTNET',
-  },
+    network: 'TESTNET'
+  }
 }))
 
 describe('AddressDisplay', () => {
@@ -62,7 +62,10 @@ describe('AddressDisplay', () => {
 
     it('applies custom className', () => {
       const { container } = render(
-        <AddressDisplay address="GBRPYHIL2CI3WHZDTOOQFC6EB4KJJGUJSY4T4EISLE5MXE3EBBD63XY" className="custom-class" />
+        <AddressDisplay
+          address="GBRPYHIL2CI3WHZDTOOQFC6EB4KJJGUJSY4T4EISLE5MXE3EBBD63XY"
+          className="custom-class"
+        />
       )
 
       expect(container.querySelector('.custom-class')).toBeInTheDocument()
@@ -205,15 +208,10 @@ describe('AddressDisplay', () => {
   describe('Explorer Link', () => {
     it('generates correct explorer URL for address', () => {
       const address = 'GBRPYHIL2CI3WHZDTOOQFC6EB4KJJGUJSY4T4EISLE5MXE3EBBD63XY'
-      render(
-        <AddressDisplay address={address} showExplorer={true} />
-      )
+      render(<AddressDisplay address={address} showExplorer={true} />)
 
       const explorerLink = screen.getByRole('link')
-      expect(explorerLink).toHaveAttribute(
-        'href',
-        expect.stringContaining(address)
-      )
+      expect(explorerLink).toHaveAttribute('href', expect.stringContaining(address))
     })
 
     it('opens explorer in new tab', () => {

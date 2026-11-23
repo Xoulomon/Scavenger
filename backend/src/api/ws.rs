@@ -22,17 +22,32 @@ use crate::services::ws::{WsService, WsServiceError};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", content = "payload")]
 pub enum WsMessage {
-    Subscribe { channel: String },
-    Unsubscribe { channel: String },
-    Event { channel: String, data: serde_json::Value },
-    Authenticate { token: String },
+    Subscribe {
+        channel: String,
+    },
+    Unsubscribe {
+        channel: String,
+    },
+    Event {
+        channel: String,
+        data: serde_json::Value,
+    },
+    Authenticate {
+        token: String,
+    },
     AuthSuccess,
     /// Structured auth error — use `WsErrorFrame` for wire format.
-    AuthError { code: WsErrorCode, message: String },
+    AuthError {
+        code: WsErrorCode,
+        message: String,
+    },
     Pong,
     Ping,
     /// Structured error — use `WsErrorFrame` for wire format.
-    Error { code: WsErrorCode, message: String },
+    Error {
+        code: WsErrorCode,
+        message: String,
+    },
 }
 
 // ── Connection manager ────────────────────────────────────────────────────────
@@ -121,9 +136,7 @@ pub fn error_frame_for(err: &WsServiceError) -> String {
         WsServiceError::UnknownType => error_frame(WsErrorCode::MessageUnknownType),
         WsServiceError::HeartbeatTimeout => error_frame(WsErrorCode::ServerHeartbeatTimeout),
         WsServiceError::ShuttingDown => error_frame(WsErrorCode::ServerShuttingDown),
-        WsServiceError::ChannelNotFound(channel) => {
-            error_frame_msg(WsErrorCode::ChannelNotFound, channel)
-        }
+        WsServiceError::ChannelNotFound(channel) => error_frame_msg(WsErrorCode::ChannelNotFound, channel),
     }
 }
 
@@ -257,8 +270,7 @@ mod tests {
             (WsServiceError::ShuttingDown, "server.shutting_down"),
         ];
         for (err, expected) in cases {
-            let parsed: serde_json::Value =
-                serde_json::from_str(&error_frame_for(&err)).unwrap();
+            let parsed: serde_json::Value = serde_json::from_str(&error_frame_for(&err)).unwrap();
             assert_eq!(parsed["type"], "error");
             assert_eq!(parsed["payload"]["code"], expected);
         }

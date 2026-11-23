@@ -120,8 +120,11 @@ fn test_haversine_distance_known_points() {
     let distance = GeoService::haversine_distance(&nyc, &la);
 
     // Distance between NYC and LA is approximately 3944 km = 3944000 m
-    assert!(distance > 3900000.0 && distance < 4000000.0,
-            "Distance between NYC and LA should be ~3944km, got {}", distance);
+    assert!(
+        distance > 3900000.0 && distance < 4000000.0,
+        "Distance between NYC and LA should be ~3944km, got {}",
+        distance
+    );
 }
 
 #[test]
@@ -160,26 +163,32 @@ fn test_proximity_search_with_results() {
     let nearby = Coordinates::new(40.7138, -74.0070).unwrap();
     let far = Coordinates::new(34.0522, -118.2437).unwrap();
 
-    service.add_location(GeoLocation {
-        id: "center".to_string(),
-        name: "Center".to_string(),
-        coordinates: center_coords.clone(),
-        tags: HashMap::new(),
-    }).unwrap();
+    service
+        .add_location(GeoLocation {
+            id: "center".to_string(),
+            name: "Center".to_string(),
+            coordinates: center_coords.clone(),
+            tags: HashMap::new(),
+        })
+        .unwrap();
 
-    service.add_location(GeoLocation {
-        id: "nearby".to_string(),
-        name: "Nearby".to_string(),
-        coordinates: nearby,
-        tags: HashMap::new(),
-    }).unwrap();
+    service
+        .add_location(GeoLocation {
+            id: "nearby".to_string(),
+            name: "Nearby".to_string(),
+            coordinates: nearby,
+            tags: HashMap::new(),
+        })
+        .unwrap();
 
-    service.add_location(GeoLocation {
-        id: "far".to_string(),
-        name: "Far".to_string(),
-        coordinates: far,
-        tags: HashMap::new(),
-    }).unwrap();
+    service
+        .add_location(GeoLocation {
+            id: "far".to_string(),
+            name: "Far".to_string(),
+            coordinates: far,
+            tags: HashMap::new(),
+        })
+        .unwrap();
 
     let query = ProximityQuery {
         center: center_coords,
@@ -205,19 +214,23 @@ fn test_proximity_search_with_tag_filter() {
     let mut tags_landfill = HashMap::new();
     tags_landfill.insert("type".to_string(), "landfill".to_string());
 
-    service.add_location(GeoLocation {
-        id: "recycler".to_string(),
-        name: "Recycler".to_string(),
-        coordinates: nearby.clone(),
-        tags: tags_recycler,
-    }).unwrap();
+    service
+        .add_location(GeoLocation {
+            id: "recycler".to_string(),
+            name: "Recycler".to_string(),
+            coordinates: nearby.clone(),
+            tags: tags_recycler,
+        })
+        .unwrap();
 
-    service.add_location(GeoLocation {
-        id: "landfill".to_string(),
-        name: "Landfill".to_string(),
-        coordinates: nearby,
-        tags: tags_landfill,
-    }).unwrap();
+    service
+        .add_location(GeoLocation {
+            id: "landfill".to_string(),
+            name: "Landfill".to_string(),
+            coordinates: nearby,
+            tags: tags_landfill,
+        })
+        .unwrap();
 
     let mut filter = HashMap::new();
     filter.insert("type".to_string(), "recycler".to_string());
@@ -230,7 +243,9 @@ fn test_proximity_search_with_tag_filter() {
     };
 
     let results = service.proximity_search(query).expect("Should search");
-    assert!(results.iter().all(|r| r.location.tags.get("type").map(|t| t == "recycler").unwrap_or(false)));
+    assert!(results
+        .iter()
+        .all(|r| r.location.tags.get("type").map(|t| t == "recycler").unwrap_or(false)));
 }
 
 #[test]
@@ -243,12 +258,14 @@ fn test_proximity_search_limit() {
     for i in 0..10 {
         let offset = (i as f64) * 0.001;
         let coords = Coordinates::new(40.7128 + offset, -74.0060 + offset).unwrap();
-        service.add_location(GeoLocation {
-            id: format!("loc{}", i),
-            name: format!("Location {}", i),
-            coordinates: coords,
-            tags: HashMap::new(),
-        }).unwrap();
+        service
+            .add_location(GeoLocation {
+                id: format!("loc{}", i),
+                name: format!("Location {}", i),
+                coordinates: coords,
+                tags: HashMap::new(),
+            })
+            .unwrap();
     }
 
     let query = ProximityQuery {
@@ -288,12 +305,14 @@ fn test_nearest_n_locations() {
     for i in 0..10 {
         let offset = (i as f64) * 0.001;
         let coords = Coordinates::new(40.7128 + offset, -74.0060 + offset).unwrap();
-        service.add_location(GeoLocation {
-            id: format!("loc{}", i),
-            name: format!("Location {}", i),
-            coordinates: coords,
-            tags: HashMap::new(),
-        }).unwrap();
+        service
+            .add_location(GeoLocation {
+                id: format!("loc{}", i),
+                name: format!("Location {}", i),
+                coordinates: coords,
+                tags: HashMap::new(),
+            })
+            .unwrap();
     }
 
     let results = service.nearest(&center, 5);
@@ -301,7 +320,7 @@ fn test_nearest_n_locations() {
 
     // Verify results are sorted by distance
     for i in 1..results.len() {
-        assert!(results[i].distance_m >= results[i-1].distance_m);
+        assert!(results[i].distance_m >= results[i - 1].distance_m);
     }
 }
 
@@ -324,12 +343,14 @@ fn test_nearest_fewer_than_requested() {
     for i in 0..3 {
         let offset = (i as f64) * 0.001;
         let coords = Coordinates::new(40.7128 + offset, -74.0060 + offset).unwrap();
-        service.add_location(GeoLocation {
-            id: format!("loc{}", i),
-            name: format!("Location {}", i),
-            coordinates: coords,
-            tags: HashMap::new(),
-        }).unwrap();
+        service
+            .add_location(GeoLocation {
+                id: format!("loc{}", i),
+                name: format!("Location {}", i),
+                coordinates: coords,
+                tags: HashMap::new(),
+            })
+            .unwrap();
     }
 
     let results = service.nearest(&center, 10);
@@ -427,13 +448,9 @@ fn test_concurrent_add_remove() {
     let service_clone1 = Arc::clone(&service);
     let service_clone2 = Arc::clone(&service);
 
-    let handle1 = thread::spawn(move || {
-        service_clone1.get_location("test")
-    });
+    let handle1 = thread::spawn(move || service_clone1.get_location("test"));
 
-    let handle2 = thread::spawn(move || {
-        service_clone2.get_location("test")
-    });
+    let handle2 = thread::spawn(move || service_clone2.get_location("test"));
 
     let result1 = handle1.join().unwrap();
     let result2 = handle2.join().unwrap();

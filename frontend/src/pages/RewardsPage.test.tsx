@@ -11,7 +11,7 @@ const TIERS = [
   { label: 'Bronze', min: 0n, max: 999n },
   { label: 'Silver', min: 1000n, max: 4999n },
   { label: 'Gold', min: 5000n, max: 19999n },
-  { label: 'Platinum', min: 20000n, max: BigInt(Number.MAX_SAFE_INTEGER) },
+  { label: 'Platinum', min: 20000n, max: BigInt(Number.MAX_SAFE_INTEGER) }
 ]
 
 function getTier(balance: bigint) {
@@ -27,7 +27,7 @@ const RATES: Record<WasteType, number> = {
   [WasteType.Metal]: 8,
   [WasteType.Glass]: 4,
   [WasteType.Organic]: 2,
-  [WasteType.Electronic]: 6,
+  [WasteType.Electronic]: 6
 }
 
 function calcReward(wasteType: WasteType, weightGrams: number): number {
@@ -131,7 +131,9 @@ describe('RewardCalculator component', () => {
   it('updates estimate when waste type changes', () => {
     render(<RewardCalculatorStub />)
     fireEvent.change(screen.getByLabelText('Weight in grams'), { target: { value: '100' } })
-    fireEvent.change(screen.getByLabelText('Waste type'), { target: { value: String(WasteType.Metal) } })
+    fireEvent.change(screen.getByLabelText('Waste type'), {
+      target: { value: String(WasteType.Metal) }
+    })
     expect(screen.getByTestId('estimate').textContent).toBe('800')
   })
 })

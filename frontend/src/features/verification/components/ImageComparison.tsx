@@ -62,17 +62,17 @@ export function ImageComparison({ materialId }: { materialId: number }) {
           </div>
         </div>
       ) : (
-        <div className="relative h-40 overflow-hidden rounded-lg border bg-muted" aria-label="Image comparison slider">
+        <div
+          className="relative h-40 overflow-hidden rounded-lg border bg-muted"
+          aria-label="Image comparison slider"
+        >
           <img
             src={images.after}
             alt={`After image for material ${materialId}`}
             className="absolute inset-0 h-full w-full object-cover"
             loading="lazy"
           />
-          <div
-            className="absolute inset-0 overflow-hidden"
-            style={{ width: `${sliderPos}%` }}
-          >
+          <div className="absolute inset-0 overflow-hidden" style={{ width: `${sliderPos}%` }}>
             <img
               src={images.before}
               alt={`Before image for material ${materialId}`}

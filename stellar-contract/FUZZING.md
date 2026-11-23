@@ -42,27 +42,29 @@ cargo fuzz list
 
 ## Fuzzing Targets
 
-| File | Category | What it covers |
-|------|----------|---------------|
-| `fuzz_comprehensive.rs` | Boundary values | Extreme weights (0, MAX), invalid waste types, invalid roles, coordinate boundaries |
-| `fuzz_comprehensive.rs` | State transitions | Submit-then-transfer, double transfer, nonexistent waste ops, unregistered user ops |
-| `fuzz_comprehensive.rs` | Multi-participant | Chain transfers (R->C->M), self-transfer rejection, independent submissions |
-| `fuzz_comprehensive.rs` | Incentives | Extreme reward/budget values, non-manufacturer rejection |
-| `fuzz_regression.rs` | Regression | Deterministic edge case tests for discovered failures |
-| `fuzz_contract_operations.rs` | Existing | Basic registration, submission, transfer fuzzing |
-| `fuzz_waste_submission.rs` | Existing | Waste submission with varied inputs |
-| `fuzz_waste_transfer.rs` | Existing | Transfer operation fuzzing |
-| `fuzz_deserialization.rs` | **cargo-fuzz** | Input deserialization of all public entry points (register_participant, submit_material, transfer_waste) |
+| File                          | Category          | What it covers                                                                                           |
+| ----------------------------- | ----------------- | -------------------------------------------------------------------------------------------------------- |
+| `fuzz_comprehensive.rs`       | Boundary values   | Extreme weights (0, MAX), invalid waste types, invalid roles, coordinate boundaries                      |
+| `fuzz_comprehensive.rs`       | State transitions | Submit-then-transfer, double transfer, nonexistent waste ops, unregistered user ops                      |
+| `fuzz_comprehensive.rs`       | Multi-participant | Chain transfers (R->C->M), self-transfer rejection, independent submissions                              |
+| `fuzz_comprehensive.rs`       | Incentives        | Extreme reward/budget values, non-manufacturer rejection                                                 |
+| `fuzz_regression.rs`          | Regression        | Deterministic edge case tests for discovered failures                                                    |
+| `fuzz_contract_operations.rs` | Existing          | Basic registration, submission, transfer fuzzing                                                         |
+| `fuzz_waste_submission.rs`    | Existing          | Waste submission with varied inputs                                                                      |
+| `fuzz_waste_transfer.rs`      | Existing          | Transfer operation fuzzing                                                                               |
+| `fuzz_deserialization.rs`     | **cargo-fuzz**    | Input deserialization of all public entry points (register_participant, submit_material, transfer_waste) |
 
 ## Adding New Fuzz Targets
 
 ### Proptest Targets
+
 1. Add a new `proptest! { }` block in `fuzz_comprehensive.rs`
 2. Use `std::panic::catch_unwind` to catch expected panics
 3. Use `prop_assert!` for invariant checks
 4. Choose strategies that target boundaries, not just random ranges
 
 ### Cargo-Fuzz Targets
+
 1. Create a new file in `fuzz/fuzz_targets/`
 2. Use `#![no_main]` and `libfuzzer_sys::fuzz_target!`
 3. Use `std::panic::catch_unwind` to catch panics
@@ -88,6 +90,7 @@ Proptest persists failure cases in `proptest-regressions/` directories (auto-cre
 ## Fuzzing Methodology
 
 The `fuzz_deserialization` target exercises the deserialization layer of public entry points by feeding raw bytes that are interpreted as:
+
 - `ParticipantRole` discriminant values
 - `WasteType` discriminant values
 - `i128` coordinates for participant registration

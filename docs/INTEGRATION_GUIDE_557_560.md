@@ -1,6 +1,7 @@
 # Integration Guide: Issues #557-560
 
 ## Overview
+
 This guide explains how the four implemented features work together to create a comprehensive waste tracking and verification system.
 
 ## Feature Interactions
@@ -51,6 +52,7 @@ This guide explains how the four implemented features work together to create a 
 ### 2. Cross-Feature Dependencies
 
 #### Confirmation → Transfer Approval
+
 ```
 Waste must be confirmed before transfer approval
 ├─ Confirmation provides quality assurance
@@ -59,6 +61,7 @@ Waste must be confirmed before transfer approval
 ```
 
 #### Transfer Approval → Processing Status
+
 ```
 Transfer moves waste between processing stages
 ├─ Ownership transfer updates participant lists
@@ -68,6 +71,7 @@ Transfer moves waste between processing stages
 ```
 
 #### Hashing → Confirmation
+
 ```
 Hashes provide verification data for confirmation
 ├─ Image hash proves waste identity
@@ -77,6 +81,7 @@ Hashes provide verification data for confirmation
 ```
 
 #### Processing Status → All Features
+
 ```
 Status affects all other operations
 ├─ Confirmation only at certain statuses
@@ -281,6 +286,7 @@ Result:
 ## Query Patterns
 
 ### Pattern 1: Get Waste with All Details
+
 ```rust
 let waste = client.get_waste_v2(&waste_id).unwrap();
 
@@ -303,6 +309,7 @@ println!("History length: {}", waste.processing_history.len());
 ```
 
 ### Pattern 2: Find Wastes by Status
+
 ```rust
 // Get all wastes in Sorted status
 let sorted_wastes = client.get_wastes_by_status(&ProcessingStatus::Sorted);
@@ -315,6 +322,7 @@ let manufactured = client.get_wastes_by_status(&ProcessingStatus::Manufactured);
 ```
 
 ### Pattern 3: Track Transfer History
+
 ```rust
 let waste = client.get_waste_v2(&waste_id).unwrap();
 
@@ -329,6 +337,7 @@ for transfer in history.iter() {
 ```
 
 ### Pattern 4: Verify Waste Authenticity
+
 ```rust
 let waste = client.get_waste_v2(&waste_id).unwrap();
 
@@ -349,6 +358,7 @@ assert!(waste.processing_history.len() >= 3);
 ### Common Error Scenarios
 
 #### Scenario 1: Confirmation Before Transfer
+
 ```rust
 // Try to transfer unconfirmed waste
 let pending = client.initiate_transfer(&waste_id, &recycler, &collector, &lat, &lon);
@@ -360,6 +370,7 @@ client.initiate_transfer(&waste_id, &recycler, &collector, &lat, &lon);
 ```
 
 #### Scenario 2: Invalid Status Progression
+
 ```rust
 // Try to skip stages
 client.update_processing_status(&waste_id, &owner, &ProcessingStatus::Sorted);
@@ -371,6 +382,7 @@ client.update_processing_status(&waste_id, &owner, &ProcessingStatus::Collected)
 ```
 
 #### Scenario 3: Transfer Expiry
+
 ```rust
 let pending = client.initiate_transfer(&waste_id, &recycler, &collector, &lat, &lon);
 
@@ -388,6 +400,7 @@ client.expire_transfer(&pending.id);
 ## Performance Optimization
 
 ### Query Optimization
+
 ```rust
 // Inefficient: Query all wastes then filter
 let all_wastes = client.get_wastes_by_status(&ProcessingStatus::Collected);
@@ -404,6 +417,7 @@ let collected = client.get_wastes_by_status(&ProcessingStatus::Collected);
 ```
 
 ### Batch Operations
+
 ```rust
 // Process multiple wastes
 let waste_ids = vec![1, 2, 3, 4, 5];
@@ -415,32 +429,33 @@ for waste_id in waste_ids {
 ## Testing Integration
 
 ### Integration Test Template
+
 ```rust
 #[test]
 fn test_complete_waste_lifecycle() {
     let env = Env::default();
     env.mock_all_auths();
     let client = setup(&env);
-    
+
     // 1. Submit waste
     let waste_id = client.recycle_waste(&WasteType::Plastic, &1000, &recycler, &lat, &lon);
-    
+
     // 2. Add hashes
     client.set_waste_image(&waste_id, &image_hash, &recycler);
     client.add_waste_document(&waste_id, &doc_hash, &recycler);
-    
+
     // 3. Confirm
     client.confirm_waste_details(&waste_id, &collector);
-    
+
     // 4. Transfer
     let pending = client.initiate_transfer(&waste_id, &recycler, &collector, &lat, &lon);
     client.approve_transfer(&pending.id, &collector);
-    
+
     // 5. Process
     client.update_processing_status(&waste_id, &collector, &ProcessingStatus::Sorted);
     client.update_processing_status(&waste_id, &collector, &ProcessingStatus::Processed);
     client.update_processing_status(&waste_id, &collector, &ProcessingStatus::Recycled);
-    
+
     // 6. Verify final state
     let waste = client.get_waste_v2(&waste_id).unwrap();
     assert!(waste.is_confirmed);
@@ -453,15 +468,18 @@ fn test_complete_waste_lifecycle() {
 ## Deployment Considerations
 
 ### Storage Requirements
+
 - Per waste: ~500 bytes (with full history and hashes)
 - Per transfer: ~100 bytes
 - Per participant: ~1 KB (stats and waste list)
 
 ### Gas Budgets
+
 - Complete lifecycle: ~50,000 gas
 - Individual operations: 3,000-12,000 gas each
 
 ### Scalability
+
 - Supports millions of wastes
 - Status queries scale with waste count
 - Consider indexing for large deployments
@@ -469,18 +487,22 @@ fn test_complete_waste_lifecycle() {
 ## Troubleshooting
 
 ### Issue: Transfer Expired
+
 **Cause**: 24 hours passed since initiation
 **Solution**: Expire transfer and initiate new one
 
 ### Issue: Cannot Update Status
+
 **Cause**: Not waste owner or invalid progression
 **Solution**: Verify ownership and status order
 
 ### Issue: Confirmation Failed
+
 **Cause**: Owner trying to confirm own waste
 **Solution**: Use different participant for confirmation
 
 ### Issue: Invalid Hash
+
 **Cause**: Hash format not IPFS-compatible
 **Solution**: Use valid CIDv0 (Qm...) or CIDv1 (bafy...) format
 

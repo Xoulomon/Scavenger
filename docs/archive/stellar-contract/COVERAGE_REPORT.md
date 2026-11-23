@@ -62,20 +62,20 @@ cargo tarpaulin \
 
 ### Module-level summary
 
-| Module | Lines | Covered | % | Status |
-|---|---|---|---|---|
-| `batch_optimizer.rs` | ~180 | ~170 | **94 %** | ✅ |
-| `zkp.rs` | ~200 | ~196 | **98 %** | ✅ |
-| `contract_analytics.rs` | ~45 | ~44 | **98 %** | ✅ (`debug` feature) |
-| `explorer.rs` | ~90 | ~90 | **100 %** | ✅ (`debug` feature) |
-| `audit_log.rs` | ~35 | ~35 | **100 %** | ✅ |
-| `validation.rs` | ~250 | ~240 | **96 %** | ✅ |
-| `errors.rs` | ~300 | ~260 | **87 %** | ✅ |
-| `types.rs` | ~800 | ~700 | **88 %** | ✅ |
-| `events.rs` | ~180 | ~160 | **89 %** | ✅ |
-| `key_rotation.rs` | ~350 | ~305 | **87 %** | ✅ |
-| `analytics.rs` | ~100 | ~87 | **87 %** | ✅ |
-| `storage_optimizer.rs` | ~120 | ~105 | **88 %** | ✅ |
+| Module                  | Lines | Covered | %         | Status               |
+| ----------------------- | ----- | ------- | --------- | -------------------- |
+| `batch_optimizer.rs`    | ~180  | ~170    | **94 %**  | ✅                   |
+| `zkp.rs`                | ~200  | ~196    | **98 %**  | ✅                   |
+| `contract_analytics.rs` | ~45   | ~44     | **98 %**  | ✅ (`debug` feature) |
+| `explorer.rs`           | ~90   | ~90     | **100 %** | ✅ (`debug` feature) |
+| `audit_log.rs`          | ~35   | ~35     | **100 %** | ✅                   |
+| `validation.rs`         | ~250  | ~240    | **96 %**  | ✅                   |
+| `errors.rs`             | ~300  | ~260    | **87 %**  | ✅                   |
+| `types.rs`              | ~800  | ~700    | **88 %**  | ✅                   |
+| `events.rs`             | ~180  | ~160    | **89 %**  | ✅                   |
+| `key_rotation.rs`       | ~350  | ~305    | **87 %**  | ✅                   |
+| `analytics.rs`          | ~100  | ~87     | **87 %**  | ✅                   |
+| `storage_optimizer.rs`  | ~120  | ~105    | **88 %**  | ✅                   |
 
 > _Percentages are estimates. Regenerate locally for exact figures._
 
@@ -118,7 +118,7 @@ Before this PR the error branches for tampered inputs were untested. New tests:
 
 Coverage is automatically collected by the
 `.github/workflows/coverage.yml` workflow on every push to `main`/`develop`
-and on PRs.  Results are posted as a PR comment and uploaded as a workflow
+and on PRs. Results are posted as a PR comment and uploaded as a workflow
 artifact.
 
 To add Rust/contract coverage to the existing workflow, extend the

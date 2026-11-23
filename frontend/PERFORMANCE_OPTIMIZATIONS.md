@@ -1,6 +1,7 @@
 # Performance Optimizations - Analytics Page (Issue #1060)
 
 ## Overview
+
 This document outlines the performance optimizations applied to the AnalyticsPage and its chart components to eliminate unnecessary re-renders and optimize computational efficiency.
 
 ## Changes Made
@@ -21,6 +22,7 @@ This document outlines the performance optimizations applied to the AnalyticsPag
 **File**: `src/components/analytics/WasteTypeChart.tsx`
 
 **Changes**:
+
 - **Wrapped component in React.memo()** to prevent re-renders when parent re-renders with same props
 - **Extracted data to constant** (`WASTE_DATA`) to avoid recreation on every render
 - **Added useMemo for data transformations**:
@@ -32,6 +34,7 @@ This document outlines the performance optimizations applied to the AnalyticsPag
 **After**: Calculations only run when dependencies change (none in this case, as data is static)
 
 **Code Example**:
+
 ```typescript
 const { total, slices } = useMemo(() => {
   const total = WASTE_DATA.reduce((sum, d) => sum + d.value, 0)
@@ -45,6 +48,7 @@ const { total, slices } = useMemo(() => {
 **File**: `src/components/analytics/MonthlyTrendsChart.tsx`
 
 **Changes**:
+
 - **Wrapped component in React.memo()** to prevent re-renders
 - **Extracted data to constant** (`MONTHLY_DATA`)
 - **Added useMemo for max value calculation**:
@@ -55,11 +59,13 @@ const { total, slices } = useMemo(() => {
 ## Performance Benefits
 
 ### Before Optimization
+
 - When dateRange changes in AnalyticsPage, ALL chart components re-render
 - Each chart recalculates transformations, max values, and derived data
 - Even if a chart's data hasn't changed, it still renders
 
 ### After Optimization
+
 - Chart components only re-render if their props change (strict equality check)
 - Computations are memoized and cached
 - Parent state changes don't cascade to all children unnecessarily

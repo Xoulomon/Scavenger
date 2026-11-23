@@ -8,7 +8,7 @@ import type { FormDraft, ValidationErrors } from '../types'
 export function ProfileStep({
   draft,
   errors,
-  onChange,
+  onChange
 }: {
   draft: FormDraft
   errors: ValidationErrors
@@ -31,7 +31,10 @@ export function ProfileStep({
               Display Name <span className="text-destructive">*</span>
             </label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+              <User
+                className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                aria-hidden="true"
+              />
               <Input
                 id="reg-display-name"
                 placeholder="Your display name"

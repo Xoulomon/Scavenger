@@ -11,8 +11,8 @@ const meta: Meta<typeof WasteSubmissionForm> = {
       <div className="mx-auto max-w-2xl p-4">
         <Story />
       </div>
-    ),
-  ],
+    )
+  ]
 }
 export default meta
 type Story = StoryObj<typeof WasteSubmissionForm>
@@ -23,7 +23,7 @@ export const Default: Story = {
       await new Promise((r) => setTimeout(r, 1500))
       console.log('Submitted:', data)
     },
-    onCancel: () => console.log('Cancelled'),
+    onCancel: () => console.log('Cancelled')
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -33,7 +33,7 @@ export const Default: Story = {
     // The cancel button is also present
     const cancelBtn = canvas.getByRole('button', { name: /cancel/i })
     await expect(cancelBtn).toBeInTheDocument()
-  },
+  }
 }
 
 export const SubmissionError: Story = {
@@ -42,7 +42,7 @@ export const SubmissionError: Story = {
       await new Promise((r) => setTimeout(r, 1000))
       throw new Error('Network error: could not reach server.')
     },
-    onCancel: () => console.log('Cancelled'),
+    onCancel: () => console.log('Cancelled')
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
@@ -50,7 +50,7 @@ export const SubmissionError: Story = {
     await expect(submitBtn).toBeInTheDocument()
     // Attempt to submit the empty form to trigger validation errors
     await userEvent.click(submitBtn)
-  },
+  }
 }
 
 export const FastSubmission: Story = {
@@ -58,12 +58,12 @@ export const FastSubmission: Story = {
     onSubmit: async (data) => {
       console.log('Submitted:', data)
     },
-    onCancel: () => console.log('Cancelled'),
+    onCancel: () => console.log('Cancelled')
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
     const cancelBtn = canvas.getByRole('button', { name: /cancel/i })
     await expect(cancelBtn).toBeEnabled()
     await userEvent.click(cancelBtn)
-  },
+  }
 }

@@ -24,30 +24,26 @@ const statusArb = fc.constantFrom(
   'inactive' as const
 )
 
-const isoDateArb = fc
-  .integer({ min: 2020, max: 2030 })
-  .chain((year) =>
-    fc.integer({ min: 1, max: 12 }).chain((month) =>
-      fc.integer({ min: 1, max: 28 }).map((day) => {
-        const mm = String(month).padStart(2, '0')
-        const dd = String(day).padStart(2, '0')
-        return `${year}-${mm}-${dd}`
-      })
-    )
+const isoDateArb = fc.integer({ min: 2020, max: 2030 }).chain((year) =>
+  fc.integer({ min: 1, max: 12 }).chain((month) =>
+    fc.integer({ min: 1, max: 28 }).map((day) => {
+      const mm = String(month).padStart(2, '0')
+      const dd = String(day).padStart(2, '0')
+      return `${year}-${mm}-${dd}`
+    })
   )
+)
 
 const searchFiltersArb: fc.Arbitrary<SearchFilters> = fc.record({
   wasteTypes: fc.uniqueArray(wasteTypeArb, { minLength: 0, maxLength: 5 }),
   status: statusArb,
   dateFrom: fc.option(isoDateArb, { nil: null }),
   dateTo: fc.option(isoDateArb, { nil: null }),
-  location: fc.string({ minLength: 0, maxLength: 50 }).map((s) => s.trim()),
+  location: fc.string({ minLength: 0, maxLength: 50 }).map((s) => s.trim())
 })
 
 // Non-empty printable query strings (no leading/trailing whitespace)
-const queryArb = fc
-  .string({ minLength: 0, maxLength: 80 })
-  .map((s) => s.trim())
+const queryArb = fc.string({ minLength: 0, maxLength: 80 }).map((s) => s.trim())
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
@@ -60,7 +56,7 @@ describe('searchStorage — Property 12: search results URL round-trip', () => {
           status: 'all',
           dateFrom: null,
           dateTo: null,
-          location: '',
+          location: ''
         })
         const { query: parsed } = searchParamsToFilters(params)
         return parsed === query
@@ -107,7 +103,7 @@ describe('searchStorage — Property 12: search results URL round-trip', () => {
           status: 'all',
           dateFrom: null,
           dateTo: null,
-          location: '',
+          location: ''
         }
         const params = filtersToSearchParams(query, defaultFilters)
         // Only 'q' should be present (when query is non-empty)

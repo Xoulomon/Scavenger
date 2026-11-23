@@ -90,7 +90,10 @@ export function ParticipantSearchPage() {
             </div>
             <div>
               <label className="text-sm font-medium">Sort By</label>
-              <Select value={sortBy} onChange={(e) => setSortBy(e.target.value as 'name' | 'rewards' | 'waste')}>
+              <Select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'name' | 'rewards' | 'waste')}
+              >
                 <option value="name">Name (A-Z)</option>
                 <option value="rewards">Highest Rewards</option>
                 <option value="waste">Most Waste Processed</option>
@@ -106,7 +109,9 @@ export function ParticipantSearchPage() {
           <div className="text-center py-8 text-gray-500">Searching participants...</div>
         ) : filteredResults.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            {searchQuery ? 'No participants found matching your search' : 'Enter a search query to find participants'}
+            {searchQuery
+              ? 'No participants found matching your search'
+              : 'Enter a search query to find participants'}
           </div>
         ) : (
           filteredResults.map((participant) => (
@@ -128,7 +133,8 @@ export function ParticipantSearchPage() {
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-gray-400" />
                         <span>
-                          {participant.location.lat.toFixed(2)}, {participant.location.lon.toFixed(2)}
+                          {participant.location.lat.toFixed(2)},{' '}
+                          {participant.location.lon.toFixed(2)}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -140,7 +146,9 @@ export function ParticipantSearchPage() {
                         <span>{participant.stats.verifications} verifications</span>
                       </div>
                       <div className="text-right">
-                        <span className="font-semibold">{participant.stats.rewards.toString()} pts</span>
+                        <span className="font-semibold">
+                          {participant.stats.rewards.toString()} pts
+                        </span>
                       </div>
                     </div>
                   </div>

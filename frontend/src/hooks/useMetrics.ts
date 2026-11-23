@@ -9,7 +9,7 @@ function useClient() {
   return new ScavengerClient({
     contractId: config.contractId,
     rpcUrl: config.rpcUrl,
-    networkPassphrase: getNetworkPassphrase(config.network),
+    networkPassphrase: getNetworkPassphrase(config.network)
   })
 }
 
@@ -18,6 +18,6 @@ export function useMetrics() {
   return useQuery({
     queryKey: cacheKeys.metrics(),
     queryFn: () => client.getMetrics(),
-    staleTime: 2 * 60_000,
+    staleTime: 2 * 60_000
   })
 }

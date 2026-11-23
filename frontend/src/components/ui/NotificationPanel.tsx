@@ -88,7 +88,7 @@ export function NotificationPanel({
   onClose,
   onMarkRead,
   onMarkAllRead,
-  onDelete,
+  onDelete
 }: NotificationPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null)
   const items = getPanelNotifications(notifications)
@@ -128,9 +128,7 @@ export function NotificationPanel({
       {/* List */}
       <ul className="max-h-96 overflow-y-auto divide-y">
         {items.length === 0 ? (
-          <li className="px-4 py-6 text-center text-sm text-muted-foreground">
-            No notifications
-          </li>
+          <li className="px-4 py-6 text-center text-sm text-muted-foreground">No notifications</li>
         ) : (
           items.map((n) => (
             <li

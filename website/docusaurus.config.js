@@ -16,7 +16,7 @@ const config = {
 
   i18n: {
     defaultLocale: 'en',
-    locales: ['en'],
+    locales: ['en']
   },
 
   presets: [
@@ -28,22 +28,22 @@ const config = {
           sidebarPath: './sidebars.js',
           editUrl: 'https://github.com/Xoulomon/Scavenger/edit/main/website/',
           showLastUpdateTime: true,
-          showLastUpdateAuthor: true,
+          showLastUpdateAuthor: true
         },
         blog: false,
         theme: {
-          customCss: './src/css/custom.css',
+          customCss: './src/css/custom.css'
         },
         gtag: {
           trackingID: 'G-PLACEHOLDER',
-          anonymizeIP: true,
+          anonymizeIP: true
         },
         sitemap: {
           changefreq: 'weekly',
-          priority: 0.5,
-        },
-      }),
-    ],
+          priority: 0.5
+        }
+      })
+    ]
   ],
 
   themeConfig:
@@ -51,27 +51,27 @@ const config = {
     ({
       colorMode: {
         defaultMode: 'light',
-        respectPrefersColorScheme: true,
+        respectPrefersColorScheme: true
       },
       navbar: {
         title: 'Scavngr',
         logo: {
           alt: 'Scavngr Logo',
-          src: 'img/logo.svg',
+          src: 'img/logo.svg'
         },
         items: [
           {
             type: 'docSidebar',
             sidebarId: 'tutorialSidebar',
             position: 'left',
-            label: 'Docs',
+            label: 'Docs'
           },
           {
             href: 'https://github.com/Xoulomon/Scavenger',
             label: 'GitHub',
-            position: 'right',
-          },
-        ],
+            position: 'right'
+          }
+        ]
       },
       footer: {
         style: 'dark',
@@ -81,37 +81,35 @@ const config = {
             items: [
               { label: 'Getting Started', to: '/docs/intro' },
               { label: 'Contributing', to: '/docs/contributing/style-guide' },
-              { label: 'Deployment', to: '/docs/deployment/ci-cd' },
-            ],
+              { label: 'Deployment', to: '/docs/deployment/ci-cd' }
+            ]
           },
           {
             title: 'Community',
             items: [
               { label: 'GitHub', href: 'https://github.com/Xoulomon/Scavenger' },
-              { label: 'Discussions', href: 'https://github.com/Xoulomon/Scavenger/discussions' },
-            ],
+              { label: 'Discussions', href: 'https://github.com/Xoulomon/Scavenger/discussions' }
+            ]
           },
           {
             title: 'More',
-            items: [
-              { label: 'Contributing', to: '/docs/contributing/style-guide' },
-            ],
-          },
+            items: [{ label: 'Contributing', to: '/docs/contributing/style-guide' }]
+          }
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Scavngr. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Scavngr. Built with Docusaurus.`
       },
       algolia: {
         appId: 'PLACEHOLDER_APP_ID',
         apiKey: 'PLACEHOLDER_SEARCH_KEY',
         indexName: 'scavngr',
-        contextualSearch: true,
+        contextualSearch: true
       },
       prism: {
         theme: require('prism-react-renderer').themes.github,
         darkTheme: require('prism-react-renderer').themes.dracula,
-        additionalLanguages: ['rust', 'toml', 'bash'],
-      },
-    }),
-};
+        additionalLanguages: ['rust', 'toml', 'bash']
+      }
+    })
+}
 
-module.exports = config;
+module.exports = config

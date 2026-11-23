@@ -85,7 +85,9 @@ export function QRCodePage() {
                     >
                       <div>
                         <p className="font-mono font-medium">{record.wasteId}</p>
-                        <p className="text-xs text-muted-foreground">{formatTs(record.timestamp)}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatTs(record.timestamp)}
+                        </p>
                       </div>
                       <Button
                         size="sm"

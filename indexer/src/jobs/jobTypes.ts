@@ -10,12 +10,12 @@
 export const PRODUCER_JOB_TYPES: readonly string[] = [
   'event-sync',
   'ledger-replay',
-  'alert-check',
-] as const;
+  'alert-check'
+] as const
 
 /** All job types that have a registered processor (consumer). */
 export const CONSUMER_JOB_TYPES: readonly string[] = [
   'event-sync',
   'ledger-replay',
-  'alert-check',
-] as const;
+  'alert-check'
+] as const

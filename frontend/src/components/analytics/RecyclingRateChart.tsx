@@ -7,7 +7,7 @@ const data = [
   { month: 'Mar', rate: 78 },
   { month: 'Apr', rate: 76 },
   { month: 'May', rate: 82 },
-  { month: 'Jun', rate: 87 },
+  { month: 'Jun', rate: 87 }
 ]
 
 const W = 400
@@ -28,7 +28,7 @@ export function RecyclingRateChart() {
   const areaPoints = [
     `${toX(0)},${H - PAD}`,
     ...data.map((d, i) => `${toX(i)},${toY(d.rate)}`),
-    `${toX(data.length - 1)},${H - PAD}`,
+    `${toX(data.length - 1)},${H - PAD}`
   ].join(' ')
 
   return (
@@ -58,7 +58,14 @@ export function RecyclingRateChart() {
                 strokeOpacity={0.1}
                 strokeDasharray="4 4"
               />
-              <text x={PAD - 4} y={toY(y) + 4} textAnchor="end" fontSize="9" fill="currentColor" opacity={0.5}>
+              <text
+                x={PAD - 4}
+                y={toY(y) + 4}
+                textAnchor="end"
+                fontSize="9"
+                fill="currentColor"
+                opacity={0.5}
+              >
                 {y}%
               </text>
             </g>
@@ -68,13 +75,26 @@ export function RecyclingRateChart() {
           <polygon points={areaPoints} fill="#22c55e" fillOpacity={0.1} />
 
           {/* Line */}
-          <polyline points={points} fill="none" stroke="#22c55e" strokeWidth="2" strokeLinejoin="round" />
+          <polyline
+            points={points}
+            fill="none"
+            stroke="#22c55e"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
 
           {/* Data points */}
           {data.map((d, i) => (
             <g key={d.month}>
               <circle cx={toX(i)} cy={toY(d.rate)} r="4" fill="#22c55e" />
-              <text x={toX(i)} y={H - 4} textAnchor="middle" fontSize="9" fill="currentColor" opacity={0.6}>
+              <text
+                x={toX(i)}
+                y={H - 4}
+                textAnchor="middle"
+                fontSize="9"
+                fill="currentColor"
+                opacity={0.6}
+              >
                 {d.month}
               </text>
             </g>

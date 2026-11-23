@@ -136,12 +136,12 @@ All 10 runs should show `test result: ok`.
 All four root causes documented above have been fixed in
 `stellar-contract/tests/stable_suite.rs`:
 
-| Root cause | Fixed? | Notes |
-| :--- | :--- | :--- |
-| Missing `env.mock_all_auths()` | ✅ | `setup()` always calls this first |
-| Shared `Env` / client between tests | ✅ | Each test owns `Env::default()` |
-| Non-deterministic collection order | ✅ | Assertions use counts, not positions |
-| Wall-clock / ledger time dependence | ✅ | Ledger time set explicitly when needed |
+| Root cause                          | Fixed? | Notes                                  |
+| :---------------------------------- | :----- | :------------------------------------- |
+| Missing `env.mock_all_auths()`      | ✅     | `setup()` always calls this first      |
+| Shared `Env` / client between tests | ✅     | Each test owns `Env::default()`        |
+| Non-deterministic collection order  | ✅     | Assertions use counts, not positions   |
+| Wall-clock / ledger time dependence | ✅     | Ledger time set explicitly when needed |
 
 ### Frontend tests
 

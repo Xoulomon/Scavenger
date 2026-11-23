@@ -10,36 +10,44 @@ export function useProfileStats() {
   const { address } = useWallet()
   const { config } = useContract()
 
-  const { data: stats, isLoading: isLoadingStats, isError: isStatsError } = useQuery<ParticipantStats | null>({
+  const {
+    data: stats,
+    isLoading: isLoadingStats,
+    isError: isStatsError
+  } = useQuery<ParticipantStats | null>({
     queryKey: cacheKeys.participantStats(address),
     queryFn: async () => {
       if (!address) return null
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       return client.getStats(address)
     },
     enabled: !!address,
-    retry: false,
+    retry: false
   })
 
-  const { data: wastes, isLoading: isLoadingWastes, isError: isWastesError } = useQuery<Waste[]>({
+  const {
+    data: wastes,
+    isLoading: isLoadingWastes,
+    isError: isWastesError
+  } = useQuery<Waste[]>({
     queryKey: cacheKeys.participantWastes(address),
     queryFn: async () => {
       if (!address) return []
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       const wasteIds = await client.getParticipantWastes(address)
       const results = await Promise.all(wasteIds.map((id) => client.getWaste(id)))
       return results.filter((w): w is Waste => w !== null)
     },
     enabled: !!address,
-    retry: false,
+    retry: false
   })
 
   return {
@@ -48,6 +56,6 @@ export function useProfileStats() {
     isLoadingStats,
     isLoadingWastes,
     isStatsError,
-    isWastesError,
+    isWastesError
   }
 }

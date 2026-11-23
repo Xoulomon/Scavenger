@@ -3,9 +3,7 @@ import { render, screen } from '@testing-library/react'
 import { NotFoundPage } from './NotFoundPage'
 
 vi.mock('react-router-dom', () => ({
-  Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
-    <a href={to}>{children}</a>
-  ),
+  Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>
 }))
 
 describe('NotFoundPage', () => {

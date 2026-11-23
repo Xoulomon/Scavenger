@@ -3,57 +3,57 @@
  * Manage offline functionality and storage
  */
 
-import { useOnlineStatus } from '../hooks/useOnlineStatus';
-import { useAsync } from '../hooks/useAsync';
-import { useResource } from '../hooks/useResource';
-import { getDatabaseSize, clearAllData, getPendingMutations } from '../lib/offline/storage';
-import { syncManager } from '../lib/offline/syncManager';
-import { Trash2, RefreshCw, Database, Wifi } from 'lucide-react';
+import { useOnlineStatus } from '../hooks/useOnlineStatus'
+import { useAsync } from '../hooks/useAsync'
+import { useResource } from '../hooks/useResource'
+import { getDatabaseSize, clearAllData, getPendingMutations } from '../lib/offline/storage'
+import { syncManager } from '../lib/offline/syncManager'
+import { Trash2, RefreshCw, Database, Wifi } from 'lucide-react'
 
 export function OfflineSettings() {
-  const isOnline = useOnlineStatus();
-  const storage = useResource(getDatabaseSize);
-  const pending = useResource(async () => (await getPendingMutations()).length);
+  const isOnline = useOnlineStatus()
+  const storage = useResource(getDatabaseSize)
+  const pending = useResource(async () => (await getPendingMutations()).length)
 
-  const storageInfo = storage.data ?? { bytes: 0, formatted: '0 B' };
-  const pendingCount = pending.data ?? 0;
+  const storageInfo = storage.data ?? { bytes: 0, formatted: '0 B' }
+  const pendingCount = pending.data ?? 0
 
   const { run: handleSync, isLoading: isSyncing } = useAsync(async () => {
     if (!isOnline) {
-      alert('Cannot sync while offline');
-      return;
+      alert('Cannot sync while offline')
+      return
     }
 
     try {
-      const result = await syncManager.syncPendingMutations();
-      alert(`Sync complete: ${result.success} succeeded, ${result.failed} failed`);
-      await pending.reload();
+      const result = await syncManager.syncPendingMutations()
+      alert(`Sync complete: ${result.success} succeeded, ${result.failed} failed`)
+      await pending.reload()
     } catch (error) {
-      alert('Sync failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      alert('Sync failed: ' + (error instanceof Error ? error.message : 'Unknown error'))
     }
-  });
+  })
 
   const { run: handleClearData, isLoading: isClearing } = useAsync(async () => {
-    if (!confirm('Are you sure you want to clear all offline data? This action cannot be undone.')) {
-      return;
+    if (
+      !confirm('Are you sure you want to clear all offline data? This action cannot be undone.')
+    ) {
+      return
     }
 
     try {
-      await clearAllData();
-      await storage.reload();
-      await pending.reload();
-      alert('All offline data cleared successfully');
+      await clearAllData()
+      await storage.reload()
+      await pending.reload()
+      alert('All offline data cleared successfully')
     } catch (error) {
-      alert('Failed to clear data: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      alert('Failed to clear data: ' + (error instanceof Error ? error.message : 'Unknown error'))
     }
-  });
+  })
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <h1 className="text-3xl font-bold mb-2">Offline Mode Settings</h1>
-      <p className="text-muted-foreground mb-8">
-        Manage offline functionality and cached data
-      </p>
+      <p className="text-muted-foreground mb-8">Manage offline functionality and cached data</p>
 
       {/* Connection Status */}
       <div className="mb-8 p-6 rounded-lg border border-border">
@@ -62,7 +62,8 @@ export function OfflineSettings() {
           <h2 className="text-xl font-semibold">Connection Status</h2>
         </div>
         <p className="text-lg">
-          Status: <span className={isOnline ? 'text-green-500' : 'text-destructive'}>
+          Status:{' '}
+          <span className={isOnline ? 'text-green-500' : 'text-destructive'}>
             {isOnline ? 'Online' : 'Offline'}
           </span>
         </p>
@@ -99,7 +100,8 @@ export function OfflineSettings() {
             <div className="flex-1">
               <h3 className="font-semibold mb-1">Sync Pending Operations</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                Synchronize all pending operations with the server. This will upload any changes made while offline.
+                Synchronize all pending operations with the server. This will upload any changes
+                made while offline.
               </p>
               <button
                 onClick={handleSync}
@@ -163,5 +165,5 @@ export function OfflineSettings() {
         </ul>
       </div>
     </div>
-  );
+  )
 }

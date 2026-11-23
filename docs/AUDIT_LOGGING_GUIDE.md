@@ -6,17 +6,17 @@ Sensitive on-chain operations emit `AUDIT/log` contract events containing a stru
 
 ## Audited Operations
 
-| Function | Actor | Target |
-|---|---|---|
-| `initialize_admin` | admin | admin |
-| `transfer_admin` | current_admin | admin |
-| `register_participant` | address | participant |
-| `deregister_participant` | address | participant |
-| `update_role` | address | participant |
-| `deactivate_waste` | admin | waste |
-| `generate_compliance_report` | admin | COMPLIANCE |
-| `finalize_compliance_report` | admin | COMPLIANCE |
-| `substitute_waste` | approver | WASTE |
+| Function                     | Actor         | Target      |
+| ---------------------------- | ------------- | ----------- |
+| `initialize_admin`           | admin         | admin       |
+| `transfer_admin`             | current_admin | admin       |
+| `register_participant`       | address       | participant |
+| `deregister_participant`     | address       | participant |
+| `update_role`                | address       | participant |
+| `deactivate_waste`           | admin         | waste       |
+| `generate_compliance_report` | admin         | COMPLIANCE  |
+| `finalize_compliance_report` | admin         | COMPLIANCE  |
+| `substitute_waste`           | approver      | WASTE       |
 
 ## Querying Audit Logs
 

@@ -1,14 +1,14 @@
-import http from 'http';
+import http from 'http'
 import {
   getParticipant,
   listParticipants,
   ValidationError,
-  NotFoundError,
-} from '../services/participantService';
+  NotFoundError
+} from '../services/participantService'
 
 function sendJson(res: http.ServerResponse, status: number, body: unknown): void {
-  res.writeHead(status);
-  res.end(JSON.stringify(body));
+  res.writeHead(status)
+  res.end(JSON.stringify(body))
 }
 
 /**
@@ -24,14 +24,14 @@ export async function handleListParticipants(
       role: url.searchParams.get('role'),
       isActive: url.searchParams.get('isActive'),
       limit: url.searchParams.get('limit'),
-      offset: url.searchParams.get('offset'),
-    });
-    sendJson(res, 200, result);
+      offset: url.searchParams.get('offset')
+    })
+    sendJson(res, 200, result)
   } catch (err) {
     if (err instanceof ValidationError) {
-      sendJson(res, 400, { error: err.message });
+      sendJson(res, 400, { error: err.message })
     } else {
-      sendJson(res, 500, { error: 'Internal server error' });
+      sendJson(res, 500, { error: 'Internal server error' })
     }
   }
 }
@@ -45,15 +45,15 @@ export async function handleGetParticipant(
   address: string
 ): Promise<void> {
   try {
-    const participant = await getParticipant(address);
-    sendJson(res, 200, participant);
+    const participant = await getParticipant(address)
+    sendJson(res, 200, participant)
   } catch (err) {
     if (err instanceof NotFoundError) {
-      sendJson(res, 404, { error: err.message });
+      sendJson(res, 404, { error: err.message })
     } else if (err instanceof ValidationError) {
-      sendJson(res, 400, { error: err.message });
+      sendJson(res, 400, { error: err.message })
     } else {
-      sendJson(res, 500, { error: 'Internal server error' });
+      sendJson(res, 500, { error: 'Internal server error' })
     }
   }
 }

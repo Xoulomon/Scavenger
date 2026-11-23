@@ -17,6 +17,7 @@ All modal dialogs must meet WCAG 2.1 Level AA standards and provide an accessibl
 - [ ] Dialog should be closed if user presses Escape key
 
 **Example:**
+
 ```tsx
 function MyModal({ open, onOpenChange }) {
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -50,26 +51,26 @@ function MyModal({ open, onOpenChange }) {
 ### ARIA Attributes
 
 All modals must have:
+
 - [ ] `role="dialog"` on the dialog container
 - [ ] `aria-modal="true"` to indicate this is a modal dialog
 - [ ] `aria-labelledby` pointing to the dialog title
 - [ ] `aria-describedby` pointing to the dialog description (if present)
 
 **Example:**
+
 ```tsx
 <Dialog open={isOpen} onOpenChange={setIsOpen}>
   <DialogContent
     role="dialog"
     aria-modal="true"
     aria-labelledby="dialog-title"
-    aria-describedby={hasDescription ? "dialog-description" : undefined}
+    aria-describedby={hasDescription ? 'dialog-description' : undefined}
   >
     <DialogHeader>
       <DialogTitle id="dialog-title">Modal Title</DialogTitle>
       {hasDescription && (
-        <DialogDescription id="dialog-description">
-          Modal description
-        </DialogDescription>
+        <DialogDescription id="dialog-description">Modal description</DialogDescription>
       )}
     </DialogHeader>
   </DialogContent>
@@ -100,6 +101,7 @@ All modals must have:
 - [ ] Close button should be one of the last focusable elements
 
 **Example:**
+
 ```tsx
 <DialogClose>
   <X className="h-4 w-4" />
@@ -115,12 +117,15 @@ All modals must have:
 - [ ] Error messages in dialogs should be announced with `role="alert"`
 
 **Example:**
+
 ```tsx
-{error && (
-  <div role="alert" aria-live="assertive" className="text-destructive">
-    {error}
-  </div>
-)}
+{
+  error && (
+    <div role="alert" aria-live="assertive" className="text-destructive">
+      {error}
+    </div>
+  )
+}
 ```
 
 ### Content Guidelines
@@ -133,6 +138,7 @@ All modals must have:
 ### Testing Modal Accessibility
 
 #### Focus Trap Test
+
 ```typescript
 it('traps focus within dialog', async () => {
   const user = userEvent.setup()
@@ -153,6 +159,7 @@ it('traps focus within dialog', async () => {
 ```
 
 #### Escape Key Test
+
 ```typescript
 it('closes with Escape key', async () => {
   const user = userEvent.setup()
@@ -166,6 +173,7 @@ it('closes with Escape key', async () => {
 ```
 
 #### Focus Restoration Test
+
 ```typescript
 it('restores focus to trigger on close', async () => {
   const user = userEvent.setup()
@@ -189,6 +197,7 @@ it('restores focus to trigger on close', async () => {
 ```
 
 #### ARIA Test
+
 ```typescript
 it('has proper ARIA attributes', () => {
   render(<MyModal open={true} />)
@@ -200,6 +209,7 @@ it('has proper ARIA attributes', () => {
 ```
 
 #### Axe Test
+
 ```typescript
 import { axe, toHaveNoViolations } from 'jest-axe'
 
@@ -213,6 +223,7 @@ it('has no accessibility violations', async () => {
 ## Radix UI Dialog Component
 
 Scavenger uses Radix UI's Dialog component which provides:
+
 - Built-in focus trap
 - Automatic `role="dialog"` on content
 - Automatic `aria-modal="true"`
@@ -220,6 +231,7 @@ Scavenger uses Radix UI's Dialog component which provides:
 - Focus restoration on close
 
 Developers should:
+
 - Ensure DialogTitle is always present
 - Use DialogDescription when there's additional context
 - Connect aria-labelledby and aria-describedby
@@ -228,15 +240,19 @@ Developers should:
 ## Common Issues
 
 ### Issue: Focus not trapped
+
 **Solution**: Ensure all interactive elements are within the DialogContent. Check for elements outside dialog that can receive focus.
 
 ### Issue: Escape key not working
+
 **Solution**: Verify onOpenChange prop is connected to Dialog component.
 
 ### Issue: Screen reader doesn't announce title
+
 **Solution**: Ensure DialogTitle is present and has an id. Verify aria-labelledby is set correctly.
 
 ### Issue: Focus not returning to trigger
+
 **Solution**: Verify trigger element is visible after dialog closes. Use ref to track trigger for restoration.
 
 ## Resources

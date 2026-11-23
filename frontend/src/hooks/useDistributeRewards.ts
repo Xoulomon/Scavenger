@@ -7,7 +7,7 @@ import { networkConfig } from '@/lib/stellar'
 import { invalidateKeys, invalidationPlan } from '@/lib/cacheInvalidation'
 import {
   useTransactionStatus,
-  type TransactionStatusController,
+  type TransactionStatusController
 } from '@/hooks/useTransactionStatus'
 
 export interface DistributeRewardsParams {
@@ -48,7 +48,7 @@ export function useDistributeRewards(): UseDistributeRewardsResult {
       const client = new ScavengerClient({
         rpcUrl: config.rpcUrl,
         networkPassphrase: networkConfig.networkPassphrase,
-        contractId: config.contractId,
+        contractId: config.contractId
       })
       const total = await client.distributeRewards(wasteId, incentiveId, address, address)
       return { total, wasteId, incentiveId }
@@ -56,12 +56,14 @@ export function useDistributeRewards(): UseDistributeRewardsResult {
     onSuccess: ({ total, wasteId }) => {
       invalidateKeys(queryClient, invalidationPlan.distributeRewards())
       transactionStatus.succeed()
-      toast.success(`Rewards distributed for waste #${wasteId}: ${total.toLocaleString()} tokens total.`)
+      toast.success(
+        `Rewards distributed for waste #${wasteId}: ${total.toLocaleString()} tokens total.`
+      )
     },
     onError: (error) => {
       transactionStatus.fail(error)
       toast.error(error)
-    },
+    }
   })
 
   return {
@@ -77,6 +79,6 @@ export function useDistributeRewards(): UseDistributeRewardsResult {
     error: mutation.error,
     data: mutation.data,
     status: transactionStatus.status,
-    statusComponent: transactionStatus.StatusComponent,
+    statusComponent: transactionStatus.StatusComponent
   }
 }

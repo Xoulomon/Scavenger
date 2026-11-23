@@ -3,13 +3,16 @@
 ## Runbook: Standard Release
 
 ### Prerequisites
+
 - [ ] All tests passing on main branch
 - [ ] Security scan completed
 - [ ] Performance benchmarks within baseline
 - [ ] No blocking issues or bugs
 
 ### Steps
+
 1. **Prepare Release**
+
    ```bash
    git checkout main
    git pull origin main
@@ -17,15 +20,17 @@
    ```
 
 2. **Review Changes**
+
    ```bash
    # Review version updates
    git diff
-   
+
    # Review release notes
    cat RELEASE_NOTES_v*.md
    ```
 
 3. **Push Release**
+
    ```bash
    git push origin main --tags
    ```
@@ -43,18 +48,22 @@
 ## Runbook: Hotfix Release
 
 ### When to Use
+
 - Critical security vulnerability
 - Production outage
 - Data loss or corruption
 
 ### Steps
+
 1. **Create Hotfix Branch**
+
    ```bash
    git checkout main
    git checkout -b hotfix/description-of-fix
    ```
 
 2. **Apply Fix**
+
    ```bash
    # Fix the issue and commit
    git add .
@@ -62,11 +71,13 @@
    ```
 
 3. **Create Hotfix Release**
+
    ```bash
    ./scripts/release.sh publish patch
    ```
 
 4. **Push and Deploy**
+
    ```bash
    git push origin hotfix/description-of-fix --tags
    ```
@@ -81,17 +92,21 @@
 ## Runbook: Rollback
 
 ### When to Use
+
 - Release causes production issues
 - Performance degradation
 - Increased error rates
 
 ### Steps
+
 1. **Identify Previous Stable Version**
+
    ```bash
    ./scripts/release.sh track list
    ```
 
 2. **Redeploy Previous Version**
+
    ```bash
    # Revert the Kubernetes deployment
    kubectl set image deployment/scavenger-backend \
@@ -112,6 +127,7 @@
 ## Runbook: Release Verification
 
 ### Automated Checks
+
 - [ ] All CI pipelines pass
 - [ ] Docker images built and pushed
 - [ ] GitHub Release created
@@ -119,6 +135,7 @@
 - [ ] Health checks passing
 
 ### Manual Checks
+
 - [ ] Smoke test critical user flows
 - [ ] Verify API responses
 - [ ] Check contract interactions
@@ -128,6 +145,7 @@
 ## Communication Templates
 
 ### Pre-Release
+
 ```
 Subject: [RELEASE] v{version} scheduled for {date}
 
@@ -139,6 +157,7 @@ Rollback plan: {link to runbook}
 ```
 
 ### Post-Release
+
 ```
 Subject: [RELEASE] v{version} deployed successfully
 
@@ -149,6 +168,7 @@ Monitoring: {link to dashboard}
 ```
 
 ### Rollback Notification
+
 ```
 Subject: [ROLLBACK] v{version} reverted to v{previous_version}
 

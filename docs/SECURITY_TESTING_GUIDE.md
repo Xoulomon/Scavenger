@@ -24,9 +24,9 @@ Rust integration tests for the Soroban smart contract. Covers:
 
 API-level tests using [Vitest](https://vitest.dev/) and Axios against a running backend.
 
-| File | Coverage |
-|------|----------|
-| `security.test.ts` | SQL injection, XSS, CSRF, auth/authz, rate limiting, API security, basic input validation |
+| File                       | Coverage                                                                                                                       |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `security.test.ts`         | SQL injection, XSS, CSRF, auth/authz, rate limiting, API security, basic input validation                                      |
 | `input-validation.test.ts` | Empty inputs, oversized strings, special characters, SQL injection in fields, boundary values (weight, coordinates, role enum) |
 
 ---
