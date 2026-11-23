@@ -14,7 +14,7 @@ import { useExport } from './useExport';
 
 // ── DOM mocks ─────────────────────────────────────────────────────────────
 
-let capturedBlob: Blob | null = null;
+let _capturedBlob: Blob | null = null;
 let capturedFilename: string | null = null;
 
 beforeEach(() => {
@@ -116,7 +116,7 @@ describe('useExport — exportToCSV', () => {
     const { result } = renderHook(() => useExport());
     let capturedContent = '';
     vi.mocked(global.URL.createObjectURL).mockImplementation((b) => {
-      const blob = b as Blob;
+      const _blob = b as Blob;
       // Read the blob synchronously via FileReaderSync would need async;
       // instead confirm the Blob was created (content validated in integration)
       capturedContent = 'captured';

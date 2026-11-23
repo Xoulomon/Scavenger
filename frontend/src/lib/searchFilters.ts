@@ -158,7 +158,7 @@ export function applyFilters<T extends Record<string, unknown>>(data: T[], filte
   return data.filter((item) => evaluateCompiled(item, compiled));
 }
 
-function evaluateFilterGroup<T extends Record<string, unknown>>(item: T, group: FilterGroup): boolean {
+function _evaluateFilterGroup<T extends Record<string, unknown>>(item: T, group: FilterGroup): boolean {
   return evaluateCompiled(item, compileFilterGroup<T>(group));
 }
 

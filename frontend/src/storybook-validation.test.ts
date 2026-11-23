@@ -3,7 +3,7 @@ import { readdirSync } from 'fs'
 import { resolve } from 'path'
 
 const STORIES_DIR = resolve(__dirname, './stories')
-const COMPONENTS_DIR = resolve(__dirname, './components')
+const _COMPONENTS_DIR = resolve(__dirname, './components')
 
 describe('Storybook Stories Validation', () => {
   it('should have valid story files in stories directory', () => {

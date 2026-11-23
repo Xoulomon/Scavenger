@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { WasteFilterManager, WasteFilter } from './wasteFilterManager';
+import { WasteFilterManager } from './wasteFilterManager';
 
 describe('WasteFilterManager', () => {
   it('initializes with empty filters', () => {

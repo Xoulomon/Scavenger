@@ -1,7 +1,7 @@
 // Feature: frontend-enhancements, Property: Compliance report generation and filtering
 // Validates: Report template correctness, schedule validation, status tracking
 
-import { describe, it, expect } from 'vitest'
+import { describe, it } from 'vitest'
 import * as fc from 'fast-check'
 
 // ─── Types ──────────────────────────────────────────────────────────────────

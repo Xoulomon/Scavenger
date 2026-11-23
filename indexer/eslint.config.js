@@ -70,7 +70,7 @@ module.exports = [
       ],
     },
   },
-  // Test files: relax rules
+  // Test files: no-explicit-any and no-unused-vars stay enforced (issue #1767)
   {
     files: ['**/*.test.ts', '**/*.spec.ts', '**/__tests__/**/*.ts'],
     languageOptions: {
@@ -87,8 +87,11 @@ module.exports = [
     rules: {
       ...sharedRules,
       'no-console': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
     },
   },
 ]

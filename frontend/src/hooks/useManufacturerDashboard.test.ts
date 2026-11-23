@@ -105,6 +105,7 @@ describe('useManufacturerDashboard', () => {
   })
 
   it('should not fetch data when wallet address is missing', () => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- simulate invalid input / loose args in test
     mockWallet.address = undefined as any
     mockGetStats.mockResolvedValue({ total_earned: 0n })
 
@@ -125,6 +126,7 @@ describe('useManufacturerDashboard', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
     await act(async () => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- simulate invalid input / loose args in test
       await result.current.createIncentive(1 as any, 100n, 1000n)
     })
 

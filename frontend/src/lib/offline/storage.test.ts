@@ -3,7 +3,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
-interface OfflineDBSchema {
+interface _OfflineDBSchema {
   queries: {
     key: string
     data: unknown
@@ -55,8 +55,8 @@ describe('Offline Storage', () => {
 
   describe('Query Cache Operations', () => {
     it('should save query to storage', async () => {
-      const key = 'participant:GABC123'
-      const data = { address: 'GABC123', role: 0, name: 'Alice' }
+      const _key = 'participant:GABC123'
+      const _data = { address: 'GABC123', role: 0, name: 'Alice' }
 
       mockDB.put.mockResolvedValue(undefined)
 

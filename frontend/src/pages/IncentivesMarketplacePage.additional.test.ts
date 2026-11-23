@@ -44,7 +44,7 @@ const incentiveArb: fc.Arbitrary<Incentive> = fc.record({
   created_at: fc.integer({ min: 0, max: 2000000000 }),
 })
 
-const viewModeArb: fc.Arbitrary<ViewMode> = fc.constantFrom('grid' as const, 'list' as const)
+const _viewModeArb: fc.Arbitrary<ViewMode> = fc.constantFrom('grid' as const, 'list' as const)
 
 const addressArb: fc.Arbitrary<string> = fc.hexaString({ minLength: 40, maxLength: 42 }).map((s) => `0x${s}`)
 
@@ -286,7 +286,7 @@ describe('IncentivesMarketplacePage — comparison selection', () => {
           set = toggleCompareId(set, a)
           set = toggleCompareId(set, b)
           set = toggleCompareId(set, c)
-          const before = new Set(set)
+          const _before = new Set(set)
           set = toggleCompareId(set, d)
           return (
             set.size === 3 &&
@@ -309,7 +309,7 @@ describe('IncentivesMarketplacePage — comparison selection', () => {
         (ids, newId) => {
           const original = new Set<number>(ids)
           const snapshot = new Set(original)
-          const result = toggleCompareId(original, newId)
+          const _result = toggleCompareId(original, newId)
           return (
             original.size === snapshot.size &&
             Array.from(original).every((id) => snapshot.has(id))

@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import * as LucideIcons from 'lucide-react'
 
 interface IconDefinition {
   name: string
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- icon components accept arbitrary props
   component: React.ComponentType<any>
   category: string
 }
@@ -31,6 +32,7 @@ const iconRegistry: Record<string, IconDefinition> = {
   clock: { name: 'clock', component: LucideIcons.Clock, category: 'time' },
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- icon components accept arbitrary props
 const getIcon = (name: string): React.ComponentType<any> | null => {
   const icon = iconRegistry[name]
   return icon ? icon.component : null

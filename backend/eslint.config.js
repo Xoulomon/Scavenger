@@ -14,6 +14,6 @@ module.exports = {
     ...baseConfig.rules,
     // Backend-specific rules
     'no-console': 'off',
-    '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/no-explicit-any': 'error',
   },
 };

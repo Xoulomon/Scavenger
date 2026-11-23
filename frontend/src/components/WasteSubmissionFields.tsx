@@ -1,5 +1,5 @@
 import { type Control, type FieldErrors, type UseFormRegister, type UseFormSetValue, type UseFormWatch } from 'react-hook-form'
-import { WasteType } from '@/api/types'
+import '@/api/types';
 import { type WeightUnit, type WasteFormValues } from '@/lib/validation/wasteSubmission'
 import { useAuth } from '@/contexts/AuthContext'
 import { useNetwork } from '@/contexts/NetworkContext'

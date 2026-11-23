@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import '@tanstack/react-query';
 import { useContractQuery } from '@/hooks/useContractQuery'
 import { cacheKeys } from '@/lib/cacheKeys'
 

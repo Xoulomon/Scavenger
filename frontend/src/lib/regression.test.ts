@@ -10,7 +10,7 @@
  * Run with:  npm test  (or  npx vitest --run  ) inside /frontend
  */
 
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 // ---------------------------------------------------------------------------
 // Bug: WasteType numeric → string mapping included invalid keys

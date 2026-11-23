@@ -1,7 +1,7 @@
 // Feature: frontend-enhancements, Property 8: Search preview capped at 5 results
 // Validates: Requirements 6.7
 
-import { describe, it, expect } from 'vitest'
+import { describe, it } from 'vitest'
 import * as fc from 'fast-check'
 import type { SearchResult } from '@/lib/searchStorage'
 

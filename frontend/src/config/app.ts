@@ -1,5 +1,5 @@
 import { ContractConfig } from '../types';
-import { LogLevel, NetworkType } from '../lib/constants';
+import { LogLevel } from '../lib/constants';
 import { env } from './env';
 
 interface AppConfig {

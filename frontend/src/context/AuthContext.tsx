@@ -8,7 +8,7 @@
  */
 import React, { type ReactNode } from 'react'
 import { useAuthStore, type AuthUser } from '@/store'
-import { ROLES } from '@/lib/constants'
+import '@/lib/constants';
 
 export type { AuthUser }
 

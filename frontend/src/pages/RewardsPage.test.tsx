@@ -1,7 +1,7 @@
 // Feature: RewardsPage enhancements
 // Validates: tier logic, reward calculator, redemption dialogs, transaction history
 
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { WasteType } from '@/api/types'
 

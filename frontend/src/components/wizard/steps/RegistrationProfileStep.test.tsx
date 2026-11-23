@@ -2,8 +2,8 @@
 // Validates user profile information collection in wizard flow
 
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
-import { useForm } from 'react-hook-form'
+import { render, screen } from '@testing-library/react'
+import 'react-hook-form';
 
 interface ProfileFormData {
   displayName: string
@@ -13,14 +13,16 @@ interface ProfileFormData {
 }
 
 interface RegistrationProfileStepProps {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- react-hook-form register/errors shape mocked loosely in test
   register: any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- react-hook-form register/errors shape mocked loosely in test
   errors: any
   formData: ProfileFormData
   onUpdate: (data: Partial<ProfileFormData>) => void
 }
 
 // Mock component - will be extracted from ParticipantRegistrationPage
-const RegistrationProfileStep = ({ register, errors, formData, onUpdate }: RegistrationProfileStepProps) => {
+const RegistrationProfileStep = ({ register, errors, _formData, _onUpdate }: RegistrationProfileStepProps) => {
   return (
     <form data-testid="profile-form">
       <label>

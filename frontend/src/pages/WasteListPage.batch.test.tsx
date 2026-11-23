@@ -2,7 +2,7 @@
 // Validates: checkbox selection, select all/none, bulk toolbar, batch transfer/verify/confirm/deactivate,
 // progress indicator, partial failure handling
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import React, { useState } from 'react'
 
@@ -99,7 +99,7 @@ describe('WasteListPage — Batch Action Results', () => {
   function BatchResultStub() {
     const [result, setResult] = useState<{ succeeded: number; failed: number; errors: string[] } | null>(null)
     const [progress, setProgress] = useState<{ completed: number; total: number } | null>(null)
-    const [running, setRunning] = useState(false)
+    const [_running, setRunning] = useState(false)
 
     const simulateBatchAction = async (succeedCount: number, failCount: number, errorMessages: string[]) => {
       setRunning(true)
@@ -199,8 +199,8 @@ describe('WasteListPage — Batch Toolbar', () => {
   function BatchToolbarStub() {
     const [selected, setSelected] = useState<number[]>([])
     const [hasConfirmable, setHasConfirmable] = useState(true)
-    const [hasVerifiable, setHasVerifiable] = useState(true)
-    const [hasTransferable, setHasTransferable] = useState(true)
+    const [hasVerifiable, _setHasVerifiable] = useState(true)
+    const [hasTransferable, _setHasTransferable] = useState(true)
     const [isAdmin, setIsAdmin] = useState(false)
 
     return (

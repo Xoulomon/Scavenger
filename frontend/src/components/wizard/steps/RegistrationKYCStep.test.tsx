@@ -28,8 +28,8 @@ const RegistrationKYCStep = ({
   verificationDocs,
   selfiPhoto,
   onLocationUpdate,
-  onDocumentAdd,
-  onSelfieAdd,
+  _onDocumentAdd,
+  _onSelfieAdd,
   errors,
 }: RegistrationKYCStepProps) => {
   return (

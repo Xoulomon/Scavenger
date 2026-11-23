@@ -103,6 +103,7 @@ describe('useCollectorDashboard', () => {
   })
 
   it('should not fetch data when wallet address is missing', () => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- simulate missing wallet address in test
     mockWallet.address = undefined as any
 
     renderHook(() => useCollectorDashboard())

@@ -1,7 +1,7 @@
 // Feature: frontend-enhancements, Property: Test report data integrity
 // Validates: Test report page filtering, calculation, and state management
 
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
 
 // ─── Arbitraries ─────────────────────────────────────────────────────────────
@@ -415,7 +415,7 @@ describe('TestReportsPage — test run aggregation', () => {
 describe('TestReportsPage — status badge configuration', () => {
   it('all status types have valid configuration', () => {
     const statuses: TestStatus[] = ['passed', 'failed', 'skipped', 'pending']
-    const validColors = [
+    const _validColors = [
       'text-green-500 bg-green-500/10 border-green-500/20',
       'text-red-500 bg-red-500/10 border-red-500/20',
       'text-yellow-500 bg-yellow-500/10 border-yellow-500/20',

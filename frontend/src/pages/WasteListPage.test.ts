@@ -6,7 +6,7 @@ import * as fc from 'fast-check'
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-enum WasteType {
+enum _WasteType {
   Paper = 0,
   PetPlastic = 1,
   Plastic = 2,
@@ -107,7 +107,7 @@ function countSelectableByStatus(wastes: Material[], status: 'confirmable' | 've
   }
 }
 
-function filterByWasteType(wastes: Material[], typeFilter: string): Material[] {
+function _filterByWasteType(wastes: Material[], typeFilter: string): Material[] {
   if (typeFilter === 'all') return wastes
   const typeNum = Number(typeFilter)
   return wastes.filter((w) => w.waste_type === typeNum)

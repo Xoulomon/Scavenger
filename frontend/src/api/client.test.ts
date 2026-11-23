@@ -17,7 +17,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { ScavengerClient, type ClientOptions } from './client'
 import { WasteType, Role } from './types'
-import type { Participant, Material, Waste, Incentive, GlobalMetrics, ParticipantStats } from './types'
+import type { Participant, Material, Incentive, GlobalMetrics, ParticipantStats } from './types'
 
 // ─── Mock Stellar SDK ────────────────────────────────────────────────────────
 
@@ -76,7 +76,7 @@ const makeParticipant = (overrides: Partial<Participant> = {}): Participant => (
   ...overrides,
 })
 
-const makeMaterial = (overrides: Partial<Material> = {}): Material => ({
+const _makeMaterial = (overrides: Partial<Material> = {}): Material => ({
   id: BigInt(1),
   owner: 'GMAT001',
   waste_type: WasteType.Plastic,
@@ -85,7 +85,7 @@ const makeMaterial = (overrides: Partial<Material> = {}): Material => ({
   ...overrides,
 })
 
-const makeIncentive = (overrides: Partial<Incentive> = {}): Incentive => ({
+const _makeIncentive = (overrides: Partial<Incentive> = {}): Incentive => ({
   id: BigInt(1),
   rewarder: 'GINC001',
   waste_type: WasteType.Metal,
@@ -181,7 +181,7 @@ describe('ScavengerClient — Admin operations', () => {
   })
 
   it('setPercentages requires percentage values', async () => {
-    const admin = 'GADMIN001'
+    const _admin = 'GADMIN001'
     const collectorPct = 60
     const ownerPct = 40
     expect(collectorPct + ownerPct).toBe(100)
@@ -193,7 +193,7 @@ describe('ScavengerClient — Admin operations', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('ScavengerClient — Participant operations', () => {
-  let client: ScavengerClient
+  let _client: ScavengerClient
 
   beforeEach(() => {
     client = new ScavengerClient(mockClientOptions)
@@ -202,11 +202,11 @@ describe('ScavengerClient — Participant operations', () => {
 
   it('registerParticipant creates a new participant', () => {
     const address = 'GPART001'
-    const role = Role.Collector
+    const _role = Role.Collector
     const name = 'Alice'
-    const lat = 40.7128
-    const lon = -74.006
-    const signer = 'GSIGNER001'
+    const _lat = 40.7128
+    const _lon = -74.006
+    const _signer = 'GSIGNER001'
 
     expect(address).toMatch(/^G/)
     expect(name.length).toBeGreaterThan(0)
@@ -226,9 +226,9 @@ describe('ScavengerClient — Participant operations', () => {
   })
 
   it('updateRole changes participant role', () => {
-    const address = 'GPART001'
+    const _address = 'GPART001'
     const newRole = Role.Verifier
-    const signer = 'GSIGNER001'
+    const _signer = 'GSIGNER001'
 
     expect([Role.Collector, Role.Verifier, Role.Manufacturer]).toContain(newRole)
   })
@@ -252,7 +252,7 @@ describe('ScavengerClient — Participant operations', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('ScavengerClient — Material/Waste operations', () => {
-  let client: ScavengerClient
+  let _client: ScavengerClient
 
   beforeEach(() => {
     client = new ScavengerClient(mockClientOptions)
@@ -261,23 +261,23 @@ describe('ScavengerClient — Material/Waste operations', () => {
 
   it('submitMaterial creates a new waste item', () => {
     const submitter = 'GSUBMITTER001'
-    const wasteType = WasteType.Plastic
+    const _wasteType = WasteType.Plastic
     const weight = BigInt(1000)
-    const lat = BigInt(407128)
-    const lon = BigInt(-740060)
-    const signer = 'GSIGNER001'
+    const _lat = BigInt(407128)
+    const _lon = BigInt(-740060)
+    const _signer = 'GSIGNER001'
 
     expect(submitter).toMatch(/^G/)
     expect(weight).toBeGreaterThan(0n)
   })
 
   it('submitMaterialsBatch submits multiple items', () => {
-    const submitter = 'GSUBMITTER001'
+    const _submitter = 'GSUBMITTER001'
     const materials = [
       { wasteType: WasteType.Plastic, weight: BigInt(1000) },
       { wasteType: WasteType.Metal, weight: BigInt(2000) },
     ]
-    const signer = 'GSIGNER001'
+    const _signer = 'GSIGNER001'
 
     expect(materials.length).toBe(2)
     materials.forEach((m) => expect(m.weight).toBeGreaterThan(0n))
@@ -286,7 +286,7 @@ describe('ScavengerClient — Material/Waste operations', () => {
   it('verifyMaterial marks material as verified', () => {
     const materialId = BigInt(1)
     const verifier = 'GVERIFIER001'
-    const signer = 'GSIGNER001'
+    const _signer = 'GSIGNER001'
 
     expect(materialId).toBeGreaterThan(0n)
     expect(verifier).toMatch(/^G/)
@@ -294,12 +294,12 @@ describe('ScavengerClient — Material/Waste operations', () => {
 
   it('transferWaste transfers ownership', () => {
     const wasteId = BigInt(1)
-    const from = 'GOWNER001'
-    const to = 'GNEWOWNER001'
-    const lat = BigInt(407128)
-    const lon = BigInt(-740060)
+    const _from = 'GOWNER001'
+    const _to = 'GNEWOWNER001'
+    const _lat = BigInt(407128)
+    const _lon = BigInt(-740060)
     const note = 'Transfer note'
-    const signer = 'GSIGNER001'
+    const _signer = 'GSIGNER001'
 
     expect(wasteId).toBeGreaterThan(0n)
     expect(note.length).toBeGreaterThan(0)
@@ -308,7 +308,7 @@ describe('ScavengerClient — Material/Waste operations', () => {
   it('confirmWasteDetails marks waste as confirmed', () => {
     const wasteId = BigInt(1)
     const confirmer = 'GCONFIRMER001'
-    const signer = 'GSIGNER001'
+    const _signer = 'GSIGNER001'
 
     expect(wasteId).toBeGreaterThan(0n)
     expect(confirmer).toMatch(/^G/)
@@ -316,8 +316,8 @@ describe('ScavengerClient — Material/Waste operations', () => {
 
   it('resetWasteConfirmation reverts confirmation', () => {
     const wasteId = BigInt(1)
-    const owner = 'GOWNER001'
-    const signer = 'GSIGNER001'
+    const _owner = 'GOWNER001'
+    const _signer = 'GSIGNER001'
 
     expect(wasteId).toBeGreaterThan(0n)
   })
@@ -325,7 +325,7 @@ describe('ScavengerClient — Material/Waste operations', () => {
   it('deactivateWaste marks waste inactive', () => {
     const admin = 'GADMIN001'
     const wasteId = BigInt(1)
-    const signer = 'GSIGNER001'
+    const _signer = 'GSIGNER001'
 
     expect(admin).toMatch(/^G/)
     expect(wasteId).toBeGreaterThan(0n)
@@ -357,7 +357,7 @@ describe('ScavengerClient — Material/Waste operations', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('ScavengerClient — Incentive operations', () => {
-  let client: ScavengerClient
+  let _client: ScavengerClient
 
   beforeEach(() => {
     client = new ScavengerClient(mockClientOptions)
@@ -365,11 +365,11 @@ describe('ScavengerClient — Incentive operations', () => {
   })
 
   it('createIncentive creates a new incentive program', () => {
-    const rewarder = 'GREWARDER001'
-    const wasteType = WasteType.Metal
+    const _rewarder = 'GREWARDER001'
+    const _wasteType = WasteType.Metal
     const rewardPoints = BigInt(100)
     const budget = BigInt(10000)
-    const signer = 'GSIGNER001'
+    const _signer = 'GSIGNER001'
 
     expect(rewardPoints).toBeGreaterThan(0n)
     expect(budget).toBeGreaterThan(0n)
@@ -377,18 +377,18 @@ describe('ScavengerClient — Incentive operations', () => {
 
   it('updateIncentive modifies existing incentive', () => {
     const incentiveId = BigInt(1)
-    const rewarder = 'GREWARDER001'
-    const rewardPoints = BigInt(150)
-    const budget = BigInt(15000)
-    const signer = 'GSIGNER001'
+    const _rewarder = 'GREWARDER001'
+    const _rewardPoints = BigInt(150)
+    const _budget = BigInt(15000)
+    const _signer = 'GSIGNER001'
 
     expect(incentiveId).toBeGreaterThan(0n)
   })
 
   it('deactivateIncentive disables an incentive', () => {
     const incentiveId = BigInt(1)
-    const rewarder = 'GREWARDER001'
-    const signer = 'GSIGNER001'
+    const _rewarder = 'GREWARDER001'
+    const _signer = 'GSIGNER001'
 
     expect(incentiveId).toBeGreaterThan(0n)
   })
@@ -409,15 +409,15 @@ describe('ScavengerClient — Incentive operations', () => {
 
   it('getActiveMfrIncentive retrieves manufacturer incentive', () => {
     const manufacturer = 'GMFR001'
-    const wasteType = WasteType.Plastic
+    const _wasteType = WasteType.Plastic
 
     expect(manufacturer).toMatch(/^G/)
   })
 
   it('donateToCharity transfers tokens to charity', () => {
-    const donor = 'GDONOR001'
+    const _donor = 'GDONOR001'
     const amount = BigInt(1000)
-    const signer = 'GSIGNER001'
+    const _signer = 'GSIGNER001'
 
     expect(amount).toBeGreaterThan(0n)
   })
@@ -425,8 +425,8 @@ describe('ScavengerClient — Incentive operations', () => {
   it('distributeRewards allocates incentive rewards', () => {
     const wasteId = BigInt(1)
     const incentiveId = BigInt(1)
-    const manufacturer = 'GMFR001'
-    const signer = 'GSIGNER001'
+    const _manufacturer = 'GMFR001'
+    const _signer = 'GSIGNER001'
 
     expect(wasteId).toBeGreaterThan(0n)
     expect(incentiveId).toBeGreaterThan(0n)
@@ -438,7 +438,7 @@ describe('ScavengerClient — Incentive operations', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('ScavengerClient — Metrics and stats', () => {
-  let client: ScavengerClient
+  let _client: ScavengerClient
 
   beforeEach(() => {
     client = new ScavengerClient(mockClientOptions)
@@ -479,7 +479,7 @@ describe('ScavengerClient — Metrics and stats', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('ScavengerClient — Legacy aliases (deprecated)', () => {
-  let client: ScavengerClient
+  let _client: ScavengerClient
 
   beforeEach(() => {
     client = new ScavengerClient(mockClientOptions)
@@ -503,10 +503,10 @@ describe('ScavengerClient — Legacy aliases (deprecated)', () => {
 
   it('recycleWaste is deprecated, should use submitMaterial', () => {
     const recycler = 'GRECYCLER001'
-    const wasteType = WasteType.Plastic
+    const _wasteType = WasteType.Plastic
     const weight = BigInt(1000)
-    const lat = BigInt(407128)
-    const lon = BigInt(-740060)
+    const _lat = BigInt(407128)
+    const _lon = BigInt(-740060)
 
     expect(recycler).toMatch(/^G/)
     expect(weight).toBeGreaterThan(0n)
@@ -518,7 +518,7 @@ describe('ScavengerClient — Legacy aliases (deprecated)', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('ScavengerClient — Parameter validation', () => {
-  let client: ScavengerClient
+  let _client: ScavengerClient
 
   beforeEach(() => {
     client = new ScavengerClient(mockClientOptions)

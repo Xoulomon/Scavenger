@@ -11,7 +11,7 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     i18n: {
       language: 'en',
-      changeLanguage: vi.fn((lang) => Promise.resolve()),
+      changeLanguage: vi.fn((_lang) => Promise.resolve()),
     },
     t: (key: string) => key,
   }),
@@ -93,7 +93,7 @@ describe('LanguageSelector', () => {
   describe('User Interactions', () => {
     it('changes language when option is selected', async () => {
       const user = userEvent.setup()
-      const { useTranslation } = await vi.importActual<typeof import('react-i18next')>(
+      const { _useTranslation } = await vi.importActual<typeof import('react-i18next')>(
         'react-i18next'
       )
 
@@ -110,11 +110,11 @@ describe('LanguageSelector', () => {
 
     it('updates document.documentElement.lang when language changes', async () => {
       const user = userEvent.setup()
-      const changeLanguageMock = vi.fn((lang) => Promise.resolve())
+      const changeLanguageMock = vi.fn((_lang) => Promise.resolve())
 
       // Mock the useTranslation hook with our mock
       vi.mocked = vi.mocked || {}
-      const mockUseTranslation = vi.fn().mockReturnValue({
+      const _mockUseTranslation = vi.fn().mockReturnValue({
         i18n: {
           language: 'en',
           changeLanguage: changeLanguageMock,
@@ -267,7 +267,7 @@ describe('LanguageSelector', () => {
       const user = userEvent.setup()
       render(<LanguageSelector />)
 
-      const trigger = screen.getByRole('combobox', { hidden: true })
+      const _trigger = screen.getByRole('combobox', { hidden: true })
 
       // Tab to the select
       await user.tab()
@@ -349,7 +349,7 @@ describe('LanguageSelector', () => {
 
     it('handles RTL languages correctly', async () => {
       const user = userEvent.setup()
-      const changeLanguageMock = vi.fn((lang: string) => {
+      const _changeLanguageMock = vi.fn((lang: string) => {
         if (lang === 'ar') {
           document.documentElement.dir = 'rtl'
           document.documentElement.lang = 'ar'
@@ -405,7 +405,7 @@ describe('LanguageSelector', () => {
 
       unmount()
 
-      const { rerender } = render(<LanguageSelector />)
+      const { _rerender } = render(<LanguageSelector />)
       // Selector should still be functional
       expect(screen.getByRole('combobox', { hidden: true })).toBeInTheDocument()
     })
@@ -433,7 +433,7 @@ describe('LanguageSelector', () => {
 
   describe('Backwards Compatibility', () => {
     it('maintains existing Select component interface', async () => {
-      const user = userEvent.setup()
+      const _user = userEvent.setup()
       render(<LanguageSelector />)
 
       // Should use Select component with proper value/onValueChange interface

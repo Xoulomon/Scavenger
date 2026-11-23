@@ -2,7 +2,7 @@
  * Issue #1299: Unit tests for useFeatureFlag, useFlag, and useFeatureFlags hooks.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 
 // ── Mock the featureFlags lib ──────────────────────────────────────────────

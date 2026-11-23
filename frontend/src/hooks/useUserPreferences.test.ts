@@ -2,7 +2,7 @@
  * Issue #1299: Unit tests for useUserPreferences hook.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 
 // ── Mock the userPreferences lib ─────────────────────────────────────────────

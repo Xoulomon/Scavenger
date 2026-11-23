@@ -1,9 +1,7 @@
 // Test suite for i18n locale key validation (#1220)
 // Validates detection and removal of unused translation keys
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import * as fs from 'fs'
-import * as path from 'path'
+import { describe, it, expect, beforeEach } from 'vitest'
 
 interface LocaleKeyValidatorOptions {
   sourceDir: string

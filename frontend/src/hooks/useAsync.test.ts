@@ -185,7 +185,7 @@ describe('useAsync', () => {
     await act(async () => { await result.current.run() })
     expect(result.current.status).toBe('error')
 
-    let loadingObserved = false
+    let _loadingObserved = false
     act(() => {
       void result.current.run().then(() => {
         // After run starts the error should be cleared in loading state

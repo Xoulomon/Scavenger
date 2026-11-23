@@ -2,12 +2,6 @@ import { describe, it, expect } from 'vitest'
 import {
   WasteSubmissionFormData,
   TransferFormData,
-  LocationStepProps,
-  WasteTypeStepProps,
-  WasteSelectionStepProps,
-  RecipientSelectionStepProps,
-  ReviewStepProps,
-  ReviewConfirmStepProps,
 } from './types'
 import { WasteType } from '@/api/types'
 

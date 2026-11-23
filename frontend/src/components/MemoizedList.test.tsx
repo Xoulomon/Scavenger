@@ -124,7 +124,7 @@ describe('Memoized List Component', () => {
   })
 
   it('preserves memoization across re-renders', () => {
-    const handleSelect = vi.fn()
+    const _handleSelect = vi.fn()
     const renderSpy = vi.fn()
 
     const SpyedMemoizedItem = memo(({ item }: { item: { id: string; name: string } }) => {
@@ -244,7 +244,7 @@ describe('List with useMemo Optimization', () => {
 
 describe('VirtualizedList - Performance', () => {
   const TestVirtualizedList = ({ items }: { items: Array<{ id: string; name: string }> }) => {
-    const [visibleRange, setVisibleRange] = useState({ start: 0, end: 50 })
+    const [visibleRange, _setVisibleRange] = useState({ start: 0, end: 50 })
 
     const visibleItems = useMemo(() => {
       return items.slice(visibleRange.start, visibleRange.end)

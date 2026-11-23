@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import {
-  encodeQR,
   decodeQR,
   validateQRPayload,
   sanitizeQRData,
@@ -215,6 +214,7 @@ describe('QR Malformed Payload Handling', () => {
 
   describe('Error recovery', () => {
     it('should gracefully handle circular references', () => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- circular reference fixture requires any
       const circular: any = {}
       circular.self = circular
       const result = decodeQR(circular)

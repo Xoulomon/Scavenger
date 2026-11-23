@@ -77,7 +77,7 @@ describe('Dialog Components', () => {
 
     it('supports controlled open state', async () => {
       const handleOpenChange = vi.fn()
-      const { rerender } = render(
+      const { _rerender } = render(
         <Dialog open={false} onOpenChange={handleOpenChange}>
           <DialogTrigger>Open</DialogTrigger>
           <DialogContent>
@@ -95,7 +95,7 @@ describe('Dialog Components', () => {
 
   describe('DialogHeader', () => {
     it('renders header container', () => {
-      const { container } = render(
+      const { _container } = render(
         <Dialog open={true}>
           <DialogContent>
             <DialogHeader>Header Content</DialogHeader>
@@ -177,7 +177,7 @@ describe('Dialog Components', () => {
     })
 
     it('applies secondary text styling', () => {
-      const { container } = render(
+      const { _container } = render(
         <Dialog open={true}>
           <DialogContent>
             <DialogDescription>Styled description</DialogDescription>
@@ -441,7 +441,7 @@ describe('Dialog Components', () => {
     })
 
     it('focus trap is established within dialog', async () => {
-      const user = userEvent.setup()
+      const _user = userEvent.setup()
       render(
         <Dialog open={true}>
           <DialogContent>

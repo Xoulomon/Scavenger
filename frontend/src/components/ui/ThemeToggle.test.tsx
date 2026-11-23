@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe, toHaveNoViolations } from 'jest-axe'
 import { ThemeToggle, ThemeSelector } from './ThemeToggle'
-import { ThemeProvider, useTheme } from '@/context/ThemeProvider'
+import { useTheme } from '@/context/ThemeProvider'
 import { ReactNode } from 'react'
 
 expect.extend(toHaveNoViolations)
@@ -529,7 +529,7 @@ describe('ThemeSelector', () => {
       )
 
       const lightOption = screen.getByRole('radio', { name: /light/i })
-      const darkOption = screen.getByRole('radio', { name: /dark/i })
+      const _darkOption = screen.getByRole('radio', { name: /dark/i })
 
       lightOption.focus()
       expect(lightOption).toHaveFocus()

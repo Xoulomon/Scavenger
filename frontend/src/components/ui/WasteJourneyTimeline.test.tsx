@@ -1,7 +1,7 @@
 // Feature: WasteJourneyTimeline component
 // Validates: horizontal/vertical layout, zoom, export, event building
 
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { WasteJourneyTimeline } from './WasteJourneyTimeline'
 import { WasteType } from '@/api/types'

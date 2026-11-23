@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import '@tanstack/react-query';
 import { Participant } from '@/api/types'
 import { useWallet } from '@/context/WalletContext'
 import { useContract } from '@/context/ContractContext'

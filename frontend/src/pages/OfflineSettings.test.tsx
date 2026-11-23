@@ -7,7 +7,7 @@ vi.mock('@/hooks/useOnlineStatus', () => ({
 }))
 
 vi.mock('@/hooks/useAsync', () => ({
-  useAsync: vi.fn((fn) => ({
+  useAsync: vi.fn((_fn) => ({
     run: vi.fn(),
     isLoading: false,
   })),

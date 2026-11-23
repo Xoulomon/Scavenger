@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { DataTable, Column, DataTableProps } from './DataTable'
+import { DataTable, Column } from './DataTable'
 
 interface TestData {
   id: string | number
@@ -400,7 +400,7 @@ describe('DataTable Component', () => {
 
   describe('CSS Classes', () => {
     it('should apply custom className', () => {
-      const { container } = render(
+      const { _container } = render(
         <DataTable data={mockData} columns={mockColumns} className="custom-class" />
       )
 
@@ -422,9 +422,11 @@ describe('DataTable Component', () => {
         },
         {
           id: '2',
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- test fixture uses null sentinel for nullable column
           name: null as any,
           email: 'bob@example.com',
           status: 'inactive',
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- test fixture uses null sentinel for nullable column
           amount: null as any,
           createdAt: '2024-02-20',
         },
@@ -439,6 +441,7 @@ describe('DataTable Component', () => {
     it('should handle sorting with null values', async () => {
       const dataWithNull: TestData[] = [
         { ...mockData[0], amount: 100 },
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- test fixture uses null sentinel for nullable column
         { ...mockData[1], amount: null as any },
         { ...mockData[2], amount: 200 },
       ]

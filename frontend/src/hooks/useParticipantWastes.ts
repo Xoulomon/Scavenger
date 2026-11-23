@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { ScavengerClient } from '@/api/client'
-import { Waste, WasteType } from '@/api/types'
+import '@tanstack/react-query';
+import '@/api/client';
+import { Waste } from '@/api/types'
 import { useWallet } from '@/context/WalletContext'
 import { cacheKeys } from '@/lib/cacheKeys'
 import { queryCachePolicy } from '@/lib/queryClient'

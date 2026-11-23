@@ -179,7 +179,7 @@ function getOnboardingDataAttribute(href: string): string | undefined {
 }
 
 export function AppShell({ children }: PropsWithChildren) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [_sidebarOpen, _setSidebarOpen] = useState(false)
   const { address, isConnected, connect, isLoading } = useWallet()
   const { address, isConnected, connect, disconnect, isLoading } = useWallet()
   const { user, logout } = useAuth()

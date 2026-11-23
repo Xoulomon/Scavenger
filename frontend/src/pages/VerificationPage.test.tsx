@@ -335,7 +335,7 @@ describe('VerificationPage — decision submission', () => {
   })
 
   it('shows different results for different decisions', () => {
-    const { rerender } = render(<DecisionFormStub />)
+    const { _rerender } = render(<DecisionFormStub />)
     fireEvent.click(screen.getByLabelText('Approve'))
     expect(screen.getByTestId('result').textContent).toContain('approved')
   })

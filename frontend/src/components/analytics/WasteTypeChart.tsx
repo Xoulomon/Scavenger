@@ -15,8 +15,8 @@ function WasteTypeChartComponent() {
   const { total, slices } = useMemo(() => {
     const total = WASTE_DATA.reduce((sum, d) => sum + d.value, 0)
     const radius = 60
-    const cx = 80
-    const cy = 80
+    const _cx = 80
+    const _cy = 80
     const circumference = 2 * Math.PI * radius
 
     let cumulative = 0

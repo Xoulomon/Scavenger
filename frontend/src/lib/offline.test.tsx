@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useOnlineStatus } from '@/hooks/useOnlineStatus'
 import { useOfflineMutation } from '@/hooks/useOfflineMutation'
 import {
-  getDB,
   setQueryData,
   getQueryData,
   removeQueryData,

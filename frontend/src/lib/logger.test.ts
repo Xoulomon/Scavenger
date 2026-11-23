@@ -254,6 +254,7 @@ describe('GatedLogger', () => {
     })
 
     it('should handle objects with circular references', () => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- circular reference fixture requires any
       const circular: any = { ref: null }
       circular.ref = circular
       expect(() => {

@@ -2,7 +2,7 @@
 // Validates offline queue persistence, retry logic, and conflict resolution
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { SyncManager, SyncResult } from './syncManager'
+import { SyncManager } from './syncManager'
 
 interface QueuedMutation {
   id: string
@@ -25,8 +25,11 @@ import { getPendingMutations, updateMutationStatus, deleteMutation } from './sto
 
 describe('SyncManager', () => {
   let syncManager: SyncManager
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- cast module fns to spies in test
   const mockGetPendingMutations = getPendingMutations as any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- cast module fns to spies in test
   const mockUpdateMutationStatus = updateMutationStatus as any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- cast module fns to spies in test
   const mockDeleteMutation = deleteMutation as any
 
   beforeEach(() => {
@@ -257,7 +260,7 @@ describe('SyncManager', () => {
       const callback = vi.fn().mockResolvedValue({})
       syncManager.registerMutationHandler('submit:material', callback)
 
-      const result = await syncManager.syncPendingMutations()
+      const _result = await syncManager.syncPendingMutations()
 
       // Retry count should be preserved in mutations
       expect(mockGetPendingMutations).toHaveBeenCalled()

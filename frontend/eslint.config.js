@@ -136,7 +136,7 @@ export default [
       ],
     },
   },
-  // Test files: relax no-explicit-any and no-unused-vars
+  // Test files: no-explicit-any and no-unused-vars stay enforced (issue #1767)
   {
     files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx'],
     languageOptions: {
@@ -153,8 +153,11 @@ export default [
     settings: sharedSettings,
     rules: {
       ...sharedRules,
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
+      ],
     },
   },
   // Storybook stories: allow console.log

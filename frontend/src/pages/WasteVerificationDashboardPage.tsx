@@ -17,8 +17,8 @@ import { cacheKeys } from '@/lib/cacheKeys'
 
 type QualityGrade = 'A' | 'B' | 'C' | 'D' | 'F'
 type StatusFilter = 'all' | 'pending' | 'verified'
-type SortField = 'id' | 'date' | 'weight' | 'type'
-type SortDirection = 'asc' | 'desc'
+type _SortField = 'id' | 'date' | 'weight' | 'type'
+type _SortDirection = 'asc' | 'desc'
 
 interface VerificationFormData {
   grade: QualityGrade
@@ -49,7 +49,7 @@ interface TimelineEvent {
 
 const _sessionHistory: VerificationRecord[] = []
 
-function addRecord(record: VerificationRecord) {
+function _addRecord(record: VerificationRecord) {
   _sessionHistory.unshift(record)
   if (_sessionHistory.length > 200) _sessionHistory.pop()
 }
@@ -101,7 +101,7 @@ const WASTE_TYPE_OPTIONS: { value: string; label: string; type: WasteType }[] = 
 
 // ── Hooks ─────────────────────────────────────────────────────────────────────
 
-function useAllMaterials() {
+function _useAllMaterials() {
   const { config } = useContract()
   const { address } = useWallet()
 
@@ -125,7 +125,7 @@ function useAllMaterials() {
   })
 }
 
-function useVerifyMaterial() {
+function _useVerifyMaterial() {
   const { config } = useContract()
   const { address } = useWallet()
   const qc = useQueryClient()
@@ -357,7 +357,7 @@ function FilterBar({
 
 // ── Waste list item ──────────────────────────────────────────────────────────
 
-function WasteListItem({
+function _WasteListItem({
   material,
   isSelected,
   isChecked,
@@ -1041,7 +1041,7 @@ function formatWeight(weight: number): string {
   return weight >= 1000 ? `${(weight / 1000).toFixed(2)} kg` : `${weight} g`
 }
 
-function exportVerificationCsv(materials: Material[], history: VerificationRecord[]) {
+function _exportVerificationCsv(materials: Material[], history: VerificationRecord[]) {
   const headers = [
     'Material ID',
     'Waste Type',

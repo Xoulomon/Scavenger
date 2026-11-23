@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 
 // Design tokens definition
 interface DesignTokens {
@@ -249,7 +249,7 @@ describe('Design Tokens and Inline Styles', () => {
   describe('Token Consistency', () => {
     it('should have no duplicate color values', () => {
       const colors = Object.values(designTokens.colors)
-      const uniqueColors = new Set(colors)
+      const _uniqueColors = new Set(colors)
       // Allow some duplicates for semantic colors, but check structure
       expect(colors.length).toBeGreaterThan(0)
     })
@@ -274,12 +274,12 @@ describe('Design Tokens and Inline Styles', () => {
 
   describe('Token Migration from Inline Styles', () => {
     it('should provide replacement for inline padding', () => {
-      const inlineStyle = 'padding: 1rem'
+      const _inlineStyle = 'padding: 1rem'
       expect(designTokens.spacing.md).toBe('1rem')
     })
 
     it('should provide replacement for inline color', () => {
-      const inlineStyle = 'color: #3B82F6'
+      const _inlineStyle = 'color: #3B82F6'
       expect(designTokens.colors.primary).toBe('#3B82F6')
     })
 
@@ -291,7 +291,7 @@ describe('Design Tokens and Inline Styles', () => {
         '#EF4444': designTokens.colors.danger,
       }
 
-      Object.entries(inlineToToken).forEach(([inline, token]) => {
+      Object.entries(inlineToToken).forEach(([_inline, token]) => {
         expect(token).toBeDefined()
       })
     })
@@ -304,6 +304,7 @@ describe('Design Tokens and Inline Styles', () => {
       expect(typeof colors).toBe('object')
 
       // Accessing undefined token should fail
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- deliberately access non-existent key to assert undefined
       expect((colors as any).invalidColor).toBeUndefined()
     })
 
