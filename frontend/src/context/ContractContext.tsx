@@ -42,7 +42,6 @@ export const ContractProvider: React.FC<{ children: ReactNode }> = ({ children }
   )
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useContract = () => {
   const context = useContext(ContractContext)
   if (context === undefined) {

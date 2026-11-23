@@ -258,3 +258,17 @@ For each security finding:
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [OWASP Testing Guide](https://owasp.org/www-project-web-security-testing-guide/)
 - [CWE Top 25](https://cwe.mitre.org/top25/)
+
+## Automated test cases (`security-tests/tests/`)
+
+Normalized case inventory — every case asserts a rejection (4xx/5xx as expected),
+uses fixed inputs, and avoids timing assumptions:
+
+- **access-control.test.ts** — RBAC matrix (Recycler/Collector/Manufacturer operations; valid + invalid transfer paths; admin-only operations — empty wallet address, deactivate waste); Admin-Only Operations; Contract Paused State (submissions/transfers/registrations rejected while paused); Deactivated Incentive Operations; Deactivated Waste Operations; Deregistered Participant Operations; Role Escalation Prevention (role changes, forged headers, parameter pollution).
+- **authorization-bypass.test.ts** — Non-admin calling admin endpoints (`transfer_admin`, `set_token_address`, `set_percentages`, `deactivate_waste`).
+- **broken-authentication.test.ts** — Missing Authentication (protected endpoints without credentials, admin operations without authentication, participant deregistration without authentication); Invalid Tokens (malformed JWT, invalid signature, empty bearer token, non-bearer schemes); Expired Tokens; Wallet-Based Authentication Bypass (empty/forged wallet header, spoofed X-Role/X-Is-Admin headers); Session Security.
+- **idor.test.ts** — Waste Resource Ownership (access/transfer/deactivate another user's waste); Participant Resource Ownership (other participant's private data, role changes, deregistration); Incentive Resource Ownership (claiming/updating others' incentives); API Endpoint Enumeration Resistance.
+- **injection-input-validation.test.ts, integer-overflow.test.ts, reentrancy.test.ts, timestamp-manipulation.test.ts** — per-file cases (added in a follow-up normalization pass).
+- **security.test.ts** — SQL Injection (participant query), Input Validation (empty/oversized strings), etc.
+
+Add new cases here, referenced by issue number, in the same normalized format above.

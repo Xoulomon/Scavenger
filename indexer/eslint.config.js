@@ -63,12 +63,25 @@ module.exports = [
     rules: {
       ...sharedRules,
       'no-console': 'off',
+      // #1786: all env access goes through the typed config in src/config.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "MemberExpression[object.name='process'][property.name='env']",
+          message: 'Read environment variables through the typed config in src/config; do not access process.env directly.',
+        },
+      ],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
       ]
     }
+  },
+  // The config module is the only place allowed to read process.env.
+  {
+    files: ['src/config/**/*.ts'],
+    rules: { 'no-restricted-syntax': 'off' },
   },
   // Test files: no-explicit-any and no-unused-vars stay enforced (issue #1767)
   {

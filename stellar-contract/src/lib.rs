@@ -101,6 +101,12 @@ mod test_edge_cases_coverage;
 #[path = "../../contracts/scavenger/src/test_emergency_stop.rs"]
 mod test_emergency_stop_coverage;
 #[cfg(test)]
+#[path = "../../contracts/scavenger/src/test_negative_paths.rs"]
+mod test_negative_paths_coverage;
+#[cfg(test)]
+#[path = "../../contracts/scavenger/src/test_auth_failures.rs"]
+mod test_auth_failures_coverage;
+#[cfg(test)]
 mod test_expiration;
 #[cfg(test)]
 mod test_grading;

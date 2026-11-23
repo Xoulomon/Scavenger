@@ -34,9 +34,13 @@ printpdf = "=0.12.7"
 actix-ws = "=0.3.1"
 rand = "=0.8.8"
 hex = "=0.4.3"
+# Added for direct use (kept in one list — the earlier duplicate table above
+# was leftover from a prior manifest version; see #1085):
+# - actix-cors: CORS middleware setup (main.rs)
+# - elasticsearch: search client (search/client.rs), archival storage
+# - base64, urlencoding, hmac: services/*
 actix-cors = "=0.7.2"
 elasticsearch = "=9.1.0-alpha.1"
-flate2 = "=1.1.10"
 base64 = "=0.22.1"
 urlencoding = "=2.1.3"
 url = "=2.5.8"

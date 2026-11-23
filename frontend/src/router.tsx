@@ -179,7 +179,6 @@ const OfflineSettings = lazy(() =>
 // Wraps the route outlet in a Suspense boundary so every lazy page gets a
 // consistent PageSkeleton loading fallback while its chunk is being fetched.
 
-// eslint-disable-next-line react-refresh/only-export-components
 function PageFallback() {
   return (
     <Suspense fallback={<PageSkeleton />}>
@@ -193,14 +192,12 @@ function PageFallback() {
 // fetch only suspends that page (not the whole shell) and always shows the
 // shared PageSkeleton fallback.
 
-// eslint-disable-next-line react-refresh/only-export-components
 function LazyRoute({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<PageSkeleton />}>{children}</Suspense>
 }
 
 // ─── Auth guard ───────────────────────────────────────────────────────────────
 
-// eslint-disable-next-line react-refresh/only-export-components
 function ProtectedLayout() {
   const { isAuthenticated, isLoading } = useAuth()
   if (isLoading) return null
@@ -613,7 +610,6 @@ export const PROTECTED_ROUTES = [
 // Single place where the unified error boundary is attached to a route.
 // Every route (top-level and protected children) goes through this helper so
 // the error strategy cannot drift between routes.
-// eslint-disable-next-line react-refresh/only-export-components
 export function withErrorBoundary<T extends { element?: React.ReactNode }>(
   route: T
 ): T & { errorElement: React.ReactNode } {

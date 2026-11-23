@@ -31,7 +31,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
  * useAuth — thin adapter over the auth store slice.
  * Returns the same shape as the original AuthContext.
  */
-// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthContextType {
   const { state, dispatch } = useAuthStore()
 
